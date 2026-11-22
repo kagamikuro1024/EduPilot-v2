@@ -19,14 +19,21 @@ import (
 const paraphrase = "Lần trước thầy dặn nộp cái gì đó mà em quên mất rồi"
 
 func routedAnalyzer(ctl *fake.Controller, tc agent.TrustedContext, gateOn bool) *agent.Analyzer {
+	a, _, _ := routedAnalyzerAudited(ctl, tc, gateOn)
+	return a
+}
+
+// routedAnalyzerAudited như routedAnalyzer, kèm Gateway + bộ gom llm_audit để kiểm `cascade_path` (US-DM-08 AC3 (e)).
+func routedAnalyzerAudited(ctl *fake.Controller, tc agent.TrustedContext, gateOn bool) (*agent.Analyzer, *llm.Gateway, *llmtest.Audit) {
 	det := &privacy.Detector{Roster: &privacy.Roster{Src: qcRoster{}}}
 	a := &agent.Analyzer{Classifier: &privacy.Classifier{Detector: det}, Detector: det, Self: qcSelf{}}
-	if gateOn {
-		a.Decider = llmtest.Gateway(ctl, tc.CourseID, llm.GateRouting)
-	} else {
-		a.Decider = llmtest.Gateway(ctl, tc.CourseID)
+	on := []llm.DecideGate{llm.GateRouting}
+	if !gateOn {
+		on = nil
 	}
-	return a
+	gw, audit := llmtest.GatewayAudited(ctl, tc.CourseID, on...)
+	a.Decider = gw
+	return a, gw, audit
 }
 
 func choice(label string, conf float64) fake.DecisionRecord {
@@ -46,24 +53,31 @@ func TestRouteDecisionTable(t *testing.T) {
 		want      agent.Intent
 		wantOther bool
 		wantCalls int64
+		wantPath  string // `cascade_path` của dòng llm_audit DECIDE; "" = không có dòng
 	}{
-		{"≥ τ → nhận nhãn", true, ptrRec(choice("UPCOMING_EVENTS", 0.97)), "", agent.IntentUpcoming, false, 1},
-		{"= τ → nhận nhãn", true, ptrRec(choice("PERSONAL_GRADE", 0.95)), "", agent.IntentGrade, false, 1},
-		{"dưới τ → giữ luật", true, ptrRec(choice("UPCOMING_EVENTS", 0.94)), "", agent.IntentCourseQA, false, 1},
-		{"đầu vào lạ (chia đều) → giữ luật", true, nil, "", agent.IntentCourseQA, false, 1},
-		{"decision lỗi → giữ luật", true, ptrRec(choice("UPCOMING_EVENTS", 0.99)), "error", agent.IntentCourseQA, false, 1},
-		{"decision treo → giữ luật", true, ptrRec(choice("UPCOMING_EVENTS", 0.99)), "timeout", agent.IntentCourseQA, false, 1},
-		{"OTHER_PERSON → đường từ chối", true, ptrRec(choice("OTHER_PERSON", 0.99)), "", agent.IntentOtherPerson, true, 1},
-		{"nhãn lạ (không trong 11 nhãn) → giữ luật", true, ptrRec(choice("CRISIS", 0.99)), "", agent.IntentCourseQA, false, 1},
-		{"cổng tắt ở lớp → không gọi", false, ptrRec(choice("UPCOMING_EVENTS", 0.99)), "", agent.IntentCourseQA, false, 0},
+		{"≥ τ → nhận nhãn", true, ptrRec(choice("UPCOMING_EVENTS", 0.97)), "", agent.IntentUpcoming, false, 1, "FAST"},
+		{"= τ → nhận nhãn", true, ptrRec(choice("PERSONAL_GRADE", 0.95)), "", agent.IntentGrade, false, 1, "FAST"},
+		{"dưới τ → giữ luật", true, ptrRec(choice("UPCOMING_EVENTS", 0.94)), "", agent.IntentCourseQA, false, 1, "FALLBACK"},
+		{"đầu vào lạ (chia đều) → giữ luật", true, nil, "", agent.IntentCourseQA, false, 1, "FALLBACK"},
+		{"decision lỗi → giữ luật", true, ptrRec(choice("UPCOMING_EVENTS", 0.99)), "error", agent.IntentCourseQA, false, 1, "FALLBACK"},
+		{"decision treo → giữ luật", true, ptrRec(choice("UPCOMING_EVENTS", 0.99)), "timeout", agent.IntentCourseQA, false, 1, "FALLBACK"},
+		{"OTHER_PERSON → đường từ chối", true, ptrRec(choice("OTHER_PERSON", 0.99)), "", agent.IntentOtherPerson, true, 1, "FAST"},
+		{"nhãn lạ (không trong 11 nhãn) → giữ luật", true, ptrRec(choice("CRISIS", 0.99)), "", agent.IntentCourseQA, false, 1, "FALLBACK"},
+		{"cổng tắt ở lớp → không gọi", false, ptrRec(choice("UPCOMING_EVENTS", 0.99)), "", agent.IntentCourseQA, false, 0, ""},
 	} {
 		t.Run(tc2.name, func(t *testing.T) {
 			ctl := fake.NewController(fake.Settings{DecisionMode: tc2.mode})
 			if tc2.rec != nil {
 				ctl.AddDecision(paraphrase, "intent", *tc2.rec)
 			}
-			got, err := routedAnalyzer(ctl, tc, tc2.on).Analyze(context.Background(), tc, paraphrase)
+			a, gw, audit := routedAnalyzerAudited(ctl, tc, tc2.on)
+			got, err := a.Analyze(context.Background(), tc, paraphrase)
 			require.NoError(t, err)
+			var wantPaths []string
+			if tc2.wantPath != "" {
+				wantPaths = []string{tc2.wantPath}
+			}
+			require.Equal(t, wantPaths, audit.DecidePaths(gw), "cascade_path ở llm_audit")
 			require.Equal(t, tc2.want, got.Intent)
 			require.Equal(t, tc2.wantOther, got.OtherPerson)
 			require.Equal(t, tc2.wantCalls, ctl.Decisions())
