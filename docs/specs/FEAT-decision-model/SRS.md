@@ -381,7 +381,7 @@ Dưới bảng 7 ngày: hàng = cổng; cột = số lời gọi, đường nhan
 | Go | `TestCrisisNeverReachesDecide` (chat, `internal/agent`) và `TestThreadsCrisisNeverReachesDecide` (Threads, `internal/thread`), `TestDecideCallersAllowlist` (`internal/llm`: chỉ `thread.CheckPublish`, `grading.flagInjectionDecision`, `agent.routeDecision`) | US-DM-09 |
 | Go | `internal/decision`: `TestDecisionAdminOnly` (RBAC), `TestDecisionOverviewAndGateUpdate` (seed, kiểm phiên bản `409`, khoảng, `audit_log`, làm mới ảnh chụp), `TestDecisionCourseGates` (hiệu lực, theo lớp, tìm + cursor), `TestDecisionObservability`, `TestDecisionFailClosedAlert`; `internal/llmconfig`: `TestDecisionSeed`, `TestDecisionProviderRules` | US-DM-02, 06, 07 |
 | Contract | `go test ./internal/contract/...` — gồm `TestDecisionProviderHTTP`, `TestDecisionProviderContract`, `TestDecisionReplayFile`, `TestCascadeThreadsHTTP` | SRS 6 |
-| E2E | `decision-settings.spec.ts` (bật cổng, theo lớp, khoá, hoàn tác, 403), `decision-observability.spec.ts`, `cascade.spec.ts` (provider giả: a–f ở US-DM-08 AC3) | US-DM-05…08 |
+| E2E | `decision-settings.spec.ts` (bật cổng, theo lớp, khoá, hoàn tác, 403), `decision-observability.spec.ts`, `cascade.spec.ts` (giao diện: hộp thoại chặn, «Đang kiểm tra»; sáu nhánh a–f ở US-DM-08 AC3 kiểm bằng Go + contract) | US-DM-05…08 |
 | Đo | `benchmarks/decision/run.sh` → `decision-before-after.{json,md,svg}`; lượt thật ≤ 300 lời gọi chỉ khi PM cho phép | US-DM-08 |
 
 **Quy trình đo trước / sau (US-DM-08 AC4).** Cùng seed, cùng máy, một stack, một lượt đo tại một thời điểm; provider giả có độ trễ 426 / 682 ms; sinh chữ qua 9router.
