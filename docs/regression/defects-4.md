@@ -69,3 +69,8 @@
 - Mức ảnh hưởng: chỉ cửa sổ ≤ 60 s sau lúc được gán lớp khi trang đã mở; tự khỏi. Gợi ý: vô hiệu `/me/courses` khi chuông nhận thông báo phân công. TC gốc (đăng nhập sau khi được gán) đạt.
 - Bằng chứng: evidence-4/logs/s4n-res/smkt3-bell.jsonl, logs/s4n-pw-s7bell.log.
 - **CHẠY LẠI P (qc2/S4X, 2026-11-21, ep-r @c12be038, sửa d1f278f4):** `smkt3-bell.spec.ts` 3/3 đạt (lượt s4x1). Ca A (trang GV2 đã mở sẵn, Admin gán lớp mới, bấm thông báo trong 60 s): chấm sau 0,0 s, pathname `/class/settings`, bộ chọn lớp «QC2IUAAMWQFQKHL · QC2IU AA» = lớp MỚI (trước sửa: lớp cũ), `/me/courses` gọi lại 2 lần sau lúc gán; ca A2 (chờ 65 s) và B (đăng nhập sau khi gán) vẫn đúng. TC-P208-34 = P → ĐÓNG. Bằng chứng evidence-4/logs/s4n-res/smkt3-bell.jsonl, logs/s4n-pw-s4x1.log.
+
+### DEF-Q2-DEV-01 — `pnpm dev` với EP_PORT_OFFSET: seed không nhận cổng mock-imap / mock-graph (Thấp)
+- Bước tái hiện: `EP_PORT_OFFSET=4100 SEED_ON_EMPTY_DB=true pnpm dev` → seed bước 19: «Dịch vụ mock-imap chưa sẵn sàng sau 60 s (http://localhost:8091/…)».
+- Nguyên nhân: scripts/dev.mjs:84 truyền cho seed API_URL và MAILPIT_URL nhưng không MOCK_IMAP_URL / MOCK_GRAPH_URL (hoặc EP_PORT_MOCK_*) nên seed dùng cổng mặc định 8091/8090.
+- Bằng chứng: evidence-2/fresh/timing-dev.log.

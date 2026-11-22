@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 547 · Đạt: 536 · Trượt: 3 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/0/0 · Chưa chạy (N): 2   (P+F+LT+K+N = T)
+Tổng TC cũ: 547 · Đạt: 536 · Trượt: 4 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/0/0 · Chưa chạy (N): 1   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-4/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 4`.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -21,7 +21,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | US-P2-09 | 54 | 53 | 1 | 0 | 0 | 0 | |
 | US-P2-10 | 40 | 40 | 0 | 0 | 0 | 0 | |
 | US-P2-11 | 44 | 43 | 0 | 1 | 0 | 0 | |
-| US-P2-12 | 27 | 24 | 1 | 1 | 0 | 1 | |
+| US-P2-12 | 27 | 24 | 2 | 1 | 0 | 0 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -550,7 +550,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P212-11 | P | go test ./internal/course -count=1 -json -v (HEAD 7c9f8b56): 5/5 test pass; log docs/regression/evidence-4/logs/smkT/ |
 | TC-P212-12 | P | sau seed đủ trên DB trống: đếm (users, enrollments, mail_outbox, notifications, class_sessions, courses) = 60/61/79/240/21/2; chạy lại seed (rc=0, 24 s, in «Đã tạo 0 lượt luyện mới») → 60/61/79/240/21/2; diff = «files are identical» (SAME). Log evidence-4/logs/qc2s/seed12.log |
 | TC-P212-13 | P | DB trống qc2i_seed, giới hạn đăng nhập nới như dev.mjs: ngắt bằng timeout 10 s, 30 s, 60 s (rc=124 mỗi lần, dừng ở bước 3–6) rồi chạy đủ: tiếp tục từ chỗ dở, rc=0, «Seed xong trong 752 s». Số liệu AC2: ADMIN 1, TEACHER 1, TA 1, STUDENT 57; lớp 761987 ACTIVE 30 + PENDING 1; lớp 761988 ACTIVE 24 + PENDING 3; 3 sinh viên học cả hai lớp; mã AN7K2MQ / BX4P9TW; buổi học 15 / 6. mail_outbox DEAD = 1: đó là mẫu cố ý của màn quan sát (to_addr khong-ton-tai@example.invalid, template seed_observability_failed, dedupe_key seed-obs-dead-mail), không phải do ngắt giữa chừng (không có DEAD nào sau ba lần ngắt). Log seed13.log. Ghi nhận: hai lần chạy đầu thất bại do hạ tầng QC (PGBOUNCER_URL, mạng judge, bucket) — đã sửa script qc2s-stack.sh, không phải lỗi sản phẩm |
-| TC-P212-14 | N | qc2 22/11: đo seed --if-empty trên DB trống qc2s = 516 s (rc=0) nhưng KHÔNG đúng điều kiện P-11-76 (máy không chạy stack khác): lúc đo ep-r và ep-qc đang chạy, qc3 có thể đang dùng; log evidence-8/logs/winD-seed1.log, winD-time.txt. Chờ cửa sổ SEED cuối do PM dừng các stack khác rồi đo lại (DEF-Q2-S4-01 giữ mở, chưa kết luận F) |
+| TC-P212-14 | F | qc2 22/11 ĐO ĐÚNG ĐIỀU KIỆN P-11-76 (ep-r + ep-qc đã docker stop, chỉ project qc2seedt, volume mới trống, image dựng sẵn; load trước đo ~6,6 do tiến trình khác của máy; evidence-2/fresh/timing-*.txt/log): pnpm dev (scripts/dev.mjs, SEED_ON_EMPTY_DB=true, cây qc2fresh @820a7bc1 — chưa có bb8b0766/eb9213a7) lên healthy 25 s (16:53:15→16:53:40); seed tự chạy từ 16:53:41. Bước 1–18 hết 254 s (16:53:41→16:57:55; bước 5 7 s, 6 25 s, 10 38 s, 11 docling 151 s, 12–13 22 s, 14 22 s); bước 19 lỗi vì dev.mjs với EP_PORT_OFFSET không truyền cổng mock-imap/graph cho seed (DEF-Q2-DEV-01) nên chạy tiếp bằng seed.mjs đúng URL: bước 19 78 s, bước 20 164 s, xong 17:03:27. Tổng seed ≈ 254 + 78 + 164 = 496 s > 360 s (AC7 theo P-11-76) → F. DEF-Q2-S4-01 giữ mở |
 | TC-P212-15 | P | APP_ENV=production → rc=1: Seed bị chặn: APP_ENV=production. Seed chỉ chạy ở môi trường dev / test. |
 | TC-P212-16 | P | seed.mjs không chứa secret/mật khẩu cứng |
 | TC-P212-17 | P | gateway phụ APP_ENV=production (DB riêng qc2i_s4prod, redis riêng, đã xoá sau đo): POST /admin/courses có join_code=ABCDEFG → 422 VALIDATION_FAILED details field=join_code code=NOT_ALLOWED «Không đặt được mã tham gia ở môi trường chạy thật.»; không join_code → 201 (mã sinh ERF36JM); đối chứng APP_ENV=test: join_code đặt tay → 201, DB join_code=ABCDEFG. evidence-4/logs/s4n-p21217.txt  |

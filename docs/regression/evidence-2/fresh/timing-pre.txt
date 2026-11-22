@@ -1,0 +1,5 @@
+load trước đo: load averages: 6.59 5.39 7.95  free: Mem:            9923        1261        3256         159        5802        8661
+edupilot-test-minio
+edupilot-test-redis
+edupilot-test-postgres
+load sau đo: load averages: 3.36 4.72 6.82
