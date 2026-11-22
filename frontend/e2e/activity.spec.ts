@@ -47,6 +47,11 @@ const quiet = async (page: Page, beats: Beat[], n: number) => {
   expect(beats.length).toBe(n);
 };
 
+/** Đồng hồ giả tiến theo bước 5 s: một bước dài làm Date.now() trong các bộ hẹn giờ không tiến (Playwright ≥ 1.65), nhịp bị MIN_GAP_MS nuốt (DEF-Q2-S8-04). */
+const advance = async (page: Page, ms: number) => {
+  for (let left = ms; left > 0; left -= 5_000) await page.clock.runFor(Math.min(5_000, left));
+};
+
 const hide = (page: Page, hidden: boolean) =>
   page.evaluate((h) => {
     Object.defineProperty(document, "visibilityState", { configurable: true, get: () => (h ? "hidden" : "visible") });
@@ -58,7 +63,7 @@ test("heartbeat hidden tab stops: ẩn tab → không nhịp nào; hiện lại 
   await page.clock.runFor(1_000);
   await settled(beats, 1);
   await hide(page, true);
-  await page.clock.runFor(150_000);
+  await advance(page, 150_000);
   await quiet(page, beats, 1);
   await hide(page, false);
   await page.keyboard.press("Shift");
@@ -68,18 +73,18 @@ test("heartbeat hidden tab stops: ẩn tab → không nhịp nào; hiện lại 
 
 test("heartbeat idle 2min stops: không thao tác 2 phút → ngừng; nhịp cuối trước mốc idle", async ({ page, context }) => {
   const beats = await open(page, context, "/threads");
-  await page.clock.runFor(130_000);
+  await advance(page, 130_000);
   await page.waitForTimeout(300);
   const atIdle = beats.length;
   expect(atIdle).toBeGreaterThanOrEqual(4);
   expect(atIdle).toBeLessThanOrEqual(5);
-  await page.clock.runFor(240_000);
+  await advance(page, 240_000);
   await quiet(page, beats, atIdle);
 });
 
 test("heartbeat resumes on input: nghỉ quá 2 phút rồi chạm / gõ → nhịp tiếp trong ≤ 1 s", async ({ page, context }) => {
   const beats = await open(page, context, "/library");
-  await page.clock.runFor(200_000);
+  await advance(page, 200_000);
   await page.waitForTimeout(300);
   const before = beats.length;
   await page.mouse.click(300, 300);
@@ -93,7 +98,7 @@ test("heartbeat cleanup on route change: rời khu vực đo → dọn bộ hẹ
   await settled(beats, 1);
   await page.locator("[data-part=sidebar]").getByRole("link", { name: "Hôm nay" }).first().click();
   await page.keyboard.press("Shift");
-  await page.clock.runFor(100_000);
+  await advance(page, 100_000);
   await quiet(page, beats, 1);
 });
 
@@ -103,7 +108,7 @@ test("heartbeat areas only: chỉ course_id, area, tab_id; area đúng khu vực
   for (const [path, area] of [["/threads", "THREADS"], ["/library", "LIBRARY"], ["/calendar", "CALENDAR"]] as const) {
     await page.locator("[data-part=sidebar]").locator(`a[href="${path}"]`).click();
     await page.keyboard.press("Shift");
-    await page.clock.runFor(31_000);
+    await advance(page, 31_000);
     await expect.poll(() => beats.at(-1)?.area, { message: path }).toBe(area);
   }
   for (const b of beats) {
@@ -117,11 +122,11 @@ test("heartbeat areas only: chỉ course_id, area, tab_id; area đúng khu vực
 
 test("heartbeat not on exam or me: /me, /exams, Hôm nay không gửi nhịp", async ({ page, context }) => {
   const beats = await open(page, context, "/me");
-  await page.clock.runFor(100_000);
+  await advance(page, 100_000);
   await page.goto("/exams");
-  await page.clock.runFor(100_000);
+  await advance(page, 100_000);
   await page.goto("/");
-  await page.clock.runFor(100_000);
+  await advance(page, 100_000);
   await page.waitForTimeout(300);
   expect(beats).toEqual([]);
 });
@@ -134,7 +139,7 @@ test("tracking notice first login: chưa Đã hiểu → hộp thoại, KHÔNG n
   await expect(dialog).toContainText("Không ghi nội dung bạn xem hay gõ.");
   await expect(dialog).toContainText("Giảng viên xem được; không dùng để tính điểm.");
   await expect(dialog).toContainText("Bạn có thể tắt ở Cài đặt.");
-  await page.clock.runFor(100_000);
+  await advance(page, 100_000);
   expect(beats).toEqual([]);
   const ack = page.waitForRequest((r) => r.url().endsWith("/me/tracking-notice/ack") && r.method() === "POST");
   await dialog.getByRole("button", { name: "Đã hiểu" }).click();
@@ -154,7 +159,7 @@ test("tracking notice optout line hidden when no class allows opt-out", async ({
 test("tracking notice not shown to staff: TA / giảng viên không hộp thoại, không nhịp", async ({ page, context }) => {
   for (const role of ["ta", "teacher"] as const) {
     const beats = await open(page, context, "/chat", { acked: false, role });
-    await page.clock.runFor(60_000);
+    await advance(page, 60_000);
     await expect(page.getByRole("dialog")).toHaveCount(0);
     expect(beats, role).toEqual([]);
     await context.clearCookies();

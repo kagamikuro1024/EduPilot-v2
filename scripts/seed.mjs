@@ -99,7 +99,9 @@ class ApiFail extends Error {
 
 /** Gọi API thật. Trả { status, body }. `ok` liệt kê các mã chấp nhận; mã khác ném ApiFail. 429 thử lại theo Retry-After (≤ 3 lần). */
 async function call(method, route, { token, json, form, key, ok = [200, 201, 202, 204] } = {}) {
+  let renewedOnce = false;
   for (let attempt = 0; ; attempt++) {
+    token = current(token);
     const headers = { Accept: "application/json", Origin: ORIGIN };
     if (token) headers.Authorization = `Bearer ${token}`;
     if (key) headers["Idempotency-Key"] = key.replace(/[^A-Za-z0-9._:-]/g, "-"); // khoá chỉ nhận [A-Za-z0-9._:-]
@@ -114,6 +116,7 @@ async function call(method, route, { token, json, form, key, ok = [200, 201, 202
       await sleep(Math.min(10, Number(body?.retry_after ?? res.headers.get("Retry-After") ?? 2)) * 1000);
       continue;
     }
+    if (res.status === 401 && body?.code === "TOKEN_EXPIRED" && !renewedOnce && (token = await renew(token))) { renewedOnce = true; continue; }
     if (!ok.includes(res.status)) throw new ApiFail(method, route, res.status, body);
     return { status: res.status, body, replayed: res.headers.get("Idempotent-Replayed") === "true" };
   }
@@ -121,7 +124,22 @@ async function call(method, route, { token, json, form, key, ok = [200, 201, 202
 
 async function login(email) {
   const r = await call("POST", "/auth/login", { json: { email, password: PASSWORD }, ok: [200, 401, 403, 423, 429] });
-  return r.status === 200 ? r.body : null;
+  if (r.status !== 200) return null;
+  owners.set(r.body.access_token, email);
+  return r.body;
+}
+
+// Token truy cập sống 15 phút mà một bước seed có thể dài hơn (docling lúc máy tải 938 s): hết hạn thì đăng nhập lại đúng tài khoản đó, thử lại một lần (DEF-Q2-S8-05).
+const owners = new Map(); // access token → email
+const renewed = new Map(); // token cũ → token mới
+const current = (t) => { while (renewed.has(t)) t = renewed.get(t); return t; };
+async function renew(old) {
+  const email = owners.get(old);
+  const s = email ? await login(email) : null;
+  if (!s) return null;
+  renewed.set(old, s.access_token);
+  for (const [k, v] of Object.entries(ctx.tokens)) if (v === old) ctx.tokens[k] = s.access_token;
+  return s.access_token;
 }
 
 // ---- Mailpit (chỉ để lấy liên kết từ thư) ----------------------------------------------------------------------------
@@ -588,7 +606,9 @@ async function takeAttempt(course, exam, who, plan) {
 
 /** như `call` nhưng có thêm header tuỳ ý (X-Exam-Tab). */
 async function callH(method, route, { token, json, key, headers = {}, ok = [200, 201, 202, 204] }) {
+  let renewedOnce = false;
   for (let attempt = 0; ; attempt++) {
+    token = current(token);
     const h = { Accept: "application/json", Origin: ORIGIN, Authorization: `Bearer ${token}`, ...headers };
     if (key) h["Idempotency-Key"] = key.replace(/[^A-Za-z0-9._:-]/g, "-");
     if (json !== undefined) h["Content-Type"] = "application/json";
@@ -598,6 +618,7 @@ async function callH(method, route, { token, json, key, headers = {}, ok = [200,
       await sleep(Math.min(20, Number(body?.retry_after ?? res.headers.get("Retry-After") ?? 2)) * 1000 + 200);
       continue;
     }
+    if (res.status === 401 && body?.code === "TOKEN_EXPIRED" && !renewedOnce && (token = await renew(token))) { renewedOnce = true; continue; }
     if (!ok.includes(res.status)) throw new ApiFail(method, route, res.status, body);
     return { status: res.status, body };
   }
