@@ -41,3 +41,11 @@
 - Thực tế: THREADS_PRECHECK đúng (0 DECIDE); CHAT_ROUTING vẫn 1 dòng DECIDE (ok, FALLBACK) ở chat sau +3 / +23 / +63 s; INJECTION_FLAG 1 dòng DECIDE ở lượt chấm.
 - Bằng chứng: `evidence-9s/s106/g105j.py`, `g105i.py`.
 - Trạng thái: ĐÓNG — P ở f26b15db (dev3 sửa Registry.build; g105i: 0 DECIDE ở cả 3 cổng)
+
+## DEF-R105S-04 — Thân gửi decision của cổng INJECTION_FLAG dài 16.001 ký tự (> 16.000)
+- Mức: Thấp · TC: TC-D04-07, TC-D09-05 · Mã: cbbea55a (ep-qc, máy chủ giả HTTP :9770)
+- Bước tái hiện: 1. ALLOW_REAL=true, `LLM_DECISION_BASE_URL` trỏ máy chủ giả, provider model gemini-decision-1, bật INJECTION_FLAG lớp QD9G. 2. Chấm bài nộp 40.000 ký tự (chèn lệnh ở vị trí 20.000; bài khác chèn ở đầu). 3. Đọc thân POST `/decisions` ở máy chủ giả.
+- Kỳ vọng (US-DM-04 AC4, TC): tối đa 16.000 ký tự = 8.000 đầu + 8.000 cuối.
+- Thực tế: `input` dài 16.001 ký tự (8.000 đầu + «\n» + 8.000 cuối; `llm/decide.go` `clip`: `r[:limit/2] + "\n" + r[len(r)-limit/2:]`). Đầu/cuối đúng, phần giữa (MIDMARK) không có trong thân, log, `llm_request_payloads` của DECIDE. Regex vẫn gắn cờ cả hai bài.
+- Bằng chứng: `evidence-9s/s106/g105h2_2b.py`.
+- Trạng thái: MỞ

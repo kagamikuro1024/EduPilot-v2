@@ -14,7 +14,7 @@ class H(http.server.BaseHTTPRequestHandler):
         try: body = json.loads(raw)
         except Exception: body = {"_raw": raw[:200].decode("utf8", "replace")}
         key = self.headers.get("x-goog-api-key") or ""
-        with open(W + "stub_dec_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "path": self.path, "key_present": bool(key), "key_is_test": key == "test-key", "auth_hdr": "Authorization" in self.headers, "key_in_url": "key=" in self.path, "mode": m.get("mode"), "body": body}, ensure_ascii=False) + "\n")
+        with open(W + "stub_dec_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "path": self.path, "key_present": bool(key), "key": key if key.startswith(("test-key", "qc-db-key")) else ("<khác>" if key else ""), "key_is_test": key == "test-key", "auth_hdr": "Authorization" in self.headers, "key_in_url": "key=" in self.path, "mode": m.get("mode"), "body": body}, ensure_ascii=False) + "\n")
         if m.get("delay_ms"): time.sleep(m["delay_ms"] / 1000)
         md = m.get("mode", "ok")
         def err(code, obj, extra=None):
