@@ -6,6 +6,7 @@ _tok = {}
 def raw(method, path, body=None, tok=None, hdr=None):
     h = {"content-type": "application/json", **(hdr or {})}
     if tok: h["authorization"] = "Bearer " + tok
+    if method == "POST" and "idempotency-key" not in h: import uuid; h["idempotency-key"] = str(uuid.uuid4())
     rq = urllib.request.Request(A + path, data=json.dumps(body).encode() if body is not None else None, method=method, headers=h)
     try:
         with urllib.request.urlopen(rq, context=CTX, timeout=60) as r: t = r.read().decode(); return r.status, (json.loads(t) if t else None), t
