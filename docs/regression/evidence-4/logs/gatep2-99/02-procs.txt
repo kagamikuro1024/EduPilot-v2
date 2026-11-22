@@ -1,0 +1,4 @@
+84446 node /Users/kuro/checkouts/qc2seedt3/frontend/node_modules/.bin/../../../node_modules/.pnpm/@playwright+test@1.63.0/node_modules/@playwright/tes
+84492 /opt/homebrew/Cellar/node@24/24.21.0/bin/node /Users/kuro/checkouts/qc2seedt3/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/w
+84493 /opt/homebrew/Cellar/node@24/24.21.0/bin/node /Users/kuro/checkouts/qc2seedt3/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/w
+84494 /opt/homebrew/Cellar/node@24/24.21.0/bin/node /Users/kuro/checkouts/qc2seedt3/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/w

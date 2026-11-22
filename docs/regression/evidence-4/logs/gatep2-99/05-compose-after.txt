@@ -1,0 +1,5 @@
+ep-r                exited(2), running(12)   /Users/kuro/Documents/TA_Agent_qc2/docker-compose.local.yml,/Users/kuro/Documents/TA_Agent_qc2/docker-compose.test.yml,/Users/kuro/Documents/TA_Agent_qc2/docs/regression/env/ep-r.seed.override.yml,/tmp/ep-r.seed.override.yml
+ep-sd               exited(14)               /Users/kuro/Documents/TA_Agent_qc2/docker-compose.local.yml
+qc2seedt2           exited(14)               /Users/kuro/checkouts/qc2seedt2/docker-compose.local.yml
+qc2seedt3           exited(1), running(13)   /Users/kuro/checkouts/qc2seedt3/docker-compose.local.yml
+smk91               exited(14)               /Users/kuro/Documents/TA_Agent_qc2/docker-compose.local.yml,/Users/kuro/Documents/TA_Agent_qc2/docker-compose.test.yml,/tmp/smk91.override.yml

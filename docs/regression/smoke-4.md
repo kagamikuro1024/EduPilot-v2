@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 547 · Đạt: 544 · Trượt: 0 · Lỗi thời (LT): 2 · Không kiểm được K (a/b/c): 0/0/0 · Chưa chạy (N): 1   (P+F+LT+K+N = T)
+Tổng TC cũ: 547 · Đạt: 545 · Trượt: 0 · Lỗi thời (LT): 2 · Không kiểm được K (a/b/c): 0/0/0 · Chưa chạy (N): 0   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-4/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 4`.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -9,7 +9,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | K | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GATE-P2 | 44 | 41 | 0 | 2 | 0 | 1 | |
+| GATE-P2 | 44 | 42 | 0 | 2 | 0 | 0 | |
 | US-P2-01 | 34 | 34 | 0 | 0 | 0 | 0 | |
 | US-P2-02 | 52 | 52 | 0 | 0 | 0 | 0 | |
 | US-P2-03 | 39 | 39 | 0 | 0 | 0 | 0 | |
@@ -69,7 +69,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-GATEP2-51 | P | ep-r: 14 lần sai, mỗi lần X-Forwarded-For khác → [401, 401, 401, 401, 401, 429, 429, 429, 429, 429, 429, 429, 429, 429]; đăng nhập ĐÚNG ngay sau → 429 RATE_LIMITED; DB failed_logins/locked 5/f (header giả vô tác dụng); các bước chờ tăng dần, khoá 15 phút (đo thật 899,8 s), IP chặn 40 lần, Admin cũng bị: ca nền TC-P205-01…19, P205-35, P205-36 đều P |
 | TC-GATEP2-52 | P | dry_run: {'ELF→.csv': 422, 'PNG→.csv': 422, 'zip bomb .xlsx': 422, 'rỗng': 422} (zip bomb 60 MB giải nén → 422 sau 0.0 s; gateway còn sống 200); tệp công thức =HYPERLINK / @SUM / +1+1: dry_run 200, nhập thật 200; tên lưu trong users: '+1+1' (lưu nguyên văn như chữ, không thực thi); ca nền TC-P210-03/04/36; ghi nhận DEF-R4-02 (.xlsx thực chất là văn bản được đọc như CSV, vẫn qua kiểm tra dòng: Thấp) không thuộc ca độc hại |
 | TC-GATEP2-53 | P | Quét lại log ep-r 2026-11-21 (logs/s4r-gate53-scan.txt): Caddy 0 dòng lộ /invite//join/token= sau bản sửa f5f8a8be (8 dòng khớp mẫu: 2 dòng Next-Url=/invite/<token>,/join/VFC45PW ngày 11-19 trước sửa; 6 dòng là /join?_rsc= không có mã); gateway/worker/redis/pgbouncer 0 dòng «Bearer eyJ»/password/token=; repo: chỉ .env.example được commit (ca 11-19); /join/<mã> ở đường dẫn Caddy: ghi nhận như TC gốc |
-| TC-GATEP2-99 | N | Dọn gate chỉ làm được khi mọi agent dừng và cần down -v/docker rm (không được phép ở lượt này). Chụp hiện trạng 2026-11-21 21:00 (logs/s4x/gate99-snapshot.txt): cây git không có sửa mã sản phẩm (chỉ docs/regression, benchmarks/reports), không tệp nhị phân > 5 MB, không container/DB của SmkT4N (s4n-*, qc2i_s4*); CÒN stack/DB của agent khác (qc2s-*, qc3s-*, ep-qc-*, edupilot-test-*, 60 container đã dừng, DB qc2*/qc3*/smkpr). qc2 chạy lại bash evidence-4/scripts/s4x-gate99.sh lúc cuối để ghi P/F. |
+| TC-GATEP2-99 | P | qc2 22/11 theo P-11-100: compose stop qc2seedt2 (+docling profile ingest); dừng + rm container qc2s-*, qc2seedt-*, qc2fresh-*, qc2i-* (không -v, không down -v); không còn tiến trình qc2; qc2seedt3/ep-r không đụng; git status sạch; volume qc2* + cỡ liệt kê ở evidence-4/logs/gatep2-99/ (03, 07, 04), chờ chủ dự án quyết xoá hay giữ |
 | TC-P201-01 | P | 00003 và 00004 áp dụng; phiên bản hiện tại 25 |
 | TC-P201-02 | P | 4 bảng 00004 có đủ; enum kind: VERIFY_EMAIL,RESET_PASSWORD,INVITE |
 | TC-P201-03 | P | git log --diff-filter=M trên 00001/00002 = rỗng (chỉ commit tạo: 240621b1 s1, 01242098 s2); git diff --stat origin/main = 0 dòng; sha256 aac87ca60f76b485 14c303b5ebcf21a0  |
