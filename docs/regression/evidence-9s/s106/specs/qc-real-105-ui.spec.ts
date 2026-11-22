@@ -157,3 +157,25 @@ test("D06-05-06-12", async ({ browser }) => {
   await page.reload(); await page.waitForTimeout(5000); const s4 = await st(); out.push(`provider tạm dừng (PUT ${rp.status()}): «${s4}»`);
   writeFileSync("/Users/kuro/.config/edupilot-team/qc3-work/d06.txt", out.join("\n")); await ctx.close();
 });
+
+test("D06-22", async ({ browser }) => {
+  const out: string[] = [];
+  for (const w of [1440, 375]) {
+    const { ctx, page } = await pageAs(browser, "admin"); await page.setViewportSize({ width: w, height: 900 }); await page.goto("/settings/llm"); await page.waitForTimeout(6000);
+    const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth })); const reds = await page.evaluate(() => { const r: Record<string, number> = {}; document.querySelectorAll("main *").forEach((e) => { const c = getComputedStyle(e as HTMLElement).color; if (/rgb\(\s*(1[89]\d|2\d\d),\s*(\d|[1-5]\d),\s*(\d|[1-7]\d)\)/.test(c) && (e as HTMLElement).children.length === 0 && (e.textContent || "").trim()) r[(e.textContent || "").trim().slice(0, 30)] = (r[(e.textContent || "").trim().slice(0, 30)] || 0) + 1; }); return r; });
+    out.push(`${w}px: tràn ngang ${ov.sw > ov.cw + 1} (${ov.sw}/${ov.cw}); chữ màu đỏ trong main: ${JSON.stringify(reds)}`);
+    if (w === 1440) { const stops: string[] = []; let noRing = 0; await page.keyboard.press("Tab"); for (let i = 0; i < 40; i++) { const info = await page.evaluate(() => { const e = document.activeElement as HTMLElement; if (!e) return null; const cs = getComputedStyle(e); return { t: (e.getAttribute("aria-label") || e.textContent || e.tagName).trim().slice(0, 24), ring: (cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0) || /rgb/.test(cs.boxShadow) }; }); if (!info) break; stops.push(info.t); if (!info.ring) noRing++; await page.keyboard.press("Tab"); } out.push(`phím Tab: ${stops.length} điểm dừng, không có viền focus: ${noRing}; đầu: ${JSON.stringify(stops.slice(0, 8))}`); }
+    await page.screenshot({ path: `${process.env.QC_SHOT || "/tmp"}/d06-22-${w}.png`, fullPage: true }).catch(() => {}); await ctx.close();
+  }
+  writeFileSync("/Users/kuro/.config/edupilot-team/qc3-work/d0622.txt", out.join("\n"));
+});
+
+test("D06-22b", async ({ browser }) => {
+  const out: string[] = [];
+  for (const w of [1440, 375]) {
+    const { ctx, page } = await pageAs(browser, "admin"); await page.setViewportSize({ width: w, height: 900 }); await page.goto("/settings/llm"); await page.waitForTimeout(6000);
+    const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth })); const cut = await page.evaluate(() => { const r: string[] = []; document.querySelectorAll("main *").forEach((e) => { const h = e as HTMLElement; if (h.children.length === 0 && h.scrollWidth > h.clientWidth + 1 && getComputedStyle(h).overflow !== "visible" && (h.textContent || "").length > 40) r.push((h.textContent || "").slice(0, 30)); const b = h.getBoundingClientRect(); if (b.right > window.innerWidth + 1 && b.width > 0) r.push("ngoài khung: " + (h.textContent || "").slice(0, 20)); }); return r.slice(0, 5); });
+    out.push(`${w}px: tràn ngang ${ov.sw > ov.cw + 1} (${ov.sw}/${ov.cw}); phần tử bị cắt/ngoài khung: ${JSON.stringify(cut)}`); await page.screenshot({ path: `${process.env.QC_SHOT || "/tmp"}/d06-22b-${w}.png`, fullPage: false }).catch(() => {}); await ctx.close();
+  }
+  writeFileSync("/Users/kuro/.config/edupilot-team/qc3-work/d0622b.txt", out.join("\n"));
+});

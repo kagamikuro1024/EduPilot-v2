@@ -50,10 +50,8 @@
 - Bằng chứng: `evidence-9s/s106/g105h2_2b.py`.
 - Trạng thái: ĐÓNG — P ở 1fdcda73 (thân đúng 16.000: 8.000 đầu + «\n» + 7.999 cuối)
 
-## DEF-R105S-05 — Seed chạy lại (lần hai) trên DB đã seed thoát 1 ở bước 16/20 sau vài chục phút (crm-risk-run WATCH 1 ≠ 3)
-- Mức: Trung bình · TC: TC-D08-03 (F), chặn TC-D08-02, TC-G10-03, TC-12-06, TC-P7-SEED-09/G06 (chạy seed lần hai) · Mã: 1fdcda73 (qc2seedt + qc2seedt2, DB mới seed 1 lần, cùng ngày 22/11)
-- Bước tái hiện: 1. DB mới seed xong lúc T0 (qc2seedt 09:53 UTC, qc2seedt2 10:12 UTC). 2. ≥ ~17–26 phút sau (cùng ngày, SEED_BASE_DATE mặc định): `API_URL=https://localhost:4643/api/v1 node scripts/check-decision-seed.mjs` (hoặc `node scripts/seed.mjs`).
-- Kỳ vọng (TC-D08-03, US-DM-08 AC1): mã 0; seed lần hai idempotent, hàng cấu hình decision không đổi.
-- Thực tế: seed thoát 1: `Seed lỗi: crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": crm-risk-run: AT_RISK 1, WATCH 1` ở bước 16 (seed.mjs `step15StudyTimeRisk`, `--now` theo `anchorNowIso(starts_at buổi 10, Date.now())`); lặp lại ở cả hai DB và cả ba lần chạy; hàng decision_gates / course_decision_gates / llm_providers / llm_models không đổi (diff trống). Seed lần hai chạy ngay sau lần đầu (qc2) thì qua → lỗi phụ thuộc thời điểm chạy lại. Bước bật cổng demo (SEED_DECISION_DEMO=1, sau bước 20) không tới được → TC-D08-02 N.
-- Bằng chứng: `~/.config/edupilot-team/qc3-work/seed_chk1.log`, `seed_before.txt` / `seed_after1.txt`.
-- Trạng thái: MỞ
+## DEF-R105S-05 — RÚT LẠI (lỗi môi trường của QC, không phải lỗi mã)
+- Nguyên nhân: shell của QC còn `COMPOSE_PROJECT_NAME=ep-qc`; `scripts/seed.mjs` / `check-decision-seed.mjs` chạy lệnh admin bước 16 (seed-study-time, seed-age --activity, seed-activity, crm-risk-run) bằng `docker compose exec gateway` của THƯ MỤC HIỆN HÀNH (SEED_ADMIN_CMD mặc định) → ghi vào DB ep-qc, trong khi API gọi qc2seedt / qc2seedt2. `crm-risk-run` tính trên dữ liệu ep-qc nên ra «AT_RISK 1, WATCH 1».
+- Hệ quả: TC-D08-03 chuyển F → N (lượt chạy vô hiệu); TC-D08-02 vẫn N. Chạy lại ở qc2seedt3 sau khi có `SEED_ADMIN_CMD` tường minh.
+- Ghi chú ep-qc: lệnh admin đã ghi vào lớp 761987 / 761988 của ep-qc (số dòng đã báo PM). question_bank 761987 vẫn 150 PENDING / 107 APPROVED (E5 nguyên).
+- Trạng thái: ĐÓNG (không phải lỗi sản phẩm)
