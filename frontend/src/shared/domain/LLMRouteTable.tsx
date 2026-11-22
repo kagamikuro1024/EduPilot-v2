@@ -75,7 +75,7 @@ export function LLMRouteTable({
               )}
             </Select>
             {onToggleAdvanced && (
-              <Button variant="text" size="sm" aria-expanded={openTask === r.task} disabled={disabled} onClick={() => onToggleAdvanced(r.task)}>
+              <Button variant="ghost" size="sm" aria-expanded={openTask === r.task} disabled={disabled} onClick={() => onToggleAdvanced(r.task)}>
                 Cài đặt nâng cao
               </Button>
             )}
