@@ -1,0 +1,7 @@
+STUBS and [stop(p) for p in STUBS]; STUBS.clear()
+gate("THREADS_PRECHECK", True, [C]); redis_del("ep:llm:cb:*"); redis_del("ep:decision:real:*")
+sql(f"UPDATE llm_providers SET api_key_enc=NULL WHERE id='{PID}'"); print("dprov key", dprov("gemini-decision-1", key="qc-db-key")[0]); time.sleep(5)
+ov = api("admin", "GET", "/admin/llm/decision")[1]; print("provider:", ov["provider"], "gates:", [(g["gate"], g["enabled"]) for g in ov["gates"]], flush=True)
+print("gates lớp:", api("admin", "GET", f"/courses/{C}/decision-gates")[1], flush=True)
+s = now(); c, j, ms = post("sv.kha", C, ("QC105 chẩn đoán " + str(time.time()), "Mình hỏi hạn nộp bài tập tuần này và cách nộp qua hệ thống ạ?")); print("post", c, round(ms)); print("DECIDE:", sql(f"select cascade_gate, cascade_path, status, error_kind from llm_audit where task='DECIDE' and created_at>='{s}'"), flush=True)
+sql(f"UPDATE llm_providers SET api_key_enc=NULL WHERE id='{PID}'")

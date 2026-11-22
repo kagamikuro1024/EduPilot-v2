@@ -54,6 +54,7 @@
 - Nguyên nhân: shell của QC còn `COMPOSE_PROJECT_NAME=ep-qc`; `scripts/seed.mjs` / `check-decision-seed.mjs` chạy lệnh admin bước 16 (seed-study-time, seed-age --activity, seed-activity, crm-risk-run) bằng `docker compose exec gateway` của THƯ MỤC HIỆN HÀNH (SEED_ADMIN_CMD mặc định) → ghi vào DB ep-qc, trong khi API gọi qc2seedt / qc2seedt2. `crm-risk-run` tính trên dữ liệu ep-qc nên ra «AT_RISK 1, WATCH 1».
 - Hệ quả: TC-D08-03 chuyển F → N (lượt chạy vô hiệu); TC-D08-02 vẫn N. Chạy lại ở qc2seedt3 sau khi có `SEED_ADMIN_CMD` tường minh.
 - Ghi chú ep-qc: lệnh admin đã ghi vào lớp 761987 / 761988 của ep-qc (số dòng đã báo PM). question_bank 761987 vẫn 150 PENDING / 107 APPROVED (E5 nguyên).
+- Kiểm chốt chặn của dev3 (49ebd12a, chạy 1 lần theo PM): `seed.mjs` với API_URL=qc2seedt3 và SEED_ADMIN_CMD cố ý trỏ project qc2seedt2 → thoát 2 sau bước 3/20, in «Seed dừng: Lệnh admin ghi vào DB KHÁC với API_URL … lớp 761987 qua API = 01a20315…, qua lệnh admin = 01a202be…»; trước/sau: qc2seedt2 student_risk max(computed_at) 10:20:24.834Z, 54 dòng, outbox 1.297 dòng — không đổi; qc2seedt3 student_risk không đổi. Chốt chặn hoạt động.
 - Trạng thái: ĐÓNG (không phải lỗi sản phẩm)
 
 ## DEF-R105S-06 — /settings/llm: 8 chữ đỏ cùng lúc, liên kết «Cài đặt nâng cao» đỏ ở bảng tác vụ nhưng xám ở khối «Quyết định nhanh» (DESIGN §22 đạt 6/10)
