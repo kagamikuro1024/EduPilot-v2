@@ -48,15 +48,16 @@ func TestInjectionOR(t *testing.T) {
 		short     bool
 		wantFlag  bool
 		wantDec   int64
-		wantInSch bool // prompt / schema có chỗ cho INJECTION_SUSPECTED
+		wantInSch bool   // prompt / schema có chỗ cho INJECTION_SUSPECTED
+		wantPath  string // `cascade_path` của dòng llm_audit DECIDE (US-DM-08 AC3 (d)); "" = không có dòng
 	}{
-		{"cổng tắt: không tầng nào thêm", false, &yes, "", true, false, false, 0, false},
-		{"decision có → cờ", true, &yes, "", false, false, true, 1, true},
-		{"Structured báo → cờ (decision lưỡng lự)", true, nil, "", true, false, true, 1, true},
-		{"decision lỗi, Structured báo → cờ (tầng vắng)", true, nil, "error", true, false, true, 1, true},
-		{"decision lỗi, Structured không → không cờ, chấm vẫn xong", true, nil, "error", false, false, false, 1, true},
-		{"không tầng nào → không cờ", true, nil, "", false, false, false, 1, true},
-		{"bài < 20 từ: không decision, không Structured gắn cờ", true, &yes, "", true, true, false, 0, false},
+		{"cổng tắt: không tầng nào thêm", false, &yes, "", true, false, false, 0, false, ""},
+		{"decision có → cờ", true, &yes, "", false, false, true, 1, true, "FAST"},
+		{"Structured báo → cờ (decision lưỡng lự)", true, nil, "", true, false, true, 1, true, "FALLBACK"},
+		{"decision lỗi, Structured báo → cờ (tầng vắng)", true, nil, "error", true, false, true, 1, true, "FALLBACK"},
+		{"decision lỗi, Structured không → không cờ, chấm vẫn xong", true, nil, "error", false, false, false, 1, true, "FALLBACK"},
+		{"không tầng nào → không cờ", true, nil, "", false, false, false, 1, true, "FALLBACK"},
+		{"bài < 20 từ: không decision, không Structured gắn cờ", true, &yes, "", true, true, false, 0, false, ""},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			content := text
@@ -82,11 +83,12 @@ func TestInjectionOR(t *testing.T) {
 			if tc.decision != nil {
 				ctl.AddDecision(cl, "grader_instruction", fake.DecisionRecord{Noul: tc.decision})
 			}
-			if tc.gateOn {
-				g.grader.Decide = llmtest.Gateway(ctl, g.course, llm.GateInjection)
-			} else {
-				g.grader.Decide = llmtest.Gateway(ctl, g.course) // có provider nhưng lớp chưa bật
+			on := []llm.DecideGate{llm.GateInjection}
+			if !tc.gateOn {
+				on = nil // có provider nhưng lớp chưa bật
 			}
+			gw, audit := llmtest.GatewayAudited(ctl, g.course, on...)
+			g.grader.Decide = gw
 			res := g.submit("SV", "bai.md", content, nil)
 			out, err := g.grader.Run(t.Context(), g.course, res)
 			require.NoError(t, err)
@@ -94,6 +96,11 @@ func TestInjectionOR(t *testing.T) {
 			_, _, flags, total, _, _, _ := g.row(res)
 			require.Equal(t, tc.wantFlag, containsStr(flags, "INJECTION_SUSPECTED"), "flags=%v", flags)
 			require.Equal(t, tc.wantDec, ctl.Decisions())
+			var wantPaths []string
+			if tc.wantPath != "" {
+				wantPaths = []string{tc.wantPath}
+			}
+			require.Equal(t, wantPaths, audit.DecidePaths(gw), "cascade_path ở llm_audit")
 			prompts := strings.Join(g.prompts, "\n")
 			require.Equal(t, tc.wantInSch, strings.Contains(prompts, "INJECTION_SUSPECTED"), "prompt chấm chỉ có luật cờ khi cổng hiệu lực và bài ≥ 20 từ")
 			if !tc.short {

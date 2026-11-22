@@ -2,6 +2,10 @@
 package llmtest
 
 import (
+	"context"
+	"io"
+	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,6 +24,42 @@ var Defaults = map[llm.DecideGate]llm.GateCfg{ //nolint:gochecknoglobals // bả
 // Gateway dựng Gateway (không che, không audit, không Scheduler) với provider decision giả của `ctl`; các cổng trong `on` bật cho `course`.
 // Cổng không nằm trong `on` vẫn bật ở mức hệ thống nhưng lớp chưa bật → không hiệu lực.
 func Gateway(ctl *fake.Controller, course uuid.UUID, on ...llm.DecideGate) *llm.Gateway {
+	return build(ctl, course, nil, on)
+}
+
+// Audit gom các dòng llm_audit mà Gateway của GatewayAudited ghi (không DB).
+type Audit struct {
+	mu   sync.Mutex
+	rows []llm.AuditRow
+}
+
+// DecidePaths trả `cascade_path` của mọi dòng DECIDE đã ghi, theo thứ tự (chờ lô nền ghi xong trước).
+func (a *Audit) DecidePaths(g *llm.Gateway) []string {
+	g.FlushAudit(context.Background())
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	var out []string
+	for _, r := range a.rows {
+		if r.Task == "DECIDE" {
+			out = append(out, r.CascadePath)
+		}
+	}
+	return out
+}
+
+// GatewayAudited như Gateway nhưng có Auditor trong bộ nhớ để test kiểm `cascade_path` từng nhánh (US-DM-08 AC3).
+func GatewayAudited(ctl *fake.Controller, course uuid.UUID, on ...llm.DecideGate) (*llm.Gateway, *Audit) {
+	a := &Audit{}
+	aud := llm.NewAuditor(context.Background(), func(_ context.Context, rows []llm.AuditRow) error {
+		a.mu.Lock()
+		a.rows = append(a.rows, rows...)
+		a.mu.Unlock()
+		return nil
+	}, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	return build(ctl, course, aud, on), a
+}
+
+func build(ctl *fake.Controller, course uuid.UUID, aud *llm.Auditor, on []llm.DecideGate) *llm.Gateway {
 	reg := llm.NewStaticRegistry(map[llm.Task]llm.Route{})
 	reg.SetDecide(&llm.Target{ProviderID: "dec", ProviderName: "Quyết định", Type: "decision", Model: llm.FakeDecisionModel,
 		RPM: 100_000, TPM: 100_000_000, P: fake.NewNamed(ctl, "dec", "")})
@@ -33,5 +73,5 @@ func Gateway(ctl *fake.Controller, course uuid.UUID, on ...llm.DecideGate) *llm.
 		cfg.Courses[g][course] = struct{}{}
 	}
 	snap.Set(cfg)
-	return llm.New(llm.Options{NoMask: true, Registry: reg, Decision: snap})
+	return llm.New(llm.Options{NoMask: true, Registry: reg, Decision: snap, Auditor: aud})
 }
