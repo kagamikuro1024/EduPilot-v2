@@ -86,3 +86,6 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - DEF-R4-09 (9754c523, gochecknoglobals extract.go): ĐÓNG — golangci-lint run rc=0, go vet rc=0, ./internal/today -race ok (lượt 2), ./internal/integration ok (TC-P211-44 P; evidence-4/logs/lint-gate.log).
 - DEF-Q2-S8-03 (674f9779, seed khi gateway tắt): ĐÓNG — TC-P6-SEED-35 P: lỗi «Gateway <API_URL> chưa sẵn sàng (ECONNREFUSED)…» rc=1 sau 1 s; bật lại rc=0 (evidence-8/logs/seed35b-*.log).
 - DEF-R105S-02 (af07726d, run.py đường «thật»): ĐÓNG — TC-D08-14 P: LLM_DECISION_ALLOW_REAL=true + --real, trần 300; test_real.py 3 ca OK (chưa chạy lượt thật: chưa có phép PM).
+
+- DEF-Q2-S4-01 (seed > 360 s): ĐÓNG 22/11 bởi f473c2ff; đo lại 281 s @6b3678c4 (evidence-2/fresh/seedt2/).
+- DEF-Q2-DEV-01 (dev.mjs không truyền cổng mock với EP_PORT_OFFSET): ĐÓNG 22/11 bởi d9f244a5; bước 19/20 qua dev.mjs không lỗi (seedt2/dev.log).

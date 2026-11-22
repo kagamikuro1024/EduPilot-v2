@@ -1,0 +1,10 @@
+sha: 6b3678c4
+load: load averages: 5.48 5.74 6.02
+Mem:            9923        1268        2797         159        6223        8654
+ep-qc-worker-1
+ep-qc-gateway-1
+edupilot-test-minio
+edupilot-test-redis
+edupilot-test-postgres
+ghi chú: ep-qc-gateway-1/worker-1 chạy lúc đầu do restart=on-failure (RestartCount=2), PM docker update --restart=no + stop trong lúc đo; edupilot-test-* của người khác (minio ~13% CPU) giữ nguyên
+load sau: load averages: 5.56 6.28 6.25
