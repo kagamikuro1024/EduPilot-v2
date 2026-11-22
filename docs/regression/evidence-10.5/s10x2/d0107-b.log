@@ -1,0 +1,1 @@
+P TC-D01-07b error_rate=0,5, 320 bài đăng nhịp 1,6/s: llm_audit 256 dòng {('ok', ''): 103, ('error', 'SERVER'): 107, ('circuit_open', 'circuit_open'): 46}; lời gọi thực 210 (ok 103, error 107) tỉ lệ lỗi 0.510 (kỳ vọng 0,4–0,6); lời gọi tới provider giả (stats.fake_decisions) 0; cấu hình cuối env

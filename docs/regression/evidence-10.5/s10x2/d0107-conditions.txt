@@ -1,0 +1,34 @@
+11:08Z khung yên: 18:08:58 load average: 3.45, 4.51, 4.82
+Mem:            9923        4486        2165         291        3768        5436
+      1 edupilot-test-minio
+      1 edupilot-test-postgres
+      1 edupilot-test-redis
+      1 qc2s-mail
+      1 qc2s-redis
+      1 qc2seedt2-caddy
+      1 qc2seedt2-docling
+      1 qc2seedt2-frontend
+      1 qc2seedt2-gateway
+      1 qc2seedt2-judge
+      1 qc2seedt2-mailpit
+      1 qc2seedt2-minio
+      1 qc2seedt2-mock-graph
+      1 qc2seedt2-mock-imap
+      1 qc2seedt2-pgbouncer
+      1 qc2seedt2-postgres
+      1 qc2seedt2-redis
+      1 qc2seedt2-worker
+      1 qc2seedt3-caddy
+      1 qc2seedt3-docling
+      1 qc2seedt3-frontend
+      1 qc2seedt3-gateway
+      1 qc2seedt3-judge
+      1 qc2seedt3-mailpit
+      1 qc2seedt3-minio
+      1 qc2seedt3-mock-graph
+      1 qc2seedt3-mock-imap
+      1 qc2seedt3-pgbouncer
+      1 qc2seedt3-postgres
+      1 qc2seedt3-redis
+qc2seedt3-caddy-1 qc2seedt3-gateway-1 qc2seedt3-worker-1 qc2seedt3-pgbouncer-1 qc2seedt3-redis-1 qc2seedt3-docling-1 qc2seedt3-postgres-1 qc2seedt3-judge-1 qc2seedt3-mock-imap-1 qc2seedt3-mock-graph-1 qc2seedt3-minio-1 qc2seedt3-frontend-1 qc2seedt3-mailpit-1 qc2s-mail qc2s-redis b dừng ở 18:14:44 vì hết khung yên 5 phút
+== b chạy lại 18:15:24 máy bình thường load average: 3.44, 3.64, 4.26

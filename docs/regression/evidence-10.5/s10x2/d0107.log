@@ -1,0 +1,7 @@
+== a 18:09:03 load averages: 3.42 4.49 4.81
+P TC-D01-07a cấu hình P50=100/P95=150, 200 lời gọi (nhịp 1,6/s): llm_audit 201 dòng {'ok': 201}; latency_ms p50=101 p95=153 (±20 %: 80–120 / 120–180); HTTP [201, 403]
+== c 18:12:29 load averages: 3.89 4.00 4.51
+F TC-D01-07c mặc định (p50/p95 = 426/682, lỗi 0): 120 lời gọi → {'ok': 94, 'timeout': 2}; latency_ms p50=431 p95=687 (kỳ vọng ≈426 / ≈682 ±20 %)
+== b 18:14:27 load averages: 3.00 3.65 4.31
+d0107-run.sh: line 2: 53107 Terminated: 15          timeout 900 python3 d0107.py $ph
+FIN
