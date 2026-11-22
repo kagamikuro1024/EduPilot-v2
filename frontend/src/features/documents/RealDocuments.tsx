@@ -39,6 +39,14 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
 
   const rows = useMemo(() => list.items.map((d) => ({ ...d, ...patched[d.id] })), [list.items, patched]);
 
+  // DEF-R6-U11: còn hàng QUEUED / PROCESSING (kể cả do nơi khác tải lên) → lấy lại 5 s một lần khi tab đang hiện; xong hết thì dừng.
+  const busy = rows.some((d) => d.status === "QUEUED" || d.status === "PROCESSING");
+  useEffect(() => {
+    if (!busy) return;
+    const t = setInterval(() => { if (document.visibilityState === "visible") refresh(); }, 5000);
+    return () => clearInterval(t);
+  }, [busy, refresh]);
+
   // ---- tải lên: tối đa 3 tệp song song --------------------------------------------------------------------------------------------------------
   const set = (key: string, p: Partial<Upload>) => setUploads((u) => u.map((x) => (x.key === key ? { ...x, ...p } : x)));
   const run = useCallback(
