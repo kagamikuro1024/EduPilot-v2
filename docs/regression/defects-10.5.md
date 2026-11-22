@@ -49,3 +49,11 @@
 - Thực tế: `input` dài 16.001 ký tự (8.000 đầu + «\n» + 8.000 cuối; `llm/decide.go` `clip`: `r[:limit/2] + "\n" + r[len(r)-limit/2:]`). Đầu/cuối đúng, phần giữa (MIDMARK) không có trong thân, log, `llm_request_payloads` của DECIDE. Regex vẫn gắn cờ cả hai bài.
 - Bằng chứng: `evidence-9s/s106/g105h2_2b.py`.
 - Trạng thái: ĐÓNG — P ở 1fdcda73 (thân đúng 16.000: 8.000 đầu + «\n» + 7.999 cuối)
+
+## DEF-R105S-05 — Seed chạy lại (lần hai) trên DB đã seed thoát 1 ở bước 16/20 sau vài chục phút (crm-risk-run WATCH 1 ≠ 3)
+- Mức: Trung bình · TC: TC-D08-03 (F), chặn TC-D08-02, TC-G10-03, TC-12-06, TC-P7-SEED-09/G06 (chạy seed lần hai) · Mã: 1fdcda73 (qc2seedt + qc2seedt2, DB mới seed 1 lần, cùng ngày 22/11)
+- Bước tái hiện: 1. DB mới seed xong lúc T0 (qc2seedt 09:53 UTC, qc2seedt2 10:12 UTC). 2. ≥ ~17–26 phút sau (cùng ngày, SEED_BASE_DATE mặc định): `API_URL=https://localhost:4643/api/v1 node scripts/check-decision-seed.mjs` (hoặc `node scripts/seed.mjs`).
+- Kỳ vọng (TC-D08-03, US-DM-08 AC1): mã 0; seed lần hai idempotent, hàng cấu hình decision không đổi.
+- Thực tế: seed thoát 1: `Seed lỗi: crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": crm-risk-run: AT_RISK 1, WATCH 1` ở bước 16 (seed.mjs `step15StudyTimeRisk`, `--now` theo `anchorNowIso(starts_at buổi 10, Date.now())`); lặp lại ở cả hai DB và cả ba lần chạy; hàng decision_gates / course_decision_gates / llm_providers / llm_models không đổi (diff trống). Seed lần hai chạy ngay sau lần đầu (qc2) thì qua → lỗi phụ thuộc thời điểm chạy lại. Bước bật cổng demo (SEED_DECISION_DEMO=1, sau bước 20) không tới được → TC-D08-02 N.
+- Bằng chứng: `~/.config/edupilot-team/qc3-work/seed_chk1.log`, `seed_before.txt` / `seed_after1.txt`.
+- Trạng thái: MỞ
