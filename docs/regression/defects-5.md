@@ -102,7 +102,7 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Tái hiện (qc3s, DB đã seed): `node scripts/seed.mjs` lần 2, 3, 4 → «Seed xong trong 25 s.» (không có dòng «Seed xong (không đổi)»). Đếm dòng 85 bảng trước/sau: nghiệp vụ không đổi (users, courses, exams, question_bank, exam_attempts, code_submissions, forum_threads; Mailpit 168 = 168), chỉ tăng phiên đăng nhập / outbox / audit do chính seed đăng nhập.
 - Nguyên nhân (bằng cách gắn dò vào bản sao seed.mjs): `ctx.changed = true` ở `seedThreads` (scripts/seed.mjs:1010): thread mẫu «Modern Network Security Threats» không khớp danh sách thread hiện có (11 thread thấy được, thread «· Phisher» bị ẩn ở bước 18) nên bị POST lại; Idempotency-Key trả dòng cũ nên không tạo thêm. Log: `evidence-5/logs-r3/pe09-12-*`.
 
-### DEF-R5-16 — [F: cửa sổ SEED 2026-11-22 trên máy rảnh = ≈ 496 s (8,3 phút) > 360 s; chia: bước 20 = 164 s, bước 11 = 151 s, bước 19 = 78 s, bước 1–10 = 74 s] Seed trên DB trống mất 652 s, trần ≤ 6 phút (TC-PE09-13)
+### DEF-R5-16 — [ĐÓNG 2026-11-22: sửa f473c2ff (cùng gốc DEF-Q2-S4-01); đo lại qc2seedt2 @6b3678c4: seed 281 s ≤ 360 s; TC-PE09-13 P] Seed trên DB trống mất 652 s, trần ≤ 6 phút (TC-PE09-13)
 - Mức: Thấp (cùng nhóm DEF-Q2-S4-01 / DEF-R4-08) · Sprint gốc: 5 (US-PE-09 AC5, ngân sách đổi ≤ 6 phút theo P-11-76) · Hồi quy: có thể do máy chung
 - qc3s `up` → `seed`: «Seed xong trong 652 s» (log `evidence-5/logs-r3/seed3.log`, `seed-t0-clean.json`): bước 11 tài liệu docling thật 241 s, bước 20 luyện đề 204 s, bước 19 78 s, bước 10 (PE) 40 s; P2 + PE (bước 1–10) = 91 s. Máy chung tải 9–14 (không đạt «máy không chạy stack khác»; PM đo 314 s ngày 13/11). Cần đo lại trên máy trống; phần dài là các bước thêm sau sprint 5 (11, 19, 20).
 
