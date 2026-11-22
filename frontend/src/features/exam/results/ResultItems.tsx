@@ -99,7 +99,7 @@ function CodeResult({ it }: { it: ResultItem }) {
       {f && !f.compile_ok && (
         <div>
           <p className={s.label}>Chưa biên dịch được</p>
-          {it.compile_log && <pre className={s.pre}>{it.compile_log}</pre>}
+          {it.compile_log && <pre className={s.pre} tabIndex={0} aria-label="Thông báo biên dịch">{it.compile_log}</pre>}
         </div>
       )}
       {it.samples.length > 0 && (
@@ -121,7 +121,7 @@ function CodeResult({ it }: { it: ResultItem }) {
       {f && (
         <details className={s.src}>
           <summary>Mã của bạn ({f.language})</summary>
-          <pre className={s.pre}>{f.source}</pre>
+          <pre className={s.pre} tabIndex={0} aria-label="Mã của bạn">{f.source}</pre>
         </details>
       )}
     </div>
