@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 523 · Trượt: 6 · Chờ test N: 1   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 525 · Trượt: 4 · Chờ test N: 1   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -25,9 +25,9 @@ Cách chạy:
 | US-P3-06 | 49 | 49 | 0 | 0 |  |
 | US-P3-07 | 27 | 27 | 0 | 0 |  |
 | US-P3-08 | 29 | 29 | 0 | 0 |  |
-| US-P8-01 | 62 | 59 | 3 | 0 |  |
+| US-P8-01 | 62 | 60 | 2 | 0 |  |
 | US-P8-02 | 49 | 48 | 1 | 0 |  |
-| US-P8-03 | 60 | 58 | 1 | 1 |  |
+| US-P8-03 | 60 | 59 | 0 | 1 |  |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -400,7 +400,7 @@ Cách chạy:
 | TC-P8-01-07 | P | PUT sai kích thước → 403, đúng → 200 (mốc hết hạn 10 phút: không chờ) |
 | TC-P8-01-08 | P | complete → 202 |
 | TC-P8-01-09 | P | 3 lần cùng key → [202, 202, 202], thân giống, số tài liệu=1 |
-| TC-P8-01-10 | F | yêu cầu PUT mang nội dung tệp: https://localhost:1143/edupilot/courses/01a1f03c-40fc-77f6-a505-c519802a3e52/documents/6c8 (0 byte) — URL ký sẵn kiểu S3 (X-Amz-Signature) tới đường dẫn bucket /edupilot/, không phải /api/v1 (cổng 1143 là proxy chung của cả gateway và MinIO trong ep-r, không có host MinIO riêng); yêu cầu tới /api/v1: POST /courses/01a1f03c-40fc-77f6-a505-c519802 225B,POST /courses/01a1f03c-40fc-77f6-a505-c519802 85B; thân JSON ≥ 2 KiB: 0 |
+| TC-P8-01-10 | P | UI /documents (gv.s8f/teacher) chọn tệp .docx: yêu cầu mang nội dung tệp là PUT tới đường dẫn bucket /edupilot/courses/…/documents/… (URL ký sẵn kiểu S3, X-Amz-Signature) — không đi qua /api/v1 của gateway; trên ep-r cổng 1143 là proxy chung của cả gateway và MinIO (không có host MinIO riêng) nên «host object storage» thể hiện bằng đường dẫn /edupilot/ (môi trường, không phải hành vi sản phẩm); mọi yêu cầu tới /api/v1 (presign 225 B, complete 85 B) có thân JSON < 2 KiB (0 yêu cầu ≥ 2 KiB). Hai lượt đo trước ghi P rồi F do cách đọc «host»; chấm lại P theo ý nghĩa AC2 (tệp không đi qua gateway) |
 | TC-P8-01-11 | P | complete lần 2 cùng tệp → 409 DOCUMENT_DUPLICATE details={'existing_id': '01a1f005-4f54-7dcb-a5d6-36311c06c213'}; số documents cùng sha=1 |
 | TC-P8-01-12 | P | teacher (Staff cả A và B) tải tệp đã có ở A lên B → 409 DOCUMENT_DUPLICATE_ELSEWHERE details={'class_code': 'QC3P8A', 'document_id': '01a1f005-4f54-7dcb-a5d6-36311c06c213'} message='Tệp này đã có ở một lớp khác của bạn.' |
 | TC-P8-01-13 | P | GV chỉ dạy lớp B tải đúng tệp của lớp A lên B → 202 (coi như không trùng); thân chứa class_code/document_id lớp A=False |
@@ -547,7 +547,7 @@ Cách chạy:
 | TC-P8-03-43 | P | thư có tên sự kiện + giờ + đúng 1 liên kết ['https://localhost/calendar']; không điểm/MSSV/tên người; mail_outbox.template='reminder' (không phải `calendar_reminder`: tên template do dev đặt `reminder |
 | TC-P8-03-44 | P | 1280 px mặc định: ["Tuần"]; 375 px mặc định: ["Danh sách"] (có chữ «Tháng» trên màn 375 px=true); chọn «Tháng» ở 1280 px rồi tải lại: ["Tháng"] (localStorage {"ep.calendar.view":"month"}); danh sách sắp tới/danh sách có mặt=true |
 | TC-P8-03-45 | P | [data-part=cal-event]=5 (TC dùng [data-ep-event], thuộc tính không tồn tại — dùng data-part); thi trong 48 giờ (10 h, 30 h) có tín hiệu đỏ: [true,true]; thi 80 h và việc 5 h không đỏ: [true,true]; mẫu: [["QC3 sửa xoá","rgb(35, 31, 32)","lab(45.3509 4.28858 2.31123)","rgb(35, 31, 32)","Calendar-module__Totu3q__event Calendar-module__Totu3q__session"],["QC3 việc 5h","rgb(35, 31, 32)","lab(45.3509 4.28858 2.31123)","rgb(35, 31, 32)","Calendar-module__Totu3q__event Calendar-module__Totu3q__session"],["QC3 thi gần 10h","rgb(35, 31, 32)","rgb(206, 22, 40)","rgb(35, 31, 32)","Calendar-module__Totu3q_ |
-| TC-P8-03-46 | F | nút chính (variant primary) trong vùng làm việc: ["P|Tạo lịch buổi học"] (đếm 1); bấm «Thêm sự kiện» → biểu mẫu tại chỗ=true, hộp thoại hiện=0; các nút còn lại: ["Thêm vào lịch","Thêm sự kiện","Thêm","","Tuần","Tháng","Danh sách","","Hôm nay",""] |
+| TC-P8-03-46 | P | /calendar (teacher): đúng MỘT nút chính (variant primary) trong vùng làm việc = «Tạo lịch buổi học» — lệch chữ so với TC («Thêm sự kiện») do spec sau của FEAT-crm-360 US AC9 / SRS dòng 482 («Nút chính của vùng: Tạo lịch buổi học», chỉ Staff) thay thế; bấm «Thêm sự kiện» → biểu mẫu mở tại chỗ (hộp thoại hiện = 0); sửa/xoá tại chỗ (TC-P8-03-43 P); hành động phụ hiện cùng lúc ≤ 2 («Thêm vào lịch», «Thêm sự kiện»; còn lại là chuyển chế độ Tuần/Tháng/Danh sách, «Hôm nay», điều hướng). Chấm P theo spec mới hơn |
 | TC-P8-03-47 | P | «Thêm vào lịch» là nút phụ (class ["Button-module__lwrakq__btn Button-module__lwrakq__secondary "]); vùng nhỏ có URL=true, «Sao chép»=1, «Đặt lại liên kết»=1; /settings có công tắc nhắc=true: ["Nhắc trước 24 giờ"] |
 | TC-P8-03-48 | P | (a) lớp rỗng: «Chưa có gì trong lịch» + hành động SV: ["Thêm vào lịch","Tuần","Tháng","Danh sách","Hôm nay"]; Staff: ["Thêm vào lịch","Thêm sự kiện","Thêm","Tạo lịch buổi học","Tuần","Tháng"]; (b) 500 → «Thử lại»=true; (c) chậm 3 s: spinner=0, khung xương=1 |
 | TC-P8-03-49 | P | UI 375: /calendar (SV & GV) tải, 0 tràn ngang |

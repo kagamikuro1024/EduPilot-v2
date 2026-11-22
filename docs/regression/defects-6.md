@@ -75,3 +75,11 @@
 - Mức: Cao · TC: TC-P3-05-42 (b), TC-P8-02-20 · Sprint gốc: 6 (sửa D1) · Hồi quy: có
 - Tái hiện (ep-r 859a90db): SV hỏi chat có trích dẫn tài liệu; GET /api/v1/chat/sessions/{sid}/messages → 500 INTERNAL. Log gateway: «chat: tài liệu của trích dẫn: failed to encode args[0]: unable to encode []uuid.UUID{…} into text format for unknown type (OID 0): cannot find encode plan».
 - Nghi ngờ mã: backend-go/internal/chat/sessions.go:264 `select id from documents where id = any($1)` với `ids []uuid.UUID`; db.go dùng QueryExecModeExec (PgBouncer transaction mode) nên không có OID để mã hoá mảng uuid; test testcontainers nối thẳng PG nên xanh. Sửa: `any($1::uuid[])` + tham số có kiểu (pgtype.FlatArray / []string) hoặc sqlc; thêm test chạy ở QueryExecModeExec.
+
+### DEF-R6-U11 — Danh sách /documents không tự cập nhật khi tệp được tải lên từ nơi khác
+- Mức: Thấp · TC: TC-P8-01-17 (AC5) · Sprint gốc: 6
+- Tái hiện: Staff mở /documents (không tải lại); tải tệp lên bằng API/curl ở nơi khác; sau 70 s hàng mới KHÔNG xuất hiện; không có điều hướng, không có cập nhật. Nghi ngờ mã: RealDocuments.tsx chỉ refresh() khi chính trang thao tác; documentsApi.ts không có refetchInterval/useSSE. Chỉ hàng tải lên từ chính trang đổi trạng thái Đang tải → Đang xử lý n % → Sẵn sàng (TC-P8-02-05 đạt). Kỳ vọng AC5: Staff mở /documents thấy hàng mới + trạng thái đổi không tải lại.
+
+### DEF-R6-U12 — Docling tắt: tài liệu ra FAILED sau ≤ 2 phút, TC/AC17 và SRS dòng 97 nói QUEUED
+- Mức: Thấp (xung đột spec: AC10 «thử lại ≤ 3 lần rồi FAILED EXTRACT_UNAVAILABLE» và AC17 / SRS dòng 97 «tài liệu QUEUED khi dịch vụ tắt») · TC: TC-P8-01-43 (AC17) · Sprint gốc: 6
+- Tái hiện: docker stop docling (ep-r); tải PDF mới: complete → 202; sau 2 phút documents.status = FAILED (error «Chưa đọc được tài liệu lúc này. Thử lại sau.», jobs.error.code EXTRACT_UNAVAILABLE), không phải QUEUED; bật lại docling thì tài liệu không tự chạy tới READY (vẫn FAILED; TC kỳ vọng tự chạy tiếp). Cần BA/PM chốt: giữ QUEUED khi dịch vụ tắt (đợi dịch vụ) hay FAILED sau 3 lần thử.
