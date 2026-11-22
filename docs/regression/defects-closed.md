@@ -92,3 +92,4 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 
 - 22/11 (rerun F @118e1a40): ĐÓNG DEF-R2-04 (contract không tag ok 76,7 s: P0-02/TC-20, P0-03/TC-15, GATE-03/06, PG07-63 = P), DEF-R4-09 (lint 0 issues: P212-27 P), DEF-R9.5-22 (N01-03 P). TC-P209-51 P (UI + API 429 ở mã sai thứ 6). DEF-R9.5-14 còn 1 số lệch: nfr-real-llm.md «633,9 ms» ≠ load-b-ttft.json p(95)=633,99312 (phải 634,0) — gửi dev. evidence-f16/.
 - DEF-R9.5-14 (4bfe444c): ĐÓNG 22/11 — TC-N09-04 P (139 số, 0 lệch; evidence-9.5/rerun/n09-04-4bfe444c.log).
+- DEF-R9.5-06 (84e29eec): ĐÓNG 22/11 — TC-N10-06 P. DEF-R9.5-25: TC-N07-02 P theo P-11-101 (c17e5c28).

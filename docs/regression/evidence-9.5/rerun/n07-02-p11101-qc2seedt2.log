@@ -1,0 +1,15 @@
+qc2seedt2 @024dc66c 18:37:20 load average: 3.15, 3.77, 4.03
+qc2seedt2-worker-1 16.4MiB / 9.69GiB 0.67%
+qc2seedt2-gateway-1 13.01MiB / 9.69GiB 0.01%
+qc2seedt2-caddy-1 15.4MiB / 9.69GiB 0.00%
+qc2seedt2-pgbouncer-1 7.977MiB / 9.69GiB 1.31%
+qc2seedt2-judge-1 16.71MiB / 2GiB 0.00%
+qc2seedt2-redis-1 11.65MiB / 9.69GiB 0.31%
+qc2seedt2-postgres-1 159.8MiB / 9.69GiB 5.02%
+qc2seedt2-mock-graph-1 4.047MiB / 9.69GiB 0.00%
+qc2seedt2-docling-1 1.059GiB / 3GiB 0.10%
+qc2seedt2-minio-1 93.99MiB / 9.69GiB 0.00%
+qc2seedt2-mock-imap-1 3.844MiB / 9.69GiB 0.00%
+qc2seedt2-frontend-1 64.28MiB / 9.69GiB 0.00%
+qc2seedt2-mailpit-1 12.68MiB / 9.69GiB 0.00%
+35 MB|60
