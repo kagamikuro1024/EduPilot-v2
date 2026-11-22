@@ -45,5 +45,5 @@ Mã xoá (LT có nguồn quyết định):
 ## Lượt 2026-11-22 (QC cặp 3, qc2seedt3 ở 49ebd12a, seed lần đầu) — lỗi
 | ID | Mức | TC | Mô tả / bằng chứng |
 | --- | --- | --- | --- |
-| DEF-R10S-07 | Trung bình | TC-12-02 | Seed lớp 761987: 107 câu APPROVED nhưng chỉ 3 có `citations` (104 câu `citations=[]`); TC: mọi câu APPROVED có citations thật (tài liệu seed tồn tại, trang hợp lệ). `SELECT count(*) FILTER (WHERE jsonb_array_length(citations)>0) FROM question_bank WHERE review_status='APPROVED' AND course_id=<761987>` = 3. |
-| DEF-R10S-08 | Thấp | TC-12-04 | Câu «Mô tả nào đúng về MFA?» có ở cả lớp 761987 và 761988 (cùng stem, APPROVED, id khác); TC: ngân hàng lớp 2 không chứa câu của lớp 1 (so id và stem). |
+| DEF-R10S-07 | RÚT (P-10-11) | TC-12-02 | Seed lớp 761987: 107 câu APPROVED nhưng chỉ 3 có `citations` (104 câu `citations=[]`); TC: mọi câu APPROVED có citations thật (tài liệu seed tồn tại, trang hợp lệ). `SELECT count(*) FILTER (WHERE jsonb_array_length(citations)>0) FROM question_bank WHERE review_status='APPROVED' AND course_id=<761987>` = 3. |
+| DEF-R10S-08 | RÚT (P-10-11) | TC-12-04 | Câu «Mô tả nào đúng về MFA?» có ở cả lớp 761987 và 761988 (cùng stem, APPROVED, id khác); TC: ngân hàng lớp 2 không chứa câu của lớp 1 (so id và stem). |
