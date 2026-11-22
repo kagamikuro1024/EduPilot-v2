@@ -155,5 +155,5 @@ test("D06-05-06-12", async ({ browser }) => {
   const pr = (await (await api.get("/api/v1/admin/llm/providers", { headers: H })).json()).items.find((x: any) => x.type === "decision");
   const rp = await api.put(`/api/v1/admin/llm/providers/${pr.id}`, { headers: H, data: { type: "decision", name: pr.name, base_url: pr.base_url, enabled: false, rpm_limit: pr.rpm_limit, tpm_limit: pr.tpm_limit, version: pr.version, models: [{ model: "decision-fake", kind: "decision", price_in: "0", price_out: "0", enabled: false }, { model: "gemini-decision-1", kind: "decision", price_in: "0", price_out: "0", enabled: true }] } });
   await page.reload(); await page.waitForTimeout(5000); const s4 = await st(); out.push(`provider tạm dừng (PUT ${rp.status()}): «${s4}»`);
-  console.log("VERDICT D06b2", JSON.stringify(out)); await ctx.close();
+  writeFileSync("/Users/kuro/.config/edupilot-team/qc3-work/d06.txt", out.join("\n")); await ctx.close();
 });
