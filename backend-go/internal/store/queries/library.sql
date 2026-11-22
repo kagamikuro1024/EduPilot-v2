@@ -1,12 +1,12 @@
 -- US-P8-02 — thư viện của sinh viên: READY + visible_to_students + không ANSWER_KEY, của lớp hoặc được chia sẻ vào lớp.
 
 -- name: LibList :many
--- `q` (≥ 2 ký tự — dưới đó người gọi truyền NULL): khớp tên / tệp / chủ đề (vn_fold, LIKE) HOẶC từ khoá trên đoạn (tsv). snippet = TOÀN BỘ đoạn khớp đầu tiên (≤ 800 ký tự); library.snippetAround cắt cửa sổ quanh từ khoá.
+-- `q` (≥ 2 ký tự — dưới đó người gọi truyền NULL): khớp tên / tệp / chủ đề (vn_fold, LIKE) HOẶC từ khoá trên đoạn (tsv). snippet = TOÀN BỘ đoạn khớp: ưu tiên đoạn chứa NGUYÊN cụm q (không dấu, gộp khoảng trắng), sau đó theo ord (≤ 800 ký tự); library.snippetAround cắt cửa sổ quanh từ khoá.
 select d.id, d.title, d.type, d.filename, d.mime_type, d.category, d.week_no, d.updated_at, d.page_count,
        (d.use_for_rag and exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.embedding is not null))::bool as can_ask_ai,
        case when sqlc.narg(q)::text is null then '' else coalesce((
          select regexp_replace(c.text, '\s+', ' ', 'g') from content_chunks c
-         where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.narg(q)::text) order by c.ord limit 1), '') end::text as snippet
+         where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.narg(q)::text) order by (position(vn_fold(regexp_replace(sqlc.narg(q)::text, '\s+', ' ', 'g')) in vn_fold(regexp_replace(c.text, '\s+', ' ', 'g'))) > 0) desc, c.ord limit 1), '') end::text as snippet
 from documents d
 where (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
   and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
@@ -36,8 +36,8 @@ update documents set download_count = download_count + 1 where id = sqlc.arg(id)
 -- name: LibSearchTool :many
 -- Cho tool search_library: tối đa 5 tài liệu cùng bộ lọc của danh sách, kèm đoạn khớp đầu tiên (trang).
 select d.id, d.title, d.type, d.week_no,
-       coalesce((select c.page_no from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by c.ord limit 1), 0)::int as page_no, -- khớp theo tên, chưa có đoạn → 0 (trước đây NULL làm Scan lỗi)
-       coalesce((select regexp_replace(c.text, '\s+', ' ', 'g') from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by c.ord limit 1), '')::text as snippet
+       coalesce((select c.page_no from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by (position(vn_fold(regexp_replace(sqlc.arg(q)::text, '\s+', ' ', 'g')) in vn_fold(regexp_replace(c.text, '\s+', ' ', 'g'))) > 0) desc, c.ord limit 1), 0)::int as page_no, -- khớp theo tên, chưa có đoạn → 0 (trước đây NULL làm Scan lỗi)
+       coalesce((select regexp_replace(c.text, '\s+', ' ', 'g') from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by (position(vn_fold(regexp_replace(sqlc.arg(q)::text, '\s+', ' ', 'g')) in vn_fold(regexp_replace(c.text, '\s+', ' ', 'g'))) > 0) desc, c.ord limit 1), '')::text as snippet
 from documents d
 where (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
   and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'

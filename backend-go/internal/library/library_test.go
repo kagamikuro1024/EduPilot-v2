@@ -232,6 +232,16 @@ func TestLibrarySnippetAroundKeyword(t *testing.T) {
 	require.LessOrEqual(t, utf8.RuneCountInString(got[0].Snippet), 165)
 }
 
+// TestLibrarySnippetPrefersFullPhrase — DEF-R6-P3 (TC-P8-02-24, vòng 2): hai đoạn khớp, đoạn đầu chỉ có các âm tiết rời; đoạn sau chứa nguyên cụm → trích đoạn sau.
+func TestLibrarySnippetPrefersFullPhrase(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	f.doc(docOpt{title: "Quy chế", chunks: []string{"Cảnh báo chung cho kỳ thi. Quy chế học vụ nói ở chương sau.", "Quy định về cảnh báo học vụ áp dụng cho mọi sinh viên."}, noEmbed: true})
+	got := f.list(library.Filter{Q: "cảnh báo học vụ"})
+	require.Len(t, got, 1)
+	require.Contains(t, got[0].Snippet, "cảnh báo học vụ")
+}
+
 // TestLibraryOnlyVisibleReady — AC9: chỉ READY + visible_to_students.
 func TestLibraryOnlyVisibleReady(t *testing.T) {
 	t.Parallel()
