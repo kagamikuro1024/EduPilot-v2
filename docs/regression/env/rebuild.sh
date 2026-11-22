@@ -2,7 +2,6 @@
 # Dựng lại ep-r từ worktree qc2 (giữ volume). Dùng: nohup bash docs/regression/env/rebuild.sh > /tmp/qc2-rebuild.out 2>&1 &
 set -u
 R=$HOME/Documents/TA_Agent_qc2; cd $R
-cp $R/docs/regression/env/ep-r.seed.override.yml /tmp/ep-r.seed.override.yml
 source $R/docs/regression/env/ep-r-env.sh
 LOCK=/tmp/qc2-lock-global; LOG=/tmp/qc2-global-changes.log
 for i in $(seq 1 80); do mkdir $LOCK 2>/dev/null && break; sleep 15; done
