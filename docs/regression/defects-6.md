@@ -80,6 +80,6 @@
 - Mức: Thấp · TC: TC-P8-01-17 (AC5) · Sprint gốc: 6
 - Tái hiện: Staff mở /documents (không tải lại); tải tệp lên bằng API/curl ở nơi khác; sau 70 s hàng mới KHÔNG xuất hiện; không có điều hướng, không có cập nhật. Nghi ngờ mã: RealDocuments.tsx chỉ refresh() khi chính trang thao tác; documentsApi.ts không có refetchInterval/useSSE. Chỉ hàng tải lên từ chính trang đổi trạng thái Đang tải → Đang xử lý n % → Sẵn sàng (TC-P8-02-05 đạt). Kỳ vọng AC5: Staff mở /documents thấy hàng mới + trạng thái đổi không tải lại.
 
-### DEF-R6-U12 — [PM 2026-11-21: BA làm proposal (SRS docs-calendar dòng 97 nói cả hai); giữ F tới khi PM chốt] Docling tắt: tài liệu ra FAILED sau ≤ 2 phút, TC/AC17 và SRS dòng 97 nói QUEUED
+### DEF-R6-U12 — [ĐÓNG: P-11-94 (BA 633f8c04) — không phải lỗi mã; TC-P8-01-43 chấm lại P ngày 2026-11-22] Docling tắt: tài liệu ra FAILED sau ≤ 2 phút, TC/AC17 và SRS dòng 97 nói QUEUED
 - Mức: Thấp (xung đột spec: AC10 «thử lại ≤ 3 lần rồi FAILED EXTRACT_UNAVAILABLE» và AC17 / SRS dòng 97 «tài liệu QUEUED khi dịch vụ tắt») · TC: TC-P8-01-43 (AC17) · Sprint gốc: 6
 - Tái hiện: docker stop docling (ep-r); tải PDF mới: complete → 202; sau 2 phút documents.status = FAILED (error «Chưa đọc được tài liệu lúc này. Thử lại sau.», jobs.error.code EXTRACT_UNAVAILABLE), không phải QUEUED; bật lại docling thì tài liệu không tự chạy tới READY (vẫn FAILED; TC kỳ vọng tự chạy tiếp). Cần BA/PM chốt: giữ QUEUED khi dịch vụ tắt (đợi dịch vụ) hay FAILED sau 3 lần thử.

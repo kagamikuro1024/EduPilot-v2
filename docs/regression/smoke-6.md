@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 525 · Trượt: 4 · Chờ test N: 1   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 526 · Trượt: 3 · Chờ test N: 1   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -25,7 +25,7 @@ Cách chạy:
 | US-P3-06 | 49 | 49 | 0 | 0 |  |
 | US-P3-07 | 27 | 27 | 0 | 0 |  |
 | US-P3-08 | 29 | 29 | 0 | 0 |  |
-| US-P8-01 | 62 | 60 | 2 | 0 |  |
+| US-P8-01 | 62 | 61 | 1 | 0 |  |
 | US-P8-02 | 49 | 48 | 1 | 0 |  |
 | US-P8-03 | 60 | 59 | 0 | 1 |  |
 
@@ -433,7 +433,7 @@ Cách chạy:
 | TC-P8-01-40 | P | reindex cả lớp (≥3 tài liệu đã nhúng) → 202; 10 câu hỏi liên tiếp (mỗi câu = văn bản một đoạn, nhúng giả tất định nên cosine≈1 ⇒ có ngữ cảnh), có trích dẫn ở 10/10, HTTP [200], 10 lượt khi job còn chạy; job → SUCCEEDED; reindex lần hai → 202: số đoạn 998→998, id đoạn không đổi=True (và so với trước khi reindex=True) |
 | TC-P8-01-41 | P | tải lên với use_for_rag=f → READY, (đoạn/có embedding/dim)=3/0/0 (NULL); PATCH true → 200; job document.reindex 22→23; sau xử lý 3/3/1536: mọi đoạn có embedding 1536 chiều |
 | TC-P8-01-42 | P | đo trên ep-r lúc máy ít việc (load 4–10; lần đo trước lúc load 10–21 cho 1,2–1,4 s/trang chữ và 6–8 s/trang scan, chênh do tranh CPU với các QC khác): QMB12ch6b 24 trang 20 s = 0,85 s/trang; Mordern…pdf 141 trang 123 s = 0,87 s/trang (≤1 đạt); Quyche (bản scan OCR) 5 trang: lần đầu sau khi vừa bật docling 35 s = 6,93 s/trang (nguội, nạp mô hình), lần hai ấm 26 s = 5,28 s/trang (≤6 theo #16 PM; TC ghi 4 là bản cũ). Bộ nhớ docling: MEM USAGE 1,4–1,74 GiB < 3 GiB ở mọi mẫu (docker stats lúc đọc PDF 141 trang); truy vấn «học vụ» ≥1 đã P ở lượt trước. Bản đo đầy đủ: evidence-6/scripts-r3/w62.py |
-| TC-P8-01-43 | F | docling dừng, tải PDF QMB12 variant: complete → 202; sau 2 phút documents.status=FAILED (không FAILED, error='Chưa đọc được tài liệu lúc này. Thử lại sau.'); bật lại docling → tự chạy tiếp tới FAILED sau 0s |
+| TC-P8-01-43 | P | theo P-11-94 (BA 633f8c04, DEF-R6-U12 không phải lỗi mã): docling ep-r tắt (docker stop); tải PDF QMB12 (biến thể) → complete 202; trạng thái theo giây [(1, 'QUEUED'), (157, 'FAILED')]: QUEUED trong lúc chờ thử lại, FAILED sau 158 s (≈ 2 phút 35 s, 3 lần chờ 5 s/30 s/2 phút), documents.error=«Chưa đọc được tài liệu lúc này. Thử lại sau.», jobs.error.code=EXTRACT_UNAVAILABLE; bật lại docling (healthy) rồi POST …/documents/{id}/retry → HTTP 202; tài liệu → READY sau 85 s; docling đã tắt lại sau ca |
 | TC-P8-01-44 | P | PDF Mordern…pdf (143 trang) tải vào lớp QC3P8B (use_for_rag); PROCESSING và docling đang chạy (310.13% 1.635GiB / 3GiB); kill -9 tiến trình docling-serve (mô phỏng sập; `docker kill` thuần cho Exited 137 và KHÔNG tự khởi động lại vì bị tính là dừng thủ công — đã thử lúc 09:41, RestartCount 0 sau 3 phút) → container tự khởi động lại (restart: unless-stopped) và healthy sau 13 s; không can thiệp thêm; tài liệu cuối cùng READY sau 4.3 phút kể từ lúc kill (≤25); content_chunks: tổng/khác ord/ord max+1 = 82/82/82 (đúng một bộ đoạn, không trùng), trang lớn nhất 141; job: SUCCEEDED|- |
 | TC-P8-01-45 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
 | TC-P8-01-46 | P | vn_bigram_query("canh bao hoc vu") = 'canh' <-> 'bao' | 'bao' <-> 'hoc' | 'hoc' <-> 'vu' (OR các cặp âm tiết liền nhau, đúng SRS 195); một âm tiết «học» → 'hoc'; tsv @@ khớp 8 đoạn của Quyche; chèn NFD + NFC rồi truy vấn bằng NFC → 2/2, bằng NFD → 2/2; câu «điều kiện bị cảnh báo học vụ là gì» → đoạn hạng 1 theo ts_rank_cd có «cảnh báo học vụ»=True (ord 11); đã xoá 2 đoạn thử |
