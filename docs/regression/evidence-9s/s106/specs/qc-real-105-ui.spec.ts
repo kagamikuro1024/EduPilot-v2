@@ -126,3 +126,34 @@ test("D06-19txt", async ({ browser }) => {
   const { ctx, page } = await pageAs(browser, "admin"); await page.goto("/settings/llm"); await page.waitForTimeout(6000); const t = await page.locator("main").innerText(); const i = t.indexOf("Quyết định nhanh"); const blk = t.slice(i, t.indexOf("Mô hình tìm kiếm tài liệu")).replace(/decision-fake|gemini-decision-1/g, "");
   const hits = (blk.match(/(\bRAG\b|\bPII\b|fallback|\btrace\b|cascade|\bdecision\b)/gi) ?? []); console.log("VERDICT D06-19txt", JSON.stringify({ len: blk.length, hits, text: blk.replace(/\n+/g, " ¦ ").slice(0, 500) })); await ctx.close();
 });
+
+test("D06-05-06-12", async ({ browser }) => {
+  test.setTimeout(150000);
+  const out: string[] = []; const KEY = "qc-ui-key-123";
+  const { ctx, page } = await pageAs(browser, "admin"); const bodies: string[] = [];
+  page.on("response", async (r) => { try { if (/\/api\//.test(r.url())) bodies.push(r.url() + " " + (await r.text())); } catch {} });
+  const st = async () => (await page.locator("[data-part=decision-provider-status]").innerText()).replace(/\s+/g, " ").trim();
+  await page.goto("/settings/llm"); await page.waitForTimeout(5000); const prov = page.locator("[data-part=decision-provider]");
+  const s0 = await st(); out.push(`trạng thái đầu (decision-fake): «${s0}»`);
+  await prov.getByRole("radio", { name: "gemini-decision-1" }).click(); await page.waitForTimeout(3000); const s1 = await st(); out.push(`chọn gemini-decision-1 chưa có khoá: «${s1}»`);
+  await prov.getByRole("button", { name: "Nhập khoá" }).click(); await page.waitForTimeout(800);
+  const inputs = await page.locator("input[type=password], input[name*=key i], input[name*=khoa i]").count(); const f = page.locator("input[type=password]").first();
+  if (!(await f.count())) out.push("(không có input password — dump) " + (await prov.innerText()).replace(/\s+/g, " ").slice(0, 300)); else await f.fill(KEY);
+  await page.screenshot({ path: process.env.QC_SHOT ? process.env.QC_SHOT + "/d06-key-form.png" : undefined }).catch(() => {});
+  await prov.getByRole("button", { name: "Lưu" }).click(); await page.waitForTimeout(3000); const s2 = await st(); out.push(`sau lưu khoá: «${s2}»`);
+  await page.reload(); await page.waitForTimeout(5000);
+  const html = await page.content(); const vals = await page.locator("input").evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value));
+  const leakNet = bodies.filter((b) => b.includes(KEY)).map((b) => b.split(" ")[0].replace(/^https?:\/\/[^/]+/, "")); const s3 = await st();
+  out.push(`tải lại: «${s3}»; DOM chứa khoá: ${html.includes(KEY)}; giá trị input chứa khoá: ${vals.some((v) => v.includes(KEY))}; phản hồi API chứa khoá (trừ phản hồi của chính PUT lưu? — liệt kê): ${JSON.stringify(leakNet)}; số phản hồi quan sát: ${bodies.length}`);
+  // D06-12: công tắc cổng bản thật
+  const row = page.locator("main").getByText("Kiểm duyệt Hỏi đáp công khai", { exact: true }).locator("xpath=ancestor::*[.//button[normalize-space()='Cài đặt nâng cao']][1]"); const sw = row.getByRole("switch").first();
+  await sw.hover(); await page.waitForTimeout(1200); const tip = await page.locator("[role=tooltip]").allInnerTexts(); const ti = await sw.getAttribute("title"); const al = await sw.getAttribute("aria-label");
+  const rowText = (await row.innerText()).replace(/\s+/g, " ").trim(); const icons = await page.locator("[data-part=decision-provider], main").first().locator("svg[class*=info i], svg[class*=help i], [data-icon=info], [aria-label*=\"Thông tin\"]").count();
+  out.push(`D06-12: tooltip tại công tắc ${JSON.stringify(tip)} title=${ti} aria-label=${al}; hàng: «${rowText}»; icon Info/Help: ${icons}`);
+  // D06-06: Tạm dừng
+  const api = await request.newContext({ baseURL: "https://localhost:943", ignoreHTTPSErrors: true }); const lg = await api.post("/api/v1/auth/login", { data: { email: "admin@edupilot.local", password: PW } }); const H = { Authorization: `Bearer ${(await lg.json()).access_token}` };
+  const pr = (await (await api.get("/api/v1/admin/llm/providers", { headers: H })).json()).items.find((x: any) => x.type === "decision");
+  const rp = await api.put(`/api/v1/admin/llm/providers/${pr.id}`, { headers: H, data: { type: "decision", name: pr.name, base_url: pr.base_url, enabled: false, rpm_limit: pr.rpm_limit, tpm_limit: pr.tpm_limit, version: pr.version, models: [{ model: "decision-fake", kind: "decision", price_in: "0", price_out: "0", enabled: false }, { model: "gemini-decision-1", kind: "decision", price_in: "0", price_out: "0", enabled: true }] } });
+  await page.reload(); await page.waitForTimeout(5000); const s4 = await st(); out.push(`provider tạm dừng (PUT ${rp.status()}): «${s4}»`);
+  console.log("VERDICT D06b2", JSON.stringify(out)); await ctx.close();
+});
