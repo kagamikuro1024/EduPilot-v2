@@ -1,0 +1,2223 @@
+[WebServer] (node:2886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+[WebServer] (node:2922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 118 tests using 2 workers
+
+(node:2927) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:2928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/118] [desktop] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5)
+[2/118] [desktop] › e2e/analytics-exam.spec.ts:49:5 › chọn bài khác gọi lại overview với exam_id (AC1)
+[3/118] [desktop] › e2e/analytics-exam.spec.ts:57:5 › theo tuần: gửi week, tuần không có bài → «Chưa có bài thi» (AC3)
+[4/118] [desktop] › e2e/analytics-exam.spec.ts:66:5 › liên kết «Xem ở Báo cáo lỗ hổng» chỉ khi chủ đề trùng báo cáo; lớp chưa có báo cáo → không liên kết (AC4)
+[5/118] [desktop] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4)
+[6/118] [desktop] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6)
+[7/118] [desktop] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6)
+[8/118] [desktop] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8)
+[9/118] [desktop] › e2e/analytics-exam.spec.ts:99:5 › overview lỗi → thông báo + Thử lại (AC8)
+[10/118] [desktop] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10)
+[11/118] [desktop] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá
+[12/118] [desktop] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt
+[13/118] [desktop] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ
+[14/118] [desktop] › e2e/exam.spec.ts:268:5 › questions bank: trạng thái rỗng và lỗi có Thử lại
+[15/118] [desktop] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ
+[16/118] [desktop] › e2e/exam.spec.ts:415:5 › exam editor: tạo bài, lỗi lên lịch có danh sách, chọn câu, đổi thứ tự, xem trước, lên lịch, hoàn tác, gia hạn
+[17/118] [desktop] › e2e/exam.spec.ts:506:5 › exam editor: TA không có nút Lên lịch, kèm câu giải thích; nhân bản và xoá nháp
+[18/118] [desktop] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu
+[19/118] [desktop] › e2e/exam.spec.ts:539:5 › exam list: trạng thái rỗng và lỗi có Thử lại
+[20/118] [desktop] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px
+[21/118] [desktop] › e2e/exam.spec.ts:599:5 › student exam list: trạng thái rỗng
+[22/118] [desktop] › e2e/exam.spec.ts:605:5 › exam route access: sinh viên không mở được trang soạn bài; Staff không mở được trang làm bài
+[23/118] [desktop] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại
+[24/118] [desktop] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ'
+[25/118] [desktop] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt
+[26/118] [desktop] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc
+[27/118] [desktop] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai
+[28/118] [desktop] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc
+[29/118] [desktop] › e2e/exam.spec.ts:872:5 › take: offline mid exam — mất mạng vẫn chọn được; có mạng lại thì tự lưu
+[30/118] [desktop] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang
+[31/118] [desktop] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột
+[32/118] [desktop] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe
+[33/118] [desktop] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất
+[34/118] [desktop] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ
+[35/118] [desktop] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật
+[36/118] [desktop] › e2e/exam.spec.ts:1096:5 › take: submission history — Đang chấm → kết quả, nhãn Lần nộp tính điểm, xem mã và Dùng lại mã này
+[37/118] [desktop] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả
+[38/118] [desktop] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ
+(node:4302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[39/118] (retries) [desktop] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật (retry #1)
+(node:4317) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[40/118] (retries) [desktop] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ (retry #1)
+  1) [desktop] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Câu 1/1')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Câu 1/1') with timeout 5000ms
+      - waiting for getByText('Câu 1/1')
+      - Test timeout of 30000ms exceeded.
+
+
+      922 |   await page.locator("[data-part=integrity-notice]").scrollIntoViewIfNeeded();
+      923 |   await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
+    > 924 |   await expect(page.getByText("Câu 1/1")).toBeVisible();
+          |                                           ^
+      925 | };
+      926 | const editor = (page: Page) => page.getByRole("textbox", { name: "Mã nguồn bài 1" });
+      927 |
+        at startCode (/Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:924:43)
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1061:3
+
+    Error Context: test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:4353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[41/118] [desktop] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0
+  2) [desktop] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Bài này có phần lập trình, cần màn hình ≥ 1024 px.')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Bài này có phần lập trình, cần màn hình ≥ 1024 px.') with timeout 5000ms
+      - waiting for getByText('Bài này có phần lập trình, cần màn hình ≥ 1024 px.')
+      - Test timeout of 30000ms exceeded.
+
+
+      919 |   await page.setViewportSize({ width, height: 900 });
+      920 |   await page.goto(`/exams/${E1}/take?course=${C1}`);
+    > 921 |   await expect(page.getByText("Bài này có phần lập trình, cần màn hình ≥ 1024 px.")).toBeVisible();
+          |                                                                                      ^
+      922 |   await page.locator("[data-part=integrity-notice]").scrollIntoViewIfNeeded();
+      923 |   await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
+      924 |   await expect(page.getByText("Câu 1/1")).toBeVisible();
+        at startCode (/Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:921:86)
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1139:3
+
+    Error Context: test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: keyboard.type: Test timeout of 30000ms exceeded.
+
+      1140 |   const ed = editor(page);
+      1141 |   await ed.click();
+    > 1142 |   await page.keyboard.type("x".repeat(60), { delay: 200 }); // gõ vượt qua giờ chót (≈ 7 s)
+           |                       ^
+      1143 |   await expect(page.getByText(/Hết giờ — phần bạn gõ sau giờ không được tính/).first()).toBeVisible();
+      1144 |   await expect(ed).toHaveAttribute("readonly", "");
+      1145 |   const text = await ed.inputValue();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1142:23
+
+    Error Context: test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:4554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[42/118] [desktop] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần
+(node:4560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[43/118] (retries) [desktop] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 (retry #1)
+  3) [desktop] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#main').getByText('Sai kết quả')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#main').getByText('Sai kết quả') with timeout 5000ms
+      - waiting for locator('#main').getByText('Sai kết quả')
+
+
+      1158 |   f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: long, got: long + "\nthừa" }] };
+      1159 |   await page.getByRole("button", { name: "Chạy thử" }).click();
+    > 1160 |   await expect(page.locator("#main").getByText("Sai kết quả")).toBeVisible();
+           |                                                                ^
+      1161 |   const scrolls = await page.locator("#main pre").evaluateAll((els) => els.filter((e) => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).length);
+      1162 |   expect(scrolls, "ca thử phải có vùng cuộn thật").toBeGreaterThan(0);
+      1163 |   const a = await new AxeBuilder({ page }).withRules(["scrollable-region-focusable"]).analyze();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1160:64
+
+    Error Context: test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[44/118] [desktop] › e2e/exam.spec.ts:1186:5 › take: integrity notice — đúng chữ ở màn bắt đầu và dải cố định trong giờ; Bắt đầu chỉ bấm được sau khi thấy câu này; không từ kỹ thuật
+[45/118] [desktop] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu
+[46/118] [desktop] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung
+(node:4801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[47/118] (retries) [desktop] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu (retry #1)
+(node:4804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[48/118] (retries) [desktop] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung (retry #1)
+  4) [desktop] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-integrity-notice-94234-ị-khoá-tới-khi-cuộn-tới-câu-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-integrity-notice-94234-ị-khoá-tới-khi-cuộn-tới-câu-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-integrity-notice-94234-ị-khoá-tới-khi-cuộn-tới-câu-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[49/118] [desktop] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive
+  5) [desktop] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByText('Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.')
+    Expected: visible
+    Received: undefined
+
+
+      775 | const startExam = async (page: Page) => {
+      776 |   await page.goto(`/exams/${E1}/take?course=${C1}`);
+    > 777 |   await expect(page.getByText("Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.")).toBeVisible();
+          |                                                                                                                          ^
+      778 |   await page.locator("[data-part=integrity-notice]").scrollIntoViewIfNeeded(); // câu minh bạch phải hiện trước khi Bắt đầu bấm được
+      779 |   await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
+      780 |   await expect(page.getByText("Câu 1/3")).toBeVisible();
+        at startExam (/Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:777:122)
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1216:3
+
+    Error Context: test-results/exam-take-integrity-events-23c56--dán-không-bao-giờ-nội-dung-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-integrity-events-23c56--dán-không-bao-giờ-nội-dung-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-integrity-events-23c56--dán-không-bao-giờ-nội-dung-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[50/118] [desktop] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm
+(node:4894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[51/118] (retries) [desktop] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive (retry #1)
+(node:4945) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[52/118] (retries) [desktop] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm (retry #1)
+  6) [desktop] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-integrity-events-dbba7-ô-cuối-bằng-fetch-keepalive-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-integrity-events-dbba7-ô-cuối-bằng-fetch-keepalive-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-integrity-events-dbba7-ô-cuối-bằng-fetch-keepalive-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[53/118] [desktop] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống
+  7) [desktop] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { name: 'Nghi giống nhau', level: 1 })
+    Expected: visible
+    Received: undefined
+
+
+      1304 |   const st = await simSetup(page);
+      1305 |   await page.goto(`/exams/${SIM_C}/similarity?course=${C1}`);
+    > 1306 |   await expect(page.getByRole("heading", { name: "Nghi giống nhau", level: 1 })).toBeVisible();
+           |                                                                                  ^
+      1307 |   await expect(page.getByText("Độ giống chỉ là gợi ý — nhiều bài đúng cùng một cách làm tự nhiên giống nhau. Quyết định là của thầy/cô.")).toBeVisible();
+      1308 |   const pairRow = row(page, "Nguyễn Văn A · Trần Thị B");
+      1309 |   await expect(pairRow).toBeVisible();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1306:82
+
+    Error Context: test-results/exam-similarity-review-—-c-554dd-không-có-hành-động-trừ-điểm-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-similarity-review-—-c-554dd-không-có-hành-động-trừ-điểm-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-similarity-review-—-c-554dd-không-có-hành-động-trừ-điểm-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-similarity-review-—-c-554dd-không-có-hành-động-trừ-điểm-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-similarity-review-—-c-554dd-không-có-hành-động-trừ-điểm-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-similarity-review-—-c-554dd-không-có-hành-động-trừ-điểm-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:5036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[54/118] [desktop] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do
+(node:5050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[55/118] (retries) [desktop] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống (retry #1)
+  8) [desktop] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống ──
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByText(/Trang này dành cho/)
+    Expected: visible
+    Received: undefined
+
+
+      1333 |   await simSetup(page, "TA");
+      1334 |   await page.goto(`/exams/${SIM_C}/similarity?course=${C1}`);
+    > 1335 |   await expect(page.getByText(/Trang này dành cho/)).toBeVisible();
+           |                                                      ^
+      1336 |   await expect(page.getByText("Nguyễn Văn A")).toHaveCount(0);
+      1337 | });
+      1338 |
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1335:54
+
+    Error Context: test-results/exam-similarity-review-—-TA-không-mở-được-trang-so-độ-giống-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-similarity-review-—-TA-không-mở-được-trang-so-độ-giống-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-similarity-review-—-TA-không-mở-được-trang-so-độ-giống-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+      - <launching> /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_chromiumdev_profile-0s8bQu --remote-debugging-pipe --no-startup-window
+      - <launched> pid=5057
+      - [pid=5057][err] [1122/002521.637392:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+      - [pid=5057][err] [1122/002521.637669:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+
+
+    Error Context: test-results/exam-similarity-review-—-TA-không-mở-được-trang-so-độ-giống-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-similarity-review-—-TA-không-mở-được-trang-so-độ-giống-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-similarity-review-—-TA-không-mở-được-trang-so-độ-giống-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:5101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:5120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[56/118] [desktop] › e2e/exam.spec.ts:1420:5 › results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang
+[57/118] (retries) [desktop] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do (retry #1)
+[58/118] [desktop] › e2e/exam.spec.ts:1431:5 › results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm
+  9) [desktop] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-results-Giảng-viên-ti-2dd88--chi-tiết-sửa-điểm-có-lý-do-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-results-Giảng-viên-ti-2dd88--chi-tiết-sửa-điểm-có-lý-do-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-results-Giảng-viên-ti-2dd88--chi-tiết-sửa-điểm-có-lý-do-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[59/118] [desktop] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần
+[60/118] [desktop] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu
+(node:5264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[61/118] (retries) [desktop] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần (retry #1)
+(node:5325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[62/118] (retries) [desktop] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu (retry #1)
+  10) [desktop] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('[data-part=student-result]').locator('[data-part=result-summary]')
+    Expected: "Bạn đúng 1/1 câu trắc nghiệm · bài lập trình: 3/4 test ẩn đạt"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('[data-part=student-result]').locator('[data-part=result-summary]') with timeout 5000ms
+      - waiting for locator('[data-part=student-result]').locator('[data-part=result-summary]')
+      - Test timeout of 30000ms exceeded.
+
+
+      1488 |   await page.goto(`/exams/${E_R}/take?course=${C1}`);
+      1489 |   const r = page.locator("[data-part=student-result]");
+    > 1490 |   await expect(r.locator("[data-part=result-summary]")).toHaveText("Bạn đúng 1/1 câu trắc nghiệm · bài lập trình: 3/4 test ẩn đạt");
+           |                                                         ^
+      1491 |   await expect(r.locator("[data-part=result-item]")).toHaveCount(2);
+      1492 |   await expect(r.locator("[data-part=result-item] details[open]")).toHaveCount(0);
+      1493 |   await expect(r.getByText("Bạn chọn").first()).toBeHidden();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1490:57
+
+    Error Context: test-results/exam-student-result-dòng-t-b17f5-âu-mặc-định-gập-mở-từng-câu-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-student-result-dòng-t-b17f5-âu-mặc-định-gập-mở-từng-câu-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-student-result-dòng-t-b17f5-âu-mặc-định-gập-mở-từng-câu-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-student-result-dòng-t-b17f5-âu-mặc-định-gập-mở-từng-câu-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-student-result-dòng-t-b17f5-âu-mặc-định-gập-mở-từng-câu-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-student-result-dòng-t-b17f5-âu-mặc-định-gập-mở-từng-câu-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  11) [desktop] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần ─
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-results-thống-kê-xuất-CSV-phúc-khảo-trả-lời-một-lần-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-results-thống-kê-xuất-CSV-phúc-khảo-trả-lời-một-lần-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-results-thống-kê-xuất-CSV-phúc-khảo-trả-lời-một-lần-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-results-thống-kê-xuất-CSV-phúc-khảo-trả-lời-một-lần-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-results-thống-kê-xuất-CSV-phúc-khảo-trả-lời-một-lần-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-results-thống-kê-xuất-CSV-phúc-khảo-trả-lời-một-lần-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:5443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:5444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[63/118] [desktop] › e2e/exam.spec.ts:1499:5 › student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần
+[64/118] [desktop] › e2e/exam.spec.ts:1524:5 › student result: 375 px — phần trắc nghiệm dùng được, mã code cuộn ngang trong khối mã, trang không tràn ngang
+[65/118] [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang
+[66/118] [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang
+(node:5534) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:5533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[67/118] (retries) [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang (retry #1)
+[68/118] (retries) [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang (retry #1)
+  12) [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-student-result-bảng-t-cf6a2--không-làm-trang-tràn-ngang-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-student-result-bảng-t-cf6a2--không-làm-trang-tràn-ngang-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-student-result-bảng-t-cf6a2--không-làm-trang-tràn-ngang-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[69/118] [desktop] › e2e/exam.spec.ts:1559:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép
+  13) [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-student-result-bảng-t-14be2--không-làm-trang-tràn-ngang-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-student-result-bảng-t-14be2--không-làm-trang-tràn-ngang-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-student-result-bảng-t-14be2--không-làm-trang-tràn-ngang-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[70/118] [desktop] › e2e/exam.spec.ts:1583:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án
+(node:5709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[71/118] (retries) [desktop] › e2e/exam.spec.ts:1583:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án (retry #1)
+(node:5716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[72/118] (retries) [desktop] › e2e/exam.spec.ts:1559:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép (retry #1)
+  14) [desktop] › e2e/exam.spec.ts:1583:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-answer-leak-trước-côn-34ebc-nh-duyệt-chứa-canary-đáp-án-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-answer-leak-trước-côn-34ebc-nh-duyệt-chứa-canary-đáp-án-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-answer-leak-trước-côn-34ebc-nh-duyệt-chứa-canary-đáp-án-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[73/118] [desktop] › e2e/exam.spec.ts:1600:5 › student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án
+  15) [desktop] › e2e/exam.spec.ts:1559:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator: getByRole('textbox', { name: 'Câu hỏi của bạn' })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeEnabled" getByRole('textbox', { name: 'Câu hỏi của bạn' }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Câu hỏi của bạn' })
+
+
+      1574 |   locked = false; // đã nộp bài
+      1575 |   await page.reload();
+    > 1576 |   await expect(box).toBeEnabled();
+           |                     ^
+      1577 |   await box.fill("Cho mình hỏi về quy chế");
+      1578 |   await box.press("Enter");
+      1579 |   await expect.poll(() => calls.filter((c) => c.method === "POST" && c.path.endsWith("/messages")).length).toBe(1);
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1576:21
+
+    Error Context: test-results/exam-chat-gate-trong-giờ-l-ba998-bị-từ-chối-sau-nộp-cho-phép-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-chat-gate-trong-giờ-l-ba998-bị-từ-chối-sau-nộp-cho-phép-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-chat-gate-trong-giờ-l-ba998-bị-từ-chối-sau-nộp-cho-phép-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[74/118] [desktop] › e2e/exam.spec.ts:1607:5 › results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn thấy, cuộn tới cuối vẫn thấy dòng cuối
+(node:5753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[75/118] [mobile] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5)
+(node:5759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[76/118] [mobile] › e2e/analytics-exam.spec.ts:49:5 › chọn bài khác gọi lại overview với exam_id (AC1)
+[77/118] [mobile] › e2e/analytics-exam.spec.ts:57:5 › theo tuần: gửi week, tuần không có bài → «Chưa có bài thi» (AC3)
+(node:5916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[78/118] (retries) [mobile] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5) (retry #1)
+[79/118] [mobile] › e2e/analytics-exam.spec.ts:66:5 › liên kết «Xem ở Báo cáo lỗ hổng» chỉ khi chủ đề trùng báo cáo; lớp chưa có báo cáo → không liên kết (AC4)
+[80/118] [mobile] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4)
+  16) [mobile] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5) 
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/analytics-exam-tab-Điểm-th-9a086-sai-điểm-đang-giảm-AC1-AC5--mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-exam-tab-Điểm-th-9a086-sai-điểm-đang-giảm-AC1-AC5--mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/analytics-exam-tab-Điểm-th-9a086-sai-điểm-đang-giảm-AC1-AC5--mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[81/118] [mobile] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6)
+(node:5942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[82/118] (retries) [mobile] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4) (retry #1)
+(node:5949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[83/118] (retries) [mobile] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6) (retry #1)
+  17) [mobile] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4) ───────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/analytics-exam-lớp-chưa-có-báo-cáo-không-liên-kết-AC4--mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-exam-lớp-chưa-có-báo-cáo-không-liên-kết-AC4--mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/analytics-exam-lớp-chưa-có-báo-cáo-không-liên-kết-AC4--mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[84/118] [mobile] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6)
+  18) [mobile] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6) 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Điểm thi' })
+
+
+      33 |   await page.route("**/api/v1/analytics/exams/compare", (r) => ok(r, { items: m.compare ?? [] }));
+      34 |   await page.goto("/analytics");
+    > 35 |   await page.getByRole("tab", { name: "Điểm thi" }).click();
+         |                                                     ^
+      36 | }
+      37 |
+      38 | test("tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5)", async ({ page }) => {
+        at open (/Users/kuro/checkouts/qc3s5/frontend/e2e/analytics-exam.spec.ts:35:53)
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/analytics-exam.spec.ts:79:3
+
+    Error Context: test-results/analytics-exam-so-sánh-lớp-f0a8a-ới-5-bài-nộp-«Chưa-đủ»-AC6--mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-exam-so-sánh-lớp-f0a8a-ới-5-bài-nộp-«Chưa-đủ»-AC6--mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/analytics-exam-so-sánh-lớp-f0a8a-ới-5-bài-nộp-«Chưa-đủ»-AC6--mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[85/118] [mobile] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8)
+(node:6075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:6072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[86/118] (retries) [mobile] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8) (retry #1)
+[87/118] (retries) [mobile] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6) (retry #1)
+  19) [mobile] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8) 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/analytics-exam-lớp-chưa-có-71784--→-EmptyState-một-dòng-AC8--mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-exam-lớp-chưa-có-71784--→-EmptyState-một-dòng-AC8--mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/analytics-exam-lớp-chưa-có-71784--→-EmptyState-một-dòng-AC8--mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[88/118] [mobile] › e2e/analytics-exam.spec.ts:99:5 › overview lỗi → thông báo + Thử lại (AC8)
+  20) [mobile] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6) ────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/analytics-exam-một-lớp-không-có-bảng-so-sánh-AC6--mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-exam-một-lớp-không-có-bảng-so-sánh-AC6--mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/analytics-exam-một-lớp-không-có-bảng-so-sánh-AC6--mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[89/118] [mobile] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10)
+[90/118] [mobile] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá
+(node:6238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[91/118] (retries) [mobile] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10) (retry #1)
+(node:6248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[92/118] (retries) [mobile] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá (retry #1)
+  21) [mobile] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10) 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error: browserContext.close: Test ended.
+    Browser logs:
+
+    <launching> /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_chromiumdev_profile-AyGzb4 --remote-debugging-pipe --no-startup-window
+    <launched> pid=6151
+    [pid=6151][err] [1122/021556.900888:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=6151][err] [1122/021556.901455:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=6151][err] [1122/021557.058215:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=6151][err] [1122/021557.096775:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=6151][err] [1122/021558.965736:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=6151][err] [1122/021558.965755:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=6151][err] [1122/021559.076080:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=6151][err] [1122/021559.195677:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=6151] <gracefully close start>
+
+    Error Context: test-results/analytics-exam-375-px-biểu-48178-rộng-không-tràn-ngang-AC10--mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-exam-375-px-biểu-48178-rộng-không-tràn-ngang-AC10--mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/analytics-exam-375-px-biểu-48178-rộng-không-tràn-ngang-AC10--mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[93/118] [mobile] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt
+  22) [mobile] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { name: 'Ngân hàng câu hỏi' })
+    Expected: visible
+    Received: undefined
+
+
+      164 |   const bank = await setup(page);
+      165 |   await page.goto("/questions");
+    > 166 |   await expect(page.getByRole("heading", { name: "Ngân hàng câu hỏi" })).toBeVisible();
+          |                                                                          ^
+      167 |   const table = page.getByRole("table", { name: /Ngân hàng câu hỏi lớp 761987/ });
+      168 |   await expect(row(page, "AES là thuật toán gì?")).toBeVisible();
+      169 |   await expect(row(page, "RSA dựa trên bài toán nào?")).toBeVisible();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:166:74
+
+    Error Context: test-results/exam-questions-bank-bảng-b-a47c5-có-nhãn-câu-đã-dùng-bị-khoá-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-questions-bank-bảng-b-a47c5-có-nhãn-câu-đã-dùng-bị-khoá-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-questions-bank-bảng-b-a47c5-có-nhãn-câu-đã-dùng-bị-khoá-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-questions-bank-bảng-b-a47c5-có-nhãn-câu-đã-dùng-bị-khoá-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-questions-bank-bảng-b-a47c5-có-nhãn-câu-đã-dùng-bị-khoá-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-questions-bank-bảng-b-a47c5-có-nhãn-câu-đã-dùng-bị-khoá-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:6467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[94/118] [mobile] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ
+(node:6494) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:6493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[95/118] (retries) [mobile] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ (retry #1)
+[96/118] (retries) [mobile] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt (retry #1)
+  23) [mobile] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-questions-bank-Gợi-ý--18034-uyệt-dòng-thông-báo-tại-chỗ-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-questions-bank-Gợi-ý--18034-uyệt-dòng-thông-báo-tại-chỗ-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-questions-bank-Gợi-ý--18034-uyệt-dòng-thông-báo-tại-chỗ-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-questions-bank-Gợi-ý--18034-uyệt-dòng-thông-báo-tại-chỗ-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-questions-bank-Gợi-ý--18034-uyệt-dòng-thông-báo-tại-chỗ-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-questions-bank-Gợi-ý--18034-uyệt-dòng-thông-báo-tại-chỗ-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  24) [mobile] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 0
+
+      Array [
+        "APPROVE",
+    -   "APPROVE",
+      ]
+
+      251 |   await d.getByRole("button", { name: "Duyệt", exact: true }).click();
+      252 |   await expect(d).toContainText("Đã duyệt");
+    > 253 |   expect(bank.calls.review).toEqual(["APPROVE", "APPROVE"]);
+          |                             ^
+      254 | });
+      255 |
+      256 | test("questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ", async ({ page }) => {
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:253:29
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/exam-questions-bank-bài-lậ-77db0-est-chạy-lời-giải-mẫu-duyệt-mobile/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-questions-bank-bài-lậ-77db0-est-chạy-lời-giải-mẫu-duyệt-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-questions-bank-bài-lậ-77db0-est-chạy-lời-giải-mẫu-duyệt-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-questions-bank-bài-lậ-77db0-est-chạy-lời-giải-mẫu-duyệt-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:6685) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:6683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[97/118] [mobile] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ
+[98/118] [mobile] › e2e/exam.spec.ts:268:5 › questions bank: trạng thái rỗng và lỗi có Thử lại
+[99/118] [mobile] › e2e/exam.spec.ts:415:5 › exam editor: tạo bài, lỗi lên lịch có danh sách, chọn câu, đổi thứ tự, xem trước, lên lịch, hoàn tác, gia hạn
+[100/118] [mobile] › e2e/exam.spec.ts:506:5 › exam editor: TA không có nút Lên lịch, kèm câu giải thích; nhân bản và xoá nháp
+[101/118] [mobile] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu
+(node:6741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:6739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[102/118] (retries) [mobile] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu (retry #1)
+[103/118] (retries) [mobile] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ (retry #1)
+  25) [mobile] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+       9 | // US-PE-03 AC13 — `/questions` thật (ngân hàng câu hỏi). Gateway giả bằng page.route; bản chạy với gateway thật là `@real` (không chạy ở CI).
+      10 |
+    > 11 | test.beforeEach(({ page }) => settleGoto(page));
+         |      ^
+      12 |
+      13 | const C1 = "00000000-0000-7000-8000-00000000c001";
+      14 | const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:11:6
+
+    Error Context: test-results/exam-exam-editor-giảng-viê-58aee-p-—-hộp-xác-nhận-nêu-số-câu-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-exam-editor-giảng-viê-58aee-p-—-hộp-xác-nhận-nêu-số-câu-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-exam-editor-giảng-viê-58aee-p-—-hộp-xác-nhận-nêu-số-câu-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[104/118] [mobile] › e2e/exam.spec.ts:539:5 › exam list: trạng thái rỗng và lỗi có Thử lại
+[105/118] [mobile] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px
+  26) [mobile] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-questions-bank-bố-cục-bfd1a-ng-tràn-ngang-không-cắt-chữ-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-questions-bank-bố-cục-bfd1a-ng-tràn-ngang-không-cắt-chữ-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-questions-bank-bố-cục-bfd1a-ng-tràn-ngang-không-cắt-chữ-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-questions-bank-bố-cục-bfd1a-ng-tràn-ngang-không-cắt-chữ-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-questions-bank-bố-cục-bfd1a-ng-tràn-ngang-không-cắt-chữ-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-questions-bank-bố-cục-bfd1a-ng-tràn-ngang-không-cắt-chữ-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:6942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[106/118] [mobile] › e2e/exam.spec.ts:599:5 › student exam list: trạng thái rỗng
+(node:6963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[107/118] [mobile] › e2e/exam.spec.ts:605:5 › exam route access: sinh viên không mở được trang soạn bài; Staff không mở được trang làm bài
+[108/118] (retries) [mobile] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px (retry #1)
+[109/118] [mobile] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại
+  27) [mobile] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px 
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/exam-student-exam-list-mỗi-2c39b--ở-375-px-vùng-chạm-≥-44-px-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-student-exam-list-mỗi-2c39b--ở-375-px-vùng-chạm-≥-44-px-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-student-exam-list-mỗi-2c39b--ở-375-px-vùng-chạm-≥-44-px-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-student-exam-list-mỗi-2c39b--ở-375-px-vùng-chạm-≥-44-px-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-student-exam-list-mỗi-2c39b--ở-375-px-vùng-chạm-≥-44-px-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-student-exam-list-mỗi-2c39b--ở-375-px-vùng-chạm-≥-44-px-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:7009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[110/118] [mobile] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ'
+(node:7019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[111/118] (retries) [mobile] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại (retry #1)
+  28) [mobile] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+       9 | // US-PE-03 AC13 — `/questions` thật (ngân hàng câu hỏi). Gateway giả bằng page.route; bản chạy với gateway thật là `@real` (không chạy ở CI).
+      10 |
+    > 11 | test.beforeEach(({ page }) => settleGoto(page));
+         |      ^
+      12 |
+      13 | const C1 = "00000000-0000-7000-8000-00000000c001";
+      14 | const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:11:6
+
+    Error Context: test-results/exam-take-clock-skew-—-máy-7cb34-hiện-đúng-thời-gian-còn-lại-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-clock-skew-—-máy-7cb34-hiện-đúng-thời-gian-còn-lại-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-clock-skew-—-máy-7cb34-hiện-đúng-thời-gian-còn-lại-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-clock-skew-—-máy-7cb34-hiện-đúng-thời-gian-còn-lại-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-clock-skew-—-máy-7cb34-hiện-đúng-thời-gian-còn-lại-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-clock-skew-—-máy-7cb34-hiện-đúng-thời-gian-còn-lại-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:7103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:7178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[112/118] [mobile] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt
+[113/118] (retries) [mobile] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ' (retry #1)
+(node:7231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  29) [mobile] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ' 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/)
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/) with timeout 15000ms
+      - waiting for getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/)
+
+
+      793 |   await startExam(page);
+      794 |   await page.getByLabel("Đáp án A của q1").check();
+    > 795 |   await expect(page.getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/)).toBeVisible({ timeout: 15_000 });
+          |                                                                                            ^
+      796 |   await expect(page.getByText(/Điểm sẽ hiện khi bài thi đóng với cả lớp/)).toBeVisible();
+      797 |   expect(await page.locator("#main").innerText()).not.toMatch(/đúng|sai|\d+,\d+ \/ /i); // không lộ điểm hay đúng / sai
+      798 | });
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:795:92
+
+    Error Context: test-results/exam-take-timeout-autosubm-d6619-ã-nộp-màn-hình-báo-Hết-giờ--mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-timeout-autosubm-d6619-ã-nộp-màn-hình-báo-Hết-giờ--mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-timeout-autosubm-d6619-ã-nộp-màn-hình-báo-Hết-giờ--mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/)
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/) with timeout 15000ms
+      - waiting for getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/)
+
+
+      793 |   await startExam(page);
+      794 |   await page.getByLabel("Đáp án A của q1").check();
+    > 795 |   await expect(page.getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/)).toBeVisible({ timeout: 15_000 });
+          |                                                                                            ^
+      796 |   await expect(page.getByText(/Điểm sẽ hiện khi bài thi đóng với cả lớp/)).toBeVisible();
+      797 |   expect(await page.locator("#main").innerText()).not.toMatch(/đúng|sai|\d+,\d+ \/ /i); // không lộ điểm hay đúng / sai
+      798 | });
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:795:92
+
+    Error Context: test-results/exam-take-timeout-autosubm-d6619-ã-nộp-màn-hình-báo-Hết-giờ--mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-timeout-autosubm-d6619-ã-nộp-màn-hình-báo-Hết-giờ--mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-timeout-autosubm-d6619-ã-nộp-màn-hình-báo-Hết-giờ--mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[114/118] (retries) [mobile] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt (retry #1)
+(node:7237) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[115/118] [mobile] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc
+  30) [mobile] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-submit-confirm-a-5ba1d-âu-nộp-xong-chỉ-còn-tóm-tắt-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-submit-confirm-a-5ba1d-âu-nộp-xong-chỉ-còn-tóm-tắt-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-submit-confirm-a-5ba1d-âu-nộp-xong-chỉ-còn-tóm-tắt-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-submit-confirm-a-5ba1d-âu-nộp-xong-chỉ-còn-tóm-tắt-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-submit-confirm-a-5ba1d-âu-nộp-xong-chỉ-còn-tóm-tắt-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-submit-confirm-a-5ba1d-âu-nộp-xong-chỉ-còn-tóm-tắt-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:7465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[116/118] [mobile] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai
+(node:7476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[117/118] (retries) [mobile] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc (retry #1)
+  31) [mobile] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: {"option_ids": ["q1-o1"]}
+    Received: undefined
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      823 |   await startExam(page);
+      824 |   await page.getByLabel("Đáp án A của q1").check();
+    > 825 |   await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o1"] });
+          |                                            ^
+      826 |   const b = await context.newPage();
+      827 |   await takeSetup(b, f);
+      828 |   await b.goto(`/exams/${E1}/take?course=${C1}`);
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:825:44
+
+    Error Context: test-results/exam-take-two-tabs-—-tab-t-056b7-n-ghi-tab-đầu-thành-chỉ-đọc-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-two-tabs-—-tab-t-056b7-n-ghi-tab-đầu-thành-chỉ-đọc-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-two-tabs-—-tab-t-056b7-n-ghi-tab-đầu-thành-chỉ-đọc-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: {"option_ids": ["q1-o1"]}
+    Received: undefined
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      823 |   await startExam(page);
+      824 |   await page.getByLabel("Đáp án A của q1").check();
+    > 825 |   await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o1"] });
+          |                                            ^
+      826 |   const b = await context.newPage();
+      827 |   await takeSetup(b, f);
+      828 |   await b.goto(`/exams/${E1}/take?course=${C1}`);
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:825:44
+
+    Error Context: test-results/exam-take-two-tabs-—-tab-t-056b7-n-ghi-tab-đầu-thành-chỉ-đọc-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-two-tabs-—-tab-t-056b7-n-ghi-tab-đầu-thành-chỉ-đọc-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-two-tabs-—-tab-t-056b7-n-ghi-tab-đầu-thành-chỉ-đọc-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:7532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:7533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[118/118] [mobile] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc
+[119/118] (retries) [mobile] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai (retry #1)
+  32) [mobile] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai 
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/exam-take-duplicate-tab-—--1af13-giờ-thành-người-ghi-thứ-hai-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-duplicate-tab-—--1af13-giờ-thành-người-ghi-thứ-hai-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-duplicate-tab-—--1af13-giờ-thành-người-ghi-thứ-hai-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Bài đang mở ở nơi khác')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Bài đang mở ở nơi khác') with timeout 5000ms
+      - waiting for getByText('Bài đang mở ở nơi khác')
+      - Test timeout of 30000ms exceeded.
+
+
+      845 |   await takeSetup(b, f);
+      846 |   await b.goto(`/exams/${E1}/take?course=${C1}`);
+    > 847 |   await expect(b.getByText("Bài đang mở ở nơi khác")).toBeVisible();
+          |                                                       ^
+      848 |   await b.waitForTimeout(800);
+      849 |   expect(f.st.calls.some((c) => c.url.endsWith("/takeover"))).toBe(false); // không tự takeover
+      850 |   expect(f.st.writer).toBe(writerTab);
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:847:55
+
+    Error Context: test-results/exam-take-duplicate-tab-—--1af13-giờ-thành-người-ghi-thứ-hai-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-duplicate-tab-—--1af13-giờ-thành-người-ghi-thứ-hai-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-duplicate-tab-—--1af13-giờ-thành-người-ghi-thứ-hai-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:7721) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[120/118] (retries) [mobile] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc (retry #1)
+(node:7722) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[121/118] [mobile] › e2e/exam.spec.ts:872:5 › take: offline mid exam — mất mạng vẫn chọn được; có mạng lại thì tự lưu
+[122/118] [mobile] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang
+  33) [mobile] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: {"option_ids": ["q1-o2"]}
+    Received: undefined
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      858 |   await startExam(page);
+      859 |   await page.getByLabel("Đáp án B của q1").check();
+    > 860 |   await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o2"] });
+          |                                            ^
+      861 |   const oldTab = f.st.writer;
+      862 |   await page.reload();
+      863 |   await expect(page.getByText("Câu 1/3")).toBeVisible();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:860:44
+
+    Error Context: test-results/exam-take-reload-writer-—--2f2e0-oad-true-không-hiện-chỉ-đọc-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-reload-writer-—--2f2e0-oad-true-không-hiện-chỉ-đọc-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-reload-writer-—--2f2e0-oad-true-không-hiện-chỉ-đọc-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: {"option_ids": ["q1-o2"]}
+    Received: undefined
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      858 |   await startExam(page);
+      859 |   await page.getByLabel("Đáp án B của q1").check();
+    > 860 |   await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o2"] });
+          |                                            ^
+      861 |   const oldTab = f.st.writer;
+      862 |   await page.reload();
+      863 |   await expect(page.getByText("Câu 1/3")).toBeVisible();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:860:44
+
+    Error Context: test-results/exam-take-reload-writer-—--2f2e0-oad-true-không-hiện-chỉ-đọc-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-reload-writer-—--2f2e0-oad-true-không-hiện-chỉ-đọc-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-reload-writer-—--2f2e0-oad-true-không-hiện-chỉ-đọc-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:7775) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[123/118] [mobile] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột
+(node:7790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[124/118] (retries) [mobile] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang (retry #1)
+(node:7992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[125/118] (retries) [mobile] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột (retry #1)
+  34) [mobile] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.') with timeout 5000ms
+      - waiting for getByText('Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.')
+      - Test timeout of 30000ms exceeded.
+
+
+      775 | const startExam = async (page: Page) => {
+      776 |   await page.goto(`/exams/${E1}/take?course=${C1}`);
+    > 777 |   await expect(page.getByText("Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.")).toBeVisible();
+          |                                                                                                                          ^
+      778 |   await page.locator("[data-part=integrity-notice]").scrollIntoViewIfNeeded(); // câu minh bạch phải hiện trước khi Bắt đầu bấm được
+      779 |   await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
+      780 |   await expect(page.getByText("Câu 1/3")).toBeVisible();
+        at startExam (/Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:777:122)
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:890:3
+
+    Error Context: test-results/exam-take-mcq-375-—-mỗi-lầ-59fea-ạm-≥-44-px-không-tràn-ngang-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-mcq-375-—-mỗi-lầ-59fea-ạm-≥-44-px-không-tràn-ngang-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-mcq-375-—-mỗi-lầ-59fea-ạm-≥-44-px-không-tràn-ngang-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/exam-take-mcq-375-—-mỗi-lầ-59fea-ạm-≥-44-px-không-tràn-ngang-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-mcq-375-—-mỗi-lầ-59fea-ạm-≥-44-px-không-tràn-ngang-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-mcq-375-—-mỗi-lầ-59fea-ạm-≥-44-px-không-tràn-ngang-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:8010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[126/118] [mobile] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe
+  35) [mobile] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-code-viewport-ga-be2de-oạn-mã-≥-1024-px-có-hai-cột-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-code-viewport-ga-be2de-oạn-mã-≥-1024-px-có-hai-cột-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-code-viewport-ga-be2de-oạn-mã-≥-1024-px-có-hai-cột-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[127/118] [mobile] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất
+(node:8036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[128/118] (retries) [mobile] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe (retry #1)
+  36) [mobile] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+      - <launching> /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_chromiumdev_profile-AaEQp0 --remote-debugging-pipe --no-startup-window
+      - <launched> pid=8023
+
+
+    Error Context: test-results/exam-take-code-editor-—-Ta-29a24-4-KiB-vượt-giới-hạn-INP-axe-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-code-editor-—-Ta-29a24-4-KiB-vượt-giới-hạn-INP-axe-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-code-editor-—-Ta-29a24-4-KiB-vượt-giới-hạn-INP-axe-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[129/118] [mobile] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ
+(node:8230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[130/118] (retries) [mobile] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất (retry #1)
+  37) [mobile] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Ngôn ngữ')
+        - locator resolved to <select disabled id="lang-c1" class="Field-module__M16HFW__control Field-module__M16HFW__select ">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not enabled
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not enabled
+        - retrying select option action
+          - waiting 100ms
+        3 × waiting for element to be visible and enabled
+          - element is not enabled
+        - retrying select option action
+          - waiting 500ms
+
+
+      1027 |   await expect(page.getByLabel("Ngôn ngữ")).toHaveValue("c11"); // bản lưu gần nhất
+      1028 |   await expect(editor(page)).toHaveValue("/* bản C */");
+    > 1029 |   await page.getByLabel("Ngôn ngữ").selectOption("cpp17");
+           |                                     ^
+      1030 |   await expect(editor(page)).toHaveValue("// bản C++");
+      1031 | });
+      1032 |
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1029:37
+
+    Error Context: test-results/exam-take-language-switch--bd701-i-lại-nhớ-ngôn-ngữ-gần-nhất-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-language-switch--bd701-i-lại-nhớ-ngôn-ngữ-gần-nhất-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-language-switch--bd701-i-lại-nhớ-ngôn-ngữ-gần-nhất-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-language-switch--bd701-i-lại-nhớ-ngôn-ngữ-gần-nhất-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-language-switch--bd701-i-lại-nhớ-ngôn-ngữ-gần-nhất-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-language-switch--bd701-i-lại-nhớ-ngôn-ngữ-gần-nhất-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:8291) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[131/118] [mobile] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật
+(node:8396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[132/118] (retries) [mobile] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ (retry #1)
+  38) [mobile] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Dùng bản trên máy này' })
+    Expected: visible
+    Timeout: 8000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Dùng bản trên máy này' }) with timeout 8000ms
+      - waiting for getByRole('button', { name: 'Dùng bản trên máy này' })
+
+
+      1051 |   f.st.code!.drafts.cpp17 = { source: "// tab khác lần ba", rev: 3, at: new Date().toISOString() };
+      1052 |   await ed.fill("// của tôi 3");
+    > 1053 |   await expect(page.getByRole("button", { name: "Dùng bản trên máy này" })).toBeVisible({ timeout: 8000 });
+           |                                                                             ^
+      1054 |   await page.getByRole("button", { name: "Dùng bản trên máy này" }).click();
+      1055 |   await expect.poll(() => f.st.code!.drafts.cpp17.source, { timeout: 8000 }).toBe("// của tôi 3");
+      1056 |   expect(f.st.code!.drafts.cpp17.rev).toBe(4);
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1053:77
+
+    Error Context: test-results/exam-take-draft-conflict-r-2b0cc-ất-chữ-không-ghi-đè-lặng-lẽ-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-draft-conflict-r-2b0cc-ất-chữ-không-ghi-đè-lặng-lẽ-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-draft-conflict-r-2b0cc-ất-chữ-không-ghi-đè-lặng-lẽ-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+      - <launching> /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_chromiumdev_profile-RKLiBJ --remote-debugging-pipe --no-startup-window
+      - <launched> pid=8415
+      - [pid=8415][err] [1122/063127.591595:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+      - [pid=8415][err] [1122/063127.592192:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+
+
+    Error Context: test-results/exam-take-draft-conflict-r-2b0cc-ất-chữ-không-ghi-đè-lặng-lẽ-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-draft-conflict-r-2b0cc-ất-chữ-không-ghi-đè-lặng-lẽ-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-draft-conflict-r-2b0cc-ất-chữ-không-ghi-đè-lặng-lẽ-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:8423) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[133/118] [mobile] › e2e/exam.spec.ts:1096:5 › take: submission history — Đang chấm → kết quả, nhãn Lần nộp tính điểm, xem mã và Dùng lại mã này
+(node:8454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[134/118] (retries) [mobile] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật (retry #1)
+[135/118] [mobile] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả
+  39) [mobile] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#main').getByText('Đúng 1/1 test mẫu.')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#main').getByText('Đúng 1/1 test mẫu.') with timeout 5000ms
+      - waiting for locator('#main').getByText('Đúng 1/1 test mẫu.')
+      - Test timeout of 30000ms exceeded.
+
+
+      1065 |   // AC
+      1066 |   await click();
+    > 1067 |   await expect(main.getByText("Đúng 1/1 test mẫu.")).toBeVisible();
+           |                                                      ^
+      1068 |   await expect(main.getByText("sample1")).toHaveCount(2); // đề (test mẫu) + kết quả
+      1069 |   // WA
+      1070 |   f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: "3\n", got: "4 " }] };
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1067:54
+
+    Error Context: test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#main').getByText('Đúng 1/1 test mẫu.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#main').getByText('Đúng 1/1 test mẫu.') with timeout 5000ms
+      - waiting for locator('#main').getByText('Đúng 1/1 test mẫu.')
+
+
+      1065 |   // AC
+      1066 |   await click();
+    > 1067 |   await expect(main.getByText("Đúng 1/1 test mẫu.")).toBeVisible();
+           |                                                      ^
+      1068 |   await expect(main.getByText("sample1")).toHaveCount(2); // đề (test mẫu) + kết quả
+      1069 |   // WA
+      1070 |   f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: "3\n", got: "4 " }] };
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1067:54
+
+    Error Context: test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-run-result-displ-cba72-i-của-bạn-không-từ-kỹ-thuật-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:8651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[136/118] [mobile] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ
+[137/118] (retries) [mobile] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả (retry #1)
+  40) [mobile] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('[data-part=submission]').first()
+    Expected substring: "Đang chấm"
+    Received string:    "06:31:37 · CLần nộp tính điểmĐã nhận, đang xếp hàngXem mã"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" locator('[data-part=submission]').first() with timeout 10000ms
+      - waiting for locator('[data-part=submission]').first()
+        5 × locator resolved to <li data-part="submission" class="CodeResults-module__xbqheq__sample">…</li>
+          - unexpected value "06:31:37 · CLần nộp tính điểmĐã nhận, đang xếp hàngXem mã"
+
+
+      1131 |   const row = page.locator("[data-part=submission]").first();
+      1132 |   await expect(row).toContainText("Đã nhận, đang xếp hàng");
+    > 1133 |   await expect(row).toContainText("Đang chấm", { timeout: 10_000 });
+           |                     ^
+      1134 |   await expect(row).toContainText("Biên dịch được · 1/1 test mẫu đúng", { timeout: 10_000 });
+      1135 | });
+      1136 |
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1133:21
+
+    Error Context: test-results/exam-take-lần-nộp-QUEUED-h-3a8bf-rồi-«Đang-chấm»-rồi-kết-quả-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-lần-nộp-QUEUED-h-3a8bf-rồi-«Đang-chấm»-rồi-kết-quả-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-lần-nộp-QUEUED-h-3a8bf-rồi-«Đang-chấm»-rồi-kết-quả-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('[data-part=submission]').first()
+    Expected substring: "Đang chấm"
+    Received string:    "06:48:54 · CLần nộp tính điểmĐã nhận, đang xếp hàngXem mã"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" locator('[data-part=submission]').first() with timeout 10000ms
+      - waiting for locator('[data-part=submission]').first()
+        6 × locator resolved to <li data-part="submission" class="CodeResults-module__xbqheq__sample">…</li>
+          - unexpected value "06:48:54 · CLần nộp tính điểmĐã nhận, đang xếp hàngXem mã"
+
+
+      1131 |   const row = page.locator("[data-part=submission]").first();
+      1132 |   await expect(row).toContainText("Đã nhận, đang xếp hàng");
+    > 1133 |   await expect(row).toContainText("Đang chấm", { timeout: 10_000 });
+           |                     ^
+      1134 |   await expect(row).toContainText("Biên dịch được · 1/1 test mẫu đúng", { timeout: 10_000 });
+      1135 | });
+      1136 |
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1133:21
+
+    Error Context: test-results/exam-take-lần-nộp-QUEUED-h-3a8bf-rồi-«Đang-chấm»-rồi-kết-quả-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-lần-nộp-QUEUED-h-3a8bf-rồi-«Đang-chấm»-rồi-kết-quả-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-lần-nộp-QUEUED-h-3a8bf-rồi-«Đang-chấm»-rồi-kết-quả-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:8717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8718) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[138/118] [mobile] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0
+[139/118] (retries) [mobile] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ (retry #1)
+  41) [mobile] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: keyboard.type: Test timeout of 30000ms exceeded.
+    Browser logs:
+
+    <launching> /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_chromiumdev_profile-3Ah4Ck --remote-debugging-pipe --no-startup-window
+    <launched> pid=8652
+    [pid=8652][err] [1122/064854.091852:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=8652][err] [1122/064854.179984:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=8652] <gracefully close start>
+
+      1140 |   const ed = editor(page);
+      1141 |   await ed.click();
+    > 1142 |   await page.keyboard.type("x".repeat(60), { delay: 200 }); // gõ vượt qua giờ chót (≈ 7 s)
+           |                       ^
+      1143 |   await expect(page.getByText(/Hết giờ — phần bạn gõ sau giờ không được tính/).first()).toBeVisible();
+      1144 |   await expect(ed).toHaveAttribute("readonly", "");
+      1145 |   const text = await ed.inputValue();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1142:23
+
+    Error Context: test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: keyboard.type: Test timeout of 30000ms exceeded.
+    Browser logs:
+
+    <launching> /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_chromiumdev_profile-mZFaT3 --remote-debugging-pipe --no-startup-window
+    <launched> pid=8728
+    [pid=8728][err] [1122/070449.850555:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=8728][err] [1122/070449.851042:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=8728][err] [1122/070450.000026:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=8728][err] [1122/070450.085088:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=8728][err] [1122/070452.745802:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=8728][err] [1122/070452.745850:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=8728] <gracefully close start>
+
+      1140 |   const ed = editor(page);
+      1141 |   await ed.click();
+    > 1142 |   await page.keyboard.type("x".repeat(60), { delay: 200 }); // gõ vượt qua giờ chót (≈ 7 s)
+           |                       ^
+      1143 |   await expect(page.getByText(/Hết giờ — phần bạn gõ sau giờ không được tính/).first()).toBeVisible();
+      1144 |   await expect(ed).toHaveAttribute("readonly", "");
+      1145 |   const text = await ed.inputValue();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1142:23
+
+    Error Context: test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-timeout-while-ty-e9989-áp-ô-chỉ-đọc-còn-nguyên-chữ-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:8890) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[140/118] (retries) [mobile] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 (retry #1)
+[141/118] [mobile] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần
+  42) [mobile] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#main').getByText('Sai kết quả')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#main').getByText('Sai kết quả') with timeout 5000ms
+      - waiting for locator('#main').getByText('Sai kết quả')
+
+
+      1158 |   f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: long, got: long + "\nthừa" }] };
+      1159 |   await page.getByRole("button", { name: "Chạy thử" }).click();
+    > 1160 |   await expect(page.locator("#main").getByText("Sai kết quả")).toBeVisible();
+           |                                                                ^
+      1161 |   const scrolls = await page.locator("#main pre").evaluateAll((els) => els.filter((e) => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).length);
+      1162 |   expect(scrolls, "ca thử phải có vùng cuộn thật").toBeGreaterThan(0);
+      1163 |   const a = await new AxeBuilder({ page }).withRules(["scrollable-region-focusable"]).analyze();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1160:64
+
+    Error Context: test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#main').getByText('Sai kết quả')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#main').getByText('Sai kết quả') with timeout 5000ms
+      - waiting for locator('#main').getByText('Sai kết quả')
+
+
+      1158 |   f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: long, got: long + "\nthừa" }] };
+      1159 |   await page.getByRole("button", { name: "Chạy thử" }).click();
+    > 1160 |   await expect(page.locator("#main").getByText("Sai kết quả")).toBeVisible();
+           |                                                                ^
+      1161 |   const scrolls = await page.locator("#main pre").evaluateAll((els) => els.filter((e) => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).length);
+      1162 |   expect(scrolls, "ca thử phải có vùng cuộn thật").toBeGreaterThan(0);
+      1163 |   const a = await new AxeBuilder({ page }).withRules(["scrollable-region-focusable"]).analyze();
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1160:64
+
+    Error Context: test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-kết-quả-chạy-thử-6a4b1-rollable-region-focusable-0-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:8964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[142/118] [mobile] › e2e/exam.spec.ts:1186:5 › take: integrity notice — đúng chữ ở màn bắt đầu và dải cố định trong giờ; Bắt đầu chỉ bấm được sau khi thấy câu này; không từ kỹ thuật
+[143/118] (retries) [mobile] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần (retry #1)
+[144/118] [mobile] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu
+  43) [mobile] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Đúng 1/1 test mẫu.')
+    Expected: visible
+    Timeout: 12000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Đúng 1/1 test mẫu.') with timeout 12000ms
+      - waiting for getByText('Đúng 1/1 test mẫu.')
+
+
+      1173 |   await page.getByRole("button", { name: "Chạy thử" }).click();
+      1174 |   await expect(page.getByText("Đang chạy thử…")).toBeVisible();
+    > 1175 |   await expect(page.getByText("Đúng 1/1 test mẫu.")).toBeVisible({ timeout: 12_000 });
+           |                                                      ^
+      1176 |   await expect(page.locator("[data-part=code-wide] li", { hasText: "Đúng" })).toHaveCount(1);
+      1177 |   const polls = f.st.code!.runs["run-1"].polls;
+      1178 |   expect(polls).toBeGreaterThanOrEqual(3);
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1175:54
+
+    Error Context: test-results/exam-take-sse-drop-during--81e03-n-nhận-kết-quả-đúng-một-lần-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-sse-drop-during--81e03-n-nhận-kết-quả-đúng-một-lần-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-sse-drop-during--81e03-n-nhận-kết-quả-đúng-một-lần-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Đúng 1/1 test mẫu.')
+    Expected: visible
+    Timeout: 12000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Đúng 1/1 test mẫu.') with timeout 12000ms
+      - waiting for getByText('Đúng 1/1 test mẫu.')
+
+
+      1173 |   await page.getByRole("button", { name: "Chạy thử" }).click();
+      1174 |   await expect(page.getByText("Đang chạy thử…")).toBeVisible();
+    > 1175 |   await expect(page.getByText("Đúng 1/1 test mẫu.")).toBeVisible({ timeout: 12_000 });
+           |                                                      ^
+      1176 |   await expect(page.locator("[data-part=code-wide] li", { hasText: "Đúng" })).toHaveCount(1);
+      1177 |   const polls = f.st.code!.runs["run-1"].polls;
+      1178 |   expect(polls).toBeGreaterThanOrEqual(3);
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:1175:54
+
+    Error Context: test-results/exam-take-sse-drop-during--81e03-n-nhận-kết-quả-đúng-một-lần-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-sse-drop-during--81e03-n-nhận-kết-quả-đúng-một-lần-mobile-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-sse-drop-during--81e03-n-nhận-kết-quả-đúng-một-lần-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:9165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[145/118] (retries) [mobile] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu (retry #1)
+(node:9176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[146/118] [mobile] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung
+  44) [mobile] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+       9 | // US-PE-03 AC13 — `/questions` thật (ngân hàng câu hỏi). Gateway giả bằng page.route; bản chạy với gateway thật là `@real` (không chạy ở CI).
+      10 |
+    > 11 | test.beforeEach(({ page }) => settleGoto(page));
+         |      ^
+      12 |
+      13 | const C1 = "00000000-0000-7000-8000-00000000c001";
+      14 | const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+        at /Users/kuro/checkouts/qc3s5/frontend/e2e/exam.spec.ts:11:6
+
+    Error Context: test-results/exam-take-integrity-notice-94234-ị-khoá-tới-khi-cuộn-tới-câu-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-integrity-notice-94234-ị-khoá-tới-khi-cuộn-tới-câu-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-integrity-notice-94234-ị-khoá-tới-khi-cuộn-tới-câu-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[147/118] [mobile] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive
+[148/118] [mobile] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm
+(node:9268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[149/118] (retries) [mobile] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive (retry #1)
+[150/118] [mobile] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống
+[151/118] [mobile] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do
+  45) [mobile] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive 
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error Context: test-results/exam-take-integrity-events-dbba7-ô-cuối-bằng-fetch-keepalive-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/exam-take-integrity-events-dbba7-ô-cuối-bằng-fetch-keepalive-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/exam-take-integrity-events-dbba7-ô-cuối-bằng-fetch-keepalive-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[152/118] [mobile] › e2e/exam.spec.ts:1420:5 › results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang
+[153/118] [mobile] › e2e/exam.spec.ts:1431:5 › results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm
+[154/118] [mobile] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần
+[155/118] [mobile] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu
+[156/118] [mobile] › e2e/exam.spec.ts:1499:5 › student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần
+[157/118] [mobile] › e2e/exam.spec.ts:1524:5 › student result: 375 px — phần trắc nghiệm dùng được, mã code cuộn ngang trong khối mã, trang không tràn ngang
+[158/118] [mobile] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang
+[159/118] [mobile] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang
+[160/118] [mobile] › e2e/exam.spec.ts:1559:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép
+[161/118] [mobile] › e2e/exam.spec.ts:1583:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án
+[162/118] [mobile] › e2e/exam.spec.ts:1600:5 › student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án
+[163/118] [mobile] › e2e/exam.spec.ts:1607:5 › results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn thấy, cuộn tới cuối vẫn thấy dòng cuối
+  25 failed
+    [desktop] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật 
+    [desktop] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ 
+    [desktop] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm 
+    [desktop] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống ───
+    [desktop] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần ───
+    [desktop] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu 
+    [mobile] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá 
+    [mobile] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt 
+    [mobile] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ 
+    [mobile] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ 
+    [mobile] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px 
+    [mobile] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại 
+    [mobile] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ' 
+    [mobile] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt 
+    [mobile] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc 
+    [mobile] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai 
+    [mobile] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc 
+    [mobile] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang 
+    [mobile] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất 
+    [mobile] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ 
+    [mobile] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật 
+    [mobile] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả 
+    [mobile] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ 
+    [mobile] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 
+    [mobile] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần 
+  20 flaky
+    [desktop] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 
+    [desktop] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu 
+    [desktop] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung 
+    [desktop] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive 
+    [desktop] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do 
+    [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang 
+    [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang 
+    [desktop] › e2e/exam.spec.ts:1559:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép 
+    [desktop] › e2e/exam.spec.ts:1583:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án 
+    [mobile] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5) 
+    [mobile] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4) ─────────
+    [mobile] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6) 
+    [mobile] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6) ──────────────
+    [mobile] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8) 
+    [mobile] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10) 
+    [mobile] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu 
+    [mobile] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột 
+    [mobile] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe 
+    [mobile] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu 
+    [mobile] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive 
+  3 skipped
+  70 passed (9.4h)
+
+real	6m31.075s
+user	5m34.027s
+sys	2m10.778s

@@ -1,0 +1,139 @@
+[WebServer] (node:99006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+[WebServer] (node:99033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 106 tests using 2 workers
+
+(node:99045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:99046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/106] [desktop] › e2e/account.spec.ts:53:5 › login page: nhãn, thuộc tính nhập, một nút primary, logo, liên kết, không từ kỹ thuật
+[2/106] [desktop] › e2e/account.spec.ts:78:5 › login page: 375 px không tràn ngang, vùng chạm ≥ 44 px, AUDIT/TOUCH sạch
+[3/106] [desktop] › e2e/account.spec.ts:91:5 › login page: sai ⇒ dòng lỗi role=alert, giữ email, xoá mật khẩu; đang gửi chỉ một request
+[4/106] [desktop] › e2e/account.spec.ts:108:7 › login throttled (LOGIN_THROTTLED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã
+[5/106] [desktop] › e2e/account.spec.ts:108:7 › login throttled (RATE_LIMITED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã
+[6/106] [desktop] › e2e/account.spec.ts:134:5 › login page: phiên bị thu hồi ⇒ dòng thông báo
+[7/106] [desktop] › e2e/account.spec.ts:142:5 › open redirect: next lạ bị bỏ, location.origin không đổi
+[8/106] [desktop] › e2e/account.spec.ts:155:5 › next hợp lệ: quay lại đúng trang sau đăng nhập; vào route cần phiên khi chưa đăng nhập ⇒ /login?next=
+[9/106] [desktop] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 401 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login
+[10/106] [desktop] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 200 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login
+[11/106] [desktop] › e2e/account.spec.ts:181:5 › no token in storage: không có JWT / refresh ở storage, cookie; tải lại ⇒ đúng một refresh, không nháy /login
+[12/106] [desktop] › e2e/account.spec.ts:207:5 › nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 7 mục
+[13/106] [desktop] › e2e/account.spec.ts:223:5 › mock identity from session: sv.kha ⇒ Trần Thu Uyên; email lạ ⇒ tên thật; không đọc cookie ep_demo_*
+[14/106] [desktop] › e2e/account.spec.ts:236:5 › two tabs refresh: hai tab cùng tải ⇒ refresh tuần tự, không chồng nhau
+[15/106] [desktop] › e2e/account.spec.ts:259:5 › refresh hỏng giữa chừng ⇒ /login?next=; phiên bị thu hồi ⇒ /login kèm thông báo
+[16/106] [desktop] › e2e/account.spec.ts:281:5 › register page: nhãn, chú thích, autocomplete, một nút primary, lỗi từng ô, màn Kiểm tra email + đếm ngược gửi lại
+[17/106] [desktop] › e2e/account.spec.ts:332:5 › register page: 375 px không tràn ngang, vùng chạm ≥ 44 px
+[18/106] [desktop] › e2e/account.spec.ts:344:5 › verify page: xác minh tự động đúng một lần, token rời khỏi URL; thành công / đã dùng / hết hạn + gửi lại
+[19/106] [desktop] › e2e/account.spec.ts:396:5 › forgot page: một ô email, một nút Gửi hướng dẫn, câu chung bất kể email, nút gửi lại khoá đếm ngược
+[20/106] [desktop] › e2e/account.spec.ts:422:5 › reset page: kiểm liên kết khi mở, token rời URL, form hai ô, lỗi mật khẩu tại ô, thành công; liên kết xấu
+[21/106] [desktop] › e2e/account.spec.ts:483:5 › reset page: Referrer-Policy no-referrer, no-store (kể cả forgot không cần)
+[22/106] [desktop] › e2e/account.spec.ts:492:5 › settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại ô), thiết bị: Thiết bị này, đăng xuất ngay + dòng tĩnh, xác nhận có số
+[23/106] [desktop] › e2e/account.spec.ts:577:5 › settings security: khung xương, lỗi chuẩn, 375 px dạng danh sách không tràn
+[24/106] [desktop] › e2e/account.spec.ts:663:5 › admin users page: bảng, một nút chính, lọc theo vai, tìm, khung mời mở tại chỗ, khoá lạc quan + Hoàn tác, gửi lại lời mời
+[25/106] [desktop] › e2e/account.spec.ts:711:5 › admin users page: khung mời mở tại chỗ (không dialog), gửi xong có dòng tĩnh, không từ kỹ thuật; 375 px sạch
+[26/106] [desktop] › e2e/account.spec.ts:738:5 › admin users errors: email trùng tại ô, 422 tại ô, gửi lại cùng khoá, xung đột phiên bản, tự khoá, 403
+[27/106] [desktop] › e2e/account.spec.ts:795:5 › admin users errors: mạng đứt khi mời ⇒ giữ chữ + banner ngoại tuyến + Gửi lại cùng khoá
+[28/106] [desktop] › e2e/account.spec.ts:819:5 › invite page: xem trước, token rời URL, hai ô mật khẩu, thành công vào /; liên kết hỏng
+[29/106] [desktop] › e2e/account.spec.ts:871:5 › invite page: Referrer-Policy no-referrer, no-store
+[30/106] [desktop] › e2e/account.spec.ts:890:5 › seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1)
+[31/106] [desktop] › e2e/shell.spec.ts:26:5 › metrics: sidebar 216 / 72 / ẩn; header 56; thu gọn nhớ ở ep:ui:sidebar
+[32/106] [desktop] › e2e/shell.spec.ts:59:5 › metrics: thanh dưới không che nút cuối nội dung (375)
+[33/106] [desktop] › e2e/shell.spec.ts:77:5 › active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền đặc
+[34/106] [desktop] › e2e/shell.spec.ts:128:5 › nav per role: nhãn + href + thứ tự khớp SRS 7.5
+[35/106] [desktop] › e2e/shell.spec.ts:149:5 › badges: chỉ inbox / grading; không viết cứng số trong nav.ts
+[36/106] [desktop] › e2e/shell.spec.ts:160:5 › mobile: ≤ 5 đích, Thêm đủ mục còn lại, đóng bằng Esc trả focus, không tràn ngang
+[37/106] [desktop] › e2e/shell.spec.ts:184:5 › topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài khoản
+[38/106] [desktop] › e2e/shell.spec.ts:201:5 › palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV không thấy Điểm danh
+[39/106] [desktop] › e2e/shell.spec.ts:246:5 › notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần
+[40/106] [desktop] › e2e/shell.spec.ts:282:7 › session › phiên ADMIN thật: nav Admin, không đổi vai, có Đăng xuất; token không lộ ra storage / DOM / URL
+[41/106] [desktop] › e2e/shell.spec.ts:301:7 › session › phiên STUDENT thật: màn mock dùng sv-2 + tên thật, SV bị chặn /settings/llm
+[42/106] [desktop] › e2e/shell.spec.ts:313:5 › forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1
+[43/106] [desktop] › e2e/shell.spec.ts:340:5 › no-backend: MOCK_SCREENS=0 → empty-no-backend đúng phase, 1 nút, nav còn
+[44/106] [desktop] › e2e/shell.spec.ts:365:5 › keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự header → sidebar → nội dung, Esc trả focus
+[45/106] [desktop] › e2e/shell.spec.ts:396:5 › regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28
+[46/106] [desktop] › e2e/shell.spec.ts:413:5 › touch: vùng chạm và tràn ngang ở 4 vai × 375/390
+[47/106] [desktop] › e2e/shell.spec.ts:436:5 › BUG-PU04-1: bảng Thêm ở điện thoại là bảng trượt — đóng bằng bấm ngoài, vuốt xuống, Esc và trả focus về nút Thêm
+[48/106] [desktop] › e2e/shell.spec.ts:483:5 › frame layers: body = canvas; sidebar và thanh trên = surface (đặc) + đường kẻ; main không tự đặt nền
+[49/106] [desktop] › e2e/shell.spec.ts:507:5 › nav states: hover / đang chọn = surface-subtle; vạch đỏ 2 px; focus-visible thấy rõ; nhãn nhóm ≥ 4,5 : 1
+[50/106] [desktop] › e2e/shell.spec.ts:536:5 › preshell parity: nền ba vùng của PreShell và AppShell giống nhau, h1 không dịch chỗ khi phiên về
+[51/106] [desktop] › e2e/shell.spec.ts:565:5 › bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; bảng Thêm là lớp nổi (surface, shadow-popover, radius-lg), không phải Panel
+[52/106] [desktop] › e2e/shell.spec.ts:585:5 › route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi
+[53/106] [desktop] › e2e/shell.spec.ts:591:5 › demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng · dữ liệu giả'; phiên không có lớp thật vẫn có
+(node:1092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[54/106] [mobile] › e2e/account.spec.ts:53:5 › login page: nhãn, thuộc tính nhập, một nút primary, logo, liên kết, không từ kỹ thuật
+[55/106] [mobile] › e2e/account.spec.ts:78:5 › login page: 375 px không tràn ngang, vùng chạm ≥ 44 px, AUDIT/TOUCH sạch
+[56/106] [mobile] › e2e/account.spec.ts:91:5 › login page: sai ⇒ dòng lỗi role=alert, giữ email, xoá mật khẩu; đang gửi chỉ một request
+[57/106] [mobile] › e2e/account.spec.ts:108:7 › login throttled (RATE_LIMITED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã
+[58/106] [mobile] › e2e/account.spec.ts:134:5 › login page: phiên bị thu hồi ⇒ dòng thông báo
+(node:1345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[59/106] [mobile] › e2e/account.spec.ts:108:7 › login throttled (LOGIN_THROTTLED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã
+[60/106] [mobile] › e2e/account.spec.ts:142:5 › open redirect: next lạ bị bỏ, location.origin không đổi
+[61/106] [mobile] › e2e/account.spec.ts:155:5 › next hợp lệ: quay lại đúng trang sau đăng nhập; vào route cần phiên khi chưa đăng nhập ⇒ /login?next=
+[62/106] [mobile] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 401 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login
+[63/106] [mobile] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 200 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login
+[64/106] [mobile] › e2e/account.spec.ts:181:5 › no token in storage: không có JWT / refresh ở storage, cookie; tải lại ⇒ đúng một refresh, không nháy /login
+[65/106] [mobile] › e2e/account.spec.ts:207:5 › nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 7 mục
+[66/106] [mobile] › e2e/account.spec.ts:223:5 › mock identity from session: sv.kha ⇒ Trần Thu Uyên; email lạ ⇒ tên thật; không đọc cookie ep_demo_*
+[67/106] [mobile] › e2e/account.spec.ts:236:5 › two tabs refresh: hai tab cùng tải ⇒ refresh tuần tự, không chồng nhau
+[68/106] [mobile] › e2e/account.spec.ts:259:5 › refresh hỏng giữa chừng ⇒ /login?next=; phiên bị thu hồi ⇒ /login kèm thông báo
+[69/106] [mobile] › e2e/account.spec.ts:281:5 › register page: nhãn, chú thích, autocomplete, một nút primary, lỗi từng ô, màn Kiểm tra email + đếm ngược gửi lại
+[70/106] [mobile] › e2e/account.spec.ts:332:5 › register page: 375 px không tràn ngang, vùng chạm ≥ 44 px
+[71/106] [mobile] › e2e/account.spec.ts:344:5 › verify page: xác minh tự động đúng một lần, token rời khỏi URL; thành công / đã dùng / hết hạn + gửi lại
+[72/106] [mobile] › e2e/account.spec.ts:396:5 › forgot page: một ô email, một nút Gửi hướng dẫn, câu chung bất kể email, nút gửi lại khoá đếm ngược
+[73/106] [mobile] › e2e/account.spec.ts:422:5 › reset page: kiểm liên kết khi mở, token rời URL, form hai ô, lỗi mật khẩu tại ô, thành công; liên kết xấu
+[74/106] [mobile] › e2e/account.spec.ts:483:5 › reset page: Referrer-Policy no-referrer, no-store (kể cả forgot không cần)
+[75/106] [mobile] › e2e/account.spec.ts:492:5 › settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại ô), thiết bị: Thiết bị này, đăng xuất ngay + dòng tĩnh, xác nhận có số
+[76/106] [mobile] › e2e/account.spec.ts:577:5 › settings security: khung xương, lỗi chuẩn, 375 px dạng danh sách không tràn
+[77/106] [mobile] › e2e/account.spec.ts:663:5 › admin users page: bảng, một nút chính, lọc theo vai, tìm, khung mời mở tại chỗ, khoá lạc quan + Hoàn tác, gửi lại lời mời
+[78/106] [mobile] › e2e/account.spec.ts:711:5 › admin users page: khung mời mở tại chỗ (không dialog), gửi xong có dòng tĩnh, không từ kỹ thuật; 375 px sạch
+[79/106] [mobile] › e2e/account.spec.ts:738:5 › admin users errors: email trùng tại ô, 422 tại ô, gửi lại cùng khoá, xung đột phiên bản, tự khoá, 403
+[80/106] [mobile] › e2e/account.spec.ts:795:5 › admin users errors: mạng đứt khi mời ⇒ giữ chữ + banner ngoại tuyến + Gửi lại cùng khoá
+[81/106] [mobile] › e2e/account.spec.ts:819:5 › invite page: xem trước, token rời URL, hai ô mật khẩu, thành công vào /; liên kết hỏng
+[82/106] [mobile] › e2e/account.spec.ts:871:5 › invite page: Referrer-Policy no-referrer, no-store
+[83/106] [mobile] › e2e/account.spec.ts:890:5 › seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1)
+[84/106] [mobile] › e2e/shell.spec.ts:26:5 › metrics: sidebar 216 / 72 / ẩn; header 56; thu gọn nhớ ở ep:ui:sidebar
+[85/106] [mobile] › e2e/shell.spec.ts:59:5 › metrics: thanh dưới không che nút cuối nội dung (375)
+[86/106] [mobile] › e2e/shell.spec.ts:77:5 › active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền đặc
+[87/106] [mobile] › e2e/shell.spec.ts:128:5 › nav per role: nhãn + href + thứ tự khớp SRS 7.5
+[88/106] [mobile] › e2e/shell.spec.ts:149:5 › badges: chỉ inbox / grading; không viết cứng số trong nav.ts
+[89/106] [mobile] › e2e/shell.spec.ts:160:5 › mobile: ≤ 5 đích, Thêm đủ mục còn lại, đóng bằng Esc trả focus, không tràn ngang
+[90/106] [mobile] › e2e/shell.spec.ts:184:5 › topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài khoản
+[91/106] [mobile] › e2e/shell.spec.ts:201:5 › palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV không thấy Điểm danh
+[92/106] [mobile] › e2e/shell.spec.ts:246:5 › notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần
+[93/106] [mobile] › e2e/shell.spec.ts:282:7 › session › phiên ADMIN thật: nav Admin, không đổi vai, có Đăng xuất; token không lộ ra storage / DOM / URL
+[94/106] [mobile] › e2e/shell.spec.ts:301:7 › session › phiên STUDENT thật: màn mock dùng sv-2 + tên thật, SV bị chặn /settings/llm
+[95/106] [mobile] › e2e/shell.spec.ts:313:5 › forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1
+[96/106] [mobile] › e2e/shell.spec.ts:340:5 › no-backend: MOCK_SCREENS=0 → empty-no-backend đúng phase, 1 nút, nav còn
+[97/106] [mobile] › e2e/shell.spec.ts:365:5 › keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự header → sidebar → nội dung, Esc trả focus
+[98/106] [mobile] › e2e/shell.spec.ts:396:5 › regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28
+[99/106] [mobile] › e2e/shell.spec.ts:413:5 › touch: vùng chạm và tràn ngang ở 4 vai × 375/390
+[100/106] [mobile] › e2e/shell.spec.ts:436:5 › BUG-PU04-1: bảng Thêm ở điện thoại là bảng trượt — đóng bằng bấm ngoài, vuốt xuống, Esc và trả focus về nút Thêm
+[101/106] [mobile] › e2e/shell.spec.ts:483:5 › frame layers: body = canvas; sidebar và thanh trên = surface (đặc) + đường kẻ; main không tự đặt nền
+[102/106] [mobile] › e2e/shell.spec.ts:507:5 › nav states: hover / đang chọn = surface-subtle; vạch đỏ 2 px; focus-visible thấy rõ; nhãn nhóm ≥ 4,5 : 1
+[103/106] [mobile] › e2e/shell.spec.ts:536:5 › preshell parity: nền ba vùng của PreShell và AppShell giống nhau, h1 không dịch chỗ khi phiên về
+[104/106] [mobile] › e2e/shell.spec.ts:565:5 › bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; bảng Thêm là lớp nổi (surface, shadow-popover, radius-lg), không phải Panel
+[105/106] [mobile] › e2e/shell.spec.ts:585:5 › route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi
+[106/106] [mobile] › e2e/shell.spec.ts:591:5 › demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng · dữ liệu giả'; phiên không có lớp thật vẫn có
+  30 skipped
+  76 passed (2.9m)
+
+real	2m48.106s
+user	2m34.016s
+sys	1m1.031s

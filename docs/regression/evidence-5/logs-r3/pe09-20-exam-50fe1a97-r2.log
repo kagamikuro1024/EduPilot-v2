@@ -1,0 +1,151 @@
+[WebServer] (node:9974) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+[WebServer] (node:10013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 118 tests using 2 workers
+
+(node:10081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:10082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/118] [desktop] › e2e/analytics-exam.spec.ts:49:5 › chọn bài khác gọi lại overview với exam_id (AC1)
+[2/118] [desktop] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5)
+[3/118] [desktop] › e2e/analytics-exam.spec.ts:57:5 › theo tuần: gửi week, tuần không có bài → «Chưa có bài thi» (AC3)
+[4/118] [desktop] › e2e/analytics-exam.spec.ts:66:5 › liên kết «Xem ở Báo cáo lỗ hổng» chỉ khi chủ đề trùng báo cáo; lớp chưa có báo cáo → không liên kết (AC4)
+[5/118] [desktop] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4)
+[6/118] [desktop] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6)
+[7/118] [desktop] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6)
+[8/118] [desktop] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8)
+[9/118] [desktop] › e2e/analytics-exam.spec.ts:99:5 › overview lỗi → thông báo + Thử lại (AC8)
+[10/118] [desktop] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10)
+[11/118] [desktop] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá
+[12/118] [desktop] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt
+[13/118] [desktop] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ
+[14/118] [desktop] › e2e/exam.spec.ts:268:5 › questions bank: trạng thái rỗng và lỗi có Thử lại
+[15/118] [desktop] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ
+[16/118] [desktop] › e2e/exam.spec.ts:415:5 › exam editor: tạo bài, lỗi lên lịch có danh sách, chọn câu, đổi thứ tự, xem trước, lên lịch, hoàn tác, gia hạn
+[17/118] [desktop] › e2e/exam.spec.ts:506:5 › exam editor: TA không có nút Lên lịch, kèm câu giải thích; nhân bản và xoá nháp
+[18/118] [desktop] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu
+[19/118] [desktop] › e2e/exam.spec.ts:539:5 › exam list: trạng thái rỗng và lỗi có Thử lại
+[20/118] [desktop] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px
+[21/118] [desktop] › e2e/exam.spec.ts:599:5 › student exam list: trạng thái rỗng
+[22/118] [desktop] › e2e/exam.spec.ts:605:5 › exam route access: sinh viên không mở được trang soạn bài; Staff không mở được trang làm bài
+[23/118] [desktop] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại
+[24/118] [desktop] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ'
+[25/118] [desktop] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt
+[26/118] [desktop] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc
+[27/118] [desktop] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai
+[28/118] [desktop] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc
+[29/118] [desktop] › e2e/exam.spec.ts:872:5 › take: offline mid exam — mất mạng vẫn chọn được; có mạng lại thì tự lưu
+[30/118] [desktop] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang
+[31/118] [desktop] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột
+[32/118] [desktop] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe
+[33/118] [desktop] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất
+[34/118] [desktop] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ
+[35/118] [desktop] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật
+[36/118] [desktop] › e2e/exam.spec.ts:1096:5 › take: submission history — Đang chấm → kết quả, nhãn Lần nộp tính điểm, xem mã và Dùng lại mã này
+[37/118] [desktop] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả
+[38/118] [desktop] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ
+[39/118] [desktop] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0
+[40/118] [desktop] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần
+[41/118] [desktop] › e2e/exam.spec.ts:1186:5 › take: integrity notice — đúng chữ ở màn bắt đầu và dải cố định trong giờ; Bắt đầu chỉ bấm được sau khi thấy câu này; không từ kỹ thuật
+[42/118] [desktop] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu
+[43/118] [desktop] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung
+[44/118] [desktop] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive
+[45/118] [desktop] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm
+[46/118] [desktop] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống
+[47/118] [desktop] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do
+[48/118] [desktop] › e2e/exam.spec.ts:1420:5 › results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang
+[49/118] [desktop] › e2e/exam.spec.ts:1431:5 › results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm
+[50/118] [desktop] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần
+[51/118] [desktop] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu
+[52/118] [desktop] › e2e/exam.spec.ts:1499:5 › student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần
+[53/118] [desktop] › e2e/exam.spec.ts:1524:5 › student result: 375 px — phần trắc nghiệm dùng được, mã code cuộn ngang trong khối mã, trang không tràn ngang
+[54/118] [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang
+[55/118] [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang
+[56/118] [desktop] › e2e/exam.spec.ts:1559:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép
+[57/118] [desktop] › e2e/exam.spec.ts:1583:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án
+[58/118] [desktop] › e2e/exam.spec.ts:1600:5 › student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án
+[59/118] [desktop] › e2e/exam.spec.ts:1607:5 › results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn thấy, cuộn tới cuối vẫn thấy dòng cuối
+(node:12270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[60/118] [mobile] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5)
+(node:12287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[61/118] [mobile] › e2e/analytics-exam.spec.ts:57:5 › theo tuần: gửi week, tuần không có bài → «Chưa có bài thi» (AC3)
+[62/118] [mobile] › e2e/analytics-exam.spec.ts:49:5 › chọn bài khác gọi lại overview với exam_id (AC1)
+[63/118] [mobile] › e2e/analytics-exam.spec.ts:66:5 › liên kết «Xem ở Báo cáo lỗ hổng» chỉ khi chủ đề trùng báo cáo; lớp chưa có báo cáo → không liên kết (AC4)
+[64/118] [mobile] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4)
+[65/118] [mobile] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6)
+[66/118] [mobile] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6)
+[67/118] [mobile] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8)
+[68/118] [mobile] › e2e/analytics-exam.spec.ts:99:5 › overview lỗi → thông báo + Thử lại (AC8)
+[69/118] [mobile] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10)
+[70/118] [mobile] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá
+[71/118] [mobile] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt
+[72/118] [mobile] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ
+[73/118] [mobile] › e2e/exam.spec.ts:268:5 › questions bank: trạng thái rỗng và lỗi có Thử lại
+[74/118] [mobile] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ
+[75/118] [mobile] › e2e/exam.spec.ts:415:5 › exam editor: tạo bài, lỗi lên lịch có danh sách, chọn câu, đổi thứ tự, xem trước, lên lịch, hoàn tác, gia hạn
+[76/118] [mobile] › e2e/exam.spec.ts:506:5 › exam editor: TA không có nút Lên lịch, kèm câu giải thích; nhân bản và xoá nháp
+[77/118] [mobile] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu
+[78/118] [mobile] › e2e/exam.spec.ts:539:5 › exam list: trạng thái rỗng và lỗi có Thử lại
+[79/118] [mobile] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px
+[80/118] [mobile] › e2e/exam.spec.ts:599:5 › student exam list: trạng thái rỗng
+[81/118] [mobile] › e2e/exam.spec.ts:605:5 › exam route access: sinh viên không mở được trang soạn bài; Staff không mở được trang làm bài
+[82/118] [mobile] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại
+[83/118] [mobile] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ'
+[84/118] [mobile] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt
+[85/118] [mobile] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc
+[86/118] [mobile] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai
+[87/118] [mobile] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc
+[88/118] [mobile] › e2e/exam.spec.ts:872:5 › take: offline mid exam — mất mạng vẫn chọn được; có mạng lại thì tự lưu
+[89/118] [mobile] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang
+[90/118] [mobile] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột
+[91/118] [mobile] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe
+[92/118] [mobile] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất
+[93/118] [mobile] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ
+[94/118] [mobile] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật
+[95/118] [mobile] › e2e/exam.spec.ts:1096:5 › take: submission history — Đang chấm → kết quả, nhãn Lần nộp tính điểm, xem mã và Dùng lại mã này
+[96/118] [mobile] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả
+[97/118] [mobile] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ
+[98/118] [mobile] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0
+[99/118] [mobile] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần
+[100/118] [mobile] › e2e/exam.spec.ts:1186:5 › take: integrity notice — đúng chữ ở màn bắt đầu và dải cố định trong giờ; Bắt đầu chỉ bấm được sau khi thấy câu này; không từ kỹ thuật
+[101/118] [mobile] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu
+[102/118] [mobile] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung
+[103/118] [mobile] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive
+[104/118] [mobile] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm
+[105/118] [mobile] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống
+[106/118] [mobile] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do
+[107/118] [mobile] › e2e/exam.spec.ts:1420:5 › results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang
+[108/118] [mobile] › e2e/exam.spec.ts:1431:5 › results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm
+[109/118] [mobile] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần
+[110/118] [mobile] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu
+[111/118] [mobile] › e2e/exam.spec.ts:1499:5 › student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần
+[112/118] [mobile] › e2e/exam.spec.ts:1524:5 › student result: 375 px — phần trắc nghiệm dùng được, mã code cuộn ngang trong khối mã, trang không tràn ngang
+[113/118] [mobile] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang
+[114/118] [mobile] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang
+[115/118] [mobile] › e2e/exam.spec.ts:1559:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép
+[116/118] [mobile] › e2e/exam.spec.ts:1583:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án
+[117/118] [mobile] › e2e/exam.spec.ts:1600:5 › student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án
+[118/118] [mobile] › e2e/exam.spec.ts:1607:5 › results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn thấy, cuộn tới cuối vẫn thấy dòng cuối
+  4 skipped
+  114 passed (3.9m)
+
+real	3m53.706s
+user	2m50.905s
+sys	1m10.207s

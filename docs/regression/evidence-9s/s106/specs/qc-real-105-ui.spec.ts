@@ -1,6 +1,7 @@
 import { appendFileSync, readFileSync } from "node:fs";
-import { test, type Browser } from "@playwright/test";
+import { test, request, type Browser } from "@playwright/test";
 import { sql, PW, OUT } from "./qc-real-lib";
+import { writeFileSync } from "node:fs";
 const RES = "/Users/kuro/Documents/TA_Agent_qc9s/docs/regression/evidence-9s/s106/results_106.jsonl";
 const D = JSON.parse(readFileSync("/Users/kuro/.config/edupilot-team/qc3-work/ux60.json", "utf8")) as { a: string };
 const verdict = (tc: string, cond: boolean, why: string) => { appendFileSync(RES, JSON.stringify({ tc, kq: cond ? "P" : "F", note: why }) + "\n"); console.log("VERDICT", cond ? "P" : "F", tc, why.slice(0, 380)); };
@@ -73,4 +74,55 @@ test("D07", async ({ browser }) => {
   { const { ctx, page } = await pageAs(browser, "admin"); let n = 0; await page.route(/observability\/decision/, (r) => { n++; return r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "x" }) }); });
     await page.goto("/observability"); await page.waitForTimeout(6000); const retry = await page.getByRole("button", { name: /Thử lại/ }).count(); out.push(`12 lỗi: yêu cầu ${n}, nút «Thử lại» ${retry}`); if (retry) { await page.unroute(/observability\/decision/); await page.getByRole("button", { name: /Thử lại/ }).first().click(); await page.waitForTimeout(3000); out.push(`12 sau thử lại: «Thử lại» còn ${await page.getByRole("button", { name: /Thử lại/ }).count()}`); } await ctx.close(); }
   console.log("VERDICT D07", JSON.stringify(out));
+});
+
+test("D03-12", async ({ browser }) => {
+  const label = process.env.D3_LABEL ?? "x"; const body = process.env.D3_BODY ?? ""; const { ctx, page } = await pageAs(browser, "sv.kha"); const codes: string[] = [];
+  page.on("response", (r) => { if (/\/threads$/.test(r.url()) && r.request().method() === "POST") codes.push(String(r.status())); });
+  await page.goto("/threads"); await page.waitForTimeout(2500); await page.getByRole("button", { name: "Đặt câu hỏi" }).click(); await page.waitForTimeout(700);
+  const f = page.locator("[data-part=thread-form]"); await f.getByLabel("Tiêu đề").fill("QC105 hộp thoại " + label + " " + Date.now()); await f.getByLabel("Nội dung").fill(body); await page.waitForTimeout(1500);
+  await f.getByRole("button", { name: "Đăng", exact: true }).click(); await page.waitForTimeout(2500);
+  const dlg = page.getByRole("dialog").or(page.getByRole("alertdialog")).last(); const dt = (await dlg.innerText().catch(() => "")).replace(/\n+/g, " ¦ "); const btns = await dlg.getByRole("button").allInnerTexts().catch(() => []);
+  const bad = /(decision|cascade|embedding|fallback|FAIL|RAG|PII|classif|AI)/i.test(dt);
+  console.log("VERDICT D03-12", JSON.stringify({ label, codes, dt: dt.slice(0, 420), btns, forbidden: bad })); await page.screenshot({ path: `${OUT}/s105-d0312-${label}.png` }); await ctx.close();
+});
+
+test("D06-14-16-19", async ({ browser }) => {
+  const out: string[] = [];
+  // 14: hai tab
+  { const { ctx, page } = await pageAs(browser, "admin"); const codes: string[] = []; page.on("response", (r) => { if (/decision\/gates/.test(r.url()) && r.request().method() === "PUT") codes.push(String(r.status())); });
+    await page.goto("/settings/llm"); await page.waitForTimeout(6000); const blk = page.locator("main");
+    const g = blk.getByText("Định tuyến câu hỏi chat", { exact: true }).locator("xpath=ancestor::*[.//button[normalize-space()='Cài đặt nâng cao']][1]"); const sw = g.getByRole("switch").first(); const before = await sw.getAttribute("aria-checked");
+    const api = await request.newContext({ baseURL: "https://localhost:943", ignoreHTTPSErrors: true }); const lg = await api.post("/api/v1/auth/login", { data: { email: "admin@edupilot.local", password: PW } }); const tok = (await lg.json()).access_token; const H = { Authorization: `Bearer ${tok}` };
+    const cur = await (await api.get("/api/v1/admin/llm/decision", { headers: H })).json(); const ver = cur.gates.find((x: any) => x.gate === "CHAT_ROUTING").version; const r2 = await api.put("/api/v1/admin/llm/decision/gates/CHAT_ROUTING", { headers: H, data: { enabled: true, version: ver } });
+    await sw.click(); await page.waitForTimeout(2000); const after = await sw.getAttribute("aria-checked"); const txt = (await blk.innerText()).replace(/\n+/g, " ¦ "); const note = txt.match(/(đã đổi|xung đột|tải lại|Dữ liệu đã thay đổi|người khác)[^¦]*/i)?.[0] ?? "(không thấy)";
+    out.push(`14: tab khác đổi cổng (PUT ${r2.status()}); tab này bấm với version cũ → PUT ${JSON.stringify(codes)}; công tắc ${before} → ${after}; thông báo «${note}»; DB enabled = ${sql("select enabled from decision_gates where gate='CHAT_ROUTING'")[0][0]}`);
+    const cur2 = await (await api.get("/api/v1/admin/llm/decision", { headers: H })).json(); await api.put("/api/v1/admin/llm/decision/gates/CHAT_ROUTING", { headers: H, data: { enabled: false, version: cur2.gates.find((x: any) => x.gate === "CHAT_ROUTING").version } }); await ctx.close(); }
+  // 16: tải chậm / 500 / chưa cấu hình
+  { const { ctx, page } = await pageAs(browser, "admin"); await page.route(/admin\/llm\/decision$/, async (r) => { await new Promise((x) => setTimeout(x, 3000)); await r.continue(); });
+    await page.goto("/settings/llm"); await page.waitForTimeout(1200); const skel = await page.locator("[aria-busy=true], [data-part*=skeleton], [class*=skeleton], [class*=Skeleton]").count(); const spin = await page.locator("[role=progressbar], [class*=spinner]").count(); await page.waitForTimeout(5000);
+    out.push(`16 chậm 3 s: skeleton ${skel}, spinner riêng ${spin}`); await ctx.close(); }
+  { const { ctx, page } = await pageAs(browser, "admin"); let n = 0; await page.route(/admin\/llm\/decision$/, (r) => { n++; return r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "x" }) }); });
+    await page.goto("/settings/llm"); await page.waitForTimeout(5000); const retry = page.locator("main").getByRole("button", { name: /Thử lại/ }); const rc = await retry.count(); let after = -1;
+    if (rc) { await page.unroute(/admin\/llm\/decision$/); await retry.first().click(); await page.waitForTimeout(3000); after = await page.locator("main").getByRole("button", { name: /Thử lại/ }).count(); }
+    out.push(`16 lỗi 500: yêu cầu ${n}, «Thử lại» ${rc}, sau bấm còn ${after}`); await ctx.close(); }
+  { const { ctx, page } = await pageAs(browser, "admin"); await page.route(/admin\/llm\/decision$/, async (r) => { const res = await r.fetch(); const j = await res.json(); j.provider = null; await r.fulfill({ response: res, json: j }); });
+    await page.goto("/settings/llm"); await page.waitForTimeout(5000); const t = (await page.locator("main").innerText()).replace(/\n+/g, " ¦ "); const i = t.indexOf("Quyết định nhanh");
+    out.push(`16 chưa cấu hình (provider=null): «${t.slice(i, i + 260)}»; nút «Thêm» ×${await page.locator("main").getByRole("button", { name: "Thêm", exact: true }).count()}`); await ctx.close(); }
+  // 19: quét chữ
+  { const { ctx, page } = await pageAs(browser, "admin"); await page.goto("/settings/llm"); await page.waitForTimeout(6000); const t = await page.locator("main").innerText(); const i = t.indexOf("Quyết định nhanh"); const blk = t.slice(i, t.indexOf("Mô hình tìm kiếm tài liệu"));
+    out.push(`19: chữ khối «Quyết định nhanh» (${blk.length} ký tự) có RAG/PII/fallback/trace/cascade/decision(chữ thường) = ${/(\bRAG\b|\bPII\b|fallback|\btrace\b|cascade|\bdecision\b)/.test(blk.replace(/decision-fake|gemini-decision-1/g, ""))}`); await ctx.close(); }
+  console.log("VERDICT D06b", JSON.stringify(out));
+});
+
+test("D06-16load", async ({ browser }) => {
+  const { ctx, page } = await pageAs(browser, "admin"); await page.route(/admin\/llm\/decision$/, async (r) => { await new Promise((x) => setTimeout(x, 3000)); await r.continue(); });
+  await page.goto("/settings/llm"); await page.waitForTimeout(1500); const t = (await page.locator("main").innerText()).replace(/\n+/g, " ¦ "); const i = t.indexOf("Quyết định nhanh");
+  const sk = await page.locator("main [class*=kel], main [aria-busy], main [role=status]").evaluateAll((els) => els.map((e) => `${e.tagName}.${(e as HTMLElement).className.toString().slice(0, 40)}|${e.getAttribute("aria-busy")}`).slice(0, 6));
+  console.log("VERDICT D06-16load", JSON.stringify({ i, quyetdinh: i >= 0 ? t.slice(i, i + 160) : "(chưa có khối)", sk, head: t.slice(0, 160) })); await ctx.close();
+  const c2 = await browser.newContext({ baseURL: "https://localhost:943", ignoreHTTPSErrors: true }); await c2.close();
+});
+test("D06-19txt", async ({ browser }) => {
+  const { ctx, page } = await pageAs(browser, "admin"); await page.goto("/settings/llm"); await page.waitForTimeout(6000); const t = await page.locator("main").innerText(); const i = t.indexOf("Quyết định nhanh"); const blk = t.slice(i, t.indexOf("Mô hình tìm kiếm tài liệu")).replace(/decision-fake|gemini-decision-1/g, "");
+  const hits = (blk.match(/(\bRAG\b|\bPII\b|fallback|\btrace\b|cascade|\bdecision\b)/gi) ?? []); console.log("VERDICT D06-19txt", JSON.stringify({ len: blk.length, hits, text: blk.replace(/\n+/g, " ¦ ").slice(0, 500) })); await ctx.close();
 });

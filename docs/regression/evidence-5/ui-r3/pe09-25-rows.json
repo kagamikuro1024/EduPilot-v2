@@ -291,13 +291,13 @@
   "role": "sv",
   "r": "/exams/[id]/take",
   "w": 720,
-  "ox": 34,
+  "ox": 0,
   "cut": [],
   "ell": [],
   "touch": [],
   "ax": [],
   "h1": 1,
-  "pass": false
+  "pass": true
  },
  {
   "role": "sv",
@@ -339,13 +339,13 @@
   "role": "sv",
   "r": "/exams/[id]/take",
   "w": 375,
-  "ox": 287,
+  "ox": 0,
   "cut": [],
   "ell": [],
   "touch": [],
   "ax": [],
   "h1": 1,
-  "pass": false
+  "pass": true
  },
  {
   "role": "sv",
