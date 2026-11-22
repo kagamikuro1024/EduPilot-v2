@@ -48,4 +48,4 @@
 - Kỳ vọng (US-DM-04 AC4, TC): tối đa 16.000 ký tự = 8.000 đầu + 8.000 cuối.
 - Thực tế: `input` dài 16.001 ký tự (8.000 đầu + «\n» + 8.000 cuối; `llm/decide.go` `clip`: `r[:limit/2] + "\n" + r[len(r)-limit/2:]`). Đầu/cuối đúng, phần giữa (MIDMARK) không có trong thân, log, `llm_request_payloads` của DECIDE. Regex vẫn gắn cờ cả hai bài.
 - Bằng chứng: `evidence-9s/s106/g105h2_2b.py`.
-- Trạng thái: MỞ
+- Trạng thái: ĐÓNG — P ở 1fdcda73 (thân đúng 16.000: 8.000 đầu + «\n» + 7.999 cuối)
