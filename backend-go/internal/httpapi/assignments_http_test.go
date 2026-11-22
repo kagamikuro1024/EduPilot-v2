@@ -4,10 +4,13 @@ package httpapi
 
 import (
 	"net/http"
+	"regexp"
+	"sort"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
 	"github.com/edupilot/backend-go/internal/auth"
@@ -187,6 +190,86 @@ func TestStudentCannotCallStaffRoutes(t *testing.T) {
 	for _, tok := range []string{c.tTok, c.adminTk} {
 		if r := tDo(t, http.MethodGet, base+"/"+id+"/mine", tok, ""); r.StatusCode != http.StatusForbidden {
 			t.Fatalf("mine với vai không phải sinh viên → %d (cần 403)", r.StatusCode)
+		}
+	}
+}
+
+// p7Writers: ai được gọi route ghi P7 (SRS FEAT-assignments mục 2 và 6, FEAT-grading-guidance 6): S = sinh viên lớp, A = TA lớp, T = giảng viên lớp.
+// Giảng viên lớp khác và ADMIN không thuộc lớp luôn 403 (CourseAccessGuard, D39). Route ghi P7 mới KHÔNG có ở đây → test đỏ, buộc khai báo vai.
+var p7Writers = map[string]string{
+	"POST /assignments": "T", "PUT /assignments/{aid}": "T", "DELETE /assignments/{aid}": "T", "POST /assignments/{aid}/publish": "T", "PUT /assignments/{aid}/rubric": "T",
+	"POST /assignments/{aid}/rubric/suggest": "AT", "POST /assignments/{aid}/submit/presign": "S", "POST /assignments/{aid}/submit": "S", "POST /assignments/{aid}/appeal": "S",
+	"POST /assignments/{aid}/submissions/upload": "AT", "POST /assignments/{aid}/grade-all": "AT", "POST /assignments/{aid}/regrade-stale": "AT",
+	"POST /assignments/{aid}/guidance/reflect": "T", "POST /assignments/{aid}/guidance/items/{iid}/decide": "T", "POST /assignments/{aid}/guidance/apply": "T",
+	"PUT /submissions/{sid}/match": "AT", "POST /submissions/{sid}/grade": "AT", "POST /submissions/{sid}/dismiss": "AT", "DELETE /submissions/{sid}/dismiss": "AT",
+	"PUT /grading-results/{rid}": "AT", "POST /grading-results/{rid}/review": "AT", "POST /grading-results/{rid}/retry": "AT", "POST /grading-results/publish": "T",
+	"POST /appeals/{apid}/decide": "T",
+}
+
+// TestP7WriteRoutesRBACMatrix — US-P7-01 AC6, US-P7-02 AC10: mọi route GHI P7 lấy từ router thật (chi.Walk, không chép tay) × {STUDENT, TA, giảng viên LỚP KHÁC,
+// ADMIN không thuộc lớp, TEACHER đúng lớp}: vai không được phép → 403; vai được phép → không 401 / 403 (qua guard; 4xx nghiệp vụ vì id lạ là bình thường).
+func TestP7WriteRoutesRBACMatrix(t *testing.T) {
+	c := tAsgCourse(t)
+	_, d := tStack(t)
+	ta := uuid.NewString()
+	if _, err := d.DB.Exec(t.Context(), `insert into users (id, email, full_name, role) values ($1, $2, 'Trợ giảng', 'TA')`, ta, "ta."+uuid.NewString()[:8]+"@example.test"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := d.DB.Exec(t.Context(), `insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'TA', 'ACTIVE', 'ADMIN')`, c.id, ta); err != nil {
+		t.Fatal(err)
+	}
+	toks := []struct{ name, letter, tok string }{
+		{"sinh viên", "S", c.sTok}, {"TA", "A", tTokenRole(t, ta, auth.RoleTA)}, {"giảng viên lớp khác", "", tTokenRole(t, uuid.NewString(), auth.RoleTeacher)},
+		{"ADMIN ngoài lớp", "", c.adminTk}, {"giảng viên lớp", "T", c.tTok},
+	}
+	rt, ok := NewRouter(d).(chi.Routes)
+	if !ok {
+		t.Fatal("router không phải chi.Routes")
+	}
+	param := regexp.MustCompile(`\{[^}]+\}`)
+	seen := map[string]string{} // "METHOD /mẫu" → đường dẫn cụ thể
+	if err := chi.Walk(rt, func(method, route string, _ http.Handler, _ ...func(http.Handler) http.Handler) error {
+		route = strings.ReplaceAll(route, "/*/", "/")
+		rest, ok := strings.CutPrefix(route, "/api/v1/courses/{id}")
+		if !ok || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions {
+			return nil
+		}
+		if strings.HasPrefix(rest, "/assignments") || strings.HasPrefix(rest, "/submissions") || strings.HasPrefix(rest, "/grading-results") || strings.HasPrefix(rest, "/appeals") {
+			seen[method+" "+rest] = "/api/v1/courses/" + c.id + param.ReplaceAllStringFunc(rest, func(string) string { return uuid.NewString() })
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	keys := make([]string, 0, len(seen))
+	for k := range seen {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	if len(keys) < len(p7Writers) {
+		t.Fatalf("chỉ thấy %d route ghi P7 trên router, ma trận khai %d: %v", len(keys), len(p7Writers), keys)
+	}
+	for _, k := range keys {
+		allowed, known := p7Writers[k]
+		if !known {
+			t.Errorf("%s: route ghi P7 chưa có trong p7Writers (khai vai được phép theo SRS)", k)
+			continue
+		}
+		method, _, _ := strings.Cut(k, " ")
+		for _, tk := range toks {
+			r := tDo(t, method, seen[k], tk.tok, `{}`, "Idempotency-Key", tIdemKey(t))
+			ok := tk.letter != "" && strings.Contains(allowed, tk.letter)
+			if !ok && r.StatusCode != http.StatusForbidden {
+				t.Errorf("%s bởi %s → %d (cần 403)", k, tk.name, r.StatusCode)
+			}
+			if ok && (r.StatusCode == http.StatusForbidden || r.StatusCode == http.StatusUnauthorized) {
+				t.Errorf("%s bởi %s → %d (vai được phép bị chặn)", k, tk.name, r.StatusCode)
+			}
+		}
+	}
+	for k := range p7Writers {
+		if _, ok := seen[k]; !ok {
+			t.Errorf("%s có trong p7Writers nhưng không còn trên router", k)
 		}
 	}
 }

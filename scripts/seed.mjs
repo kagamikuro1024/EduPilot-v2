@@ -21,6 +21,7 @@ import { meta } from "../benchmarks/lib/meta.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 import { APPROVED as P9_APPROVED, C2_APPROVED as P9_C2, ESSAYS as P9_ESSAYS, PENDING as P9_PENDING } from "./practice-seed-data.mjs";
 import { anchorNowIso } from "./seed-clock.mjs";
+import { stackMismatch } from "./seed-stack.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -1444,6 +1445,23 @@ function inBackground(fn) {
   };
 }
 
+/** Trước lệnh admin đầu tiên ghi dữ liệu (bước 12): id lớp 761987 qua API phải bằng id qua lệnh admin; lệch → thoát 2 (DEF-R105S-05). */
+function assertSameStack() {
+  let adminOut = null;
+  try {
+    adminOut = gatewayAdmin("seed-identity", ["--course", "761987"]);
+  } catch {
+    /* lệnh lỗi (DB khác không có lớp): xử như lệch */
+  }
+  const cmd = process.env.SEED_ADMIN_CMD;
+  const target = cmd ? cmd.replace(/\s+create\s*$/, "") : `docker compose exec gateway (project ${process.env.COMPOSE_PROJECT_NAME || "edupilot"})`;
+  const bad = stackMismatch({ apiId: ctx.ids["761987"], adminOut, adminTarget: target, api: API });
+  if (bad) {
+    console.error("Seed dừng:", mask(bad));
+    process.exit(2);
+  }
+}
+
 async function main() {
   const started = Date.now();
   if (IF_EMPTY && (await isSeeded())) {
@@ -1453,6 +1471,7 @@ async function main() {
   await step1Admin();
   await step2Staff();
   await step3Courses();
+  assertSameStack();
   await step4Sessions();
   await step5Roster();
   await step6Register();
