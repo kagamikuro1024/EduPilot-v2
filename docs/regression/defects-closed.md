@@ -94,3 +94,4 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - DEF-R9.5-14 (4bfe444c): ĐÓNG 22/11 — TC-N09-04 P (139 số, 0 lệch; evidence-9.5/rerun/n09-04-4bfe444c.log).
 - DEF-R9.5-06 (84e29eec): ĐÓNG 22/11 — TC-N10-06 P. DEF-R9.5-25: TC-N07-02 P theo P-11-101 (c17e5c28).
 - DEF-R1-01 (752ce1f9): ĐÓNG 22/11 — P0-01/TC-07 P. DEF-R105S-01 (ca0aa7df + P-11-102): ĐÓNG — D08-06 P. DEF-R105S-06 (f15746a4): ĐÓNG — D06-22 P (ep-r FE @8f87223b).
+- DEF-Q2-S4-02..06 (P-11-103, 9cac4c20): ĐÓNG 22/11 — TC GATEP2-28, P202-44, P207-14, P211-30, P212-18 sửa theo nhóm B và chấm P (evidence-f16/).

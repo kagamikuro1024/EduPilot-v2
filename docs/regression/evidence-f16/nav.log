@@ -1,0 +1,116 @@
+{
+ "admin": [
+  "Hôm nay",
+  "Quan sát AI",
+  "Lớp học",
+  "Người dùng",
+  "Nhật ký",
+  "Cấu hình LLM",
+  "Tích hợp"
+ ],
+ "admin_demo": {
+  "sw": 0,
+  "ck": false
+ },
+ "teacher": [
+  "Hôm nay",
+  "Hộp thư hỗ trợ",
+  "Sinh viên",
+  "Điểm danh",
+  "Sổ điểm",
+  "Chấm bài",
+  "Ngân hàng câu hỏi",
+  "Bài thi",
+  "Hỏi đáp công khai",
+  "Tài liệu",
+  "Lịch",
+  "Lỗ hổng kiến thức",
+  "Số liệu lớp học",
+  "Quan sát AI",
+  "Cấu hình LLM",
+  "Tích hợp"
+ ],
+ "teacher_demo": {
+  "sw": 0,
+  "ck": false
+ },
+ "ta": [
+  "Hôm nay",
+  "Hộp thư hỗ trợ",
+  "Sinh viên",
+  "Điểm danh",
+  "Sổ điểm",
+  "Chấm bài",
+  "Ngân hàng câu hỏi",
+  "Bài thi",
+  "Hỏi đáp công khai",
+  "Tài liệu",
+  "Lịch",
+  "Lỗ hổng kiến thức",
+  "Số liệu lớp học"
+ ],
+ "ta_demo": {
+  "sw": 0,
+  "ck": false
+ },
+ "sv.gioi": [
+  "Hôm nay",
+  "Chat riêng",
+  "Hỏi đáp công khai",
+  "Bài tập",
+  "Luyện đề",
+  "Bài thi",
+  "Thư viện",
+  "Lịch",
+  "Kết quả của tôi"
+ ],
+ "sv.gioi_demo": {
+  "sw": 0,
+  "ck": false
+ },
+ "sv.kha": [
+  "Hôm nay",
+  "Chat riêng",
+  "Hỏi đáp công khai",
+  "Bài tập",
+  "Luyện đề",
+  "Bài thi",
+  "Thư viện",
+  "Lịch",
+  "Kết quả của tôi"
+ ],
+ "sv.kha_demo": {
+  "sw": 0,
+  "ck": false
+ },
+ "sv.nguyco": [
+  "Hôm nay",
+  "Chat riêng",
+  "Hỏi đáp công khai",
+  "Bài tập",
+  "Luyện đề",
+  "Bài thi",
+  "Thư viện",
+  "Lịch",
+  "Kết quả của tôi"
+ ],
+ "sv.nguyco_demo": {
+  "sw": 0,
+  "ck": false
+ },
+ "sv.moi": [
+  "Hôm nay",
+  "Chat riêng",
+  "Hỏi đáp công khai",
+  "Bài tập",
+  "Luyện đề",
+  "Bài thi",
+  "Thư viện",
+  "Lịch",
+  "Kết quả của tôi"
+ ],
+ "sv.moi_demo": {
+  "sw": 0,
+  "ck": false
+ }
+}

@@ -1,0 +1,21 @@
+57:// adminOnly là các route lớp của sprint trước mang hợp đồng ADMIN-only bất biến (RequireRole, 422 khi id không phải uuid), không qua
+58-// CourseAccessGuard. Danh sách đóng: thêm route vào đây phải có lý do trong proposals; chúng vẫn bị kiểm 403 `reason=role` với người không ph�
+59:var adminOnly = map[string]bool{
+60-	"GET /courses/{id}/llm-budget": true, "PUT /courses/{id}/llm-budget": true,
+61-	"GET /courses/{id}/decision-gates": true, "PUT /courses/{id}/decision-gates/{gate}": true, // 10.5 (US-DM): cổng quyết định theo lớp, ADMIN-only (RequireRole
+62-}
+63-
+64-// AC5: mọi route lớp đều có guard — người ngoài lớp (token hợp lệ) không nhận 2xx; một route quên guard thì bị lộ.
+65-func TestAllCourseRoutesGuarded(t *testing.T) {
+66-	r := newRig(t)
+67-	adm := r.addUser(uniq("adm"), store.UserRoleADMIN, store.UserStatusACTIVE)
+--
+78:			if adminOnly[cr.method+" "+cr.path] {
+79-				want = "role"
+80-			}
+81-			require.Equal(t, want, res.details()["reason"], "%s %s", cr.method, cr.path)
+--- PASS: TestAllCourseRoutesGuarded (1.59s)
+--- PASS: TestAllCourseRoutesGuardedDetectsMissing (0.00s)
+ok  	github.com/edupilot/backend-go/internal/integration	2.369s
+--- PASS: TestTodayQueryBudget (0.96s)
+ok  	github.com/edupilot/backend-go/internal/today	1.731s

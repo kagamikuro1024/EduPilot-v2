@@ -1,0 +1,10 @@
+SENT|escalation_answered|2
+SENT|invite_staff|2
+SENT|invite_student|30
+SENT|reminder|18
+SENT|thread_reply|6
+SENT|ticket_reminder|2
+SENT|verify_email|27
+DEAD|seed_observability_failed|1
+--- DEAD:
+seed_observability_failed|seed-obs-dead-mail|SMTP 550 hộp thư không tồn tại
