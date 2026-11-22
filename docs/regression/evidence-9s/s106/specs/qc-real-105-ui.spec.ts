@@ -179,3 +179,15 @@ test("D06-22b", async ({ browser }) => {
   }
   writeFileSync("/Users/kuro/.config/edupilot-team/qc3-work/d0622b.txt", out.join("\n"));
 });
+
+test("D03-13", async ({ browser }) => {
+  const { ctx, page } = await pageAs(browser, "sv.kha"); await page.goto("/threads"); await page.waitForTimeout(2500); await page.getByRole("button", { name: "Đặt câu hỏi" }).click(); await page.waitForTimeout(800);
+  const f = page.locator("[data-part=thread-form]"); const title = "QC105 chậm " + Date.now(); await f.getByLabel("Tiêu đề").fill(title); await f.getByLabel("Nội dung").fill("Em hỏi về cách nộp bài tập tuần này ạ, hạn nộp là khi nào ạ?"); await page.waitForTimeout(1500);
+  const reqs: { u: string; t: number }[] = []; page.on("request", (r) => { if (/\/threads(\/precheck)?$/.test(r.url()) && r.method() === "POST") reqs.push({ u: r.url().split("/").pop()!, t: Date.now() }); });
+  await page.evaluate(() => { (window as any).__ev = []; const t0 = performance.now(); const rec = () => { const txt = document.body.innerText; const b = Array.from(document.querySelectorAll("button")).find((x) => /^Đăng/.test(x.textContent || "") || /Đang/.test(x.textContent || "")) as HTMLButtonElement | undefined; (window as any).__ev.push({ t: Math.round(performance.now() - t0), chk: /Đang kiểm tra/.test(txt), dis: !!b?.disabled, lab: (b?.textContent || "").trim().slice(0, 20) }); }; new MutationObserver(rec).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true }); (window as any).__t0 = performance.now(); rec(); });
+  const btn = f.getByRole("button", { name: /^Đăng/ }).first(); const t0 = Date.now(); await btn.click(); await btn.click({ force: true, timeout: 400 }).catch(() => {}); await btn.click({ force: true, timeout: 400 }).catch(() => {});
+  await page.waitForTimeout(4000); const ev = await page.evaluate(() => (window as any).__ev as { t: number; chk: boolean; dis: boolean; lab: string }[]); const firstChk = ev.find((e) => e.chk); const dedup = ev.filter((e, i) => i === 0 || e.chk !== ev[i - 1].chk || e.dis !== ev[i - 1].dis || e.lab !== ev[i - 1].lab);
+  const n = sql(`select count(*) from forum_threads where title='${title}'`)[0][0];
+  writeFileSync("/Users/kuro/.config/edupilot-team/qc3-work/d0313.txt", JSON.stringify({ firstChkMsAfterLoad: firstChk?.t ?? -1, events: dedup.slice(0, 12), reqs: reqs.map((r) => ({ u: r.u, dt: r.t - t0 })), threadsInDb: n }));
+  await ctx.close();
+});
