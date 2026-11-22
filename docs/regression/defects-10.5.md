@@ -55,3 +55,11 @@
 - Hệ quả: TC-D08-03 chuyển F → N (lượt chạy vô hiệu); TC-D08-02 vẫn N. Chạy lại ở qc2seedt3 sau khi có `SEED_ADMIN_CMD` tường minh.
 - Ghi chú ep-qc: lệnh admin đã ghi vào lớp 761987 / 761988 của ep-qc (số dòng đã báo PM). question_bank 761987 vẫn 150 PENDING / 107 APPROVED (E5 nguyên).
 - Trạng thái: ĐÓNG (không phải lỗi sản phẩm)
+
+## DEF-R105S-06 — /settings/llm: 8 chữ đỏ cùng lúc, liên kết «Cài đặt nâng cao» đỏ ở bảng tác vụ nhưng xám ở khối «Quyết định nhanh» (DESIGN §22 đạt 6/10)
+- Mức: Thấp · TC: TC-D06-22 · Mã: 1fdcda73 (ep-qc, admin, 1440 và 375 px)
+- Bước tái hiện: `/settings/llm` (ADMIN); đọc màu chữ các nút/liên kết trong `main`; Tab qua 40 điểm dừng; đo tràn ngang.
+- Kỳ vọng (TC; DESIGN §14.23, §22): ≥ 8/10 điều kiện §22; một đường hành động rõ trong khung nhìn đầu (§22.2); phức tạp phụ không cạnh tranh (§22.3); đỏ chỉ có nghĩa «đang ở đâu / cần hành động / đã sửa» (§22.10).
+- Thực tế: đạt §22.1, 4, 5 (40/40 điểm dừng có viền focus), 6 (không tràn ngang ở 1440 và 375), 8 (ui-antipatterns sạch), 9 = 6/10. Chưa đạt: §22.2 và §22.3 — khung nhìn đầu 1440×900 có «Thêm nhà cung cấp» + 5 liên kết «Cài đặt nâng cao» cùng màu đỏ (tổng 8 chữ đỏ: 1 «Thêm nhà cung cấp», 6 «Cài đặt nâng cao», 1 «Đổi hạn mức»); §22.10 — «Cài đặt nâng cao» là hành động phụ nhưng đỏ ở bảng «Mô hình theo tác vụ», còn ở khối «Quyết định nhanh» cùng liên kết màu xám (không nhất quán). §22.7 (chữ Việt dài) chưa kiểm được: tên nhà cung cấp tối đa 60 ký tự và base_url phải hợp lệ khi tạo.
+- Bằng chứng: `evidence-9s/s106/specs/qc-real-105-ui.spec.ts` (D06-22), ảnh mốc `docs/sprints/10.5/qc/shots/settings-llm-admin-1440.png`.
+- Trạng thái: MỞ

@@ -41,3 +41,9 @@ Mã xoá (LT có nguồn quyết định):
 - TC-11-18: xoá — nguồn handoff `docs/sprints/10/handoff/dev-sprint10.md` L17 (mục «Nhập Forms (US-P9-11)») + điều kiện trong `tc-US-P9-11.md` dòng 2; PM xác nhận 2026-11-19.
 | DEF-R10S-20 | Cao | TC-12-17 | Hiệu năng tải: LCP (Lighthouse devtools) `/practice` 4.086 ms và `/practice/[id]` (lượt TOPIC đang làm) 17.723 ms, vượt ngưỡng 2.500 ms (TBT/script đạt). Phần tử LCP của `/practice/[id]` là đoạn chữ hiện sau khi dữ liệu lượt về; cùng môi trường `/chat` 2.031 ms. Số liệu `evidence-9s/s10/perf/lh-1217-summary.txt`. Theo TC: trượt → PM ghi dòng proposals.md, không nới ngưỡng. |
 | DEF-R10S-21 | Thấp | TC-02-18 | Chat riêng 1 QPS: TTFT p95 nền 21,6–44,6 ms (3 lượt) → 197,4 ms khi một việc `extract` đề 60 trang chạy nền (stub chậm 8 s/lời gọi), 1/60 yêu cầu lỗi; ngưỡng TC «xấu đi ≤ 20%». Kịch bản: `evidence-9s/s10/perf/chat-ttft.js` + `run0218.py`. |
+
+## Lượt 2026-11-22 (QC cặp 3, qc2seedt3 ở 49ebd12a, seed lần đầu) — lỗi
+| ID | Mức | TC | Mô tả / bằng chứng |
+| --- | --- | --- | --- |
+| DEF-R10S-07 | RÚT (P-10-11) | TC-12-02 | Seed lớp 761987: 107 câu APPROVED nhưng chỉ 3 có `citations` (104 câu `citations=[]`); TC: mọi câu APPROVED có citations thật (tài liệu seed tồn tại, trang hợp lệ). `SELECT count(*) FILTER (WHERE jsonb_array_length(citations)>0) FROM question_bank WHERE review_status='APPROVED' AND course_id=<761987>` = 3. |
+| DEF-R10S-08 | RÚT (P-10-11) | TC-12-04 | Câu «Mô tả nào đúng về MFA?» có ở cả lớp 761987 và 761988 (cùng stem, APPROVED, id khác); TC: ngân hàng lớp 2 không chứa câu của lớp 1 (so id và stem). |
