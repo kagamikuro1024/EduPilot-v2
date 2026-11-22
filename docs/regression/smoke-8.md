@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: 1409b04d (= 777bb5e2 + merge nhánh QC; sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 · Ngày: 2026-11-19 · Còn N: 33 ca SEED (chờ ep-sd seed sạch do PM bật); 05-42 F chờ rebuild có 2479feb9
-Tổng TC cũ: 512 · Đạt: 509 · Trượt: 2 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 1   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 512 · Trượt: 0 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 0   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -16,7 +16,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | P6-07 | 59 | 59 | 0 | 0 | 0 | 0 |
 | P6-08 | 47 | 47 | 0 | 0 | 0 | 0 |
 | P6-09 | 50 | 50 | 0 | 0 | 0 | 0 |
-| P6-SEED | 37 | 34 | 2 | 0 | 0 | 1 |
+| P6-SEED | 37 | 37 | 0 | 0 | 0 | 0 |
 | S8-UI | 23 | 23 | 0 | 0 | 0 | 0 |
 
 ## Kết quả từng ca
@@ -495,7 +495,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-SEED-19 | P | qc2 22/11 qc2s DB mới, SEED_RNG mặc định: seed.mjs bị kill (node seed.mjs, bằng PID) ngay khi vào bước [15/20] Quy chế môn (extract → confirm), nhập điểm (logs/winC-kill. |
 | TC-P6-SEED-20 | P | NODE_ENV=production node scripts/seed.mjs → «Seed bị chặn: NODE_ENV=production. Seed chỉ chạy ở môi trường dev / test.» rc=1 (chạy trên ep-sd, trước mọi lời gọi API) |
 | TC-P6-SEED-21 | P | qc2 22/11 DB trống (qc2s, DB mới sau migrate up 29): scripts/dev.mjs chạy đúng `node scripts/seed.mjs --if-empty` khi SEED_ON_EMPTY_DB=true (dev.mjs:79-86) — chạy lệnh đó |
-| TC-P6-SEED-22 | N | chưa chạy |
+| TC-P6-SEED-22 | P | qc2 22/11 chạy lại sau DEF-Q2-S8-04 (eb9213a7, spec activity tiến đồng hồ theo bước 5 s) trên stack mới qc2seedt2 (seed qua dev.mjs @6b3678c4): bash scripts/gate-p5.sh →  |
 | TC-P6-SEED-23 | P | git show 6711408d -- scripts/check-crm-seed.mjs: đúng 1 dòng đổi, WATCH === 2 → WATCH === 3 (sv12, sv19, sv26); seed/expected_risk.csv có WATCH 3, AT_RISK 1 — khớp; không |
 | TC-P6-SEED-24 | P | qc2 22/11 trên stack qc2s sạch (lớp 2 NO_POLICY, seed mặc định): bash scripts/gate-p6.sh → 13 dòng PASS (go vet; go test -race ./internal/grade/... 30/30; không float64 n |
 | TC-P6-SEED-25 | P | qc2 21/11, checkout ovnfs qc2mut (không đụng worktree). Đột biến 1: thêm var _ = float64(1) vào internal/grade → bash scripts/gate-p6.sh: go vet PASS, «go test -race ./in |
@@ -508,8 +508,8 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-SEED-32 | P | ghi chú quan sát của B mang «CANARY-GRADE-7Q» (SQL fixture, đã xoá sau quét); quét 55 route GET của sinh viên (me/* và courses/{id}/*) bằng token B: 20 trả 200, 34 trả 40 |
 | TC-P6-SEED-33 | P | qc2 21/11 @HEAD: go test -tags integration ./internal/integration -run TestSeedGradebookExpected|Isolation|AdminForbidden -v → 3 PASS (2,20 / 2,10 / 3,73 s), ok 8,8 s (lo |
 | TC-P6-SEED-34 | P | qc2 21/11 qc2s (provider giả DEMO): tải seed/documents/Quyche.pdf (quy chế của trường, không có bản ghi trong fake_llm.json) làm COURSE_POLICY ở lớp 2 → ingest READY → PO |
-| TC-P6-SEED-35 | F | qc2 22/11 qc2s: docker stop qc2s-gw rồi node scripts/seed.mjs → thoát rc=1 sau 0 s (không treo), nhưng thông báo chỉ «[1/20] Admin đầu tiên (gateway admin create)… Seed l |
-| TC-P6-SEED-36 | F | qc2 21/11 SEED_RNG=1 trên DB mới (qc2s): seed rc=0 (kill/resume xem SEED-19), MSSV đổi 27/30 (A,B,C cố định). Sổ điểm lớp 1 so seed/expected_final_grades.csv THEO account |
+| TC-P6-SEED-35 | P | qc2 22/11 @af07726d rerun sau sửa DEF-Q2-S8-03 (674f9779): docker stop qc2s-gw → node scripts/seed.mjs rc=1 sau 1 s với «Seed lỗi: Gateway http://127.0.0.1:18231/api/v1 c |
+| TC-P6-SEED-36 | P | qc2 22/11 rerun sau DEF-Q2-S8-02 (9c1336ce) trên DB trống qc2s (aux stack, docling ep-r), seed rc=0 313 s: SEED_RNG=1 trên DB mới (qc2s): sổ điểm lớp 1 so seed/expected_f |
 | TC-P6-SEED-37 | P | lớp 1 ACTIVE theo joined_via: ROSTER|30; sinh viên có điểm IMPORT = 30 (30); ô điểm IMPORT của người có joined_via ROSTER/ADMIN = 60/60 (nhập XLSX khớp theo student_code_ |
 | TC-S8-UI-01 | P | ADMIN /settings/llm 1440: 1 h1 «Cấu hình LLM» và các khối «Kết nối nhà cung cấp», «Mô hình theo tác vụ», «Chuỗi dự phòng», «Mức dùng và ngân sách» (+ «Quyết định nhanh»,  |
 | TC-S8-UI-02 | P | 21 dòng; dòng dài có câu: 0; mẫu: «QC 9router http://host.docker.internal:20128/v1 Đã kết nối Đang bật Test kết nối ‖ QC fake Giả lập để thử Đã kết nối Đang bật Test kết  |

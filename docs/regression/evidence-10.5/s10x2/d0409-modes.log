@@ -1,0 +1,5 @@
+always_yes regrade 12 nhận 12
+always_no regrade 12 nhận 12
+error regrade 12 nhận 12
+P TC-D04-01 bảng OR: 12 bài × 3 cấu hình decision (always_yes/always_no/error), cổng bật; regex true (6 chèn lệnh): cờ ở cả 3 cấu hình; regex false: cờ khi decision «có»; decision «không» và lỗi cho cùng kết quả (tầng vắng = false); s4-trong không cờ. Lệch: []. Bảng: {"always_yes": {"s4-trong": fals
+FIN

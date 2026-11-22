@@ -1,5 +1,2 @@
-Traceback (most recent call last):
-  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-8/scripts/s8seed-g.py", line 1, in <module>
-    exec(open('s8seed.py').read())
-         ^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 's8seed.py'
+30 30 mã khác mặc định: 27 [] 761987=1/CONFIRMED 0 60/60 30
+P TC-P6-SEED-36 SEED_RNG=1 trên DB mới (qc2s): sổ điểm lớp 1 so seed/expected_final_grades.csv THEO account: 30/30 khớp HP + điểm chữ; 27/30 MSSV khác bản mặc định 20261029 (A,B,C cố định 20229001–3; ví dụ sv04…); sổ

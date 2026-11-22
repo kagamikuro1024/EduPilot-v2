@@ -1,0 +1,24 @@
+// D07-12 trên qc2seedt2 thật: /observability (ADMIN): chưa có DECIDE → «Chưa có lời gọi nào»; API 500 → «Thử lại» (chặn bằng route)
+import { createRequire } from "node:module";
+const require = createRequire(process.env.HOME + "/Documents/TA_Agent_qc2/frontend/package.json");
+const { chromium } = require("@playwright/test");
+const b = await chromium.launch(); const ctx = await b.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
+const page = await ctx.newPage(); const out = {};
+await page.goto("https://localhost:4643/login");
+await page.locator("input[type=email], input[name=email]").first().fill("admin@edupilot.local"); await page.locator("input[type=password]").first().fill("Edupilot#Seed-2026");
+await page.getByRole("button", { name: /Đăng nhập/ }).click();
+await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30000 });
+await page.goto("https://localhost:4643/observability");
+const sec = page.locator("[data-part=decision-observability]");
+await sec.waitFor({ timeout: 30000 });
+out.empty_text = await sec.innerText();
+out.empty_visible = await sec.getByText("Chưa có lời gọi nào").isVisible();
+out.tables = await sec.getByRole("table").count();
+await page.screenshot({ path: "d0712-empty.png", fullPage: true });
+let block = true; await page.route("**/admin/observability/decision**", (r) => block ? r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "x" }) }) : r.continue());
+await page.reload(); await sec.waitFor({ timeout: 30000 });
+const retry = sec.getByRole("button", { name: "Thử lại" }); await retry.waitFor({ timeout: 30000 });
+out.retry_count = await retry.count(); await page.screenshot({ path: "d0712-error.png", fullPage: true });
+block = false; await retry.click(); await sec.getByText("Chưa có lời gọi nào").waitFor({ timeout: 30000 });
+out.retry_cleared = (await sec.getByRole("button", { name: "Thử lại" }).count()) === 0;
+console.log(JSON.stringify(out)); await b.close();

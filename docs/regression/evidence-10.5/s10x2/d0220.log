@@ -1,0 +1,24 @@
+baseline (cổng tắt) [(201, 13), (201, 13), (201, 10), (201, 12), (201, 10), (201, 14), (201, 11), (201, 10)]
+env:  Container qc2seedt2-gateway-1 Waiting 
+ Container qc2seedt2-worker-1 Waiting 
+ Container qc2seedt2-gateway-1 Healthy 
+ Container qc2seedt2-worker-1 Healthy 
+
+posts bật cổng+error [(201, 343), (201, 9), (201, 13), (201, 11), (201, 9), (201, 41), (201, 18), (201, 24), (201, 14), (201, 13), (201, 11), (201, 20), (201, 530)]
+['THREADS_PRECHECK', 'FALLBACK', 'error', 'SERVER', 'INTERACTIVE', '328', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'circuit_open', 'circuit_open', 'INTERACTIVE', '0', 'Quyết định', 'decision-fake']
+['THREADS_PRECHECK', 'FALLBACK', 'error', 'SERVER', 'INTERACTIVE', '516', 'Quyết định', 'decision-fake']
+n DECIDE 13 error 2 circuit_open 11
+median tắt 11.5 median bật+circuit_open 19.0 paths ['FALLBACK'] latency_ms circuit_open [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+F TC-D01-16b qc2seedt2 (LLM_PROVIDER=fake, worker+gateway LLM_DECISION_FAKE_MODE=error, cổng THREADS_PRECHECK lớp 761987): DECIDE 13 dòng: error 2 → circuit_open 11 (sau 5 lỗi liên tiếp, BREAKER_FAILS=5); latency_ms của dòng circuit_open [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (≤ 5 = không gọi mạng); đườn
+P TC-D02-20 cầu dao mở, cổng THREADS_PRECHECK bật: dòng circuit_open đường ['FALLBACK']; độ trễ đăng bài trung vị 19.0 ms (cầu dao mở) vs 11.5 ms (cổng tắt); POST bật [(201, 343), (201, 9), (201, 13), (201, 11), (201, 9), (201, 41), (201, 18), (201, 24), (201, 14), (201, 13), (201, 11), (201, 20), (
