@@ -113,7 +113,7 @@ Nếu hội đồng hỏi: hai người cùng `Nhận` → người sau thấy a
 | 06:40 | Giảng viên (375 px) | `/attendance` | `Lưu điểm danh` | Xác nhận đã lưu tại chỗ, không có thông báo nổi "Thành công"; còn sinh viên chưa có dòng thì báo «Còn n sinh viên chưa điểm danh» (422 `CHECKIN_UNRESOLVED`) | P5 + 10.8 |
 | 06:55 | Sinh viên B (375 px) | `/me` | Mở | Hàng buổi hôm nay có «Điểm danh lúc hh:mm»; chuyên cần và điểm cộng có thêm +0,25; giải trình điểm dạng phép tính | P5 (giải trình: P6) |
 
-Nếu hội đồng hỏi: mã cũ hết hạn sau 2 chu kỳ → «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; sinh viên không thuộc lớp → bị từ chối, không lộ lý do; hai sinh viên cùng một điện thoại → dòng bị gắn cờ «Cần xem»; hai người cùng điểm danh → khoá lạc quan; sửa sau buổi học → ghi nhật ký (Bước 8). E2E: `attendance.spec.ts`, `attendance-checkin.spec.ts`, `attendance-display.spec.ts`, `checkin-code.spec.ts` (nhánh `sprint/10.8-attendance`).
+Nếu hội đồng hỏi: mã cũ hết hạn sau 2 chu kỳ → «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; sinh viên không thuộc lớp → bị từ chối, không lộ lý do; hai sinh viên cùng một điện thoại → dòng bị gắn cờ «Cần xem»; hai người cùng điểm danh → khoá lạc quan; sửa sau buổi học → ghi nhật ký (Bước 8). E2E: `attendance.spec.ts`, `attendance-checkin.spec.ts`, `attendance-display.spec.ts`, `checkin-code.spec.ts`.
 
 
 ### Bước 5. Duyệt và công bố bài tập — F9 (07:30–09:00)
