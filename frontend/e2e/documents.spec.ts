@@ -22,15 +22,19 @@ test.beforeEach(async ({}, info) => {
   test.skip(info.project.name !== "desktop", "ca 375 không thuộc story này (≥ 720 px)");
 });
 
-test("tự cập nhật trạng thái (DEF-R6-U11, TC-P8-01-17): hàng đang xử lý đổi sang Sẵn sàng không cần tải lại; xong hết thì không lấy lại nữa", async ({ page, context }) => {
-  let reads = 0;
-  await open(page, context, { [`GET ${D}`]: (r) => r.fulfill(list([doc({ id: "n1", title: "bai-giang-moi", status: reads++ < 1 ? "PROCESSING" : "READY" })])) });
-  const row = page.getByRole("row", { name: /bai-giang-moi/ });
-  await expect(row).toContainText("Đang xử lý");
-  await expect(row).toContainText("Sẵn sàng", { timeout: 9000 });
-  const after = reads;
-  await page.waitForTimeout(6000);
-  expect(reads).toBe(after);
+test("tự cập nhật (DEF-R6-U11, TC-P8-01-17): hàng đang xử lý → Sẵn sàng sau ≤ 5 s; mọi hàng đã xong mà nơi khác tải lên → hàng mới hiện sau ≤ 35 s", async ({ page, context }) => {
+  await page.clock.install();
+  let phase = 0;
+  const rows = () => (phase === 0 ? [doc({ id: "n1", title: "bai-giang-moi", status: "PROCESSING" })] : phase === 1 ? [doc({ id: "n1", title: "bai-giang-moi" })] : [doc({ id: "n1", title: "bai-giang-moi" }), doc({ id: "n2", title: "tu-curl-ben-ngoai", status: "QUEUED" })]);
+  await open(page, context, { [`GET ${D}`]: (r) => r.fulfill(list(rows())) });
+  const row = (n: string) => page.getByRole("row", { name: new RegExp(n) });
+  await expect(row("bai-giang-moi")).toContainText("Đang xử lý");
+  phase = 1;
+  await page.clock.runFor(6000);
+  await expect(row("bai-giang-moi")).toContainText("Sẵn sàng");
+  phase = 2;
+  await page.clock.runFor(35000);
+  await expect(row("tu-curl-ben-ngoai")).toContainText("Đang xử lý");
 });
 
 test("table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải thống kê một dòng", async ({ page, context }) => {
