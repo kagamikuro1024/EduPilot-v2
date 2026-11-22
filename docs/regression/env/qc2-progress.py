@@ -2,7 +2,7 @@
 """Ghi ~/.config/edupilot-team/progress/qc2.tsv từ smoke-*.md (sprint⇥tổng(trừ LT)⇥đạt⇥trượt⇥0⇥ghi chú). Dùng: python3 env/qc2-progress.py ["ghi chú chung"]"""
 import re, sys, os
 R = os.path.expanduser('~/Documents/TA_Agent_qc2/docs/regression')
-NOTE = {'8': 'SEED sprint 8; F: SEED-36 (rerun RNG=1 đang chạy)', '4': 'SmkT3 + P209–P212; P212-14 P (seed 281 s, qc2seedt2); N: GATEP2-99 dọn cuối', '9.1': 'còn UX13/UX12/UX17-18', '9.5': 'còn N03/N06/N07', '3': 'đóng'}
+NOTE = {'8': 'SEED sprint 8 (SEED-22/36 P sau sửa)', '4': 'SmkT3 + P209–P212; P212-14 P (seed 281 s, qc2seedt2); N: GATEP2-99 dọn cuối', '9.1': 'còn UX13/UX12/UX17-18', '9.5': 'còn N03/N06/N07', '3': 'đóng'}
 out = []
 for sp in ['1', '1.5', '2', '3', '4', '8', '9.1', '9.5', '10.5', '10.6']:
     p = f'{R}/smoke-{sp}.md'
