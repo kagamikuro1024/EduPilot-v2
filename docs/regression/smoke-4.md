@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 547 · Đạt: 537 · Trượt: 3 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/0/0 · Chưa chạy (N): 1   (P+F+LT+K+N = T)
+Tổng TC cũ: 547 · Đạt: 539 · Trượt: 1 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/0/0 · Chưa chạy (N): 1   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-4/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 4`.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -18,10 +18,10 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | US-P2-06 | 43 | 43 | 0 | 0 | 0 | 0 | |
 | US-P2-07 | 39 | 38 | 0 | 1 | 0 | 0 | |
 | US-P2-08 | 42 | 42 | 0 | 0 | 0 | 0 | |
-| US-P2-09 | 54 | 53 | 1 | 0 | 0 | 0 | |
+| US-P2-09 | 54 | 54 | 0 | 0 | 0 | 0 | |
 | US-P2-10 | 40 | 40 | 0 | 0 | 0 | 0 | |
 | US-P2-11 | 44 | 43 | 0 | 1 | 0 | 0 | |
-| US-P2-12 | 27 | 25 | 1 | 1 | 0 | 0 | |
+| US-P2-12 | 27 | 26 | 0 | 1 | 0 | 0 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -450,7 +450,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P209-48 | P | Playwright ui-s4b (lượt s4b2; spec sửa chọn checkbox trong tbody, lượt đầu nhặt nhầm ô «chọn tất cả» → «Duyệt 4», đã sửa spec): (a) tab «Chờ duyệt 5»; chọn 3 hàng → «Duyệt 3»; sau bấm: «Đã duyệt 3 yêu cầu Hoàn tác Tìm thành viên Yêu cầu chờ duyệt» có Hoàn tác=1; DB PENDING trước 5 → sau duyệt 2 → sau Hoàn tác 5 (b) hàng nhãn «Email chưa khớp MSSV»=true; nút Duyệt riêng ở hàng=1; xác nhận ngắn tại chỗ có «Duyệt <tên>» và «Để sau»=true (c) GV mời ra: «Đã mời Lê Thanh Hải ra khỏi lớp Hoàn tác Tất cả Sinh viên Tì» + Hoàn tác=1; TA: nút Mời ra (menu thao tác)=0, nút Duyệt ở hàng EMAIL_MISMATCH=0  |
 | TC-P209-49 | P | Playwright ui-s4b (375, ep-r): 375 px: tràn ngang 0; mục chạm < 44 px (đếm phần tử): 1; axe serious/critical []; lớp 1000 SV đang học → số hàng trong DOM = 3 (< 80 ⇒ ảo hoá); Tab đi qua: A:Bỏ qua điều hướn / A: / BUTTON:QSURA5C · Lớp QC / BUTTON:Tìm nhanh hoặc đ / BUTTON:9+ / BUTTON:HTài khoản: TS. / A:Mã và cài đặt th / BUTTON:Thành viên1 / BUTTON:Chờ duyệt5 / BUTTON:Trợ giảng / BUT  |
 | TC-P209-50 | P | Playwright class-join.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-P209-51 | F | D: xem trước «Lớp QC2S4 QSE2E248 · QSE2E248 · TS. Lê Thu Hà · HK1 2026–2027 Lớp này cần giảng viên duyệt»; cần duyệt=true; sau tham gia «Tham gia lớp Đã gửi yêu cầu, chờ giảng viên duyệt. Về Hôm nay»; DB status=PENDING ‖ GV: chuông chấm=1; khung thông báo «Thông báo QC2S4 ue1 xin vào lớp QSE2E248 Thông báo · vừa xong Bạn được phân công lớp Lớp QC2S4 QSOTH2091 – QSOTH2091 Phân công lớp · 2 phút trước Bạn được phân »; thông báo lớp trong DB 30 phút=2 ‖ GV: hàng chờ của D=1; sau Duyệt DB status=ACTIVE ‖ D sau duyệt: lớp QSE2E248 ở bộ chọn/thanh trên=true (hộp thoại lúc vào «Thời gian học trên EduPilot EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công khai, Luyện đề, Thư viện và Lịch khi tab đang mở và bạn đang thao tác. Không ghi »; bộ chọn có=1, 2 mục; thanh «QSE2E248 Tìm nhanh hoặc đi đến… Có 1 thông báo mới 1 u Tài khoản: QC2S4 ue1»); «Hôm nay»=true; tràn ngang 0 ‖ GV tạo lại mã: NPWU4D |
+| TC-P209-51 | P | qc2 22/11 trên qc2seedt2 thật: nhánh UI 375 px đã đi trọn từ lượt trước (xem trước «Lớp này cần giảng viên duyệt», tham gia → PENDING, GV chuông=1 + hàng chờ, duyệt → ACTIVE, D thấy lớp ở bộ chọn + «Hôm nay», tràn ngang 0, GV tạo lại mã); phần còn thiếu chạy bằng API thật (evidence-f16/p209-51.log): sau tạo lại mã, mã cũ → 404 JOIN_CODE_INVALID (cùng câu chung với mã sai bất kỳ); 5 mã sai liên tiếp → 404, mã sai thứ 6 → 429 RATE_LIMITED Retry-After 600 (chuỗi 404×5, 429, 429) |
 | TC-P209-52 | P | mã tham gia trong log gateway+worker: 0 |
 | TC-P209-53 | P | go test: 127 pass/0 skip/0 fail |
 | TC-P210-01 | P | dry_run ok-30.csv total=30; bom-semicolon.csv 200 total=5; ok.xlsx 200 total=5 |
@@ -563,7 +563,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P212-24 | P | Playwright smkt3-journey (ep-r @c12be038, lượt s4x1, 2026-11-21): Admin mở lớp QC2IUJMWQFS733 qua UI (courses=1), gán GV QC2IU Hai; GV thấy chuông «Bạn được phân công lớp …QC2IUJMWQFS733», thông báo nêu mã tham gia, bộ chọn lớp đúng; SV mới qc2iu.jr1795267277539 ở 375 px /join/KYNHY36: xem trước đúng lớp, tràn ngang 0, tham gia → enrollments ACTIVE; GV /class/members?course= thấy «QC2IU jr» (ảnh evidence-4/shots/gatep2-24-1…5). logs/s4n-res/smkt3-journey.jsonl |
 | TC-P212-25 | P | qc2 22/11: bản chạy lại của «8 mục tự kiểm P2»: (1) mạo danh MSSV = TC-P202-34 P; (2) quên mật khẩu máy A → máy B đăng xuất = TC-P204-14 P; (3) storage không token = TC-P210-14 P; (4) import 2 dòng lỗi = TC-P210-06 P; (5) bấm đúp = TC-P208-31 P; (6) mã cũ bị từ chối = TC-P209-18 P; (7) / của SV C và GV một hành động chính = TC-P211-32 và P211-35 P (ảnh trong evidence-4); (8) đăng nhập 7 tài khoản mẫu: login 200 cả 7 trên qc2fresh (evidence-4/logs/p212-25-item8.txt) |
 | TC-P212-26 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-P212-27 | F | DEF-R4-09: golangci-lint run rc=1 (internal/practice/extract.go:130 gochecknoglobals; CI Go (static) run 44850023210 failure) nên không đạt rc=0; go vet ./... rc=0; go test -race ./internal/today/... ok; -tags integration ./internal/integration/... ok; ./internal/contract ok. Không chạy go test ./... toàn cây theo luật (CI sprint/11 run mới nhất đủ Go test: xem gh run list). evidence-4/logs/s4n-go44-*.log  |
+| TC-P212-27 | P | qc2 22/11 HEAD 118e1a40: golangci-lint run «0 issues» rc=0 (extract.go hết gochecknoglobals, DEF-R4-09 đóng 9754c523), go vet ./... rc=0; ./internal/today -race và integration ok ở lượt đóng DEF (evidence-f16/lint.log, govet.log, evidence-4/logs/lint-gate.log) |
 | TC-P209-31-admin | P | ADMIN approve không cờ → 422, có cờ → 200 ACTIVE (ghi hành vi theo SRS) |
 | TC-P209-42a | P | ô mã 375 px: gõ «an7k2mq» → «AN7K2MQ» (tự viết hoa); gõ «0O1IL» → «» (không nhận); « a n 7 k » → «AN7K»; nút chính Xem lớp (≤ 1 primary: 1; khoá khi chưa đủ 7 ký tự: true); xem trước «Lớp QC2S4 QSUOFD1 · QSUOFD1 · TS. Lê Thu Hà · HK1 2026–2027 Tham gia lớp»; nút «Tham gia lớp» 1; tràn ngang 0; sau tham gia: «Tham gia lớp Bạn đã vào lớp. Về Hôm nay» |
 | TC-P201-25-b | P | {'password_changed': ('Mật khẩu EduPilot của bạn đã được đổi', False, True, True, True, False)} |

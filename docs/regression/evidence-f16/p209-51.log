@@ -1,0 +1,12 @@
+code lấy được: 200 True
+preview 200 {"name": "An ninh mạng", "class_code": "761988", "semester": "2026-2027-HK1", "teachers": [{"full_name": "TS. Lê Thu Hà"}], "state": "REQUIRES_APPROVAL"}
+join 200 {"already_member": false, "course_id": "01a202be-00ce-72d4-a60f-1a8499af1b5e", "status": "PENDING"}
+enrollment sau join: PENDING
+GV duyệt 200
+enrollment sau duyệt: ACTIVE
+SV thấy lớp: True
+tạo lại mã 200 mới khác cũ: True
+mã cũ: 404 {"code": "JOIN_CODE_INVALID", "message": "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.", "trace_id": "1527ba82637e57892954467fcd8c9607"}
+mã sai bất kỳ: 404 {"code": "JOIN_CODE_INVALID", "message": "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.", "trace_id": "396c645af9e097b2ab0f842cfd8b0772"}
+sv.nguyco trong lớp 2: []
+chuỗi 7 mã sai (HTTP, code, Retry-After): [(404, 'JOIN_CODE_INVALID', None), (404, 'JOIN_CODE_INVALID', None), (404, 'JOIN_CODE_INVALID', None), (404, 'JOIN_CODE_INVALID', None), (404, 'JOIN_CODE_INVALID', None), (429, 'RATE_LIMITED', '600'), (429, 'RATE_LIMITED', '600')]

@@ -494,7 +494,7 @@ Cách chạy:
 | TC-PG07-60 | P |  |
 | TC-PG07-61 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-62 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG07-63 | F | DEF-R2-04: cổng GATE-PG chạy trọn còn 2 ca đỏ (GATE-03, GATE-06: contract không tag); 01–02, 04–24, 26, 28–29 đạt; GATE-25/27 (trình duyệt), GATE-20 (pnpm dev) chưa chạy |
+| TC-PG07-63 | P | qc2 22/11: GATE-03 và GATE-06 (hai ca đỏ còn lại) nay P (evidence-f16/contract-notag.log); 01–02, 04–24, 26, 28–29 đạt từ trước; GATE-25/27 (trình duyệt), GATE-20 (pnpm dev) đã P trên qc2fresh (evidence-2/fresh). Lượt F trước: DEF-R2-04: cổng GATE-PG chạy trọn còn 2 ca đỏ (GATE-03, GATE-06: contract không tag); 01–02, 04–24, 26, 28–29 đạt; GATE-25/27 (trình duyệt), GATE-20 (pnpm dev) chưa chạy |
 | TC-PG07-64 | P |  |
 | TC-PG07-65 | P |  |
 | TC-PG07-67 | P | cửa sổ khoá global (gateway=2/chaos) |
@@ -503,10 +503,10 @@ Cách chạy:
 | **GATE-PG** | | |
 | TC-GATE-01 | P |  |
 | TC-GATE-02 | P |  |
-| TC-GATE-03 | F | DEF-R2-04: `go test -race ./...` KHÔNG tag: 98 gói xanh (3360 PASS) nhưng `internal/contract` đỏ cố định (TestChatThreadsContract: POST /_test/llm/fake → 404; TestContract_ResponsesMatchSpec «0 quan sát»; TestSpec_EveryDocumentedStatusExercised) — kịch bản contract từ sprint 7 cần route thử (`-tags testroutes`); Makefile/CI chỉ chạy bản có tag |
+| TC-GATE-03 | P | qc2 22/11 HEAD 118e1a40 (merge origin/sprint/11-p10-eval): go vet ./... rc=0; golangci-lint run «0 issues» rc=0; go test -race -count=1 ./internal/contract KHÔNG tag ok 76,7 s rc=0 (trước đỏ cố định; DEF-R2-04 đóng bởi 562f5a45); có -tags testroutes ok 81,2 s; 98 gói còn lại đã xanh ở lượt trước (3360 PASS), không chạy lại toàn bộ go test ./... (evidence-f16/govet.log, lint.log, contract-notag.log, contract-tag.log). Lượt F trước: DEF-R2-04: `go test -race ./...` KHÔNG tag: 98 gói xanh (3360 PASS) nhưng `internal/contract` đỏ cố định (TestChatThreadsContract: POST /_test/llm/fake → 404; TestContract_ResponsesMatchSpec «0 quan sát»; TestSpec_EveryD |
 | TC-GATE-04 | P | `go vet -tags testroutes ./...` rc 0; `go test -race -count=1 -tags testroutes` TỪNG GÓI (100 gói, -timeout 280 s, nhiều tay ngoài cổng): 3424 test PASS, 0 FAIL; 14 skip = 12 test đo thời gian (EP_SKIP_TIMING=1 của CI) đã chạy lại riêng không đặt biến: cả 12 PASS, + 2 test llm «BLOCKED: cần khoá API thật» (sprint 3+, K(b)); sửa DEF-R2-03 (TestLLMSchema, c272d3d3) rồi store/privacy/grading chạy lại xanh; /tmp/qc2-j-gate-testroutes/ |
 | TC-GATE-05 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-06 | F | DEF-R2-04: contract KHÔNG tag rc 1 (cố định, lặp 3 lượt + go test trực tiếp); có tag PASS |
+| TC-GATE-06 | P | qc2 22/11 HEAD 118e1a40 (merge origin/sprint/11-p10-eval): go vet ./... rc=0; golangci-lint run «0 issues» rc=0; go test -race -count=1 ./internal/contract KHÔNG tag ok 76,7 s rc=0 (trước đỏ cố định; DEF-R2-04 đóng bởi 562f5a45); có -tags testroutes ok 81,2 s; 98 gói còn lại đã xanh ở lượt trước (3360 PASS), không chạy lại toàn bộ go test ./... (evidence-f16/govet.log, lint.log, contract-notag.log, contract-tag.log). Lượt F trước: DEF-R2-04: contract KHÔNG tag rc 1 (cố định, lặp 3 lượt + go test trực tiếp); có tag PASS |
 | TC-GATE-07 | P | 10/10 test nêu tên PASS + mọi gói `internal/httpapi/...` (-race, testroutes) PASS khi chạy từng gói (không gộp 1 lệnh 20 phút) |
 | TC-GATE-08 | P | 6/6 test SSE + 5/5 test auth nêu tên PASS; gói internal/httpapi/sse và internal/auth (-race, testroutes) PASS từng gói |
 | TC-GATE-09 | P | `pnpm -C frontend build` rc 0 (35 s; chạy ngoài cửa sổ khoá); run-logs/gate-09-j.log |

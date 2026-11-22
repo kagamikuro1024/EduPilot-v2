@@ -8,7 +8,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC | KQ | Ghi chú |
 | --- | --- | --- |
 | TC-N01-01 | P | README có mục «Đo trên Mac» |
-| TC-N01-03 | F | RERUN 1409b04d: README «Đo trên Mac» bước «gateway admin create» chạy nguyên văn (không --email/--name) → «admin: cần cả --email và --name», rc=2; README thiếu bước ⇒ F theo TC (DEF-R9.5-22, Thấp) (evidence-9.5/rerun/n01-03-readme-1409b04d.log, evidence-9.5/n01-03-readme-steps.log) |
+| TC-N01-03 | P | qc2 22/11 HEAD 118e1a40: lệnh README (benchmarks/README.md:12) «gateway admin create --email admin@edupilot.local --name "Quản trị"» chạy nguyên văn trên qc2seedt2: «Quản trị viên này đã tồn tại; không đổi gì.» rc=0 (DEF-R9.5-22 đóng bởi 239df7fc) (evidence-f16/n01-03-run.log). Lượt F trước: RERUN 1409b04d: README «Đo trên Mac» bước «gateway admin create» chạy nguyên văn (không --email/--name) → «admin: cần cả --email và --name», rc=2; README thiếu bước ⇒ F theo TC (DEF-R9.5-22, Thấp) (evidence-9.5/rerun/n01 |
 | TC-N01-04 | P | RERUN 1409b04d: docker ps trên stack đo ep-qc đang chạy: 13/13 container tên ep-qc-*, cổng lệch (HTTP 580, HTTPS 943, PG 5933, Redis 6880, MinIO 9500…), 0 container dùng cổng demo 80/443/3000/5432/6379/9000; mock-graph/mock-imap bind 127.0.0.1 (evidence-9.5/rerun/n01-04-ep-qc-1409b04d.log) |
 | TC-N01-05 | P | Dòng «không chạy trên Mac» đã bỏ; có quy trình ep-research, cổng lệch, down -v |
 | TC-N01-10 | P | .env.local bị ignore (.gitignore:3); 0 tệp theo dõi |

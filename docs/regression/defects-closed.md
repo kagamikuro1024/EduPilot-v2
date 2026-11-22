@@ -89,3 +89,5 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 
 - DEF-Q2-S4-01 (seed > 360 s): ĐÓNG 22/11 bởi f473c2ff; đo lại 281 s @6b3678c4 (evidence-2/fresh/seedt2/).
 - DEF-Q2-DEV-01 (dev.mjs không truyền cổng mock với EP_PORT_OFFSET): ĐÓNG 22/11 bởi d9f244a5; bước 19/20 qua dev.mjs không lỗi (seedt2/dev.log).
+
+- 22/11 (rerun F @118e1a40): ĐÓNG DEF-R2-04 (contract không tag ok 76,7 s: P0-02/TC-20, P0-03/TC-15, GATE-03/06, PG07-63 = P), DEF-R4-09 (lint 0 issues: P212-27 P), DEF-R9.5-22 (N01-03 P). TC-P209-51 P (UI + API 429 ở mã sai thứ 6). DEF-R9.5-14 còn 1 số lệch: nfr-real-llm.md «633,9 ms» ≠ load-b-ttft.json p(95)=633,99312 (phải 634,0) — gửi dev. evidence-f16/.

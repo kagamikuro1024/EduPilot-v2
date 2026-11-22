@@ -43,7 +43,7 @@ Cách chạy:
 | P0-02/TC-16…P0-02/TC-17 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): TC-16: xoá .env.local → dev exit 0 (43 s), .env.local sinh ra giống .env.example (diff 0 dòng), git check-ignore .env.local → .env.local; TC-17: bỏ DATABASE_URL, REDIS_URL → dev exit=1 sau 7 s («service migrate didn't complete successfully: exit 1»), không treo (tc16.txt, tc17.txt) |
 | P0-02/TC-18 | P | PATH không docker → thoát 1, thông báo Docker, không stack trace |
 | P0-02/TC-19 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): go 1.27, next 16, react 19, pnpm, node 24 (script PASS); mọi phụ thuộc frontend (react-query, react-virtual, lucide-react, uqr, next…) và Go trực tiếp (validator, OpenTelemetry/otelpgx/otelhttp, kin-openapi cho test theo D52) có trong docs/ARCHITECTURE.md hoặc DECISIONS.md |
-| P0-02/TC-20 | F | DEF-R2-04 (xem defects-2.md): `go vet ./...` rc 0; `go test -race ./...` không tag: contract đỏ cố định; bản `-tags testroutes` xanh (3424 PASS, 0 FAIL) |
+| P0-02/TC-20 | P | qc2 22/11 HEAD 118e1a40 (merge origin/sprint/11-p10-eval): go vet ./... rc=0; golangci-lint run «0 issues» rc=0; go test -race -count=1 ./internal/contract KHÔNG tag ok 76,7 s rc=0 (trước đỏ cố định; DEF-R2-04 đóng bởi 562f5a45); có -tags testroutes ok 81,2 s; 98 gói còn lại đã xanh ở lượt trước (3360 PASS), không chạy lại toàn bộ go test ./... (evidence-f16/govet.log, lint.log, contract-notag.log, contract-tag.log). Lượt F trước: DEF-R2-04 (xem defects-2.md): `go vet ./...` rc 0; `go test -race ./...` không tag: contract đỏ cố định; bản `-tags testroutes` xanh (3424 PASS, 0 FAIL) |
 | P0-02/TC-21 | P | RERUN 2026-11-16 sau 816498c6 (DEF-R2-01 đã sửa): `redocly lint backend-go/api/openapi.yaml` → «valid», 0 lỗi (21 cảnh báo) |
 | P0-02/TC-22 | P | `pnpm -C frontend lint` rc 0, `build` rc 0 |
 | P0-02/TC-23 | P |  |
@@ -66,7 +66,7 @@ Cách chạy:
 | P0-03/TC-05 | P |  |
 | P0-03/TC-12 | P | RERUN 22/11 @aba738ef: script PASS (2 kiểm; evidence-1/run-22nov/) |
 | P0-03/TC-13 | P | permissions: contents: read |
-| P0-03/TC-15 | F | DEF-R2-04: lệnh Go `go test -race ./...` không tag đỏ ở internal/contract; FE: install --frozen-lockfile/lint/build/antipatterns rc 0; bản -tags testroutes xanh |
+| P0-03/TC-15 | P | qc2 22/11 HEAD 118e1a40 (merge origin/sprint/11-p10-eval): go vet ./... rc=0; golangci-lint run «0 issues» rc=0; go test -race -count=1 ./internal/contract KHÔNG tag ok 76,7 s rc=0 (trước đỏ cố định; DEF-R2-04 đóng bởi 562f5a45); có -tags testroutes ok 81,2 s; 98 gói còn lại đã xanh ở lượt trước (3360 PASS), không chạy lại toàn bộ go test ./... (evidence-f16/govet.log, lint.log, contract-notag.log, contract-tag.log); FE install --frozen-lockfile/lint/build/antipatterns rc 0 ở lượt trước. Lượt F trước: DEF-R2-04: lệnh Go `go test -race ./...` không tag đỏ ở internal/contract; FE: install --frozen-lockfile/lint/build/antipatterns rc 0; bản -tags testroutes xanh |
 
 ## Trượt: bước tái hiện
 ### DEF-R1-01 — DEMO_SCRIPT trích spec E2E không có trong FLOWS (TC-07)
