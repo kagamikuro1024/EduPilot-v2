@@ -295,11 +295,9 @@
   "cut": [],
   "ell": [],
   "touch": [],
-  "ax": [
-   "scrollable-region-focusable:1"
-  ],
+  "ax": [],
   "h1": 1,
-  "pass": false
+  "pass": true
  },
  {
   "role": "sv",
@@ -345,11 +343,9 @@
   "cut": [],
   "ell": [],
   "touch": [],
-  "ax": [
-   "scrollable-region-focusable:1"
-  ],
+  "ax": [],
   "h1": 1,
-  "pass": false
+  "pass": true
  },
  {
   "role": "sv",

@@ -129,7 +129,7 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Tái hiện (qc3s, DB seed sạch @58448e0a): `node scripts/seed.mjs` lần hai → «Seed xong trong 23 s.»; gắn dò: `CHANGED-AT at step19Practice (scripts/seed.mjs:843)`: dòng `ctx.changed = true;` ngay sau khối «lượt đang dở của sv.nguyco» chạy cả khi không tạo gì (`attempts` = 0). Dữ liệu không đổi (đếm 85 bảng). Đề xuất: `if (attempts > 0 || …) ctx.changed = true`.
 - DEF-R5-16 (652 s → 618 s ở lần đo sau, trần ≤ 6 phút theo P-11-76): vẫn vượt trên máy chung.
 
-### DEF-R5-21 — [ĐÃ SỬA a0d98671 (hết tràn ngang); lộ DEF-R5-23] Kết quả sinh viên `/exams/[id]/take`: bảng «Kết quả test mẫu» làm trang tràn ngang 287 px ở 375, 34 px ở 720 khi mở câu code (TC-PE09-25, US-PE-09 AC9)
+### DEF-R5-21 — [ĐÃ SỬA a0d98671; chạy lại P 2026-11-22 @403f1ea5] Kết quả sinh viên `/exams/[id]/take`: bảng «Kết quả test mẫu» làm trang tràn ngang 287 px ở 375, 34 px ở 720 khi mở câu code (TC-PE09-25, US-PE-09 AC9)
 - Mức: Thấp (nhìn thấy: bảng bị cắt trong thẻ, vẫn có «Vuốt ngang để xem thêm»; số đo trang vẫn dương) · Sprint gốc: 5 · Hồi quy: không rõ
 - Tái hiện: ep-r @aba738ef, bài có câu code đã công bố, đăng nhập SV đã làm bài, 375 px (hoặc 720), mở các câu (summary) → `document.documentElement.scrollWidth − innerWidth` = 287 (375) / 34 (720); gập hết: 0. Phần tử vượt: `DIV.DataTable…root`, `…scrollHint`, `…scroll`, `TABLE` (right = 662 > 375). Spec `student result: 375 px …không tràn ngang` đạt vì dữ liệu giả không có bảng mẫu. Ảnh `ui-r3/shots/f19b-21-ketqua-375-mo.png`, `pe09-25-sv-*`; log `logs-r3/ui5e.log`, `ui5f` (`pe09-25-rows.json`).
 - Nghi ngờ mã: `features/exam/results/ResultItems.tsx` (DataTable «Kết quả test mẫu») không bị ép rộng theo khung cha (thiếu `min-width: 0` / khung `data-scroll-x`).
@@ -139,7 +139,7 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - `exam.spec.ts` có 46 ca (đạt hết) nhưng không có ca «trong giờ làm bài chat bị từ chối, sau nộp cho phép» (chỉ `private-chat.spec.ts` mock `EXAM_IN_PROGRESS`) và không ca nào đọc mọi phản hồi mạng của trình duyệt tìm canary (chỉ Go `TestNoAnswerLeak`). QC quét tay thay thế (TC-PE09-21): 0 rò trước công bố.
 
 
-### DEF-R5-23 — «Mã của bạn» (<pre>) cuộn được nhưng không focus được bằng bàn phím (axe serious scrollable-region-focusable) (TC-PE09-25)
+### DEF-R5-23 — [ĐÃ SỬA 612e8a23; chạy lại P 2026-11-22 @403f1ea5: 30 hàng FAIL 0] «Mã của bạn» (<pre>) cuộn được nhưng không focus được bằng bàn phím (axe serious scrollable-region-focusable) (TC-PE09-25)
 - Mức: Thấp (a11y serious; người dùng bàn phím không cuộn được mã dài) · Sprint gốc: 5 · Hồi quy: có (lộ ra sau sửa R5-21 a0d98671: trước đó <pre> kéo trang tràn ngang nên không thành vùng cuộn)
 - Tái hiện: ep-r @50fe1a97, SV đã làm bài có câu code, /exams/[id]/take ở 375 hoặc 720 px, mở câu (summary), chạy axe: `<pre class="Results-module__…__pre">` → serious `scrollable-region-focusable`. Script evidence-5/ui-r3/ui5f.cjs, axeprobe.cjs.
 - Nghi ngờ mã: features/exam/results/ResultItems.tsx (Results-module pre): thêm tabindex="0" + role="region" + aria-label (hoặc dùng cùng khung data-scroll-x của DataTable).

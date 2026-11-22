@@ -56,7 +56,7 @@
 - Mức: Thấp · TC: TC-P8-02-22 · Kỳ vọng (US-P8-02 AC9, SRS 377): lọc theo tuần / chủ đề / loại · Thực tế: chỉ «Loại» và «Tuần» (API đã có `category`).
 ### DEF-R6-U10 — (dev2 6e362a9b — chạy lại P @859a90db (1 lớp)) Hộp xác nhận xoá tài liệu: «{m} lớp» bằng 0 với tài liệu chưa chia sẻ
 - Mức: Thấp (cần BA xác nhận ngữ nghĩa) · TC: TC-P8-02-19 · Thực tế «Xoá ui06j2? 1 đoạn và 0 lớp đang dùng tài liệu này sẽ mất nó.»; GET /documents/{id}/impact trả `courses` = số lớp được chia sẻ tới (không tính lớp gốc). Phần còn lại của TC đạt.
-### DEF-R6-P3 — (dev2 701f71e8 — chạy lại @859a90db: vẫn F Thấp (cụm nhiều từ không chứa nguyên cụm)) snippet của /library?q= không chứa từ khoá
+### DEF-R6-P3 — (ĐÃ SỬA 32022e99; chạy lại P 2026-11-22 @403f1ea5: snippet chứa nguyên cụm) snippet của /library?q= không chứa từ khoá
 - Mức: Thấp · TC: TC-P8-02-24 · Thực tế: snippet = 160 ký tự đầu của đoạn khớp đầu tiên theo `ord` (OR các cặp âm tiết), ví dụ phần mở đầu văn bản không chứa «cảnh báo học vụ» · Nghi ngờ mã: backend-go/internal/store/queries/library.sql:7-9 (và dòng 40).
 ### DEF-R6-P4 — (dev2 545bbdd4 — chạy lại P @859a90db) search_library không được nối vào agent Threads
 - Mức: Trung bình · TC: TC-P8-02-33 · Kỳ vọng (SRS 213, US-P8-02 AC12): tool chạy ở cả hai kênh · Thực tế: chat riêng đạt (5 mục ≤5, href /library/{id}); Threads: thread hỏi «có tài liệu nào về an ninh mạng không?» → SKIPPED/LOW_SCORE, 0 lời gọi tìm thư viện; `agent.NewPublicRegistry` (internal/agent/tools.go:100) không có nơi gọi nào ngoài test.
@@ -76,7 +76,7 @@
 - Tái hiện (ep-r 859a90db): SV hỏi chat có trích dẫn tài liệu; GET /api/v1/chat/sessions/{sid}/messages → 500 INTERNAL. Log gateway: «chat: tài liệu của trích dẫn: failed to encode args[0]: unable to encode []uuid.UUID{…} into text format for unknown type (OID 0): cannot find encode plan».
 - Nghi ngờ mã: backend-go/internal/chat/sessions.go:264 `select id from documents where id = any($1)` với `ids []uuid.UUID`; db.go dùng QueryExecModeExec (PgBouncer transaction mode) nên không có OID để mã hoá mảng uuid; test testcontainers nối thẳng PG nên xanh. Sửa: `any($1::uuid[])` + tham số có kiểu (pgtype.FlatArray / []string) hoặc sqlc; thêm test chạy ở QueryExecModeExec.
 
-### DEF-R6-U11 — [giao dev2] Danh sách /documents không tự cập nhật khi tệp được tải lên từ nơi khác
+### DEF-R6-U11 — [ĐÃ SỬA a79f5c69; chạy lại P 2026-11-22 @403f1ea5: hàng mới hiện sau 26 s, Sẵn sàng không tải lại] Danh sách /documents không tự cập nhật khi tệp được tải lên từ nơi khác
 - Mức: Thấp · TC: TC-P8-01-17 (AC5) · Sprint gốc: 6
 - Tái hiện: Staff mở /documents (không tải lại); tải tệp lên bằng API/curl ở nơi khác; sau 70 s hàng mới KHÔNG xuất hiện; không có điều hướng, không có cập nhật. Nghi ngờ mã: RealDocuments.tsx chỉ refresh() khi chính trang thao tác; documentsApi.ts không có refetchInterval/useSSE. Chỉ hàng tải lên từ chính trang đổi trạng thái Đang tải → Đang xử lý n % → Sẵn sàng (TC-P8-02-05 đạt). Kỳ vọng AC5: Staff mở /documents thấy hàng mới + trạng thái đổi không tải lại.
 

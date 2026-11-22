@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 526 · Trượt: 3 · Chờ test N: 1   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 528 · Trượt: 1 · Chờ test N: 1   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -25,8 +25,8 @@ Cách chạy:
 | US-P3-06 | 49 | 49 | 0 | 0 |  |
 | US-P3-07 | 27 | 27 | 0 | 0 |  |
 | US-P3-08 | 29 | 29 | 0 | 0 |  |
-| US-P8-01 | 62 | 61 | 1 | 0 |  |
-| US-P8-02 | 49 | 48 | 1 | 0 |  |
+| US-P8-01 | 62 | 62 | 0 | 0 |  |
+| US-P8-02 | 49 | 49 | 0 | 0 |  |
 | US-P8-03 | 60 | 59 | 0 | 1 |  |
 
 ## Kết quả từng ca
@@ -407,7 +407,7 @@ Cách chạy:
 | TC-P8-01-14 | P | 2 complete đồng thời khác khoá: [(202, None), (409, 'DOCUMENT_DUPLICATE')]; documents cùng sha ở lớp=1 |
 | TC-P8-01-15 | P | READY/1 sau 69s |
 | TC-P8-01-16 | P | SSE /events mở trước khi tải: progress [5, 11, 50, 65, 75, 85, 95, 100]; đơn điệu=True; mốc 10–45=True, 50=True, 55–95=True; sự kiện cuối status SUCCEEDED=True, result.document_id=True; READY sau 50s |
-| TC-P8-01-17 | F | tải tệp bằng API (không qua trang) khi /documents đang mở: hàng mới tự xuất hiện; trạng thái quan sát: []; điều hướng/tải trang mới sau lần đầu: 0/0 |
+| TC-P8-01-17 | P | /documents mở sẵn (gv.s8f, lớp U, không tải lại); tệp «auto17-1795339869701» tải lên bằng API ở nơi khác: hàng xuất hiện sau 26 s; trạng thái quan sát ["auto17-1795339869701 Bài giảng Quy chế môn học Đề tham khảo Đáp án Tài liệu khác — Dùng cho AI: bật · auto17-1795339869701 Hiện cho sinh viên: bật · auto17-1795339869701 Sẵn sàng Hôm nay, 16:31 "]; «Sẵn sàng» sau 26 s; yêu cầu điều hướng tài liệu (document) = 1 ["https://localhost:1143/documents?course=01a1f03c-40fc-77f6-a"] (chỉ lần đầu) |
 | TC-P8-01-18 | P | chấm lại theo P-11-79 (BA 263920fb): mẩu <200 rune ở cuối trang hợp lệ, chỉ gộp cùng trang. PDF 23 trang QMB12ch6b → 19 đoạn: ord liên tục 0..18, max 796 rune (≤800), đoạn duy nhất, token_count NULL, chèn trùng (document_id,ord) → 23505; 4 đoạn <200 rune (ord 0: 152 rune tr.1; ord 1: 39 rune tr.2; ord 5: 117 rune tr.7; ord 6: 88 rune tr.8) mỗi đoạn nằm trên trang khác với đoạn liền kề (page_no 1,2,3,5,6,7,8,9…) nên là mẩu cuối trang, không có mẩu cùng trang nào gộp được |
 | TC-P8-01-19 | P | Quyche.pdf (bản scan, 5 trang) → READY sau 68s (13.6s/trang); đoạn chứa "học vụ" đúng dấu=8; page_no không giảm=True (15 đoạn) |
 | TC-P8-01-20 | P | share-from A→B (teacher là TEACHER cả hai lớp) → 200 {'shared': {'documents': 11}, 'skipped': []}; course_ids của đoạn chứa cả A và B=True; số đoạn 19→19 (không đoạn mới) |
@@ -476,7 +476,7 @@ Cách chạy:
 | TC-P8-02-21 | P | TA xoá tài liệu → 403 |
 | TC-P8-02-22 | P | sau khi gán chủ đề «Mạng máy tính» cho một tài liệu lớp: bộ lọc hiện «Loại»=true, «Tuần»=true, «Chủ đề»=true; ô chọn: ["Mọi loại\nBài giảng\nQuy chế môn học\nĐề tham khảo\nTài liệu khác","Mọi chủ đề\nMạng máy tính","Mọi tuần\nTuần 1\nTuần 2\nTuần 3\nTuần 4\nTuần 5\nTuần 6\nTuần 7\nTuần 8\nTuần 9\nTuần 10\nTuần 11\nTu; phần tử đầu vùng làm việc: INPUT|search |
 | TC-P8-02-23 | P | library q → [200, 200, 200] |
-| TC-P8-02-24 | F | chạy lại @859a90db (dev2 701f71e8): GET /courses/{A}/library?q=canh bao hoc vu (và «cảnh báo học vụ») bằng sv.gioi → 1 dòng/tài liệu «Quy chế đào tạo QC3» (nhóm theo tài liệu đạt), snippet 160 ký tự, 1 dòng, là cửa sổ quanh «học vụ» («…QUYẾT ĐỊNH Về việc ban hành Hướng dẫn công tác xét học vụ cho sinh viên…») — KHÔNG chứa cụm «cảnh báo»; tài liệu có 2 đoạn chứa nguyên cụm «cảnh báo học vụ» (SQL like) nhưng snippet lấy đoạn khớp đầu tiên theo ord (ord 0) vì chỉ khớp cặp âm tiết «học vụ». Từ khoá đơn (AES, «an ninh mạng») cho snippet chứa đúng từ khoá. Kỳ vọng TC: snippet chứa từ khoá tìm kiếm;  |
+| TC-P8-02-24 | P | chạy lại @403f1ea5 (dev2 701f71e8 + 32022e99): GET /courses/{A}/library?q=canh bao hoc vu (và «cảnh báo học vụ») bằng sv.gioi → 1 dòng/tài liệu «Quy chế đào tạo QC3» (nhóm theo tài liệu), snippet 1 dòng 160 ký tự chứa NGUYÊN cụm: «Sinh viên bị cảnh báo học vụ nếu vi phạm hai trong ba điều kiện…» (đoạn chứa cả cụm được chọn trước); từ đơn AES → snippet «…Khoá đối xứng AES…», «an ninh mạng» → «An ninh mạng … Tài liệu về an ninh mạng…»; DEF-R6-P3 đã sửa |
 | TC-P8-02-25 | P | /library của SV lớp A: 17 tài liệu = đúng tập READY+hiện+≠ANSWER_KEY (DB 17); lẫn tài liệu bị loại (ANSWER_KEY/ẩn/PROCESSING/FAILED: 6 cái)=0; lẫn tài liệu riêng lớp B (0 cái)=0 |
 | TC-P8-02-26 | P | limit=1 ok, 101 → 422 |
 | TC-P8-02-27 | P | chi tiết → 200, download → 200; keys=['id', 'title', 'type', 'file_kind', 'category', 'week_no', 'updated_at', 'snippet'] |
