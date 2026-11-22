@@ -40,4 +40,4 @@
 - Kỳ vọng (SRS 4.4, TC): hiệu lực = cờ hệ thống ∧ cờ lớp ∧ provider sẵn sàng → provider tắt: 0 lời gọi DECIDE, mọi cổng như trước 10.5.
 - Thực tế: THREADS_PRECHECK đúng (0 DECIDE); CHAT_ROUTING vẫn 1 dòng DECIDE (ok, FALLBACK) ở chat sau +3 / +23 / +63 s; INJECTION_FLAG 1 dòng DECIDE ở lượt chấm.
 - Bằng chứng: `evidence-9s/s106/g105j.py`, `g105i.py`.
-- Trạng thái: MỞ
+- Trạng thái: ĐÓNG — P ở f26b15db (dev3 sửa Registry.build; g105i: 0 DECIDE ở cả 3 cổng)

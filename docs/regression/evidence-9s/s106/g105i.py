@@ -4,7 +4,7 @@ import gdlib
 from gdlib import window, mk_assignment, grade_all_wait, CG0
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "s10")); import qlib
 def pset(en):
-    pid = api("admin", "GET", DEC)[1]["provider"]["id"]; cur = [x for x in api("admin", "GET", "/admin/llm/providers")[1]["items"] if x["id"] == pid][0]
+    pid = "01a1deef-8e87-74a9-b3d2-aad764ed3dc8"; cur = [x for x in api("admin", "GET", "/admin/llm/providers")[1]["items"] if x["id"] == pid][0]
     return api("admin", "PUT", f"/admin/llm/providers/{pid}", {**{k: cur.get(k) for k in ("name", "type", "base_url", "rpm_limit", "tpm_limit") if cur.get(k) is not None}, "enabled": en, "version": cur["version"]})[0]
 def run():
     for t in ("CHAT", "CLASSIFY", "UTILITY"): set_route(t, "QC fake", "fake-chat")
