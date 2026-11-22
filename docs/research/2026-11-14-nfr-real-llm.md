@@ -21,7 +21,7 @@ Thiết bị: **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1
 | (a) STUDENT gọi `gradebook` ≥ 100 lần: 100 % `403` | 300 lần 403, 0 lần 200 | 301 lần 403, 0 lần 200 | PASS | cùng tệp (`forbidden_403`, `forbidden_leak`) |
 | (b) sự kiện đầu của chat p95 ≤ 300 ms (50 luồng, provider giả 5–15 s) | 66,9 ms | 118,9 ms | PASS | `load-b-first_event.json`, `-x2` |
 | (b) TTFT cache p95 ≤ 1,5 s | 103,8 ms | 102,3 ms | PASS | `load-b-ttft.json`, `-x2` |
-| (b) TTFT RAG p95 ≤ 4 s | 633,9 ms | 626,4 ms | PASS | cùng tệp |
+| (b) TTFT RAG p95 ≤ 4 s | 634,0 ms | 626,4 ms | PASS | cùng tệp |
 | (c) TTFT chat lúc chấm xấu đi ≤ 20 % (50 bài, provider giả 300 ms) | nền 410 ms → chấm 381 ms (−7 %) | nền 415 ms → chấm 401 ms (−3,5 %) | PASS | `load-c-baseline*.json`, `load-c-grading*.json` |
 | (c) chấm 1.000 bài thời gian thật ≤ 3 giờ (9router `ag/gemini-3.8-flash`, 5 luồng) | lần 1: 322/1.000 xong, 678 `FAILED`, 0,55 h; lần 2: 1.000/1.000, 0 `FAILED`, 0 mồ côi, 0 chấm hai lần, 1,68 h | – | lần 1 **FAIL**, lần 2 **PASS** | `load-c-1000-9router-run1-hong.json`, `load-c-1000-9router-run2.json` (`load-c-1000-dung-theo-chu-du-an.json`: nhà cung cấp giả trễ 20 s, dừng ở 235/1.000 vì AC9 đòi LLM thật, không tính là số đo) |
 | (d) dashboard / 360 / sổ điểm p95 ≤ 3 s | 18,3 ms | – (AC3 chỉ (a)–(c)) | PASS | `load-d.json` |
