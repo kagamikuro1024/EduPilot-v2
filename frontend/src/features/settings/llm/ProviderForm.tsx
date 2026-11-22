@@ -149,7 +149,7 @@ export function ProviderForm({ mode, provider, onClose }: { mode: FormMode; prov
 
       {mode !== "key" && (
         <div>
-          <Button variant="text" size="sm" aria-expanded={advanced} aria-controls="provider-advanced" onClick={() => setAdvanced((a) => !a)}>
+          <Button variant="ghost" size="sm" aria-expanded={advanced} aria-controls="provider-advanced" onClick={() => setAdvanced((a) => !a)}>
             Cài đặt nâng cao
           </Button>
           <div id="provider-advanced" hidden={!advanced} className={s.advanced}>

@@ -28,6 +28,18 @@ test("sections: 5 phần đúng thứ tự (thêm «Quyết định nhanh», US-
   await expect(page.getByRole("heading", { name: "Mức dùng và ngân sách" })).toBeVisible();
 });
 
+test("đỏ chỉ là tín hiệu: lúc đầu tối đa 1 nút chữ đỏ (Thêm nhà cung cấp); Cài đặt nâng cao, Theo lớp, Đổi hạn mức không đỏ (DESIGN §22.10)", async ({ page }) => {
+  await openLlm(page, "ADMIN");
+  await expect(page.getByRole("heading", { name: "Mức dùng và ngân sách" })).toBeVisible();
+  const red = await page.locator('main [data-variant="text"]:visible').allTextContents();
+  expect(red.length).toBeLessThanOrEqual(1);
+  for (const name of ["Cài đặt nâng cao", "Theo lớp", "Đổi hạn mức"]) {
+    await expect(page.locator("main").getByRole("button", { name }).first()).toBeVisible();
+    const vs = await page.locator("main").getByRole("button", { name }).evaluateAll((bs) => bs.map((b) => b.getAttribute("data-variant")));
+    expect(vs.every((v) => v === "ghost")).toBe(true);
+  }
+});
+
 test("provider row: Test kết nối ở mỗi hàng, lỗi ngay dưới hàng, thêm nhà bấm đúp Lưu chỉ 1 POST", async ({ page }) => {
   await openLlm(page, "ADMIN", {
     [`POST ${P}/providers/${IDS.gemini}/test`]: [{ body: { ok: false, error_kind: "AUTH", message: "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.", latency_ms: 90 } }],
