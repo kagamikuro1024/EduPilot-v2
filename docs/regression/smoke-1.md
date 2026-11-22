@@ -21,7 +21,7 @@ Cách chạy:
 | --- | --- | --- |
 | **US-P0-01** | | |
 | P0-01/TC-05 | P | không từ khoá cấm ở lời SV |
-| P0-01/TC-07 | F | DEF-R1-01: DEMO_SCRIPT trích attendance-checkin/-display/checkin-code/audit/insights.spec.ts nhưng FLOWS.md không có mục tương ứng |
+| P0-01/TC-07 | P | qc2 22/11 sau BA 752ce1f9 (DEF-R1-01) @8f87223b: grep -c «^Nếu hội đồng hỏi» docs/DEMO_SCRIPT.md = 8 (≥ 5); 11/11 tên *.spec.ts trong DEMO_SCRIPT có trong FLOWS.md; từng bước 1–7 (F2, F3, F5, F7, F9, F10, F17) có «Nếu hội đồng hỏi» và mọi spec của bước nằm đúng mục flow tương ứng (kiểm bằng script tách mục FLOWS); bước 8 Nhật ký có audit.spec.ts ở FLOWS (dòng 163); mục 5 nêu tầng 2 khi 9router/mạng/bước LLM lỗi, tầng 3 khi stack không lên hoặc tầng 2 lỗi, tầng 2 không cần mạng ra ngoài. Chạy kèm 3 spec checkin-code/insights/audit: 52 passed, 28 skipped (@real), 0 failed (evidence-f16/demo-3specs.log). Lượt F trước: DEF-R1-01: DEMO_SCRIPT trích attendance-checkin/-display/checkin-code/audit/insights.spec.ts nhưng FLOWS.md không có mục tương ứng |
 | P0-01/TC-08 | P | 4 cụm phân quyền nằm đúng hàng bảng |
 | P0-01/TC-09 | P |  |
 | P0-01/TC-10 | P | email @edupilot.local, không secret |

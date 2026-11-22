@@ -1,0 +1,46 @@
+{
+ "375": {
+  "overflow": false,
+  "sw": 375,
+  "cw": 375,
+  "reds": {
+   "Thêm nhà cung cấp": 1
+  },
+  "ghost": [
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Đổi hạn mức:ghost"
+  ]
+ },
+ "1440": {
+  "overflow": false,
+  "sw": 1440,
+  "cw": 1440,
+  "reds": {
+   "Thêm nhà cung cấp": 1
+  },
+  "ghost": [
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Cài đặt nâng cao:ghost",
+   "Đổi hạn mức:ghost"
+  ],
+  "tab": {
+   "stops": 40,
+   "noRing": 0
+  }
+ }
+}

@@ -1,0 +1,19 @@
+FAIL	./internal/threads [setup failed]
+--- PASS: TestCascadeThreadsHTTP (1.14s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/contract	2.549s
+--- PASS: TestInjectionOR (3.71s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	4.588s
+--- PASS: TestRouteDecisionTable (0.80s)
+--- PASS: TestCrisisNeverReachesDecide (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/agent	1.540s
+PASS
+ok  	github.com/edupilot/backend-go/internal/chat	1.270s [no tests to run]
+FAIL
+--- PASS: TestThreadsCrisisNeverReachesDecide (0.74s)
+ok  	github.com/edupilot/backend-go/internal/thread	1.452s
+internal/contract/cascade_http_test.go cascade_path/wantPath: 2
+internal/grading/injection_decision_test.go cascade_path/wantPath: 5
+internal/agent/route_decision_test.go cascade_path/wantPath: 6
