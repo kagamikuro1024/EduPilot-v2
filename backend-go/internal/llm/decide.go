@@ -62,7 +62,8 @@ func clip(s string, limit int, headTail bool) string {
 	}
 	r := []rune(s)
 	if headTail {
-		return string(r[:limit/2]) + "\n" + string(r[len(r)-limit/2:])
+		tail := limit - limit/2 - 1 // dấu nối "\n" nằm TRONG trần (≤ limit ký tự tổng)
+		return string(r[:limit/2]) + "\n" + string(r[len(r)-tail:])
 	}
 	return string(r[:limit])
 }
