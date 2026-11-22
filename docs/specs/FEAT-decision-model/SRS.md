@@ -241,7 +241,7 @@ Lời chỉ thị và mô tả nhãn **cố định trong mã** (tiếng Việt,
 - Cầu dao riêng cho provider `decision` (cùng cơ chế `FEAT-llm-gateway` 3.2: dùng chung qua Redis); mở → `Decide` trả `circuit_open` ngay.
 - Chi phí vào `llm_budgets` như mọi lời gọi (`cost_est`); hết ngân sách → `budget_blocked` → fallback.
 - Trần bản thật: `LLM_DECISION_REAL_DAILY_CAP` (mặc định 300 / ngày UTC+7); chỉ áp khi model là `gemini-decision-1`.
-- Token bucket riêng: `LLM_DECISION_RPM` (mặc định 150, dưới 200 RPM của Free Tier); hết giấy phép → fallback ngay (không xếp hàng ở làn `INTERACTIVE`).
+- Token bucket riêng: `LLM_DECISION_RPM` (mặc định 150, dưới 200 RPM của Free Tier); hết giấy phép → fallback ngay (không xếp hàng ở làn `INTERACTIVE`), `llm_audit.status=overloaded` (từ chối của Scheduler; `rate_limited` chỉ khi nhà cung cấp trả `429`; P-11-97).
 
 ### 4.6 Provider giả `decision-fake`
 - Khoá bản phát lại: `sha256(masked_input) + ":" + question_id`; giá trị `{noul | choice, probabilities}`; tập tin `internal/llm/testdata/decision-replay.json` do dev dựng từ bộ nhãn của PoC và E1 / E2 / 9.5; thiếu khoá → `noul = 0,25` (trung tính rõ ràng, dưới ngưỡng 0,5 nên không phải «có»; nằm giữa ε và 0,5 nên lưỡng lự → ép fallback; `confidence` 0,75 < τ) và `choice` chia đều; `FAKE_DECISION_PROB` (một số trong [0,01; 0,99]) ghi đè cho các câu `noul` không có trong bản phát lại, dùng để dựng ca; dev nêu bảng ca replay (đầu vào → xác suất / nhãn) trong handoff.

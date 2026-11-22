@@ -716,6 +716,63 @@ async function ensureDoc(course, token, docs, d) {
   return row.id;
 }
 
+/**
+ * Quiz 01 của Luyện đề (US-P9-12, P-10-2): tạo + lên lịch + 3 sinh viên làm, chạy NỀN ngay sau bước 10. Quiz mở sau ~14 s, đóng sau ~2 phút rồi bộ lập lịch công bố
+ * trong lúc các bước 11–19 chạy; bước Luyện đề chỉ `await` kết quả (DEF-Q2-S4-01: trước đây bước cuối đứng chờ ~140 s cho Quiz).
+ */
+async function setupQuiz() {
+  const course = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  const base = `/courses/${course}/questions`;
+  const have = new Map((await listAll(base, t)).map((x) => [x.title, x]));
+  const bank = new Map();
+  for (const q of P9_APPROVED.filter((x) => x.topic === "Hàm băm và chữ ký" && x.type === "MCQ_SINGLE").slice(0, 5)) { // chỉ 5 câu của Quiz; phần còn lại của ngân hàng ở bước Luyện đề
+    const row = have.get(q.title) ?? (await call("POST", base, { token: t, key: `seed-p9-${q.title}`, json: p9Body(q) })).body;
+    await approveQuestion(base, row.id, t);
+    bank.set(q.title, row);
+  }
+  // QUIZ: bài thi tính điểm của PE (P-10-2): 5 câu chọn một của chủ đề Hàm băm và chữ ký. Mở sau ~14 s, đóng sau ~2 phút, 3 sinh viên làm; bộ lập lịch công bố (AC1: PUBLISHED).
+  const exams = await listAll(`/courses/${course}/exams`, t);
+  let quizTake = null;
+  const oldQuiz = exams.find((x) => x.title === P9_QUIZ_TITLE);
+  if (oldQuiz && ["SCHEDULED", "DRAFT"].includes(oldQuiz.status) && new Date(oldQuiz.opens_at) - Date.now() > 3_600_000) { // bản seed cũ (mở sau 7 ngày): dời lại để đi trọn tới PUBLISHED
+    const now = Date.now();
+    if (oldQuiz.status === "SCHEDULED") await call("POST", `/courses/${course}/exams/${oldQuiz.id}/unschedule`, { token: t, json: {}, ok: [200] });
+    const cur = (await call("GET", `/courses/${course}/exams/${oldQuiz.id}`, { token: t })).body;
+    await call("PUT", `/courses/${course}/exams/${oldQuiz.id}`, { token: t, json: { title: cur.title, instructions: cur.instructions ?? "", duration_minutes: 2, opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString(), version: cur.version } });
+    await call("POST", `/courses/${course}/exams/${oldQuiz.id}/schedule`, { token: t, json: {}, ok: [200] });
+    quizTake = { id: oldQuiz.id, at: now + 15_500 };
+  }
+  if (!oldQuiz) {
+    const ids = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5).map((q) => bank.get(q.title).id);
+    const now = Date.now();
+    const quiz = (await call("POST", `/courses/${course}/exams`, { token: t, key: `seed-p9-${P9_QUIZ_TITLE}`, json: { title: P9_QUIZ_TITLE, instructions: "Quiz tính điểm: 5 câu trắc nghiệm.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString() } })).body;
+    await call("PUT", `/courses/${course}/exams/${quiz.id}/items`, { token: t, json: { items: ids.map((id) => ({ question_id: id, points: "2" })), version: quiz.version } });
+    await call("POST", `/courses/${course}/exams/${quiz.id}/schedule`, { token: t, json: {}, ok: [200] });
+    quizTake = { id: quiz.id, at: now + 15_500 };
+  }
+
+  if (quizTake) { // ba sinh viên làm Quiz (gioi đúng hết, kha sai câu 5, nguyco sai 3 câu), rồi bộ lập lịch đóng + công bố
+    const wait = quizTake.at - Date.now();
+    if (wait > 0) await sleep(wait);
+    const quizQs = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5);
+    for (const [who, wrong] of [["sv.gioi", 0], ["sv.kha", 1], ["sv.nguyco", 3]]) {
+      await takeAttempt(course, quizTake.id, who, async (start, { token, base: ab, hdr }) => {
+        const answers = [];
+        for (const [n, q] of quizQs.entries()) {
+          const item = start.items.find((x) => x.stem === q.stem);
+          if (!item) continue;
+          const good = new Set(q.correct.map((i) => q.options[i]));
+          const pickOpts = n >= quizQs.length - wrong ? item.options.filter((o) => !good.has(o.body)).slice(0, 1) : item.options.filter((o) => good.has(o.body));
+          answers.push({ item_id: item.item_id, answer: { option_ids: pickOpts.map((o) => o.id) } });
+        }
+        await callH("PUT", `${ab}/answers`, { token, headers: hdr, json: { items: answers } });
+      });
+    }
+    ctx.changed = true;
+  }
+}
+
 async function step19Practice() {
   step(20, "Luyện đề: ngân hàng, hàng chờ duyệt, Quiz và lượt luyện của 13 sinh viên (lớp 761987)…");
   const course = ctx.ids["761987"];
@@ -757,29 +814,6 @@ async function step19Practice() {
     await waitJob(job, t, "trích đề mẫu", 300_000);
     ctx.changed = true;
   }
-  const bank = new Map((await listAll(base, t)).map((x) => [x.title, x]));
-
-  // QUIZ: bài thi tính điểm của PE (P-10-2): 5 câu chọn một của chủ đề Hàm băm và chữ ký. Mở sau ~14 s, đóng sau ~2 phút, 3 sinh viên làm; bộ lập lịch công bố (AC1: PUBLISHED).
-  const exams = await listAll(`/courses/${course}/exams`, t);
-  let quizTake = null;
-  const oldQuiz = exams.find((x) => x.title === P9_QUIZ_TITLE);
-  if (oldQuiz && ["SCHEDULED", "DRAFT"].includes(oldQuiz.status) && new Date(oldQuiz.opens_at) - Date.now() > 3_600_000) { // bản seed cũ (mở sau 7 ngày): dời lại để đi trọn tới PUBLISHED
-    const now = Date.now();
-    if (oldQuiz.status === "SCHEDULED") await call("POST", `/courses/${course}/exams/${oldQuiz.id}/unschedule`, { token: t, json: {}, ok: [200] });
-    const cur = (await call("GET", `/courses/${course}/exams/${oldQuiz.id}`, { token: t })).body;
-    await call("PUT", `/courses/${course}/exams/${oldQuiz.id}`, { token: t, json: { title: cur.title, instructions: cur.instructions ?? "", duration_minutes: 2, opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString(), version: cur.version } });
-    await call("POST", `/courses/${course}/exams/${oldQuiz.id}/schedule`, { token: t, json: {}, ok: [200] });
-    quizTake = { id: oldQuiz.id, at: now + 15_500 };
-  }
-  if (!oldQuiz) {
-    const ids = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5).map((q) => bank.get(q.title).id);
-    const now = Date.now();
-    const quiz = (await call("POST", `/courses/${course}/exams`, { token: t, key: `seed-p9-${P9_QUIZ_TITLE}`, json: { title: P9_QUIZ_TITLE, instructions: "Quiz tính điểm: 5 câu trắc nghiệm.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString() } })).body;
-    await call("PUT", `/courses/${course}/exams/${quiz.id}/items`, { token: t, json: { items: ids.map((id) => ({ question_id: id, points: "2" })), version: quiz.version } });
-    await call("POST", `/courses/${course}/exams/${quiz.id}/schedule`, { token: t, json: {}, ok: [200] });
-    quizTake = { id: quiz.id, at: now + 15_500 };
-  }
-
   // câu → đáp án đúng, theo chữ (PE + Luyện đề), để chọn đúng / sai có chủ đích
   const truth = new Map();
   for (const q of [...QUESTIONS, ...P9_APPROVED, ...P9_ESSAYS]) truth.set(q.stem, q);
@@ -817,26 +851,6 @@ async function step19Practice() {
       await callH("PUT", `/courses/${course}/practice/attempts/${att.id}/answers/${item.id}`, { token, headers: hdr, json: att.mode === "MOCK" ? { answer, version: 0 } : { answer } });
     }
     if (leave === 0) await callH("POST", `/courses/${course}/practice/attempts/${att.id}/submit`, { token, key: `seed-p9-${who}-${n}-submit` });
-  }
-
-  if (quizTake) { // ba sinh viên làm Quiz (gioi đúng hết, kha sai câu 5, nguyco sai 3 câu), rồi bộ lập lịch đóng + công bố
-    const wait = quizTake.at - Date.now();
-    if (wait > 0) await sleep(wait);
-    const quizQs = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5);
-    for (const [who, wrong] of [["sv.gioi", 0], ["sv.kha", 1], ["sv.nguyco", 3]]) {
-      await takeAttempt(course, quizTake.id, who, async (start, { token, base: ab, hdr }) => {
-        const answers = [];
-        for (const [n, q] of quizQs.entries()) {
-          const item = start.items.find((x) => x.stem === q.stem);
-          if (!item) continue;
-          const good = new Set(q.correct.map((i) => q.options[i]));
-          const pickOpts = n >= quizQs.length - wrong ? item.options.filter((o) => !good.has(o.body)).slice(0, 1) : item.options.filter((o) => good.has(o.body));
-          answers.push({ item_id: item.item_id, answer: { option_ids: pickOpts.map((o) => o.id) } });
-        }
-        await callH("PUT", `${ab}/answers`, { token, headers: hdr, json: { items: answers } });
-      });
-    }
-    ctx.changed = true;
   }
 
   const hist = (who) => call("GET", `/courses/${course}/practice/history?limit=1`, { token: ctx.tokens[who] }).then((r) => r.body.items.length);
@@ -1421,6 +1435,15 @@ async function stepCheckinDemo() {
 }
 
 // ---- chạy ------------------------------------------------------------------------------------------------------------
+/** Chạy `fn` nền; lỗi của nó chỉ nổ ở lúc `await` kết quả (không làm sập tiến trình giữa chừng). */
+function inBackground(fn) {
+  const p = fn().then(() => null, (e) => e);
+  return async () => {
+    const e = await p;
+    if (e) throw e;
+  };
+}
+
 async function main() {
   const started = Date.now();
   if (IF_EMPTY && (await isSeeded())) {
@@ -1438,7 +1461,11 @@ async function main() {
   await step8Mismatch();
   await step9Dismiss();
   await step10Exams();
+  // DEF-Q2-S4-01: hai việc phần lớn là chờ (Quiz đóng + công bố ~140 s; BT03 chờ tới hạn 75 s) chạy NỀN song song với bước 11 (docling ~150 s, tuần tự có chủ đích).
+  const quizDone = inBackground(setupQuiz);
+  const assignmentsDone = inBackground(step18Assignments);
   await step11DocsEvents();
+  await assignmentsDone();
   await step12Chat();
   await step13Threads();
   await step14Attendance();
@@ -1446,7 +1473,7 @@ async function main() {
   await step15StudyTimeRisk();
   await step16Tickets();
   await step17Moderation();
-  await step18Assignments();
+  await quizDone();
   await step19Practice();
   await stepDecisionDemo();
   await stepGuidanceDemo();

@@ -81,7 +81,7 @@ const seedOn = (process.env.SEED_ON_EMPTY_DB ?? readEnvLocal("SEED_ON_EMPTY_DB")
 if (seedOn) {
   console.log("[dev] SEED_ON_EMPTY_DB=true — chạy scripts/seed.mjs --if-empty sau khi gateway sẵn sàng...");
   const t0 = Date.now();
-  const seed = spawnSync("node", ["scripts/seed.mjs", "--if-empty"], { cwd: root, stdio: "inherit", env: { ...process.env, COMPOSE_PROJECT_NAME: project, API_URL: process.env.API_URL ?? `${origin}/api/v1`, MAILPIT_URL: process.env.MAILPIT_URL ?? `http://localhost:${env.EP_PORT_MAILPIT}` } });
+  const seed = spawnSync("node", ["scripts/seed.mjs", "--if-empty"], { cwd: root, stdio: "inherit", env: { ...process.env, COMPOSE_PROJECT_NAME: project, API_URL: process.env.API_URL ?? `${origin}/api/v1`, MAILPIT_URL: process.env.MAILPIT_URL ?? `http://localhost:${env.EP_PORT_MAILPIT}`, EP_PORT_MOCK_IMAP: env.EP_PORT_MOCK_IMAP, EP_PORT_MOCK_GRAPH: env.EP_PORT_MOCK_GRAPH } }); // seed bước 19 / 20 đọc mock theo cổng host đã cộng EP_PORT_OFFSET (DEF-Q2-DEV-01)
   console.log(`[dev] seed mất ${Math.round((Date.now() - t0) / 1000)} s`);
   if (seed.status !== 0) console.warn("[dev] CẢNH BÁO: seed chưa xong (mã thoát " + (seed.status ?? "?") + "). Stack vẫn chạy; chạy lại bằng `pnpm seed`.");
 }
