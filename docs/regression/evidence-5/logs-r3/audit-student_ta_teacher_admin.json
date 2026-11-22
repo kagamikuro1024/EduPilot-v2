@@ -1059,133 +1059,78 @@
   "role": "teacher",
   "route": "/class/members",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: net::ERR_NETWORK_CHANGED at https://localhost:1143/class/membe"
  },
  {
   "role": "teacher",
   "route": "/gradebook",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: net::ERR_NETWORK_CHANGED at https://localhost:1143/gradebook\nC"
  },
  {
   "role": "teacher",
   "route": "/gradebook/scheme",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/gradebook/scheme\" is int"
  },
  {
   "role": "teacher",
   "route": "/grading",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/grading\" is interrupted "
  },
  {
   "role": "teacher",
   "route": "/questions",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/questions\" is interrupte"
  },
  {
   "role": "teacher",
   "route": "/documents",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/documents\" is interrupte"
  },
  {
   "role": "teacher",
   "route": "/insights",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/insights\" is interrupted"
  },
  {
   "role": "teacher",
   "route": "/analytics",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/analytics\" is interrupte"
  },
  {
   "role": "teacher",
   "route": "/exams",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/exams\" is interrupted by"
  },
  {
   "role": "teacher",
   "route": "/settings/llm",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/settings/llm\" is interru"
  },
  {
   "role": "teacher",
   "route": "/observability",
   "w": "390",
-  "pass": true,
-  "ox": 0,
-  "cut": [],
-  "ell": [],
-  "touch": [],
-  "forb": 0,
-  "notFound": false
+  "pass": false,
+  "err": "Error: page.goto: Navigation to \"https://localhost:1143/observability\" is interr"
  },
  {
   "role": "teacher",
