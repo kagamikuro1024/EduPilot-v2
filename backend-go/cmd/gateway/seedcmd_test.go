@@ -263,3 +263,13 @@ func TestSeedGuidancePublishesFlag(t *testing.T) {
 	require.NoError(t, err, "cờ đã đổi phải được PUBLISH ngay")
 	require.Equal(t, grading.FlagsChannel, msg.(*goredis.Message).Channel)
 }
+
+// scripts/seed.mjs so id lớp qua API với id này để từ chối khi lệnh admin chạy trên DB khác (DEF-R105S-05).
+func TestSeedIdentityPrintsCourseID(t *testing.T) {
+	w := newSeedWorld(t)
+	code, out, errOut := runSeed(t, seedEnv(w.url, "test"), "seed-identity", "--course", "761987")
+	require.Zero(t, code, errOut)
+	require.Equal(t, "seed-identity: "+w.course.String()+"\n", out)
+	code, _, _ = runSeed(t, seedEnv(w.url, "test"), "seed-identity", "--course", "000000")
+	require.NotZero(t, code, "DB khác không có lớp này")
+}

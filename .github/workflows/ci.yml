@@ -82,7 +82,7 @@ jobs:
         working-directory: .
         run: |
           bash scripts/canary-scan.test.sh
-          node --test scripts/seed-password.test.mjs scripts/seed-clock.test.mjs scripts/seed-if-empty.test.mjs scripts/crm-plan.test.mjs scripts/exam-seed-data.test.mjs scripts/seed-gateway-down.test.mjs scripts/seed-courses.test.mjs scripts/seed-token-renew.test.mjs scripts/dev-seed-env.test.mjs
+          node --test scripts/seed-stack.test.mjs scripts/seed-password.test.mjs scripts/seed-clock.test.mjs scripts/seed-if-empty.test.mjs scripts/crm-plan.test.mjs scripts/exam-seed-data.test.mjs scripts/seed-gateway-down.test.mjs scripts/seed-courses.test.mjs scripts/seed-token-renew.test.mjs scripts/dev-seed-env.test.mjs
       - name: go vet
         run: go vet ./...
       - name: go vet (testroutes)
