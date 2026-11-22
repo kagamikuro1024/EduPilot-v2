@@ -1,0 +1,4 @@
+[]
+6c672582f82feba28bcb2fdbf8b973f660564bcb	refs/heads/sprint/4-p2
+--- CI at HEAD sprint/11
+[{"conclusion":"success","displayTitle":"Sprint 11: wave 1 (quan sát AI) + P-11-26 — CI đầy đủ (PR nháp)","headSha":"a79f5c691255a4e8e17a49c96ca20f9a470a08d0","status":"completed"},{"conclusion":"cancelled","displayTitle":"Sprint 11: wave 1 (quan sát AI) + P-11-26 — CI đầy đủ (PR 

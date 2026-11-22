@@ -1,0 +1,6 @@
+sv.moi login=ok GET /courses/C2/sessions → 403
+sv52 login=ok GET /courses/C2/sessions → 403
+sv54 login=ok GET /courses/C2/sessions → 403
+ta login=ok GET /courses/C2/sessions → 403
+admin login=ok GET /courses/C2/sessions → 403
+sv33 (REMOVED) login=ok GET sessions → 403

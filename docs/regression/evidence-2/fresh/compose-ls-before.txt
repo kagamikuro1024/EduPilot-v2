@@ -1,0 +1,1 @@
+[('edupilot', 'exited(6)'), ('ep-qc', 'exited(2), running(12)'), ('ep-r', 'exited(2), running(12)'), ('ep-sd', 'exited(14)'), ('ep-t1', 'exited(14)'), ('qc2fresh', 'exited(1), running(14)'), ('smk91', 'exited(14)')]

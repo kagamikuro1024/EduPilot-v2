@@ -1,0 +1,7 @@
+admin login=200 /me role=None
+teacher login=200 /me role=None
+ta login=200 /me role=None
+sv.gioi login=200 /me role=None
+sv.kha login=200 /me role=None
+sv.nguyco login=200 /me role=None
+sv.moi login=200 /me role=None
