@@ -35,10 +35,10 @@ def run():
         for t in ("CLASSIFY", "UTILITY", "CHAT"): set_route(t, "QC 9router", "ag/gemini-3.8-flash")
 if __name__ == "__main__":
     envs = {"0": None, "1": {"LLM_DECISION_BASE_URL": "http://host.docker.internal:9770", "LLM_DECISION_ALLOW_REAL": "true", "GEMINI_API_KEY": "test-key", "LLM_DECISION_REAL_DAILY_CAP": "3"}}
-    envs["2"] = {**envs["1"], "LLM_DECISION_REAL_DAILY_CAP": "100000"}
+    envs["2"] = {**envs["1"], "LLM_DECISION_REAL_DAILY_CAP": "100000"}; envs["3b"] = {**envs["2"], "GEMINI_API_KEY": ""}
     with window():
       try:
-          key = "2" if PH not in ("0", "1") else PH
+          key = PH if PH in ("0", "1", "3b") else "2"
           if PH != "0": ov = write_override(f"ep-qc.h{key}.yml", envs[key]); print("swap", envswap(ov)[:50], flush=True); snap("h" + key)
           run()
       finally:

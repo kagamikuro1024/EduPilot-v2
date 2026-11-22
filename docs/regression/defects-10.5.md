@@ -48,4 +48,10 @@
 - Kỳ vọng (US-DM-04 AC4, TC): tối đa 16.000 ký tự = 8.000 đầu + 8.000 cuối.
 - Thực tế: `input` dài 16.001 ký tự (8.000 đầu + «\n» + 8.000 cuối; `llm/decide.go` `clip`: `r[:limit/2] + "\n" + r[len(r)-limit/2:]`). Đầu/cuối đúng, phần giữa (MIDMARK) không có trong thân, log, `llm_request_payloads` của DECIDE. Regex vẫn gắn cờ cả hai bài.
 - Bằng chứng: `evidence-9s/s106/g105h2_2b.py`.
-- Trạng thái: MỞ
+- Trạng thái: ĐÓNG — P ở 1fdcda73 (thân đúng 16.000: 8.000 đầu + «\n» + 7.999 cuối)
+
+## DEF-R105S-05 — RÚT LẠI (lỗi môi trường của QC, không phải lỗi mã)
+- Nguyên nhân: shell của QC còn `COMPOSE_PROJECT_NAME=ep-qc`; `scripts/seed.mjs` / `check-decision-seed.mjs` chạy lệnh admin bước 16 (seed-study-time, seed-age --activity, seed-activity, crm-risk-run) bằng `docker compose exec gateway` của THƯ MỤC HIỆN HÀNH (SEED_ADMIN_CMD mặc định) → ghi vào DB ep-qc, trong khi API gọi qc2seedt / qc2seedt2. `crm-risk-run` tính trên dữ liệu ep-qc nên ra «AT_RISK 1, WATCH 1».
+- Hệ quả: TC-D08-03 chuyển F → N (lượt chạy vô hiệu); TC-D08-02 vẫn N. Chạy lại ở qc2seedt3 sau khi có `SEED_ADMIN_CMD` tường minh.
+- Ghi chú ep-qc: lệnh admin đã ghi vào lớp 761987 / 761988 của ep-qc (số dòng đã báo PM). question_bank 761987 vẫn 150 PENDING / 107 APPROVED (E5 nguyên).
+- Trạng thái: ĐÓNG (không phải lỗi sản phẩm)
