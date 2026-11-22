@@ -102,7 +102,7 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Tái hiện (qc3s, DB đã seed): `node scripts/seed.mjs` lần 2, 3, 4 → «Seed xong trong 25 s.» (không có dòng «Seed xong (không đổi)»). Đếm dòng 85 bảng trước/sau: nghiệp vụ không đổi (users, courses, exams, question_bank, exam_attempts, code_submissions, forum_threads; Mailpit 168 = 168), chỉ tăng phiên đăng nhập / outbox / audit do chính seed đăng nhập.
 - Nguyên nhân (bằng cách gắn dò vào bản sao seed.mjs): `ctx.changed = true` ở `seedThreads` (scripts/seed.mjs:1010): thread mẫu «Modern Network Security Threats» không khớp danh sách thread hiện có (11 thread thấy được, thread «· Phisher» bị ẩn ở bước 18) nên bị POST lại; Idempotency-Key trả dòng cũ nên không tạo thêm. Log: `evidence-5/logs-r3/pe09-12-*`.
 
-### DEF-R5-16 — [N: PM 2026-11-21 — đo lại ở cửa sổ SEED cuối khi các stack khác dừng, P-11-76] Seed trên DB trống mất 652 s, trần ≤ 6 phút (TC-PE09-13)
+### DEF-R5-16 — [F: cửa sổ SEED 2026-11-22 trên máy rảnh = ≈ 496 s (8,3 phút) > 360 s; chia: bước 20 = 164 s, bước 11 = 151 s, bước 19 = 78 s, bước 1–10 = 74 s] Seed trên DB trống mất 652 s, trần ≤ 6 phút (TC-PE09-13)
 - Mức: Thấp (cùng nhóm DEF-Q2-S4-01 / DEF-R4-08) · Sprint gốc: 5 (US-PE-09 AC5, ngân sách đổi ≤ 6 phút theo P-11-76) · Hồi quy: có thể do máy chung
 - qc3s `up` → `seed`: «Seed xong trong 652 s» (log `evidence-5/logs-r3/seed3.log`, `seed-t0-clean.json`): bước 11 tài liệu docling thật 241 s, bước 20 luyện đề 204 s, bước 19 78 s, bước 10 (PE) 40 s; P2 + PE (bước 1–10) = 91 s. Máy chung tải 9–14 (không đạt «máy không chạy stack khác»; PM đo 314 s ngày 13/11). Cần đo lại trên máy trống; phần dài là các bước thêm sau sprint 5 (11, 19, 20).
 
@@ -124,7 +124,7 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Tái hiện: ep-r @aba738ef, đăng nhập `sv.gioi@edupilot.local`, 1440 × 900, vào `/chat`, đo `PerformanceObserver('layout-shift')` (bỏ hadRecentInput): 0,1618 / 0,1560 / 0,1618. Một dịch 0,156 lúc ~370 ms: `DIV.Layout-module__…ldDetail` («Hỏi bất cứ điều gì về lớp») x 621 → 241, rộng 794 → 1174; kéo `Composer`, `UL…suggest` (3 LI). 14 route khác của SV/GV/Admin ≤ 0,0002.
 - Nghi ngờ mã: bố cục hai cột của Chat (`Layout…ldDetail`, features/chat RealChat/ChatScreen): chỗ cột danh sách phiên chỉ được bỏ sau khi dữ liệu phiên về. Script `evidence-5/ui-r3/ui5d.cjs`.
 
-### DEF-R5-20 — [chờ chạy lại 581dbccd (cần cửa sổ SEED)] Seed lần hai vẫn không in «Seed xong (không đổi)»: `ctx.changed = true` vô điều kiện ở step19Practice (TC-PE09-12)
+### DEF-R5-20 — [ĐÃ SỬA 581dbccd; chạy lại P 2026-11-22 @fae89f0a: «Seed xong (không đổi)»] [chờ chạy lại 581dbccd (cần cửa sổ SEED)] Seed lần hai vẫn không in «Seed xong (không đổi)»: `ctx.changed = true` vô điều kiện ở step19Practice (TC-PE09-12)
 - Mức: Thấp · Sprint gốc: 5 (US-PE-09 AC5), lỗi ở bước Luyện đề thêm sau · Hồi quy: không rõ
 - Tái hiện (qc3s, DB seed sạch @58448e0a): `node scripts/seed.mjs` lần hai → «Seed xong trong 23 s.»; gắn dò: `CHANGED-AT at step19Practice (scripts/seed.mjs:843)`: dòng `ctx.changed = true;` ngay sau khối «lượt đang dở của sv.nguyco» chạy cả khi không tạo gì (`attempts` = 0). Dữ liệu không đổi (đếm 85 bảng). Đề xuất: `if (attempts > 0 || …) ctx.changed = true`.
 - DEF-R5-16 (652 s → 618 s ở lần đo sau, trần ≤ 6 phút theo P-11-76): vẫn vượt trên máy chung.
