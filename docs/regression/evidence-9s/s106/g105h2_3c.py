@@ -1,5 +1,4 @@
 # D03-19 + D05-15: khoá trống / hết hạn mức / mạng lỗi (máy chủ giả HTTP không chạy) — Threads và chat
-STUBS and [stop(p) for p in STUBS]; STUBS.clear()   # mạng lỗi = máy chủ giả tắt
 import statistics
 dprov("gemini-decision-1"); time.sleep(4); gate("THREADS_PRECHECK", True, [C]); gate("CHAT_ROUTING", True, [C]); redis_del("ep:llm:cb:*"); redis_del("ep:decision:real:*")
 CLEAN = ("Mình hỏi về cách nộp bài tập tuần này ạ?", "Mình muốn hỏi hạn nộp bài tập tuần này và cách nộp qua hệ thống ạ?")
@@ -21,7 +20,7 @@ gate("CHAT_ROUTING", True, [C])
 # A: khoá trống (model gemini-decision-1, không khoá DB, GEMINI_API_KEY rỗng)
 s = now(); pa = posts("A"); ca = chat20("A"); time.sleep(3); na = sql(f"select count(*) from llm_audit where task='DECIDE' and created_at>='{s}'")[0][0]; print("A khoá trống: posts", pa, "DECIDE", na, "chat", set(ca[0]), ca[1:], flush=True)
 # B: mạng lỗi (khoá DB có; máy chủ giả tắt)
-sql(f"UPDATE llm_providers SET api_key_enc=NULL WHERE id='{PID}'"); dprov("gemini-decision-1", key="qc-db-key"); time.sleep(4); redis_del("ep:llm:cb:*"); s = now(); pb = posts("B"); cb = chat20("B"); time.sleep(3)
+sql(f"UPDATE llm_providers SET api_key_enc=NULL WHERE id='{PID}'"); print("lưu khoá (máy chủ giả đang chạy):", dprov("gemini-decision-1", key="qc-db-key")[0], flush=True); time.sleep(4); [stop(p) for p in STUBS]; STUBS.clear(); time.sleep(1); redis_del("ep:llm:cb:*"); s = now(); pb = posts("B"); cb = chat20("B"); time.sleep(3)
 rows = sql(f"select status, coalesce(error_kind,''), count(*) from llm_audit where task='DECIDE' and created_at>='{s}' group by 1,2"); print("B mạng lỗi: posts", pb, "DECIDE", rows, "chat", set(cb[0]), cb[1:], flush=True)
 # C: hết hạn mức (đặt bộ đếm ngày vượt trần 1000)
 import datetime
