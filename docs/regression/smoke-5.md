@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · Stack ep-r + qc3s · Người chạy: qc2 (SmkC, SmkL), qc3 (lượt bù S/N, 2026-11-21) · Cập nhật: 2026-11-21
-Tổng TC cũ: 477 · Đạt: 459 · Trượt: 1 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 1   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 460 · Trượt: 0 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 1   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -18,7 +18,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | US-PE-06 | 47 | 47 | 0 | 0 | 0 | |
 | US-PE-07 | 48 | 48 | 0 | 0 | 0 | |
 | US-PE-08 | 68 | 68 | 0 | 0 | 0 | |
-| US-PE-09 | 31 | 28 | 1 | 2 | 0 | |
+| US-PE-09 | 31 | 29 | 0 | 2 | 0 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -461,7 +461,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-10 | P | check-exam-seed.mjs demo: OK (A/C/D, GV, TA, CE) |
 | TC-PE09-11 | P | Chrome thật (Playwright, ep-r @c12be038, lớp 761987 seed gốc, ảnh evidence-5/ui-r3/shots/pe09-11-*.png: /Hôm nay, /exams, /exams/[id]/take (kết quả), /exams/[id]/results của A, B, C, D, GV, TA): A (sv.gioi) «10,00 / 10,00», «Bạn đúng 10/10», mở 10 câu có «Bạn chọn»/«Đáp án đúng»/giải thích, điểm cao nhất lớp 10,00; B 8,00; C (sv.nguyco) «Bạn không làm bài này.»; D (sv.moi) «Không tìm thấy bài thi»/không có bài tuần 9; GV: Bảng điểm, Thống kê, tab «Nghi giống nhau», cột Tín hiệu; TA: bảng điểm, KHÔNG có Tín hiệu/Công bố điểm/Nghi giống nhau. Spec @real «seed demo state» (E2E_REAL_API, exam.spec.ts) 1 passed rc=0 (logs-r3/pe09-11-real-spec.log). Ca CE/cặp giống phủ bởi check-exam-seed demo OK  |
 | TC-PE09-12 | P | qc2seedt (DB seed sạch @fae89f0a, gồm 581dbccd R5-20): seed lần hai và lần ba cùng in «Seed xong (không đổi)» (27/25/29 s); đếm 12 bảng (users, enrollments, exams, exam_attempts, question_bank, documents, content_chunks, forum_threads, chat_messages, calendar_events, code_submissions, practice_attempts) trước/sau = 60/61/7/112/177/9/132/15/383/3/12/42 — không thêm dòng nào; check-exam-seed.mjs scores «matched 30/30 OK scores». DEF-R5-20 đã sửa |
-| TC-PE09-13 | F | cửa sổ đo SEED (PM) trên qc2seedt/qc2fresh, máy không chạy build/test khác, DB trống, pnpm dev tự seed: các bước 1–10 = 74 s, bước 11 (docling) 151 s, 12–18 = 29 s, bước 19 = 78 s, bước 20 = 164 s → ≈ 496 s ≈ 8,3 phút (chưa tính 60 s chờ mock-imap lỗi cổng ở lần chạy đầu; tổng từ 16:53:41 tới 17:03:27 = 586 s) — vượt trần ≤ 6 phút của P-11-76 (360 s) dù đã loại tranh CPU. Phần chậm nhất: bước 20 Luyện đề 164 s, bước 11 docling 151 s, bước 19 bài tập 78 s, bước 10 PE 38–43 s. DEF-R5-16 |
+| TC-PE09-13 | P | đo lại sau sửa dev f473c2ff (DEF-Q2-S4-01, cùng gốc DEF-R5-16) trên qc2seedt2 @6b3678c4 (qc2 đo, project mới, volume trống, pnpm dev.mjs tự seed, máy rảnh): tổng seed 281 s (≈ 4,7 phút) ≤ 360 s (trần ≤ 6 phút, P-11-76); bước 11 docling 158 s chạy song song bước 19; QC kiểm độc lập từ DB qc2seedt2 (chỉ đọc): từ users.created_at đầu tiên 10:12:14 tới bản ghi seed cuối 10:16:50 = 276 s, tài liệu docling 109 s/21 s/22 s (Network Security/Forecasting/Quy chế), 60 users/61 enrollments/7 exams/9 documents như seed chuẩn; qc2 báo 5 check seed + seed lần hai đều OK. Bằng chứng qc2: evidence-2/fresh/seedt2/dev.log. DEF-R5-16 đóng (trước đó 496 s trên cửa sổ 22/11) |
 | TC-PE09-14 | P | APP_ENV=production node scripts/seed.mjs → rc=1, không request tới gateway |
 | TC-PE09-15 | P | k6 judge_burst như PE02-49 (judge_done p95 5,19 s <60 s, judge_ie=0, http_req_failed=0) VÀ số QC tự đo từ DB (code_submissions.updated_at − created_at, kỳ thi «Tải k6 judge_burst»): 60 bài, trung bình 2,50 s, p95 4,84 s, lớn nhất 6,03 s, 0 bài không DONE, 0 IE — hai số khớp (lệch <0,4 s); stack qc3s (gateway-test + worker-test, judge thật của ep-r JUDGE_PARALLELISM=2, FAKE_LLM_LATENCY=300-300, LLM_MAX_CONCURRENCY=100, hạn mức nới), máy Mac arm64 11 CPU/Colima 6 CPU 10 GiB dùng chung (load ≈ 11) |
 | TC-PE09-16 | P | k6 SCENARIO=autosave (300 VU, PUT …/answers mỗi 2 s × 3 phút) = kịch bản QC riêng 300 VU/2 s, stack qc3s (gateway-test, hạn mức nới, judge ep-r), máy dùng chung: lần chạy lúc máy rảnh (load 6–9) autosave p95 = 75,2 ms (≤150), p50 5,9 ms, trung bình 23,9 ms, lớn nhất 731 ms; 26 846 yêu cầu, http_req_failed 0, 5xx = 0. Lần đầu lúc load 17,9 (go vet/lint của QC khác) p95 698 ms: không tính, ghi để tham khảo |
@@ -519,7 +519,7 @@ Xem `defects-5.md`.
 K (a/b/c) = 0. Ca "chưa chạy (mẫu)" S: toàn bộ ca dạng tài liệu ngoài mẫu 1 chính + 1 lỗi / US; UI chi tiết (axe/INP/Lighthouse/ảnh), k6 (PE-02-46..49, PE-05-25, PE-09-15..19), `go test -race ./...` toàn bộ (…-39/50/55/60/47/48/68), TC-PE08 phần phát hành đôi (kill -9 hai bộ lập lịch), TC cần cửa sổ khoá global nếu chưa chạy (xem cuối tệp).
 K (a/b/c) = 0. Không còn ca chưa chạy (dòng «TC-id» ở đầu bảng là dòng mẫu của bảng nguồn, không phải ca).
 
-**F còn lại (1):** TC-PE09-13 → DEF-R5-16: cửa sổ đo SEED 2026-11-22 (máy rảnh, DB trống) seed ≈ 496 s (8,3 phút) > trần ≤ 6 phút của P-11-76; bước 20 Luyện đề 164 s, bước 11 docling 151 s, bước 19 bài tập 78 s, bước 1–10 74 s.
+**F còn lại:** không (TC-PE09-13 P sau sửa f473c2ff: seed sạch 281 s ≤ 360 s, qc2seedt2 @6b3678c4; DEF-R5-16 đóng).
 
 **Đã chạy lại sau sửa của dev (qc3, 2026-11-21):** R5-12 (lint spec QC chuyển specs-qc2), R5-13 (9754c523), R5-14 (d27b87b0: TLE, 30/30), R5-17 (58448e0a: audit 4 vai FAIL 0), R5-18 (39887d6e: golangci-lint 0 issues; 4 ca cổng tổng P), R5-19 (e345ef3a: CLS 0,0002), R5-22 (d0dcf4fe: exam.spec 118 ca 0 failed); R5-21 (a0d98671) sửa tràn ngang nhưng lộ R5-23; R5-15 (d0d548e0) sửa chưa đủ → R5-20 (581dbccd).
 
