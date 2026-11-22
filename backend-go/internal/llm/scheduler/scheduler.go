@@ -403,6 +403,10 @@ func (s *Scheduler) tryGrant(ctx context.Context, w llm.Work, member string, bat
 	b := s.be(ctx)
 	got, err := b.tryLease(ctx, req)
 	if err != nil && b != backend(s.local) {
+		if ctx.Err() != nil { // hạn của request hết giữa lúc gọi Redis: KHÔNG phải Redis chết; rơi sang bucket cục bộ sẽ cấp ngoài hạn mức toàn cục (mỗi tiến trình một dung lượng riêng)
+			_ = b.release(context.WithoutCancel(ctx), w.ProviderID, member) // lệnh có thể đã chạy phía Redis
+			return false, 0
+		}
 		s.fail(ctx, err)
 		b = s.local
 		got, _ = b.tryLease(ctx, req)
@@ -412,6 +416,10 @@ func (s *Scheduler) tryGrant(ctx context.Context, w llm.Work, member string, bat
 	}
 	okTok, wait, err := b.tryBucket(ctx, bucketReq{provider: w.ProviderID, rpm: rpm, tpm: tpm, cost: max(w.EstTokens, 1)})
 	if err != nil && b != backend(s.local) {
+		if ctx.Err() != nil {
+			_ = b.release(context.WithoutCancel(ctx), w.ProviderID, member)
+			return false, 0
+		}
 		s.fail(ctx, err)
 		_ = b.release(ctx, w.ProviderID, member)
 		b = s.local

@@ -1552,6 +1552,8 @@ for (const w of [375, 720]) {
     await r.getByText("Mã của bạn", { exact: false }).click(); // dòng mã dài trong khối mã không được kéo rộng cả cột
     await expect(r.getByRole("table", { name: "Kết quả test mẫu" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    const a = await new AxeBuilder({ page }).withRules(["scrollable-region-focusable"]).analyze(); // DEF-R5-23: khối mã cuộn được phải focus được bằng bàn phím
+    expect(a.violations.map((v) => `${v.id} ×${v.nodes.length}`)).toEqual([]);
   });
 }
 

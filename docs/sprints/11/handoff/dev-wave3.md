@@ -79,3 +79,7 @@ Xong: DEF-R5-03, R5-04, R8-A2 (mỗi cái 1 commit, test đỏ-trước). Còn (
 
 ## 2026-11-21 dev2 — dừng theo lệnh chủ dự án
 Đã đẩy: R7-08/10/04/05/11/12, R6-P2 (+ sửa hằng ingest.TopicDocumentChanged), R6-U1/2/3/5/6 (P-11-78), R7-06/07, sửa test attendance offline (mock PUT ngắt khi offline), R7-01 tái: devtools chia 3 job 4/3/3 URL (7a3ebd35). Dở: chưa có số wall ≤ 600 s của run đầy đủ sau 7a3ebd35 (run 44862637349 đang chạy; các push khác huỷ run liên tục). Bước kế: lấy wall run trọn vẹn đầu tiên trên nhánh, báo PM + qc3; R7-09 chờ qc3 đo lại + log gateway; R6-P1 BA vá AC6 (không đổi mã).
+
+## 2026-11-21 dev — R105S-02 lượt thật decision (PM chốt phương án 1)
+- Lý do chưa chạy: provider decision chỉ dựng bản thật cho model `gemini-decision-1` (`registry.go` `buildDecide`; model khác → provider giả), nói giao thức `POST {base}/decisions` + `x-goog-api-key` của Google nên 9router (chat/completions) không thay được; lệch D60: «mọi LLM qua 9router» không áp cho tầng decision, techlead cập nhật ARCHITECTURE. Bảng «thật» giữ «chưa chạy — cần khoá gemini-decision-1 + phép chủ dự án».
+- Khi có khoá + phép: đặt `LLM_DECISION_ALLOW_REAL=true` + `GEMINI_API_KEY` cho gateway/worker stack đo (recreate), chọn model `gemini-decision-1` ở `/settings/llm`, rồi `LLM_DECISION_ALLOW_REAL=true SEED_DEFAULT_PASSWORD=… API_URL=<stack> BENCH_COURSE=<lớp riêng, không 761987/761988> bash benchmarks/decision/run.sh --real` (≤ 300 lời gọi; 142 với CHAT_ROUNDS=3; ra `benchmarks/reports/decision-before-after.{json,md,svg}` có bảng «thật»).

@@ -94,7 +94,7 @@ flowchart LR
 | Đuôi / loại tệp ngoài PDF, DOCX, PPTX; quá 50 MiB | 422 trước khi tải | "Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB." |
 | Tệp đổi đuôi, không đúng loại thật | 422 `FILE_TYPE_MISMATCH`, xoá object | "Tệp không đọc được. Dùng PDF, DOCX hoặc PPTX." |
 | Trùng nội dung cùng lớp / lớp khác của mình | 409 `DOCUMENT_DUPLICATE` / `…_ELSEWHERE` | "Tài liệu này đã có." / "Đã có ở lớp 761987. Chia sẻ sang lớp này?" |
-| `docling` chết / quá hạn | thử lại ≤ 3 lần rồi `FAILED EXTRACT_UNAVAILABLE`; tài liệu `QUEUED` khi dịch vụ tắt | "Chưa đọc được tài liệu lúc này. Thử lại sau." + `Thử lại` |
+| `docling` chết / quá hạn | thử lại ≤ 3 lần, chờ 5 s, 30 s, 2 phút (trong lúc chờ tài liệu về `QUEUED`), hết 3 lần chờ (≈ 2 phút 35 s) → `FAILED EXTRACT_UNAVAILABLE`; **không** treo `QUEUED` vô hạn, bật lại docling không tự chạy lại — bấm `Thử lại` (P-11-94) | "Chưa đọc được tài liệu lúc này. Thử lại sau." + `Thử lại` |
 | Tệp scan mà lượt OCR vẫn không ra chữ | `FAILED NO_TEXT` ngay | "Không đọc được chữ trong tệp (có thể là bản quét). Hãy tải bản có chữ." |
 | > 400 trang | `FAILED TOO_MANY_PAGES` | "Tệp dài hơn 400 trang. Hãy tách nhỏ." |
 | Băm không khớp | `FAILED HASH_MISMATCH` | "Tệp bị lỗi khi tải lên. Tải lại." |

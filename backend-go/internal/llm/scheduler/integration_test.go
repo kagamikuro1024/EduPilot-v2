@@ -79,11 +79,15 @@ func TestSchedWorker(t *testing.T) {
 		fmt.Printf("DONE %d peak_local=%d\n", done.Load(), ctl.Peak())
 	case "rpm":
 		window := time.Duration(envInt("SCHED_WINDOW_MS", 10000)) * time.Millisecond
-		cctx, cancel := context.WithTimeout(ctx, window)
-		defer cancel()
+		var cctx context.Context
+		var cancel context.CancelFunc
 		var grants, tokens atomic.Int64
 		var wg sync.WaitGroup
 		est := envInt("SCHED_EST", 1)
+		fmt.Println("READY")
+		bufio.NewScanner(os.Stdin).Scan() // rào bắt đầu: cả hai tiến trình đo CÙNG một cửa sổ (test gửi "GO" cho cả hai sau khi cả hai READY)
+		cctx, cancel = context.WithTimeout(ctx, window)
+		defer cancel()
 		for range 20 {
 			wg.Add(1)
 			go func() {
@@ -100,7 +104,6 @@ func TestSchedWorker(t *testing.T) {
 				}
 			}()
 		}
-		fmt.Println("READY")
 		wg.Wait()
 		fmt.Printf("GRANTS %d TOKENS %d\n", grants.Load(), tokens.Load())
 	case "cmd":
@@ -160,6 +163,18 @@ func startWorker(t *testing.T, env map[string]string) *worker {
 	t.Cleanup(func() { _ = stdin.Close(); _ = cmd.Process.Kill(); _ = cmd.Wait() })
 	w.expectPrefix(t, "READY", 30*time.Second)
 	return w
+}
+
+// startRPMPair dựng hai tiến trình đo hạn mức rồi cho cả hai chạy cùng lúc: trần tính theo MỘT cửa sổ 10 s chung; nếu mỗi tiến trình tự bắt đầu khi khởi động xong
+// thì tiến trình thứ hai trễ (dưới tải) đo thêm giây ngoài cửa sổ và tổng vượt trần mà limiter không sai (DEF TestTwoProcessesRPM).
+func startRPMPair(t *testing.T, env map[string]string) (*worker, *worker) {
+	t.Helper()
+	w1, w2 := startWorker(t, env), startWorker(t, env)
+	for _, w := range []*worker{w1, w2} {
+		_, err := io.WriteString(w.stdin, "GO\n")
+		require.NoError(t, err)
+	}
+	return w1, w2
 }
 
 func (w *worker) expectPrefix(t *testing.T, prefix string, within time.Duration) string {
@@ -238,7 +253,7 @@ func TestTwoProcessesRPM(t *testing.T) {
 	prov := "it-" + uuid.NewString()
 	env := baseEnv(t, "rpm", prov)
 	env["SCHED_RPM"], env["SCHED_TPM"], env["SCHED_MAX"], env["SCHED_WINDOW_MS"], env["SCHED_EST"] = "60", "100000000", "100", "10000", "1"
-	w1, w2 := startWorker(t, env), startWorker(t, env)
+	w1, w2 := startRPMPair(t, env)
 	total := 0
 	for _, w := range []*worker{w1, w2} {
 		var g, tok int
@@ -255,7 +270,7 @@ func TestTwoProcessesRPM(t *testing.T) {
 	prov2 := "it-" + uuid.NewString()
 	env = baseEnv(t, "rpm", prov2)
 	env["SCHED_RPM"], env["SCHED_TPM"], env["SCHED_MAX"], env["SCHED_WINDOW_MS"], env["SCHED_EST"] = "100000", "6000", "100", "10000", "100"
-	w1, w2 = startWorker(t, env), startWorker(t, env)
+	w1, w2 = startRPMPair(t, env)
 	tokens := 0
 	for _, w := range []*worker{w1, w2} {
 		var g, tok int
@@ -266,6 +281,40 @@ func TestTwoProcessesRPM(t *testing.T) {
 	t.Logf("tpm: %d token ước tính trong 10 s, trần 1600", tokens)
 	require.LessOrEqual(t, tokens, 1600+100)
 	require.GreaterOrEqual(t, tokens, 800)
+}
+
+// stallHook làm mọi lệnh Redis treo tới khi ctx của lệnh hết hạn (Redis chậm hơn hạn của request).
+type stallHook struct{}
+
+func (stallHook) DialHook(next goredis.DialHook) goredis.DialHook { return next }
+func (stallHook) ProcessHook(next goredis.ProcessHook) goredis.ProcessHook {
+	return func(ctx context.Context, cmd goredis.Cmder) error {
+		if _, ok := ctx.Deadline(); !ok { // lệnh dọn dẹp không hạn (WithoutCancel) đi thẳng
+			return next(ctx, cmd)
+		}
+		<-ctx.Done()
+		return ctx.Err()
+	}
+}
+func (stallHook) ProcessPipelineHook(next goredis.ProcessPipelineHook) goredis.ProcessPipelineHook {
+	return next
+}
+
+// TestAdmitExpiryDuringRedisCallNeverGrantsLocally — hạn của request hết GIỮA lúc gọi Redis (lỗi ctx, không phải Redis chết) không được rơi sang bộ giới hạn CỤC BỘ rồi cấp chỗ:
+// bucket cục bộ của mỗi tiến trình có dung lượng riêng nên cấp thêm ngoài hạn mức toàn cục (TestTwoProcessesRPM: 21 lời gọi / trần 16). Admit phải trả ErrDeadline và không ghi «Redis down».
+func TestAdmitExpiryDuringRedisCallNeverGrantsLocally(t *testing.T) {
+	rdb := redisClient(t, testutil.RedisURL(t))
+	rdb.AddHook(stallHook{})
+	s := scheduler.New(baseCfg(), rdb, discard())
+	prov := "it-" + uuid.NewString()
+	for range 5 {
+		ctx, cancel := context.WithTimeout(t.Context(), 30*time.Millisecond)
+		p, err := s.Admit(ctx, llm.Work{Lane: llm.LaneNearRealtime, Task: llm.TaskUtility, ProviderID: prov, RPM: 60, TPM: 100000, EstTokens: 1})
+		cancel()
+		require.Nil(t, p, "hết hạn giữa lúc gọi Redis: không được cấp chỗ từ bucket cục bộ")
+		require.ErrorIs(t, err, llm.ErrDeadline)
+	}
+	require.False(t, s.RedisDown(), "lỗi do ctx hết hạn không phải Redis chết")
 }
 
 func TestTPMReconcile(t *testing.T) {

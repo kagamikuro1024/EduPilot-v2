@@ -265,10 +265,14 @@ func (r *Registry) EnvProviders() []string {
 func (r *Registry) build(ctx context.Context) (*regState, error) {
 	st := &regState{routes: map[Task]Route{}}
 	dbTargets := 0
+	dbDecision := false // DB có provider decision (bật hay tắt): quyền quyết định thuộc DB, env không lấp chỗ trống (DEF-R105S-03)
 	if r.res != nil {
 		snap, err := r.res.Snapshot(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("đọc cấu hình: %w", err)
+		}
+		for _, p := range snap.Providers {
+			dbDecision = dbDecision || p.Type == "decision"
 		}
 		built := map[uuid.UUID]provider.Provider{}
 		for _, p := range snap.Providers {
@@ -354,7 +358,7 @@ func (r *Registry) build(ctx context.Context) (*regState, error) {
 	if err != nil {
 		return nil, err
 	}
-	if st.decide == nil && r.env.Provider == "fake" { // dev / test không DB: decision giả (D60 (6))
+	if st.decide == nil && !dbDecision && r.env.Provider == "fake" { // dev / test không có bản ghi decision trong DB: decision giả (D60 (6)); provider decision TẮT trong DB thì KHÔNG (SRS FEAT-decision-model 4.4)
 		st.decide = &Target{ProviderID: "env:decision-fake", ProviderName: "Quyết định", Type: "decision", Model: FakeDecisionModel, RPM: r.env.DecisionRPM, TPM: r.env.DefaultTPM, P: fake.NewNamed(r.ctl, "env:decision-fake", "")}
 	}
 	for t, rt := range envRoutes {

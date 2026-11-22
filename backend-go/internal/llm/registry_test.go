@@ -262,3 +262,73 @@ func TestRegistryDisableProviderFallsBackToEnvFake(t *testing.T) {
 	require.NoError(t, reg.Reload(t.Context()))
 	require.Equal(t, "9router", first(llm.TaskChat), "bật lại → trở về nhà cung cấp thật")
 }
+
+// DEF-R105S-03 (TC-D02-10, TC-D01-25; SRS FEAT-decision-model 4.4): provider «Quyết định» có trong DB nhưng TẮT → hiệu lực = tắt cho MỌI cổng (chat, chèn lệnh, Threads),
+// kể cả khi env là fake (dev / test / ep-qc). Bật lại thì dùng bản ghi DB.
+func TestRegistryDisabledDecisionProviderTurnsEveryGateOff(t *testing.T) {
+	t.Parallel()
+	r := newCfgRig(t)
+	factory := func(s llm.ProviderSpec) (provider.Provider, error) { return &stub{name: s.Name}, nil }
+	newGW := func(reg *llm.Registry) (*llm.Gateway, *capture, context.Context) {
+		cap := &capture{}
+		aud := llm.NewAuditor(context.Background(), cap.write, newDiscardLog())
+		t.Cleanup(func() { aud.Close(context.Background()) })
+		snap := llm.NewDecisionSnapshot(nil, nil)
+		gates, courses := map[llm.DecideGate]llm.GateCfg{}, map[llm.DecideGate]map[uuid.UUID]struct{}{}
+		for _, g := range []llm.DecideGate{llm.GateThreads, llm.GateInjection, llm.GateRouting} {
+			gates[g] = llm.GateCfg{Enabled: true, Threshold: 0.5, Timeout: time.Second}
+			courses[g] = map[uuid.UUID]struct{}{decCourse: {}}
+		}
+		snap.Set(llm.DecisionConfig{Gates: gates, Courses: courses})
+		ctx := llm.WithIdentity(context.Background(), llm.Identity{CourseID: &decCourse})
+		return llm.New(llm.Options{NoMask: true, Registry: reg, Auditor: aud, Log: newDiscardLog(), Decision: snap}), cap, ctx
+	}
+	gates := []llm.DecideGate{llm.GateThreads, llm.GateInjection, llm.GateRouting}
+
+	// đối chứng: migration 00020 gieo provider «Quyết định» (bật, decision-fake) → mọi cổng hiệu lực
+	reg := llm.NewRegistry(r.res, llm.EnvConfig{Provider: "fake"}, factory, newDiscardLog())
+	require.NoError(t, reg.Load(t.Context()))
+	g, _, ctx := newGW(reg)
+	for _, gate := range gates {
+		require.True(t, g.GateEffective(ctx, gate), gate)
+	}
+
+	// provider decision có trong DB nhưng TẮT (PUT /admin/llm/providers/{id} enabled=false)
+	provs, err := r.svc.ListProviders(r.ctx)
+	require.NoError(t, err)
+	var dec llmconfig.Provider
+	for _, p := range provs {
+		if p.Type == "decision" {
+			dec = p
+		}
+	}
+	require.NotEqual(t, uuid.Nil, dec.ID)
+	off := false
+	dm := llmconfig.ModelInput{Model: "decision-fake", Kind: "decision", PriceIn: decimal.RequireFromString("2600")}
+	dec, err = r.svc.UpdateProvider(r.ctx, dec.ID, llmconfig.ProviderInput{Type: "decision", Name: dec.Name, Enabled: &off, Version: dec.Version, Models: []llmconfig.ModelInput{dm}})
+	require.NoError(t, err)
+	require.NoError(t, reg.Reload(t.Context()))
+	g, c, ctx := newGW(reg)
+	_, ok := reg.DecideTarget()
+	require.False(t, ok, "provider decision tắt: không còn mô hình decision, kể cả khi env là fake")
+	for _, gate := range gates {
+		require.False(t, g.GateEffective(ctx, gate), gate)
+		ran := false
+		_, path := g.Cascade(ctx, gate, llm.DecideRequest{Gate: gate, Input: "câu hỏi mẫu", Questions: noulQ}, llm.AddOnly{QID: "q"},
+			func(context.Context) (llm.Verdict, error) { ran = true; return llm.Verdict{}, nil }, llm.Verdict{})
+		require.Equal(t, llm.PathNotUsed, path, gate)
+		require.False(t, ran, "%s: không chạy cả đường dự phòng của cổng — người gọi chạy đường cũ", gate)
+	}
+	for _, row := range c.all(t, g) {
+		require.NotEqual(t, "DECIDE", row.Task, "provider tắt: 0 dòng llm_audit DECIDE")
+	}
+
+	// bật lại → dùng bản ghi DB
+	on := true
+	_, err = r.svc.UpdateProvider(r.ctx, dec.ID, llmconfig.ProviderInput{Type: "decision", Name: "Quyết định", Enabled: &on, Version: dec.Version, Models: []llmconfig.ModelInput{dm}})
+	require.NoError(t, err)
+	require.NoError(t, reg.Reload(t.Context()))
+	tg, ok := reg.DecideTarget()
+	require.True(t, ok)
+	require.Equal(t, dec.ID.String(), tg.ProviderID)
+}

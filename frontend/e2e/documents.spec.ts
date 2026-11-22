@@ -22,6 +22,21 @@ test.beforeEach(async ({}, info) => {
   test.skip(info.project.name !== "desktop", "ca 375 không thuộc story này (≥ 720 px)");
 });
 
+test("tự cập nhật (DEF-R6-U11, TC-P8-01-17): hàng đang xử lý → Sẵn sàng sau ≤ 5 s; mọi hàng đã xong mà nơi khác tải lên → hàng mới hiện sau ≤ 35 s", async ({ page, context }) => {
+  await page.clock.install();
+  let phase = 0;
+  const rows = () => (phase === 0 ? [doc({ id: "n1", title: "bai-giang-moi", status: "PROCESSING" })] : phase === 1 ? [doc({ id: "n1", title: "bai-giang-moi" })] : [doc({ id: "n1", title: "bai-giang-moi" }), doc({ id: "n2", title: "tu-curl-ben-ngoai", status: "QUEUED" })]);
+  await open(page, context, { [`GET ${D}`]: (r) => r.fulfill(list(rows())) });
+  const row = (n: string) => page.getByRole("row", { name: new RegExp(n) });
+  await expect(row("bai-giang-moi")).toContainText("Đang xử lý");
+  phase = 1;
+  await page.clock.runFor(6000);
+  await expect(row("bai-giang-moi")).toContainText("Sẵn sàng");
+  phase = 2;
+  await page.clock.runFor(35000);
+  await expect(row("tu-curl-ben-ngoai")).toContainText("Đang xử lý");
+});
+
 test("table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải thống kê một dòng", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}`]: list([doc(), doc({ id: "d2", title: "Slide TLS", status: "FAILED", error: "Không đọc được", use_for_rag: false }), doc({ id: "d3", title: "Từ lớp khác", shared_from: "761988" })]), [`GET ${D}/stats`]: json(stats({ total: 3, by_status: { READY: 1, FAILED: 1, PROCESSING: 1 } })) });
   const rows = page.locator("[data-part=doc-row]");
