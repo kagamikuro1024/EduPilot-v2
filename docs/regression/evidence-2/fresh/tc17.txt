@@ -1,0 +1,7 @@
+== TC-17: bỏ DATABASE_URL, REDIS_URL khỏi .env.local → dev
+0
+exit=1 7 s (124 = timeout/treo)
+ Container qc2fresh-mock-graph-1 Error dependency mock-graph failed to start
+ Container qc2fresh-mock-graph-1 Error dependency mock-graph failed to start
+service "migrate" didn't complete successfully: exit 1
+gateway: Created

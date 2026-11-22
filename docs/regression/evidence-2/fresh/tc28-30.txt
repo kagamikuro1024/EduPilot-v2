@@ -1,0 +1,9 @@
+== TC-28
+container label project=qc2fresh trước down: 13
+13
+dev:logs service: 14
+dev:down exit=0
+container sau down: 0
+== TC-30
+dev:down lần 2 (đã dừng) exit=0
+volume còn lại: 5 (qc2fresh_caddy_config qc2fresh_caddy_data qc2fresh_minio_data qc2fresh_postgres_data qc2fresh_redis_data )

@@ -1,0 +1,5 @@
+== TC-16: xoá .env.local → dev
+exit=0 43 s
+[dev] Đã tạo .env.local từ .env.example.
+[dev] Project qc2fresh: dựng postgres, pgbouncer, redis, minio, mailpit, migrate, gateway, worker,
+diff .env.local vs .env.example: 0 dòng; git check-ignore .env.local → .env.local

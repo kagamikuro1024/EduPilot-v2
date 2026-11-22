@@ -1,0 +1,2 @@
+seed RNG=1: rc=1 1251 s
+DONE

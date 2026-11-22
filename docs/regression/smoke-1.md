@@ -34,13 +34,13 @@ Cách chạy:
 | P0-02/TC-04 | P |  |
 | P0-02/TC-06 | P |  |
 | P0-02/TC-07 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): legacy/ không có commit từ 2026-10-01 (git log -- legacy: 0 commit mới; commit cuối 78bfeb6a) |
-| P0-02/TC-10 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
-| P0-02/TC-11 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): `dev:status` 6 service — nay 13 |
+| P0-02/TC-10 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): node scripts/dev.mjs (= pnpm dev) từ volume trống: exit=0, chờ tới khi 13 service healthy (không thoát sớm), 31 s khi image đã dựng (pnpm-dev-3.log, evidence-dev-status.txt) |
+| P0-02/TC-11 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): dev:status: 13 dòng, đều «healthy running» (số dòng 6 là nhóm A P-11-92, kiểm lại «mọi service healthy») |
 | P0-02/TC-12 | P | kiểm tương đương: GET /api/v1/healthz qua Caddy 1143 = 200 {"status":"ok"} JSON (cổng 8080 không còn công bố: US-PG-07 AC17) |
 | P0-02/TC-13 | P | kiểm tương đương trên cổng ep-r: Mailpit info 200, MinIO live+console 200, PG 18.6 + vector, Redis 8.10 PONG, SMTP mở |
 | P0-02/TC-14 | P | lang="vi", logo tham chiếu và phục vụ 200 (frontend :3700) |
 | P0-02/TC-15 | P | gateway user nonroot; healthcheck `/gateway -healthcheck`; image không có sh/curl/wget |
-| P0-02/TC-16…P0-02/TC-17 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
+| P0-02/TC-16…P0-02/TC-17 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): TC-16: xoá .env.local → dev exit 0 (43 s), .env.local sinh ra giống .env.example (diff 0 dòng), git check-ignore .env.local → .env.local; TC-17: bỏ DATABASE_URL, REDIS_URL → dev exit=1 sau 7 s («service migrate didn't complete successfully: exit 1»), không treo (tc16.txt, tc17.txt) |
 | P0-02/TC-18 | P | PATH không docker → thoát 1, thông báo Docker, không stack trace |
 | P0-02/TC-19 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): go 1.27, next 16, react 19, pnpm, node 24 (script PASS); mọi phụ thuộc frontend (react-query, react-virtual, lucide-react, uqr, next…) và Go trực tiếp (validator, OpenTelemetry/otelpgx/otelhttp, kin-openapi cho test theo D52) có trong docs/ARCHITECTURE.md hoặc DECISIONS.md |
 | P0-02/TC-20 | F | DEF-R2-04 (xem defects-2.md): `go vet ./...` rc 0; `go test -race ./...` không tag: contract đỏ cố định; bản `-tags testroutes` xanh (3424 PASS, 0 FAIL) |
@@ -51,9 +51,9 @@ Cách chạy:
 | P0-02/TC-25 | P |  |
 | P0-02/TC-26 | P |  |
 | P0-02/TC-27 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): gateway đủ phụ thuộc: docker stop qc2s-gw → ExitCode 0 (US-PG-07 tắt êm; TC-29 4,7 s); thiếu DB/Redis thoát mã 1 ngay, không ghi tệp, không panic (script tc-US-P0-02 TC-27: 3 kiểm PASS) — luật mới US-PG-01 AC1 |
-| P0-02/TC-28 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
+| P0-02/TC-28 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): trước down 13 container label project, dev:status 13 dòng, dev:logs có 13 service; dev:down exit 0 → 0 container (tc28-30.txt); số 6 là nhóm A |
 | P0-02/TC-29 | P | container gateway thật (image edupilot-gateway) trên mạng tạm qc2-j: `docker stop` → ExitCode 0, 4,7 s (<8 s), log «gateway stopped»; run-logs/s1-tc29-j.log |
-| P0-02/TC-30 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
+| P0-02/TC-30 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): dev:down khi đã dừng vẫn exit 0; 5 volume có tên còn lại (qc2fresh_postgres_data, redis_data, minio_data, caddy_data, caddy_config) |
 | P0-02/TC-31 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): mã backend-go/frontend/scripts/compose không import/tham chiếu thư mục legacy/ (chỉ thư viện kin-openapi/routers/legacy trong internal/contract/spec.go) |
 | P0-02/TC-32 | P | không mount legacy (chỉ ./seed/demo); `go list ./...` không gói legacy; history image không «legacy» |
 | P0-02/TC-33 | P | kiểm tương đương /api/v1/healthz: body {"status":"ok"}, POST 405, đường dẫn lạ 404 JSON, có/không Authorization đều 200 |

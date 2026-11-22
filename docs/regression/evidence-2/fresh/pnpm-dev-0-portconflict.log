@@ -1,0 +1,453 @@
+07:56:21 [dev] Project qc2fresh: dựng postgres, pgbouncer, redis, minio, mailpit, migrate, gateway, worker, caddy, frontend và chờ healthy...
+07:56:22  Image edupilot-worker Building 
+07:56:22  Image edupilot-mock-imap Building 
+07:56:22  Image edupilot-gateway Building 
+07:56:22  Image edupilot-gateway Building 
+07:56:22  Image edupilot-docling Building 
+07:56:22  Image edupilot-judge:dev Building 
+07:56:22  Image edupilot-mock-graph Building 
+07:56:22  Image qc2fresh-frontend Building 
+07:56:22 #1 [internal] load local bake definitions
+07:56:22 #1 reading from stdin 3.86kB done
+07:56:22 #1 DONE 0.0s
+07:56:25 
+07:56:25 #2 [migrate internal] load build definition from Dockerfile
+07:56:25 #2 transferring dockerfile: 2.21kB 0.0s done
+07:56:25 #2 DONE 0.1s
+07:56:25 
+07:56:25 #3 [judge internal] load build definition from Dockerfile
+07:56:26 #3 transferring dockerfile: 776B 0.0s done
+07:56:26 #3 DONE 0.1s
+07:56:26 
+07:56:26 #4 [docling internal] load build definition from Dockerfile
+07:56:26 #4 transferring dockerfile: 580B 0.0s done
+07:56:26 #4 DONE 0.1s
+07:56:26 
+07:56:26 #5 [frontend internal] load build definition from Dockerfile
+07:56:26 #5 transferring dockerfile: 991B 0.0s done
+07:56:26 #5 DONE 0.2s
+07:56:26 
+07:56:26 #6 [judge internal] load metadata for docker.io/library/debian:trixie-slim
+07:56:26 #6 DONE 0.4s
+07:56:26 
+07:56:26 #7 [gateway internal] load metadata for docker.io/library/golang:1.27
+07:56:26 #7 ...
+07:56:26 
+07:56:26 #8 [judge internal] load metadata for docker.io/criyle/go-judge:v1.13.0
+07:56:26 #8 DONE 0.5s
+07:56:26 
+07:56:26 #9 [frontend internal] load metadata for docker.io/library/node:24-alpine
+07:56:26 #9 DONE 0.4s
+07:56:26 
+07:56:26 #10 [judge internal] load .dockerignore
+07:56:26 #10 transferring context:
+07:56:26 #10 transferring context: 2B 0.0s done
+07:56:26 #10 DONE 0.5s
+07:56:26 
+07:56:26 #11 [frontend internal] load .dockerignore
+07:56:26 #11 transferring context: 161B 0.1s done
+07:56:27 #11 DONE 0.5s
+07:56:27 
+07:56:27 #12 [judge internal] load build context
+07:56:27 #12 DONE 0.0s
+07:56:27 
+07:56:27 #13 [judge] FROM docker.io/criyle/go-judge:v1.13.0@sha256:edc95fe82b71889db232585d89345e891d9ddb4c0512eb494344fa0b8ab9ecd5
+07:56:27 #13 resolve docker.io/criyle/go-judge:v1.13.0@sha256:edc95fe82b71889db232585d89345e891d9ddb4c0512eb494344fa0b8ab9ecd5
+07:56:27 #13 ...
+07:56:27 
+07:56:27 #14 [frontend internal] load build context
+07:56:27 #14 DONE 0.0s
+07:56:27 
+07:56:27 #15 [judge stage-0 1/6] FROM docker.io/library/debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
+07:56:27 #15 resolve docker.io/library/debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 0.4s done
+07:56:27 #15 DONE 0.5s
+07:56:27 
+07:56:27 #16 [frontend build 1/8] FROM docker.io/library/node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
+07:56:27 #16 resolve docker.io/library/node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
+07:56:27 #16 resolve docker.io/library/node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5 0.4s done
+07:56:27 #16 DONE 0.4s
+07:56:27 
+07:56:27 #13 [judge] FROM docker.io/criyle/go-judge:v1.13.0@sha256:edc95fe82b71889db232585d89345e891d9ddb4c0512eb494344fa0b8ab9ecd5
+07:56:27 #13 resolve docker.io/criyle/go-judge:v1.13.0@sha256:edc95fe82b71889db232585d89345e891d9ddb4c0512eb494344fa0b8ab9ecd5 0.4s done
+07:56:27 #13 DONE 0.5s
+07:56:27 
+07:56:27 #12 [judge internal] load build context
+07:56:27 #12 transferring context: 30B 0.0s done
+07:56:27 #12 DONE 0.1s
+07:56:27 
+07:56:27 #14 [frontend internal] load build context
+07:56:27 #14 ...
+07:56:27 
+07:56:27 #17 [worker internal] load metadata for gcr.io/distroless/static-debian12:nonroot
+07:56:27 #17 DONE 1.9s
+07:56:27 
+07:56:27 #18 [judge stage-0 2/6] RUN apt-get update  && apt-get install -y --no-install-recommends g++ gcc libc6-dev bash  && rm -rf /var/lib/apt/lists/*
+07:56:27 #18 CACHED
+07:56:27 
+07:56:28 #19 [judge stage-0 3/6] COPY --from=criyle/go-judge:v1.13.0 /opt/go-judge /opt/mount.yaml /opt/
+07:56:28 #19 CACHED
+07:56:28 
+07:56:28 #20 [judge stage-0 5/6] RUN chmod 0755 /opt/start.sh
+07:56:28 #20 CACHED
+07:56:28 
+07:56:28 #21 [judge stage-0 4/6] COPY start.sh /opt/start.sh
+07:56:28 #21 CACHED
+07:56:28 
+07:56:28 #22 [judge stage-0 6/6] WORKDIR /opt
+07:56:28 #22 CACHED
+07:56:28 
+07:56:28 #14 [frontend internal] load build context
+07:56:28 #14 ...
+07:56:28 
+07:56:28 #23 [docling internal] load metadata for ghcr.io/docling-project/docling-serve-cpu:v1.36.0@sha256:225c8586e20d5d0fc6811a9e0e044fa602bcc4393f00389009bad42d6787b58f
+07:56:28 #23 DONE 2.0s
+07:56:28 
+07:56:28 #14 [frontend internal] load build context
+07:56:28 #14 ...
+07:56:28 
+07:56:28 #24 [docling internal] load .dockerignore
+07:56:28 #24 transferring context: 2B 0.0s done
+07:56:28 #24 DONE 0.2s
+07:56:28 
+07:56:28 #14 [frontend internal] load build context
+07:56:28 #14 ...
+07:56:28 
+07:56:28 #25 [docling internal] load build context
+07:56:28 #25 transferring context: 531.42kB 0.2s done
+07:56:28 #25 DONE 0.3s
+07:56:28 
+07:56:28 #7 [mock-graph internal] load metadata for docker.io/library/golang:1.27
+07:56:28 #7 DONE 2.6s
+07:56:28 
+07:56:28 #14 [frontend internal] load build context
+07:56:28 #14 ...
+07:56:28 
+07:56:28 #26 [worker gateway-test 1/2] FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
+07:56:28 #26 resolve gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab 0.3s done
+07:56:28 #26 DONE 0.4s
+07:56:28 
+07:56:28 #27 [worker build 1/6] FROM docker.io/library/golang:1.27@sha256:205c7636d74e0ffbe3d007162df7d74f859f5a8c8322dfb9f907977686c126cf
+07:56:28 #27 resolve docker.io/library/golang:1.27@sha256:205c7636d74e0ffbe3d007162df7d74f859f5a8c8322dfb9f907977686c126cf 0.3s done
+07:56:28 #27 DONE 0.4s
+07:56:28 
+07:56:28 #28 [migrate internal] load .dockerignore
+07:56:28 #28 transferring context: 62B 0.1s done
+07:56:28 #28 DONE 0.1s
+07:56:28 
+07:56:28 #14 [frontend internal] load build context
+07:56:28 #14 ...
+07:56:28 
+07:56:28 #26 [migrate gateway-test 1/2] FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
+07:56:28 #26 resolve gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab 0.3s done
+07:56:28 #26 DONE 0.4s
+07:56:28 
+07:56:28 #27 [migrate build 1/6] FROM docker.io/library/golang:1.27@sha256:205c7636d74e0ffbe3d007162df7d74f859f5a8c8322dfb9f907977686c126cf
+07:56:28 #27 resolve docker.io/library/golang:1.27@sha256:205c7636d74e0ffbe3d007162df7d74f859f5a8c8322dfb9f907977686c126cf 0.3s done
+07:56:28 #27 DONE 0.4s
+07:56:28 
+07:56:28 #29 [docling 1/2] FROM ghcr.io/docling-project/docling-serve-cpu:v1.36.0@sha256:225c8586e20d5d0fc6811a9e0e044fa602bcc4393f00389009bad42d6787b58f
+07:56:28 #29 resolve ghcr.io/docling-project/docling-serve-cpu:v1.36.0@sha256:225c8586e20d5d0fc6811a9e0e044fa602bcc4393f00389009bad42d6787b58f 0.4s done
+07:56:28 #29 DONE 0.5s
+07:56:28 
+07:56:28 #30 [docling 2/2] COPY vie.traineddata /usr/share/tesseract/tessdata/vie.traineddata
+07:56:28 #30 CACHED
+07:56:28 
+07:56:28 #14 [frontend internal] load build context
+07:56:28 #14 ...
+07:56:29 
+07:56:29 #31 [judge] exporting to image
+07:56:29 #31 exporting layers 0.0s done
+07:56:29 #31 exporting manifest sha256:bb8a9183fd2b5960ebdc3942e84281a3cded8bc4b598a1d42757372f84575f8b 0.1s done
+07:56:29 #31 exporting config sha256:10eef608716f46d8bf7d1cc8ac3dd2d179e69973006b310d435410978d2c0223 0.2s done
+07:56:29 #31 exporting attestation manifest sha256:a5040bfdc3baed02d059fe8cb9aa5890d9bd02434e3c27891def1bc47ebf321b 0.1s done
+07:56:29 #31 exporting manifest list sha256:3c698b26555082e1707cac02e3293d17395af7ceb4c2c2a8a842d2897beab81e 0.1s done
+07:56:29 #31 naming to docker.io/library/edupilot-judge:dev 0.0s done
+07:56:29 #31 unpacking to docker.io/library/edupilot-judge:dev 0.1s done
+07:56:29 #31 DONE 1.2s
+07:56:29 
+07:56:29 #14 [frontend internal] load build context
+07:56:29 #14 ...
+07:56:29 
+07:56:29 #32 [gateway build 4/6] RUN go mod download
+07:56:29 #32 CACHED
+07:56:29 
+07:56:29 #33 [mock-graph internal] load build context
+07:56:29 #33 transferring context: 354.94kB 0.6s done
+07:56:29 #33 DONE 0.7s
+07:56:29 
+07:56:29 #34 [mock-graph build 5/6] COPY . .
+07:56:29 #34 CACHED
+07:56:29 
+07:56:29 #35 [mock-graph build 2/6] WORKDIR /src
+07:56:29 #35 CACHED
+07:56:29 
+07:56:29 #36 [mock-graph build 3/6] COPY go.mod go.sum ./
+07:56:29 #36 CACHED
+07:56:29 
+07:56:29 #37 [mock-graph build 4/6] RUN go mod download
+07:56:29 #37 CACHED
+07:56:29 
+07:56:29 #38 [migrate build 6/6] RUN go build -trimpath -ldflags "-s -w" -o /out/gateway ./cmd/gateway  && go build -trimpath -ldflags "-s -w" -o /out/worker ./cmd/worker  && go build -trimpath -ldflags "-s -w" -o /out/mock-graph ./cmd/mock-graph  && go build -trimpath -ldflags "-s -w" -o /out/mock-imap ./cmd/mock-imap
+07:56:29 #38 CACHED
+07:56:29 
+07:56:29 #14 [frontend internal] load build context
+07:56:29 #14 transferring context: 10.84MB 1.7s done
+07:56:29 #14 DONE 1.9s
+07:56:29 
+07:56:29 #39 [docling] exporting to image
+07:56:29 #39 exporting layers 0.1s done
+07:56:29 #39 exporting manifest sha256:2753049ec88eb2d6333e36247a6c68839e0700b023f28671cca660776440d804 0.1s done
+07:56:29 #39 exporting config sha256:e995224188b668e9c48a3d1c276a3a83e82290b31b6ec4ceec97754e34124e18 0.1s done
+07:56:29 #39 exporting attestation manifest sha256:51e604ca4b5f00d9f30684d27c59e58f8c1704a4804e1615e8e3103225ef6991 0.5s done
+07:56:29 #39 exporting manifest list sha256:a3c607dd44ec109c5955cad91e0f3e0493641fe9545095c9aa3f67b7932fbadc
+07:56:29 #39 ...
+07:56:29 
+07:56:29 #40 [frontend build 5/8] COPY frontend/package.json frontend/
+07:56:29 #40 CACHED
+07:56:29 
+07:56:29 #41 [frontend stage-1 4/5] COPY --from=build --chown=node:node /app/frontend/.next/static ./frontend/.next/static
+07:56:29 #41 CACHED
+07:56:29 
+07:56:29 #42 [frontend build 4/8] RUN npm install -g "pnpm@$(node -p "require('./package.json').packageManager.split('@')[1]")"
+07:56:29 #42 CACHED
+07:56:29 
+07:56:29 #43 [frontend build 6/8] RUN pnpm install --frozen-lockfile --filter frontend
+07:56:29 #43 CACHED
+07:56:29 
+07:56:29 #44 [frontend build 8/8] RUN pnpm -C frontend build
+07:56:29 #44 CACHED
+07:56:29 
+07:56:29 #45 [frontend build 7/8] COPY frontend frontend
+07:56:29 #45 CACHED
+07:56:30 
+07:56:30 #46 [frontend build 2/8] WORKDIR /app
+07:56:30 #46 CACHED
+07:56:30 
+07:56:30 #47 [frontend build 3/8] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+07:56:30 #47 CACHED
+07:56:30 
+07:56:30 #48 [frontend stage-1 3/5] COPY --from=build --chown=node:node /app/frontend/.next/standalone ./
+07:56:30 #48 CACHED
+07:56:30 
+07:56:30 #49 [mock-graph mock-graph 2/3] COPY --from=build /out/mock-graph /mock-graph
+07:56:30 #49 CACHED
+07:56:30 
+07:56:30 #50 [frontend stage-1 5/5] COPY --from=build --chown=node:node /app/frontend/public ./frontend/public
+07:56:30 #50 CACHED
+07:56:30 
+07:56:30 #51 [mock-graph mock-graph 3/3] COPY testdata/mock-graph /data/mock-graph
+07:56:30 #51 CACHED
+07:56:30 
+07:56:30 #39 [docling] exporting to image
+07:56:30 #39 exporting manifest list sha256:a3c607dd44ec109c5955cad91e0f3e0493641fe9545095c9aa3f67b7932fbadc 0.1s done
+07:56:30 #39 naming to docker.io/library/edupilot-docling:latest
+07:56:30 #39 ...
+07:56:30 
+07:56:30 #52 [mock-imap mock-imap 2/2] COPY --from=build /out/mock-imap /mock-imap
+07:56:30 #52 CACHED
+07:56:30 
+07:56:30 #39 [docling] exporting to image
+07:56:30 #39 naming to docker.io/library/edupilot-docling:latest 0.0s done
+07:56:30 #39 unpacking to docker.io/library/edupilot-docling:latest
+07:56:30 #39 ...
+07:56:30 
+07:56:30 #26 [gateway gateway-test 1/2] FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
+07:56:30 #26 CACHED
+07:56:30 
+07:56:30 #39 [docling] exporting to image
+07:56:30 #39 unpacking to docker.io/library/edupilot-docling:latest 0.3s done
+07:56:30 #39 DONE 1.7s
+07:56:30 
+07:56:30 #53 [mock-graph] exporting to image
+07:56:30 #53 exporting layers 0.0s done
+07:56:30 #53 exporting manifest sha256:b9815888c0efb9ce8e2bc993ee976504eb3114ea847f496a31bc9684052ae371 0.1s done
+07:56:30 #53 exporting config sha256:9784b8fdca2eaa04ea346acf934e19f316cffecda8d340d2abe55ce358522a5a 0.1s done
+07:56:30 #53 exporting attestation manifest sha256:5052488d8b34902c314c30450c165d7e75e05f1452ed1a797d7be7e9d8d70dd1
+07:56:30 #53 exporting attestation manifest sha256:5052488d8b34902c314c30450c165d7e75e05f1452ed1a797d7be7e9d8d70dd1 0.4s done
+07:56:30 #53 exporting manifest list sha256:9c0ffb5aa14c382d8675d36ce4826c41be67aa6557a635d1996842f0dfd2c230
+07:56:31 #53 ...
+07:56:31 
+07:56:31 #54 [worker worker 2/2] COPY --from=build /out/worker /worker
+07:56:31 #54 DONE 1.1s
+07:56:31 
+07:56:31 #53 [mock-graph] exporting to image
+07:56:31 #53 exporting manifest list sha256:9c0ffb5aa14c382d8675d36ce4826c41be67aa6557a635d1996842f0dfd2c230 0.5s done
+07:56:31 #53 naming to docker.io/library/edupilot-mock-graph:latest
+07:56:31 #53 naming to docker.io/library/edupilot-mock-graph:latest 0.1s done
+07:56:31 #53 unpacking to docker.io/library/edupilot-mock-graph:latest
+07:56:31 #53 unpacking to docker.io/library/edupilot-mock-graph:latest 0.2s done
+07:56:32 #53 DONE 2.9s
+07:56:32 
+07:56:32 #55 [mock-imap] exporting to image
+07:56:32 #55 exporting layers 0.1s done
+07:56:32 #55 exporting manifest sha256:77a09b86a5122fc84c0c926dbee1973e52bf2f282e632dd1009892004e7ac87c 0.1s done
+07:56:32 #55 exporting config sha256:e04cb7ad623b1105347ba62ce4cf8f999f90789b8d89ef7fa20f529afd989942 0.2s done
+07:56:32 #55 exporting attestation manifest sha256:8853220a92c9ed011009ad97635b82857f42eab37ec9ceb3826973f42b046182 0.7s done
+07:56:32 #55 exporting manifest list sha256:1a611a40cfb88d83d0a1cd67ebf82f4664804af46a26e97980bb556b113d91a8 0.2s done
+07:56:32 #55 naming to docker.io/library/edupilot-mock-imap:latest 0.0s done
+07:56:32 #55 unpacking to docker.io/library/edupilot-mock-imap:latest 0.2s done
+07:56:32 #55 DONE 3.1s
+07:56:32 
+07:56:33 #56 [gateway gateway 2/2] COPY --from=build /out/gateway /gateway
+07:56:33 #56 DONE 2.2s
+07:56:33 
+07:56:33 #57 [frontend] exporting to image
+07:56:33 #57 exporting layers 0.0s done
+07:56:33 #57 exporting manifest sha256:246e4aede57615c377b316000404851d01b039f82380fd7a63f74cc7325678bf 0.1s done
+07:56:33 #57 exporting config sha256:caf1629ad8b679d1e063d72b1aa521bf0d780c380c66d2cefa9e2fb0254c382e 0.1s done
+07:56:33 #57 exporting attestation manifest sha256:52310cde02c55ef6a64789040723b4fd319e917c468932087dd0dd5de7f4681c 0.4s done
+07:56:33 #57 exporting manifest list sha256:eedad83c93a4a78da9ecde4c4ac23f28dff4011db26fe7934a84f2e2ac5d7dc3 0.2s done
+07:56:33 #57 naming to docker.io/library/qc2fresh-frontend:latest 0.6s done
+07:56:33 #57 unpacking to docker.io/library/qc2fresh-frontend:latest 0.3s done
+07:56:33 #57 DONE 3.1s
+07:56:33 
+07:56:33 #58 [migrate] exporting to image
+07:56:36 #58 ...
+07:56:36 
+07:56:36 #59 [judge] resolving provenance for metadata file
+07:56:36 #59 DONE 2.0s
+07:56:36 
+07:56:36 #60 [docling] resolving provenance for metadata file
+07:56:36 #60 DONE 1.9s
+07:56:36 
+07:56:36 #61 [mock-graph] resolving provenance for metadata file
+07:56:37 #61 DONE 1.4s
+07:56:37 
+07:56:37 #62 [frontend] resolving provenance for metadata file
+07:56:37 #62 DONE 0.1s
+07:56:37 
+07:56:37 #63 [mock-imap] resolving provenance for metadata file
+07:56:37 #63 DONE 0.7s
+07:56:37 
+07:56:37 #64 [gateway] exporting to image
+07:56:41 #64 ...
+07:56:41 
+07:56:41 #65 [worker] exporting to image
+07:56:43 #65 exporting layers 11.9s done
+07:56:43 #65 exporting manifest sha256:c22297e18ba38348fc7e44ef7d30e8e9c10af3e925edbf52ec02268928d07f22 0.1s done
+07:56:43 #65 exporting config sha256:9ead48fddb7b1d267d14ad58622a68c9599da8a670f04ba319996396af5f3c80 0.1s done
+07:56:43 #65 exporting attestation manifest sha256:fd1ee2cf4adbfe585c3abd5a935e6b9e79115d8d0d7ea8a65b20375fc2c3c77d 0.1s done
+07:56:43 #65 exporting manifest list sha256:58710b45b86a30675f9b7e30a1fde5f1143c3574f83a3f6a8915b5e87cdb384a
+07:56:43 #65 exporting manifest list sha256:58710b45b86a30675f9b7e30a1fde5f1143c3574f83a3f6a8915b5e87cdb384a 0.0s done
+07:56:43 #65 naming to docker.io/library/edupilot-worker:latest done
+07:56:43 #65 unpacking to docker.io/library/edupilot-worker:latest
+07:56:44 #65 ...
+07:56:44 
+07:56:44 #58 [migrate] exporting to image
+07:56:44 #58 exporting layers 11.6s done
+07:56:44 #58 exporting manifest sha256:885e5e1d18881d98ce02024ee3850a7923d61101846fd2b3e9f69d6611c96686
+07:56:44 #58 exporting manifest sha256:885e5e1d18881d98ce02024ee3850a7923d61101846fd2b3e9f69d6611c96686 0.1s done
+07:56:44 #58 exporting config sha256:8d861178f399b65deb286edb59376ed68b71766b6da498d14fe16b6b62bd8a9e 0.1s done
+07:56:44 #58 exporting attestation manifest sha256:0cb719fccef0e9bb6f2b876f93ec51b546400bbd98ae4b8b03a2584de21c95e9 0.1s done
+07:56:44 #58 exporting manifest list sha256:71d1313c5c4b048cd76530136d1d858cbf05da4e2b9c774d7b300d73d0ae7ca8
+07:56:45 #58 ...
+07:56:45 
+07:56:45 #65 [worker] exporting to image
+07:56:45 #65 unpacking to docker.io/library/edupilot-worker:latest 1.4s done
+07:56:45 #65 DONE 13.7s
+07:56:45 
+07:56:45 #58 [migrate] exporting to image
+07:56:45 #58 exporting manifest list sha256:71d1313c5c4b048cd76530136d1d858cbf05da4e2b9c774d7b300d73d0ae7ca8 0.0s done
+07:56:45 #58 naming to docker.io/library/edupilot-gateway:latest 0.0s done
+07:56:45 #58 unpacking to docker.io/library/edupilot-gateway:latest
+07:56:45 #58 ...
+07:56:45 
+07:56:45 #66 [worker] resolving provenance for metadata file
+07:56:45 #66 DONE 0.2s
+07:56:45 
+07:56:45 #64 [gateway] exporting to image
+07:56:45 #64 exporting layers 11.7s done
+07:56:45 #64 exporting manifest sha256:5b356a6300ad692d0955ffb799f1e2884df6cb8cc41380631b64b5ff9d97105f 0.1s done
+07:56:45 #64 exporting config sha256:28df0a3672a7e3b8c9c227ec3c8ae648dc43956f4730b55cd0cfe73bb985a7c2 0.1s done
+07:56:45 #64 exporting attestation manifest sha256:54a2d78a3bc352aa324a30e2991185b19ab1ae5468d6cc1e38595b0bfcd208e4 0.1s done
+07:56:46 #64 exporting manifest list sha256:16f3b442e1135cb81f30c2807fb7fe834e2598a113667647a5f953abd6bee113 0.1s done
+07:56:46 #64 naming to docker.io/library/edupilot-gateway:latest 0.0s done
+07:56:47 #64 unpacking to docker.io/library/edupilot-gateway:latest 2.1s done
+07:56:47 #64 DONE 14.2s
+07:56:47 
+07:56:47 #58 [migrate] exporting to image
+07:56:47 #58 unpacking to docker.io/library/edupilot-gateway:latest 2.3s done
+07:56:47 #58 DONE 14.3s
+07:56:47 
+07:56:47 #67 [gateway] resolving provenance for metadata file
+07:56:47 #67 DONE 0.2s
+07:56:47 
+07:56:47 #68 [migrate] resolving provenance for metadata file
+07:56:47 #68 DONE 0.1s
+07:56:48  Image edupilot-mock-graph Built 
+07:56:49  Image edupilot-worker Built 
+07:56:49  Image edupilot-gateway Built 
+07:56:49  Image qc2fresh-frontend Built 
+07:56:49  Image edupilot-mock-imap Built 
+07:56:49  Image edupilot-docling Built 
+07:56:51  Image edupilot-judge:dev Built 
+07:56:52  Image edupilot-gateway Built 
+07:56:52  Volume qc2fresh_minio_data Creating 
+07:56:52  Volume qc2fresh_postgres_data Creating 
+07:56:52  Volume qc2fresh_redis_data Creating 
+07:56:52  Volume qc2fresh_minio_data Creating 
+07:56:52  Network qc2fresh_judge_net Creating 
+07:56:52  Volume qc2fresh_postgres_data Creating 
+07:56:52  Network qc2fresh_default Creating 
+07:56:52  Network qc2fresh_default Creating 
+07:56:52  Volume qc2fresh_caddy_config Creating 
+07:56:52  Volume qc2fresh_caddy_config Creating 
+07:56:52  Volume qc2fresh_caddy_data Creating 
+07:56:52  Volume qc2fresh_caddy_data Creating 
+07:56:52  Network qc2fresh_judge_net Creating 
+07:56:52  Volume qc2fresh_redis_data Creating 
+07:56:52  Volume qc2fresh_redis_data Created 
+07:56:52  Volume qc2fresh_redis_data Created 
+07:56:52  Volume qc2fresh_caddy_data Created 
+07:56:52  Volume qc2fresh_caddy_data Created 
+07:56:52  Volume qc2fresh_minio_data Created 
+07:56:52  Volume qc2fresh_minio_data Created 
+07:56:52  Volume qc2fresh_caddy_config Created 
+07:56:52  Volume qc2fresh_caddy_config Created 
+07:56:52  Volume qc2fresh_postgres_data Created 
+07:56:52  Volume qc2fresh_postgres_data Created 
+07:56:52  Network qc2fresh_default Created 
+07:56:52  Network qc2fresh_default Created 
+07:56:52  Container qc2fresh-docling-1 Creating 
+07:56:52  Container qc2fresh-postgres-1 Creating 
+07:56:52  Container qc2fresh-mock-imap-1 Creating 
+07:56:52  Container qc2fresh-mock-graph-1 Creating 
+07:56:52  Container qc2fresh-redis-1 Creating 
+07:56:52  Container qc2fresh-frontend-1 Creating 
+07:56:52  Container qc2fresh-mailpit-1 Creating 
+07:56:52  Container qc2fresh-minio-1 Creating 
+07:56:52  Network qc2fresh_judge_net Created 
+07:56:52  Network qc2fresh_judge_net Created 
+07:56:52  Container qc2fresh-judge-1 Creating 
+07:56:53  Container qc2fresh-mailpit-1 Created 
+07:56:53  Container qc2fresh-frontend-1 Created 
+07:56:53  Container qc2fresh-judge-1 Created 
+07:56:53  Container qc2fresh-minio-1 Created 
+07:56:54  Container qc2fresh-mock-imap-1 Created 
+07:56:54  Container qc2fresh-mock-graph-1 Created 
+07:56:54  Container qc2fresh-redis-1 Created 
+07:56:54  Container qc2fresh-postgres-1 Created 
+07:56:54  Container qc2fresh-pgbouncer-1 Creating 
+07:56:54  Container qc2fresh-migrate-1 Creating 
+07:56:54  Container qc2fresh-docling-1 Created 
+07:56:56  Container qc2fresh-pgbouncer-1 Created 
+07:56:56  Container qc2fresh-migrate-1 Created 
+07:56:56  Container qc2fresh-gateway-1 Creating 
+07:56:56  Container qc2fresh-worker-1 Creating 
+07:56:56  Container qc2fresh-worker-1 Created 
+07:56:56  Container qc2fresh-gateway-1 Created 
+07:56:57  Container qc2fresh-caddy-1 Creating 
+07:56:57  Container qc2fresh-caddy-1 Created 
+07:56:58  Container qc2fresh-frontend-1 Starting 
+07:56:58  Container qc2fresh-judge-1 Starting 
+07:56:58  Container qc2fresh-mailpit-1 Starting 
+07:56:58  Container qc2fresh-mock-imap-1 Starting 
+07:56:58  Container qc2fresh-redis-1 Starting 
+07:56:58  Container qc2fresh-postgres-1 Starting 
+07:56:58  Container qc2fresh-minio-1 Starting 
+07:56:58  Container qc2fresh-docling-1 Starting 
+07:56:58  Container qc2fresh-mock-graph-1 Starting 
+07:56:59  Container qc2fresh-judge-1 Started 
+07:57:03  Container qc2fresh-docling-1 Started 
+07:57:04 Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint qc2fresh-frontend-1 (bf82a0654da1a75a11eb717646055854e799b30f4e783a11ec490531b065903b): Bind for 0.0.0.0:3700 failed: port is already allocated
+exit=1

@@ -81,3 +81,8 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 
 ## Đợt chạy lại DefR — S10X (qc2, 2026-11-21; ep-r aba738ef)
 - **DEF-R10.7-01..04**: ĐÓNG — audit 10.7 pha `rr-defrerun` chạy lại đủ (data×4 vai, rỗng ×4 gồm teacher @1440/@375 với lớp QCEMPTYr107, đang tải, lỗi): 310 lượt chụp, lỗi chụp 0; H3=0, E7=0, P5=0 (01), H7=0, X3=0 (02, 03), T2=0 (04). Lệch còn lại 4 (H6×2, E5×2, chỉ student/practice/history) KHÔNG thuộc bốn DEF này: mục mới, chưa có DEF. Lỗi lượt trước (empty-teacher 2 failed) do dữ liệu: danh sách lớp của teacher (196 lớp) chỉ nạp ~100 lớp mới nhất nên không thấy QCEMPTYr107; đã đặt enrollment lớp này lên đầu, không phải lỗi sản phẩm. Bằng chứng: evidence-10.7/audit-rr-defrerun.md, evidence-defrerun/R10.7/all.log, results-S10X.tsv.
+
+## Đợt 22/11 (qc2)
+- DEF-R4-09 (9754c523, gochecknoglobals extract.go): ĐÓNG — golangci-lint run rc=0, go vet rc=0, ./internal/today -race ok (lượt 2), ./internal/integration ok (TC-P211-44 P; evidence-4/logs/lint-gate.log).
+- DEF-Q2-S8-03 (674f9779, seed khi gateway tắt): ĐÓNG — TC-P6-SEED-35 P: lỗi «Gateway <API_URL> chưa sẵn sàng (ECONNREFUSED)…» rc=1 sau 1 s; bật lại rc=0 (evidence-8/logs/seed35b-*.log).
+- DEF-R105S-02 (af07726d, run.py đường «thật»): ĐÓNG — TC-D08-14 P: LLM_DECISION_ALLOW_REAL=true + --real, trần 300; test_real.py 3 ca OK (chưa chạy lượt thật: chưa có phép PM).

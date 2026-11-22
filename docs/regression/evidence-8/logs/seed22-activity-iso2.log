@@ -1,0 +1,17 @@
+  ✘  1 [desktop] › e2e/activity.spec.ts:69:1 › heartbeat idle 2min stops: không thao tác 2 phút → ngừng; nhịp cuối trước mốc idle (1.1s)
+  ✘  2 [desktop] › e2e/activity.spec.ts:69:1 › heartbeat idle 2min stops: không thao tác 2 phút → ngừng; nhịp cuối trước mốc idle (retry #1) (846ms)
+  ✓  3 [desktop] › e2e/activity.spec.ts:90:1 › heartbeat cleanup on route change: rời khu vực đo → dọn bộ hẹn giờ, không nhịp nào nữa (931ms)
+  ✘  4 [desktop] › e2e/activity.spec.ts:69:1 › heartbeat idle 2min stops: không thao tác 2 phút → ngừng; nhịp cuối trước mốc idle (858ms)
+  ✘  5 [desktop] › e2e/activity.spec.ts:69:1 › heartbeat idle 2min stops: không thao tác 2 phút → ngừng; nhịp cuối trước mốc idle (retry #1) (894ms)
+  ✓  6 [desktop] › e2e/activity.spec.ts:90:1 › heartbeat cleanup on route change: rời khu vực đo → dọn bộ hẹn giờ, không nhịp nào nữa (918ms)
+  ✘  7 [desktop] › e2e/activity.spec.ts:69:1 › heartbeat idle 2min stops: không thao tác 2 phút → ngừng; nhịp cuối trước mốc idle (848ms)
+  ✘  8 [desktop] › e2e/activity.spec.ts:69:1 › heartbeat idle 2min stops: không thao tác 2 phút → ngừng; nhịp cuối trước mốc idle (retry #1) (860ms)
+  ✓  9 [desktop] › e2e/activity.spec.ts:90:1 › heartbeat cleanup on route change: rời khu vực đo → dọn bộ hẹn giờ, không nhịp nào nữa (871ms)
+    Received:    2
+    Received:    2
+    Received:    2
+    Received:    2
+    Received:    2
+    Received:    2
+  3 failed
+  3 passed (12.4s)

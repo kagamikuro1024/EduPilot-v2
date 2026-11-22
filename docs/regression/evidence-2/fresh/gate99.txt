@@ -1,0 +1,20 @@
+qc2fresh-gateway-2 Up 30 seconds (healthy)
+qc2fresh-caddy-1 Up 37 seconds (healthy)
+qc2fresh-worker-1 Up 42 seconds (healthy)
+qc2fresh-gateway-1 Up 42 seconds (healthy)
+qc2fresh-migrate-1 Exited (0) 30 seconds ago
+qc2fresh-pgbouncer-1 Up 48 seconds (healthy)
+qc2fresh-redis-1 Up 54 seconds (healthy)
+qc2fresh-postgres-1 Up 53 seconds (healthy)
+qc2fresh-mock-graph-1 Up 54 seconds (healthy)
+qc2fresh-mock-imap-1 Up 54 seconds (healthy)
+qc2fresh-docling-1 Up 55 seconds (healthy)
+qc2fresh-minio-1 Up 54 seconds (healthy)
+qc2fresh-frontend-1 Up 54 seconds (healthy)
+qc2fresh-mailpit-1 Up 54 seconds (healthy)
+qc2fresh-judge-1 Up 54 seconds (healthy)
+gateway healthy: 2
+exited ngoài migrate: 0
+_test route (chế độ default phải 404): 404
+readyz: {"db":"up","redis":"up","status":"ready"}
+image=edupilot-gateway

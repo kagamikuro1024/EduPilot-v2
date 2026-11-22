@@ -144,7 +144,7 @@ Cách chạy:
 | TC-PG02-39 | P | chạy trên Postgres tạm qc2-j-pg (không chạm ep-r): down→up, pg_dump -s trước/sau giống hệt (7333 dòng); run-logs/02-j.log |
 | TC-PG02-40 | P | Postgres tạm qc2-j-pg: sau down 0/5 bảng nền, extension vector giữ, up khôi phục 5 bảng; run-logs/02-j.log |
 | TC-PG02-43 | P |  |
-| TC-PG02-44 | N | chưa chạy (trước đây X: cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — c) |
+| TC-PG02-44 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): down -v (volume trống) rồi pnpm dev: exit 0, không thao tác tay (0 lời nhắc [y/N]/Press); migrate «Exited (0)», đúng 1 container migrate; goose_db_version đã áp 27 dòng (≥ 2), version lớn nhất 29; readyz 200 (số «5 bảng nền» là nhóm A P-11-92, không kiểm) |
 | TC-PG02-45 | P |  |
 | TC-PG02-46 | P |  |
 | TC-PG02-47 | P |  |
@@ -514,7 +514,7 @@ Cách chạy:
 | TC-GATE-11 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-12 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-13 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-20 | N | chưa chạy (trước đây X: cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — c) |
+| TC-GATE-20 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (checkout ovnfs riêng, EP_PORT_OFFSET=3000, KHÔNG đụng project edupilot; evidence-2/fresh/): volume DB mất (down -v) → pnpm dev: readyz 200 sau 31 s (≤ 300 s, image đã dựng), migrate exited 0, goose đã áp 27 dòng (≥ 2), đầu ra không có lời nhắc thao tác tay; project qc2fresh thay vì edupilot (cấm đụng edupilot) |
 | TC-GATE-21 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-22 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-23 | P | cửa sổ khoá global (gateway=2/chaos) |
@@ -524,8 +524,8 @@ Cách chạy:
 | TC-GATE-27 | P | RERUN 22/11 Playwright Chromium thật (docs/regression/specs-qc2/qc2-r2/gate-browser.spec.ts, bản chuyển từ idem-two-tabs.mjs vì eval browser của máy này không có CDP target(); cùng origin qua Caddy https://localhost:1143; log evidence-2/run-logs-22nov/gate-2527.log) @aba738ef: I1…I5 đều PASS: 1 bản ghi, hai phản hồi 201/201 giống hệt (body, Content-Type), đúng một Idempotent-Replayed: true đọc được từ trình duyệt (null / true); ok=true |
 | TC-GATE-28 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-29 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-30 | N | chưa chạy (trước đây Kb: đọc tay toàn bộ diff internal/auth + internal/httpapi theo checklist — cần người đọc (script gom ứng viên đã chạy rc 0: run-logs/g) |
-| TC-GATE-99 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): dọn cuối của cổng cũ (trả stack về image mặc định, 2 gateway): nay baseline ep-r do PM đặt là 1 gateway + image edupilot-*-test; mọi cửa sổ  |
+| TC-GATE-30 | P | RERUN 22/11 @403f1ea5: bash scripts/diff-review.sh: mọi nhóm ứng viên = 0 (chỉ 1 biến toàn cục observabilityMessages có //nolint:gochecknoglobals «bảng lời văn bất biến» — đã giải thích). Checklist đọc tay (file:dòng): lỗi bọc %w (chỉ 2 lỗi lá không bọc auth/tokens.go:52, httpapi/server.go:146); guard mặc định từ chối (auth/middleware.go:215-222 DenyAll khi resolver nil, 403/404/503); 5xx/429 không lưu idempotency (httpapi/idempotency.go:238); cursor so sánh hàng (created_at,id) (store/queries/chat.sql:28, attendance_checkin.sql:150); ETag băm sha256 (httpapi/httpx/etag.go:20-24); recover giữ http.ErrAbortHandler (httpapi/middleware.go:57,63); mọi response lỗi qua apierr.Write (apierr/apierr.go:200; 0 WriteHeader 4xx/5xx thô); rate limit fail-open có log hạn chế (httpapi/ratelimit.go:20,48); handler gọi service/domain (coursehttp, gradehttp…) |
+| TC-GATE-99 | P | RERUN 22/11 @403f1ea5 trên project qc2fresh (không đổi ep-r; evidence-2/fresh/gate99.txt): gateway chế độ default (image edupilot-gateway, POST /api/v1/_test/events → 404), scale gateway=2: 2 gateway healthy, readyz ready; không container nào exited ngoài migrate (migrate Exited 0); 13 service + gateway-2 healthy |
 
 ## Trượt: bước tái hiện
 ### DEF-R2-01 — ĐÃ SỬA (816498c6): `redocly lint` hợp lệ, TC-PG06-01 và P0-02/TC-21 đạt — chi tiết `defects-2.md`

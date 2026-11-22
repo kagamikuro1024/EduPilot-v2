@@ -68,3 +68,69 @@ ok  	github.com/edupilot/backend-go/internal/crm	6.138s
 PASS
 ok  	github.com/edupilot/backend-go/internal/seedtool	3.988s
 ▶ TestSeedIsolation
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f903bffadee71959e0476f144ef5d1c7a78f8be0717815025de54832722f958e
+  Test ProcessID: 7ad774bf-25d5-4d71-9715-f21be0452832
+2026/11/21 22:24:34 ✅ Container started: 68f6ff853df5
+2026/11/21 22:24:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/21 22:24:34 🔔 Container is ready: 68f6ff853df5
+2026/11/21 22:24:39 ✅ Container started: 5636bc78d64d
+2026/11/21 22:24:39 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/21 22:24:39 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSeedIsolation (7.07s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/crm	9.405s
+▶ TestSeedAdminForbidden
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0cdc1bf27f8ac25a80bcfc7166d88e6288fbd9bd183d0583b86e989d98bc1e05
+  Test ProcessID: f49e8e37-d317-440f-89b0-7a0aaf12788a
+2026/11/21 22:24:52 ✅ Container started: 68f6ff853df5
+2026/11/21 22:24:52 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/21 22:24:52 🔔 Container is ready: 68f6ff853df5
+2026/11/21 22:24:53 ✅ Container started: 5636bc78d64d
+2026/11/21 22:24:53 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/21 22:24:53 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSeedAdminForbidden (1.72s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/crm	3.617s
+▶ TestNoToolReadsObservations + TestStudentAsksAboutOwnNotes
+ok  	github.com/edupilot/backend-go/internal/agent	0.688s
+▶ lệnh admin seed (allowlist APP_ENV, idempotent)
+ok  	github.com/edupilot/backend-go/cmd/gateway	12.870s
+▶ go test ./internal/contract/...
+ok  	github.com/edupilot/backend-go/internal/contract	55.739s
+▶ kế hoạch seed khớp seed/crm_plan.json (SEED_RNG mặc định)
+▶ seed.mjs bị chặn khi NODE_ENV hoặc APP_ENV = production
+▶ check-crm-seed.mjs (stack đã seed)
+attendance=270 absent=21 speak=65 risk={"AT_RISK":1,"WATCH":3,"NONE":26} tickets=10 {"OPEN":7,"CLAIMED":1,"ANSWERED":1,"CLOSED":1} queue=2 idempotent=bỏ qua (--no-rerun)
+  ✗ ticket lớp 1 = 10, cần đúng 5 (BUG-S1: lịch sử chat không được tự mở ticket)
+
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 12 |
+| PASS | go test -race crm + activity + seedtool | 144 |
+| PASS | TestToolMyAttendance | 10 |
+| PASS | TestToolMyParticipation | 8 |
+| PASS | TestProfileUnder3s | 8 |
+| PASS | TestSeedCRMExpected | 8 |
+| PASS | TestSeedIsolation | 18 |
+| PASS | TestSeedAdminForbidden | 12 |
+| PASS | TestNoToolReadsObservations + TestStudentAsksAboutOwnNotes | 9 |
+| PASS | lệnh admin seed (allowlist APP_ENV, idempotent) | 29 |
+| PASS | go test ./internal/contract/... | 71 |
+| PASS | kế hoạch seed khớp seed/crm_plan.json (SEED_RNG mặc định) | 0 |
+| PASS | seed.mjs bị chặn khi NODE_ENV hoặc APP_ENV = production | 0 |
+| FAIL | check-crm-seed.mjs (stack đã seed) | 4 |
+
+GATE P5: FAIL
+
+real	5m33.029s
+user	5m9.507s
+sys	1m14.036s
+rc=1
