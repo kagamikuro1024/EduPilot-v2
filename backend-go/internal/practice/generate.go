@@ -218,7 +218,7 @@ func (w *Worker) generate(ctx context.Context, j jobs.JobCtx) (any, error) {
 	}
 	seen := map[string]bool{}
 	for _, s := range existing {
-		seen[quiz.NormalizeShort(s)] = true
+		seen[stemKey(s)] = true
 	}
 	allowed := map[string]bool{}
 	for _, t := range p.Types {
