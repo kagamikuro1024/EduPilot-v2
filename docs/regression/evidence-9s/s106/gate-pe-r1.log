@@ -1,0 +1,338 @@
+▶ go vet ./...
+▶ go test -race exam + judge + quiz
+ok  	github.com/edupilot/backend-go/internal/exam	68.912s
+ok  	github.com/edupilot/backend-go/internal/exam/similarity	1.339s
+ok  	github.com/edupilot/backend-go/internal/judge	4.428s
+ok  	github.com/edupilot/backend-go/internal/quiz	1.357s
+▶ TestSandboxAttacks (15 ca, judge thật)
+ok  	github.com/edupilot/backend-go/internal/judge	0.449s [no tests to run]
+▶ TestScoringDecimal
+ok  	github.com/edupilot/backend-go/internal/exam	0.554s
+ok  	github.com/edupilot/backend-go/internal/exam/similarity	0.309s [no tests to run]
+▶ TestNoAnswerLeak (service + contract)
+ok  	github.com/edupilot/backend-go/internal/exam	2.251s
+ok  	github.com/edupilot/backend-go/internal/exam/similarity	0.102s [no tests to run]
+ok  	github.com/edupilot/backend-go/internal/contract	14.009s
+▶ go test ./internal/contract/...
+ok  	github.com/edupilot/backend-go/internal/contract	30.086s
+▶ sqlc diff
+▶ expected_exam_scores.csv khớp bộ sinh
+OK 30 dòng
+▶ ui-antipatterns.sh
+✓ Màu viết cứng ngoài shared/styles
+✓ Màu viết cứng trong style của .tsx
+✓ Xám chung chung của Tailwind
+✓ Bo góc kiểu SaaS / số cứng
+✓ Bóng ngoài Popover/Dialog/Menu/Drawer/Composer
+✓ Cỡ chữ tuỳ ý ngoài thang vai trò
+✓ z-index số cứng
+✓ fetch / XMLHttpRequest / axios ngoài shared/data
+✓ confirm / alert
+✓ Spinner riêng hoặc toàn trang
+✓ <table> thô ngoài DataTable
+✓ Hiệu ứng bị cấm (glass, chữ gradient, nảy)
+✓ Gamification (streak, leaderboard, confetti)
+✓ Khung vỏ dùng nền đặc
+✓ Từ kỹ thuật trong màn sinh viên
+✓ Dialog ngoài danh sách việc cần bảo vệ
+✓ Emoji làm icon chức năng
+✓ Token / bí mật ghi vào storage
+✓ Tailwind / @theme
+✓ Bóng elevation ngoài Panel
+✓ Bo góc panel ngoài Panel
+✓ Panel lồng Panel (cùng tệp)
+✓ Câu mô tả tĩnh dưới tiêu đề
+✓ Khung tự đặt độ rộng
+✓ Chiều cao theo màn ngoài shared/
+✓ Với tay vào primitive
+✓ Meta lặp lớp đang chọn
+✓ Tiêu đề tự dựng ngoài shared/ui
+✓ Nút rỗng trùng nút đầu trang
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+✓ Chữ Threads / Insights / Analytics hiển thị
+✓ Luật :hover ngoài @media (hover: hover)
+▶ Playwright exam.spec.ts
+$ NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_BLOB_ORIGIN=http://blob.test NEXT_PUBLIC_API_URL=http://localhost:${E2E_API_PORT:-3312} next build
+▲ Next.js 16.3.7 (Turbopack)
+✓ Running next.config.ts took 89ms
+- Experiments (use with caution):
+  ✓ inlineCss
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.1s
+  Running TypeScript ...
+  Finished TypeScript in 2.3s ...
+  Collecting page data using 10 workers ...
+  Generating static pages using 10 workers (0/42) ...
+  Generating static pages using 10 workers (10/42) 
+  Generating static pages using 10 workers (20/42) 
+  Generating static pages using 10 workers (31/42) 
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Generating static pages using 10 workers (42/42) in 3.4s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[...slug]
+├ ○ /admin/audit
+├ ○ /admin/courses
+├ ○ /admin/users
+├ ○ /analytics
+├ ○ /assignments
+├ ƒ /assignments/[id]
+├ ○ /attendance
+├ ○ /attendance/display
+├ ○ /calendar
+├ ○ /chat
+├ ○ /checkin
+├ ○ /class/members
+├ ○ /class/settings
+├ ƒ /dev/[...slug]
+├ ○ /dev/data
+├ ○ /dev/ui
+├ ○ /documents
+├ ○ /exams
+├ ƒ /exams/[id]
+├ ƒ /exams/[id]/results
+├ ƒ /exams/[id]/similarity
+├ ƒ /exams/[id]/take
+├ ○ /forgot-password
+├ ○ /gradebook
+├ ○ /gradebook/scheme
+├ ○ /grading
+├ ƒ /grading/[submissionId]
+├ ○ /inbox
+├ ○ /insights
+├ ƒ /invite/[token]
+├ ○ /join
+├ ƒ /join/[code]
+├ ○ /library
+├ ƒ /library/[id]
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ○ /me
+├ ○ /observability
+├ ○ /practice
+├ ƒ /practice/[attemptId]
+├ ○ /practice/history
+├ ○ /questions
+├ ○ /register
+├ ○ /reset-password
+├ ○ /settings
+├ ○ /settings/integrations
+├ ○ /settings/llm
+├ ○ /students
+├ ƒ /students/[id]
+├ ○ /threads
+├ ƒ /threads/[id]
+└ ○ /verify-email
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+Running 146 tests using 2 workers
+
+  ✓    2 [desktop] › e2e/a11y.spec.ts:32:5 › axe-allow.json: tối đa 3 ngoại lệ, mỗi mục đủ luật / route / lý do / người duyệt (240ms)
+  ✓    1 [desktop] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5) (1.1s)
+  ✓    4 [desktop] › e2e/analytics-exam.spec.ts:49:5 › chọn bài khác gọi lại overview với exam_id (AC1) (359ms)
+  ✓    5 [desktop] › e2e/analytics-exam.spec.ts:57:5 › theo tuần: gửi week, tuần không có bài → «Chưa có bài thi» (AC3) (509ms)
+  ✓    6 [desktop] › e2e/analytics-exam.spec.ts:66:5 › liên kết «Xem ở Báo cáo lỗ hổng» chỉ khi chủ đề trùng báo cáo; lớp chưa có báo cáo → không liên kết (AC4) (378ms)
+  ✓    7 [desktop] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4) (605ms)
+  ✓    8 [desktop] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6) (487ms)
+  ✓    9 [desktop] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6) (434ms)
+  ✓   10 [desktop] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8) (415ms)
+  ✓   11 [desktop] › e2e/analytics-exam.spec.ts:99:5 › overview lỗi → thông báo + Thử lại (AC8) (506ms)
+  -   12 [desktop] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10)
+  ✓   13 [desktop] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá (2.3s)
+  ✓   14 [desktop] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt (1.8s)
+  ✓   15 [desktop] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ (724ms)
+  ✓   16 [desktop] › e2e/exam.spec.ts:268:5 › questions bank: trạng thái rỗng và lỗi có Thử lại (539ms)
+  ✓   17 [desktop] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ (1.1s)
+  ✓   18 [desktop] › e2e/exam.spec.ts:415:5 › exam editor: tạo bài, lỗi lên lịch có danh sách, chọn câu, đổi thứ tự, xem trước, lên lịch, hoàn tác, gia hạn (3.4s)
+  ✓   19 [desktop] › e2e/exam.spec.ts:506:5 › exam editor: TA không có nút Lên lịch, kèm câu giải thích; nhân bản và xoá nháp (900ms)
+  ✓   20 [desktop] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu (1.1s)
+  ✓   21 [desktop] › e2e/exam.spec.ts:539:5 › exam list: trạng thái rỗng và lỗi có Thử lại (427ms)
+  ✓   22 [desktop] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px (456ms)
+  ✓   23 [desktop] › e2e/exam.spec.ts:599:5 › student exam list: trạng thái rỗng (410ms)
+  ✓   24 [desktop] › e2e/exam.spec.ts:605:5 › exam route access: sinh viên không mở được trang soạn bài; Staff không mở được trang làm bài (628ms)
+  ✓   25 [desktop] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại (620ms)
+  ✓    3 [desktop] › e2e/a11y.spec.ts:57:7 › axe: student (19.7s)
+  ✓   26 [desktop] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ' (3.8s)
+  ✓   28 [desktop] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt (1.3s)
+  ✓   29 [desktop] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc (7.4s)
+  ✓   30 [desktop] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai (5.1s)
+  ✓   27 [desktop] › e2e/a11y.spec.ts:57:7 › axe: ta (20.6s)
+  ✓   31 [desktop] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc (6.7s)
+  ✓   33 [desktop] › e2e/exam.spec.ts:872:5 › take: offline mid exam — mất mạng vẫn chọn được; có mạng lại thì tự lưu (710ms)
+  ✓   34 [desktop] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang (1.1s)
+  ✓   35 [desktop] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột (646ms)
+  ✓   36 [desktop] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe (4.2s)
+  ✓   37 [desktop] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất (4.3s)
+  ✓   38 [desktop] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ (8.2s)
+  ✓   32 [desktop] › e2e/a11y.spec.ts:57:7 › axe: teacher (25.6s)
+  ✓   40 [desktop] › e2e/a11y.spec.ts:57:7 › axe: admin (9.0s)
+  ✓   41 [desktop] › e2e/a11y.spec.ts:67:5 › axe: admin có dữ liệu (/admin/users, /admin/courses, /settings/llm) (4.1s)
+  ✓   39 [desktop] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật (18.1s)
+  ✓   43 [desktop] › e2e/exam.spec.ts:1096:5 › take: submission history — Đang chấm → kết quả, nhãn Lần nộp tính điểm, xem mã và Dùng lại mã này (3.2s)
+  ✓   42 [desktop] › e2e/a11y.spec.ts:77:5 › axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống nhau, câu hỏi, thành viên, cài đặt lớp) (9.8s)
+  ✓   45 [desktop] › e2e/a11y.spec.ts:87:5 › axe: giảng viên /students có dữ liệu (danh sách thật, đủ ba mức rủi ro) (1.4s)
+  ✓   44 [desktop] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả (6.6s)
+  ✓   46 [desktop] › e2e/a11y.spec.ts:101:5 › axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước giờ / đang làm / đã công bố) (6.7s)
+  ✓   48 [desktop] › e2e/a11y.spec.ts:117:5 › axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã nộp) (4.1s)
+  ✓   47 [desktop] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ (12.7s)
+  ✓   49 [desktop] › e2e/a11y.spec.ts:134:5 › axe: grading a11y — hàng chờ chấm và màn duyệt của giảng viên (3.1s)
+  ✓   51 [desktop] › e2e/a11y.spec.ts:144:5 › axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): không critical, activedescendant hợp lệ khi dòng ở trong / ngoài cửa sổ (2.5s)
+  ✓   50 [desktop] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 (5.0s)
+  ✓   52 [desktop] › e2e/a11y.spec.ts:179:5 › axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng viên) (2.9s)
+  ✓   53 [desktop] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần (9.5s)
+  ✓   55 [desktop] › e2e/exam.spec.ts:1186:5 › take: integrity notice — đúng chữ ở màn bắt đầu và dải cố định trong giờ; Bắt đầu chỉ bấm được sau khi thấy câu này; không từ kỹ thuật (407ms)
+  ✓   56 [desktop] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu (377ms)
+  ✓   57 [desktop] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung (712ms)
+  ✓   58 [desktop] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive (408ms)
+  ✓   59 [desktop] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm (617ms)
+  ✓   60 [desktop] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống (288ms)
+  ✓   61 [desktop] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do (744ms)
+  ✓   62 [desktop] › e2e/exam.spec.ts:1420:5 › results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang (379ms)
+  ✓   63 [desktop] › e2e/exam.spec.ts:1431:5 › results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm (460ms)
+  ✓   64 [desktop] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần (543ms)
+  ✓   65 [desktop] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu (425ms)
+  ✓   66 [desktop] › e2e/exam.spec.ts:1499:5 › student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần (499ms)
+  ✓   67 [desktop] › e2e/exam.spec.ts:1524:5 › student result: 375 px — phần trắc nghiệm dùng được, mã code cuộn ngang trong khối mã, trang không tràn ngang (302ms)
+  ✓   68 [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang (498ms)
+  ✓   69 [desktop] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang (543ms)
+  ✓   70 [desktop] › e2e/exam.spec.ts:1561:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép (2.0s)
+  ✓   71 [desktop] › e2e/exam.spec.ts:1585:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án (712ms)
+  ✓   72 [desktop] › e2e/exam.spec.ts:1602:5 › student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án (291ms)
+  ✓   73 [desktop] › e2e/exam.spec.ts:1609:5 › results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn thấy, cuộn tới cuối vẫn thấy dòng cuối (358ms)
+  -   74 [mobile] › e2e/a11y.spec.ts:32:5 › axe-allow.json: tối đa 3 ngoại lệ, mỗi mục đủ luật / route / lý do / người duyệt
+  -   75 [mobile] › e2e/a11y.spec.ts:57:7 › axe: student
+  -   76 [mobile] › e2e/a11y.spec.ts:57:7 › axe: ta
+  -   77 [mobile] › e2e/a11y.spec.ts:57:7 › axe: teacher
+  -   78 [mobile] › e2e/a11y.spec.ts:57:7 › axe: admin
+  -   79 [mobile] › e2e/a11y.spec.ts:67:5 › axe: admin có dữ liệu (/admin/users, /admin/courses, /settings/llm)
+  -   80 [mobile] › e2e/a11y.spec.ts:77:5 › axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống nhau, câu hỏi, thành viên, cài đặt lớp)
+  -   81 [mobile] › e2e/a11y.spec.ts:87:5 › axe: giảng viên /students có dữ liệu (danh sách thật, đủ ba mức rủi ro)
+  -   82 [mobile] › e2e/a11y.spec.ts:101:5 › axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước giờ / đang làm / đã công bố)
+  -   83 [mobile] › e2e/a11y.spec.ts:117:5 › axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã nộp)
+  -   84 [mobile] › e2e/a11y.spec.ts:134:5 › axe: grading a11y — hàng chờ chấm và màn duyệt của giảng viên
+  -   85 [mobile] › e2e/a11y.spec.ts:144:5 › axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): không critical, activedescendant hợp lệ khi dòng ở trong / ngoài cửa sổ
+  -   86 [mobile] › e2e/a11y.spec.ts:179:5 › axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng viên)
+AXE incomplete color-contrast: 0 lượt có mục cần xem tay (chi tiết test-results/axe-incomplete-contrast.json)
+AXE: 0 lượt quét (route × vai × bề rộng); critical 0, serious 0, moderate 0, minor 0
+  -   87 [mobile] › e2e/a11y.spec.ts:191:5 › axe: route PU không cần vai (/login, /dev/ui, /dev/data)
+  ✓   88 [mobile] › e2e/analytics-exam.spec.ts:38:5 › tab Điểm thi: bài mới nhất, một dòng chữ, phân bố, xu hướng, câu sai, điểm đang giảm (AC1, AC5) (572ms)
+  ✓   89 [mobile] › e2e/analytics-exam.spec.ts:49:5 › chọn bài khác gọi lại overview với exam_id (AC1) (434ms)
+  ✓   90 [mobile] › e2e/analytics-exam.spec.ts:57:5 › theo tuần: gửi week, tuần không có bài → «Chưa có bài thi» (AC3) (393ms)
+  ✓   91 [mobile] › e2e/analytics-exam.spec.ts:66:5 › liên kết «Xem ở Báo cáo lỗ hổng» chỉ khi chủ đề trùng báo cáo; lớp chưa có báo cáo → không liên kết (AC4) (317ms)
+  ✓   92 [mobile] › e2e/analytics-exam.spec.ts:72:5 › lớp chưa có báo cáo: không liên kết (AC4) (330ms)
+  ✓   93 [mobile] › e2e/analytics-exam.spec.ts:78:5 › so sánh lớp: chỉ khi ≥ 2 lớp; lớp dưới 5 bài nộp «Chưa đủ» (AC6) (323ms)
+  ✓   94 [mobile] › e2e/analytics-exam.spec.ts:88:5 › một lớp: không có bảng so sánh (AC6) (330ms)
+  ✓   95 [mobile] › e2e/analytics-exam.spec.ts:94:5 › lớp chưa có bài thi công bố → EmptyState một dòng (AC8) (275ms)
+  ✓   96 [mobile] › e2e/analytics-exam.spec.ts:99:5 › overview lỗi → thông báo + Thử lại (AC8) (313ms)
+  ✓   97 [mobile] › e2e/analytics-exam.spec.ts:105:5 › 375 px: biểu đồ co theo bề rộng, không tràn ngang (AC10) (317ms)
+  ✓   98 [mobile] › e2e/exam.spec.ts:163:5 › questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá (2.1s)
+  ✓   99 [mobile] › e2e/exam.spec.ts:218:5 › questions bank: bài lập trình — cấu hình, nhập zip (kiểm trước), thêm test, chạy lời giải mẫu, duyệt (1.2s)
+  ✓  100 [mobile] › e2e/exam.spec.ts:256:5 › questions bank: Gợi ý từ AI soạn nháp → câu ở trạng thái Chờ duyệt, dòng thông báo tại chỗ (468ms)
+  ✓  101 [mobile] › e2e/exam.spec.ts:268:5 › questions bank: trạng thái rỗng và lỗi có Thử lại (299ms)
+  ✓  102 [mobile] › e2e/exam.spec.ts:284:5 › questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ (696ms)
+  -  103 [mobile] › e2e/exam.spec.ts:415:5 › exam editor: tạo bài, lỗi lên lịch có danh sách, chọn câu, đổi thứ tự, xem trước, lên lịch, hoàn tác, gia hạn
+  -  104 [mobile] › e2e/exam.spec.ts:506:5 › exam editor: TA không có nút Lên lịch, kèm câu giải thích; nhân bản và xoá nháp
+  -  105 [mobile] › e2e/exam.spec.ts:524:5 › exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số câu
+  ✓  106 [mobile] › e2e/exam.spec.ts:539:5 › exam list: trạng thái rỗng và lỗi có Thử lại (367ms)
+  ✓  107 [mobile] › e2e/exam.spec.ts:577:5 › student exam list: mỗi hàng một hành động, nhóm theo trạng thái, không tràn ngang; ở 375 px vùng chạm ≥ 44 px (347ms)
+  ✓  108 [mobile] › e2e/exam.spec.ts:599:5 › student exam list: trạng thái rỗng (240ms)
+  ✓  109 [mobile] › e2e/exam.spec.ts:605:5 › exam route access: sinh viên không mở được trang soạn bài; Staff không mở được trang làm bài (450ms)
+  ✓  110 [mobile] › e2e/exam.spec.ts:783:5 › take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại (406ms)
+  ✓  111 [mobile] › e2e/exam.spec.ts:790:5 › take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ' (3.7s)
+  ✓  112 [mobile] › e2e/exam.spec.ts:800:5 › take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt (1.1s)
+AXE incomplete color-contrast: 95 lượt có mục cần xem tay (chi tiết test-results/axe-incomplete-contrast.json)
+AXE: 158 lượt quét (route × vai × bề rộng); critical 0, serious 0, moderate 0, minor 0
+  ✓   54 [desktop] › e2e/a11y.spec.ts:191:5 › axe: route PU không cần vai (/login, /dev/ui, /dev/data) (37.3s)
+  ✓  113 [mobile] › e2e/exam.spec.ts:820:5 › take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc (7.2s)
+  ✓  114 [mobile] › e2e/exam.spec.ts:839:5 › take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai (5.0s)
+  ✓  116 [mobile] › e2e/exam.spec.ts:872:5 › take: offline mid exam — mất mạng vẫn chọn được; có mạng lại thì tự lưu (679ms)
+  ✓  117 [mobile] › e2e/exam.spec.ts:886:5 › take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang (885ms)
+  ✓  118 [mobile] › e2e/exam.spec.ts:928:5 › take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột (499ms)
+  ✓  119 [mobile] › e2e/exam.spec.ts:948:5 › take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe (1.4s)
+  ✓  115 [mobile] › e2e/exam.spec.ts:855:5 › take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc (6.7s)
+  ✓  120 [mobile] › e2e/exam.spec.ts:1010:5 › take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất (4.3s)
+  ✓  121 [mobile] › e2e/exam.spec.ts:1033:5 › take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ (8.2s)
+  ✓  123 [mobile] › e2e/exam.spec.ts:1096:5 › take: submission history — Đang chấm → kết quả, nhãn Lần nộp tính điểm, xem mã và Dùng lại mã này (3.3s)
+  ✓  124 [mobile] › e2e/exam.spec.ts:1124:5 › take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả (6.6s)
+  ✓  122 [mobile] › e2e/exam.spec.ts:1059:5 › take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật (18.1s)
+  ✓  126 [mobile] › e2e/exam.spec.ts:1153:5 › take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0 (5.1s)
+  ✓  125 [mobile] › e2e/exam.spec.ts:1137:5 › take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ (12.7s)
+  ✓  128 [mobile] › e2e/exam.spec.ts:1186:5 › take: integrity notice — đúng chữ ở màn bắt đầu và dải cố định trong giờ; Bắt đầu chỉ bấm được sau khi thấy câu này; không từ kỹ thuật (505ms)
+  ✓  129 [mobile] › e2e/exam.spec.ts:1202:5 › take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu (331ms)
+  ✓  130 [mobile] › e2e/exam.spec.ts:1213:5 › take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung (688ms)
+  ✓  131 [mobile] › e2e/exam.spec.ts:1245:5 › take: integrity events — pagehide gửi lô cuối bằng fetch keepalive (407ms)
+  ✓  132 [mobile] › e2e/exam.spec.ts:1303:5 › similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm (574ms)
+  ✓  133 [mobile] › e2e/exam.spec.ts:1332:5 › similarity review — TA không mở được trang so độ giống (305ms)
+  ✓  127 [mobile] › e2e/exam.spec.ts:1167:5 › take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần (9.5s)
+  ✓  134 [mobile] › e2e/exam.spec.ts:1386:5 › results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do (943ms)
+  ✓  135 [mobile] › e2e/exam.spec.ts:1420:5 › results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang (762ms)
+  ✓  136 [mobile] › e2e/exam.spec.ts:1431:5 › results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm (673ms)
+  ✓  137 [mobile] › e2e/exam.spec.ts:1446:5 › results: thống kê, xuất CSV, phúc khảo trả lời một lần (821ms)
+  ✓  138 [mobile] › e2e/exam.spec.ts:1486:5 › student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu (555ms)
+  ✓  140 [mobile] › e2e/exam.spec.ts:1524:5 › student result: 375 px — phần trắc nghiệm dùng được, mã code cuộn ngang trong khối mã, trang không tràn ngang (529ms)
+  ✓  139 [mobile] › e2e/exam.spec.ts:1499:5 › student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần (858ms)
+  ✓  142 [mobile] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 720 px không làm trang tràn ngang (771ms)
+  ✓  141 [mobile] › e2e/exam.spec.ts:1539:7 › student result: bảng test mẫu ở 375 px không làm trang tràn ngang (781ms)
+  ✓  144 [mobile] › e2e/exam.spec.ts:1585:5 › answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án (751ms)
+  ✓  145 [mobile] › e2e/exam.spec.ts:1602:5 › student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án (358ms)
+  ✓  146 [mobile] › e2e/exam.spec.ts:1609:5 › results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn thấy, cuộn tới cuối vẫn thấy dòng cuối (380ms)
+  ✓  143 [mobile] › e2e/exam.spec.ts:1561:5 › chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép (2.0s)
+
+  18 skipped
+  128 passed (3.3m)
+▶ check-exam-seed.mjs bank
+(node:95387) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK bank
+▶ check-exam-seed.mjs scores
+(node:95388) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+matched 30/30
+OK scores
+▶ check-exam-seed.mjs demo
+(node:95389) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK demo
+▶ Playwright *.real.spec.ts (TC-10-09, TC-12-10; API thật, seed)
+
+Running 6 tests using 2 workers
+
+  ✓  2 [desktop] › e2e/practice.real.spec.ts:74:5 › @real thi thử 20 câu: tải lại ở câu 8, mất mạng ở câu 12–14, nộp → kết quả khớp tính tay (12.3s)
+  ✓  1 [desktop] › e2e/quiz-integrity.real.spec.ts:63:5 › @real nộp bài: chat khoá khi đang trong lượt, luyện đề vẫn bắt đầu được, nộp xong chat mở lại (18.8s)
+  ✓  3 [mobile] › e2e/practice.real.spec.ts:74:5 › @real thi thử 20 câu: tải lại ở câu 8, mất mạng ở câu 12–14, nộp → kết quả khớp tính tay (12.2s)
+  ✓  5 [mobile] › e2e/quiz-integrity.real.spec.ts:63:5 › @real nộp bài: chat khoá khi đang trong lượt, luyện đề vẫn bắt đầu được, nộp xong chat mở lại (18.8s)
+  -  6 [mobile] › e2e/quiz-integrity.real.spec.ts:79:5 › @real hết giờ: tick tự nộp lượt, chat mở lại ở chính màn /chat
+  ✓  4 [desktop] › e2e/quiz-integrity.real.spec.ts:79:5 › @real hết giờ: tick tự nộp lượt, chat mở lại ở chính màn /chat (2.5m)
+
+  1 skipped
+  5 passed (2.8m)
+
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 12 |
+| PASS | go test -race exam + judge + quiz | 75 |
+| PASS | TestSandboxAttacks (15 ca, judge thật) | 2 |
+| PASS | TestScoringDecimal | 3 |
+| PASS | TestNoAnswerLeak (service + contract) | 18 |
+| PASS | go test ./internal/contract/... | 34 |
+| PASS | sqlc diff | 1 |
+| PASS | expected_exam_scores.csv khớp bộ sinh | 0 |
+| PASS | ui-antipatterns.sh | 2 |
+| PASS | Playwright exam.spec.ts | 242 |
+| PASS | check-exam-seed.mjs bank | 0 |
+| PASS | check-exam-seed.mjs scores | 1 |
+| PASS | check-exam-seed.mjs demo | 2 |
+| PASS | Playwright *.real.spec.ts (TC-10-09, TC-12-10; API thật, seed) | 168 |
+
+GATE PE: PASS

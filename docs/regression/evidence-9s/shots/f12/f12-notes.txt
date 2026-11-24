@@ -1,0 +1,9 @@
+1 trích đề UI: «Đã tạo 24 câu chờ duyệt»; DB EXTRACTED PENDING 24
+2 duyệt hàng loạt UI: APPROVED 24/24 (POST questions/bulk 200)
+3 TOPIC 10 câu UI: DB correct_count 3 status SUBMITTED (QC tính tay 3)
+3b sv37 làm 3 câu (<10): khối «Chủ đề bạn hay sai» / «Chủ đề cần ôn» ẩn (đúng)
+4 thi thử UI: tải lại ở câu 8 → câu 8; offline câu 12–14; kết quả «Bạn đúng 15/20 câu» khớp tính tay
+5 lịch sử UI: có «Đúng 3/10», «Đúng 15/20», khối chủ đề yếu «Chủ đề bạn hay sai» HIỆN (US/SRS ghi «Chủ đề cần ôn»)
+6 Hôm nay UI: «Ôn chủ đề» HIỆN: Chào Lan ¦ Thứ Tư, 25/11 ¦ Việc nên làm tiếp ¦ Ôn chủ đề Chưa phân loại ¦ Sai 12 / 30 câu gần đây. ¦ Khoảng 10 phút ¦ Ôn chủ đề Chưa phân loại
+7 nhánh lỗi mất mạng khi nộp UI: «Chưa nộp được. Đang thử lại.» HIỆN; có mạng → tự nộp, hiện kết quả
+8 nhánh lỗi trích quá tải UI (RPM nhà cung cấp = 1, drain API 202): «Chưa trích được. Thử lại.» THIẾU; trả rpm_limit về trống 200. Ghi nhận (không chấm): bộ đếm RPM cạn → Scheduler CHỜ token (không từ chối) nên việc chạy chậm chứ không OVERLOADED; nhánh OVERLOADED chấm bằng go test TestWorkerCallOverloaded (TC-02-14)
