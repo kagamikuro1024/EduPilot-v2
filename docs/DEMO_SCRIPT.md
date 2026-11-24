@@ -175,7 +175,6 @@ Thêm theo thứ tự này; dừng khi tới mốc 13:30.
 | Bước | Vai trò | Route | Thao tác | Kết quả phải thấy |
 | --- | --- | --- | --- | --- |
 | Bước 1 | Sinh viên D (375 px) | `/` | Tải lại trang | Bộ chọn lớp có lớp 761988; không còn ô nhập mã tham gia |
-| Bước 2 | Sinh viên B (375 px) | `/chat` | Mở `Nguồn tham khảo` dưới câu trả lời D1 | Nguồn mở ngay dưới câu trả lời |
 | Bước 3 | Sinh viên B (375 px) | `/chat` | Xác nhận đã rõ | Câu hỏi được đóng |
 | Bước 4 | Sinh viên khác (375 px) | `/checkin` | không quét được: nhập mã ngắn dưới QR | «Đã điểm danh»; dòng ở `/attendance` có chip «Nhập mã» |
 | Bước 4 | Giảng viên (375 px) | `/attendance` | Tắt mạng điện thoại → chạm một ô → bật mạng | Thay đổi xếp hàng rồi tự đồng bộ, không mất |
