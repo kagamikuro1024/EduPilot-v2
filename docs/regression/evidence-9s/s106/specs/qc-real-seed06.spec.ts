@@ -1,0 +1,22 @@
+import { test } from "@playwright/test";
+import { PW, sql } from "./qc-real-lib";
+const OUT = "/Users/kuro/Documents/TA_Agent_qc9s/docs/regression/evidence-9s/shots/seed06";
+test.skip(!process.env.QC_REAL, "cần stack thật");
+test("SEED-06 khám phá /gradebook/scheme", async ({ browser }) => {
+  const ctx = await browser.newContext({ baseURL: "https://localhost:4743", ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 }, locale: "vi-VN" });
+  const cid = sql(`select id from courses where class_code='761987'`)[0][0]; await ctx.addInitScript((c) => localStorage.setItem("ep:ui:course", c), cid);
+  const page = await ctx.newPage(); await page.addLocatorHandler(page.getByRole("button", { name: "Đã hiểu" }), async (b) => { await b.click(); });
+  await page.goto("/login"); await page.locator("input[type=email]").fill("teacher@edupilot.local"); await page.locator("input[type=password]").fill(PW);
+  await page.keyboard.press("Enter"); await page.waitForURL((u) => !u.pathname.startsWith("/login")); await page.locator("[data-part=topbar]").waitFor();
+  await page.goto("/gradebook/scheme"); await page.waitForTimeout(4000);
+  console.log("URL", page.url()); console.log("TEXT", (await page.locator("main").innerText()).replace(/\n+/g, " ¦ ").slice(0, 1800));
+  console.log("FILEINPUTS", await page.locator("input[type=file]").count());
+  console.log("BUTTONS", (await page.getByRole("button").allInnerTexts()).join(" | ").slice(0, 600));
+  await page.screenshot({ path: `${OUT}/scheme-0.png`, fullPage: true });
+  await page.locator("input[type=file]").setInputFiles("/Users/kuro/checkouts/qc2seedt3/seed/demo/quy-che-lop1-v2.pdf"); await page.waitForTimeout(15000);
+  await page.getByRole("button", { name: "So sánh" }).first().click(); await page.waitForTimeout(3000);
+  console.log("CMP", (await page.locator("main").innerText()).replace(/\n+/g, " ¦ ").slice(0, 3800));
+  console.log("DB", JSON.stringify(sql(`select scheme_no, status, unclear_count from grade_schemes where course_id='${cid}' order by created_at`)));
+  console.log("CONFIRMBTN", await page.getByRole("button", { name: "Xác nhận công thức" }).count());
+  await page.screenshot({ path: `${OUT}/scheme-compare.png`, fullPage: true }); await ctx.close();
+});

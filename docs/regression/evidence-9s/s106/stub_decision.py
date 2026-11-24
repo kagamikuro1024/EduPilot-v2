@@ -34,7 +34,7 @@ class H(http.server.BaseHTTPRequestHandler):
             if q.get("type") == "noul": ans[qid] = {"type": "noul", "noul": float(m.get("noul", 0.25))}
             else:
                 labs = list((q.get("criteria") or {"A": 1, "B": 1}).keys()); lab = m.get("choice") if m.get("choice") in labs else labs[0]
-                ans[qid] = {"type": "choice", "choice": lab, "confidence": 0.9, "probabilities": {l: (0.9 if l == lab else 0.1 / max(1, len(labs) - 1)) for l in labs}}
+                cf = float(m.get("conf", 0.9)); ans[qid] = {"type": "choice", "choice": lab, "confidence": cf, "probabilities": {l: (cf if l == lab else (1 - cf) / max(1, len(labs) - 1)) for l in labs}}
         out = json.dumps({"answers": ans, "usage": {"total_input_tokens": len(str(body.get("input", ""))) // 4 + 10}}).encode()
         self.send_response(200); self.send_header("content-type", "application/json"); self.send_header("content-length", str(len(out))); self.end_headers(); self.wfile.write(out)
 http.server.ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()

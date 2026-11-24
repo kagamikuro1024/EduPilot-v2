@@ -1,0 +1,466 @@
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+
+Running 2554 tests using 3 workers
+
+[desktop] › e2e/checkin-latency.spec.ts:6:5 › checkin latency: goto → «Đã điểm danh» p95 ≤ 1,5 s trên 20 lần (gateway giả)
+checkin latency ms: 137,139,139,140,141,142,142,143,143,144,148,149,150,151,152,152,159,162,171,178 p95=171
+
+[desktop] › e2e/a11y.spec.ts:191:5 › axe: route PU không cần vai (/login, /dev/ui, /dev/data)
+AXE incomplete color-contrast: 94 lượt có mục cần xem tay (chi tiết test-results/axe-incomplete-contrast.json)
+
+AXE: 158 lượt quét (route × vai × bề rộng); critical 0, serious 0, moderate 0, minor 0
+
+[desktop] › e2e/contrast.spec.ts:12:5 › ma trận chữ × nền ≥ 4,5 : 1; amber ≥ 3 : 1 trên panel
+| Chữ \ Nền | --ep-canvas | --ep-surface | --ep-surface-strong | --ep-surface-subtle | --ep-red-soft |
+|---|---|---|---|---|---|
+| --ep-ink | 16.30 | 16.30 | 14.47 | 14.88 | 14.49 |
+| --ep-ink-2 | 9.30 | 9.30 | 8.26 | 8.49 | 8.27 |
+| --ep-ink-3 | 5.30 | 5.30 | 4.70 | 4.84 | 4.71 |
+| --ep-red | 5.57 | 5.57 | 4.95 | 5.08 | 4.95 |
+| --ep-green | 5.89 | 5.89 | 5.23 | 5.38 | 5.24 |
+| --ep-blue | 12.61 | 12.61 | 11.20 | 11.51 | 11.21 |
+| amber trên --ep-surface | 3.59 |
+
+[desktop] › e2e/contrast.spec.ts:59:5 › status text trên panel: ≥ 4,5 : 1 ở /admin/users (đang dùng, chờ nhận lời mời, đã khoá)
+Đang dùng: 5.89 · Chờ nhận lời mời: 16.30 · Đã khoá: 16.30
+
+[desktop] › e2e/contrast.spec.ts:39:5 › sidebar: chữ nav và nhãn nhóm ≥ 4,5 : 1 trên nền của chính chúng
+nhãn nhóm: 5.30 · mục nav: 9.30 · mục đang chọn: 14.88
+
+[desktop] › e2e/frame.spec.ts:24:7 › frame student: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+frame student: 0 / 112 lượt lệch
+
+[desktop] › e2e/frame.spec.ts:24:7 › frame ta: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+frame ta: 0 / 112 lượt lệch
+
+[desktop] › e2e/frame.spec.ts:24:7 › frame teacher: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+frame teacher: 0 / 144 lượt lệch
+
+[desktop] › e2e/frame.spec.ts:24:7 › frame admin: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+frame admin: 0 / 56 lượt lệch
+
+[desktop] › e2e/me.spec.ts:301:5 › me 375: Thời gian học và Bài tập gập sẵn, Mở hiện nội dung; trang ≤ 1.600 px (US-UX91-20 AC8)
+INFO me 375 scrollHeight 1395
+
+[desktop] › e2e/panels.spec.ts:708:7 › red area › 13 màn chính ở 1440 px: diện tích đỏ (ΔE2000 ≤ 10 so với --ep-red, không tính --ep-red-soft) < 8 % toàn ảnh; WALL = 0
+| Màn | Diện tích đỏ | Panel | WALL |
+|---|---|---|---|
+| home-student | 0.42 % | 2 | 0 |
+| exams-student | 0.02 % | 3 | 0 |
+| take-pre | 0.37 % | 1 | 0 |
+| take-run | 0.03 % | 2 | 0 |
+| home-teacher | 0.23 % | 2 | 0 |
+| members | 0.02 % | 1 | 0 |
+| questions | 0.44 % | 1 | 0 |
+| exam-editor | 0.26 % | 1 | 0 |
+| exam-results | 0.03 % | 1 | 0 |
+| admin-users | 0.41 % | 1 | 0 |
+| admin-courses | 0.29 % | 1 | 0 |
+| settings-llm | 0.13 % | 6 | 0 |
+| login | 0.03 % | 1 | 0 |
+
+[desktop] › e2e/qc-uiux91-w1.spec.ts:202:5 › TC-UX03-8/10 Chấm bài: Chấm tất cả khoá khi rỗng; Tải bài lên khoá khi chưa chọn bài tập
+INFO chưa chọn bài tập: Chấm tất cả = Chọn một bài tập trước.
+
+[desktop] › e2e/qc-uiux91-w1.spec.ts:481:5 › TC-UX03-17 tooltip lý do: hiện bằng opacity ≤ 120 ms; reduce → tức thì
+INFO tooltip reduce=false: {"td":"0.12s","tp":"opacity","anim":[120]}
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:74:5 › TC-UX10-1 F-GV: ba nhóm Gấp · 3 → Hôm nay · 2 → Khi rảnh · 2, thứ tự máy chủ trong nhóm
+INFO hàng: {"g":["Câu hỏi chờ giảng viên","4 bài cần xem kỹ","1 yêu cầu có email chưa khớp MSSV"],"h":["2 bài bị báo cáo chờ xem","5 câu hỏi chờ duyệt"],"k":["1 cặp bài code nghi giống nhau","3 bài nộp chưa khớp sinh viên"]}
+
+[desktop] › e2e/qc-uiux91-w1.spec.ts:481:5 › TC-UX03-17 tooltip lý do: hiện bằng opacity ≤ 120 ms; reduce → tức thì
+INFO tooltip reduce=true: {"td":"0.001s","tp":"opacity","anim":[]}
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:112:5 › TC-UX10-6/7/8 một nút đỏ ở việc đầu của nhóm đầu; các hàng còn lại ghost + mũi tên; bỏ nhóm Gấp → nút đỏ sang A4
+INFO nút đỏ: ["Mở"]
+
+INFO hàng: [{"k":"AI_PENDING","t":"Mở","svg":false,"bg":"rgb(206, 22, 40)","color":"lab(100 0 0)","dec":"none"},{"k":"REVIEW_FLAGGED","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"JOIN_REQUESTS","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"REPORTED_POSTS","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"QUESTION_REVIEW","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"EXAM_SIMILARITY","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"UNMATCHED_SUBMISSION","t":"Xem bài chưa khớp","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"}]
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:103:5 › TC-UX10-5 không API mới: chỉ /me/courses, /me/today (hoặc courses/*/today), auth
+INFO URL: /auth/refresh, /events, /notifications, /me/courses, /courses/00000000-0000-7000-8000-00000000c002/today
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:137:5 › TC-UX10-10/11 một lớp: không mã lớp ở hàng; Tất cả lớp: có mã lớp
+INFO một lớp: 1 việc cần xử lý hôm nay Chủ Nhật, 22/11 Gấp · 1 Câu hỏi chờ giảng viên Lý do ngắn. Mở
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:85:5 › TC-UX10-2/3/4 nhóm rỗng không hiện; chỉ normal → chỉ «Hôm nay»; EXAM_SIMILARITY high → Gấp
+INFO EXAM_SIMILARITY high: Gấp · 1 ; Hôm nay · 1 ; Khi rảnh · 1
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:112:5 › TC-UX10-6/7/8 một nút đỏ ở việc đầu của nhóm đầu; các hàng còn lại ghost + mũi tên; bỏ nhóm Gấp → nút đỏ sang A4
+INFO nút đỏ khi không còn Gấp: ["Mở"] hàng đầu: REPORTED_POSTS
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:137:5 › TC-UX10-10/11 một lớp: không mã lớp ở hàng; Tất cả lớp: có mã lớp
+INFO tất cả lớp: 2 việc cần xử lý hôm nay Chủ Nhật, 22/11 · Tất cả lớp của tôi Gấp · 1 Câu hỏi chờ giảng viên Lý do ngắn. lớp 761987 Mở Hôm nay · 1 2 bài bị báo cáo chờ xem Lý do ngắn. lớp 761988 Mở
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:156:5 › TC-UX10-12/13 màu chấm theo mức khẩn; nhóm có tên truy cập «Gấp, 3 việc»
+INFO chấm: [{"k":"AI_PENDING","bg":"rgb(206, 22, 40)"},{"k":"REVIEW_FLAGGED","bg":"lab(56.8969 19.547 68.5348)"},{"k":"JOIN_REQUESTS","bg":"lab(56.8969 19.547 68.5348)"},{"k":"REPORTED_POSTS","bg":"lab(45.3509 4.28858 2.31123)"},{"k":"QUESTION_REVIEW","bg":"lab(45.3509 4.28858 2.31123)"},{"k":"EXAM_SIMILARITY","bg":"lab(45.3509 4.28858 2.31123)"},{"k":"UNMATCHED_SUBMISSION","bg":"lab(45.3509 4.28858 2.31123)"}]
+
+INFO tên h3: Gấp, 3 việc | Hôm nay, 2 việc | Khi rảnh, 2 việc
+
+INFO region:  |  | 
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:177:5 › TC-UX10-14/15/16/27 «Lớp cần chú ý» + «Sắp tới»: cột phải ≤ 320 px ở 1440, dưới danh sách ở 1099; Xem tất cả (N)
+INFO 1440: {"att":{"l":1101,"t":224,"w":290},"up":{"l":1101,"t":524,"w":290},"list":{"l":265,"t":255,"r":1027,"b":496}}
+
+INFO 1099: {"att":{"l":121,"t":1000,"w":929},"up":{"l":121,"t":1300,"w":929},"list":{"l":121,"t":255,"r":1050,"b":496}}
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:233:5 › TC-UX10-22/23/24 sinh viên không có nhóm; admin; TA không có «Bỏ qua» ở COURSE_SETUP
+INFO admin: Gấp · 1 ; Hôm nay · 1
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:254:5 › TC-UX10-25 375 px: nhãn nhóm + hàng xếp dọc, nút xuống dòng, vùng chạm ≥ 44
+INFO 375: {"ov":false,"small":[],"rows":[{"titleBottom":302,"btnTop":302},{"titleBottom":442,"btnTop":442},{"titleBottom":605,"btnTop":605}]}
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:233:5 › TC-UX10-22/23/24 sinh viên không có nhóm; admin; TA không có «Bỏ qua» ở COURSE_SETUP
+INFO TA: Gấp · 1 ; Hôm nay · 1
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:280:5 › TC-UX11-1/2/3/4/6 SV: thứ tự lời chào → Việc nên làm tiếp → Hôm nay → Tiếp tục học; khử trùng; 1 nút đỏ
+INFO thứ tự: [{"y":97,"t":"Chào Thử"},{"y":199,"t":"Việc nên làm tiếp"},{"y":444,"t":"Hôm nay"},{"y":692,"t":"Tiếp tục học"}]
+
+INFO tiếp tục học: ["Sâu Morris là gì\nLớp 761987 · Thứ Năm, 09:00","Ransomware hoạt động\nLớp 761987 · Thứ Tư, 09:00","Mỗi lần phát biểu\nLớp 761987 · Thứ Ba, 09:00"]
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:268:5 › TC-UX10-PQ TA/GV chỉ thấy việc theo JWT: không gọi courses khác
+INFO today: /courses/00000000-0000-7000-8000-00000000c002/today
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:308:5 › TC-UX11-5 thời gian «Tiếp tục học» theo US-02
+INFO:  Nộp Bài tập 03 Hạn 23:59 hôm nay. Khoảng 30 phút Mở bài tập Hôm nay Buổi 5 · An ninh mạng Ngày mai, 13:30–16:00 · P.405 Sắp tới Tiếp tục học Phiên hôm qua Lớp 761987 · Hôm qua, 00:13 Phiên cũ Lớp 761987 · Thứ Hai, 00:13
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:203:5 › TC-UX10-18/19/20/21 lỗi tải, làm mới lỗi, rỗng, 15 trên 40
+INFO sau refetch lỗi: 7 việc cần xử lý hôm nay Chủ Nhật, 22/11 Chưa làm mới được. Đang hiện dữ liệu lần trước. Thử lại Gấp · 3 Câu hỏi chờ giảng viên Lý do ngắn. Mở 4 bài cần xem kỹ 
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:280:5 › TC-UX11-1/2/3/4/6 SV: thứ tự lời chào → Việc nên làm tiếp → Hôm nay → Tiếp tục học; khử trùng; 1 nút đỏ
+INFO khác lớp: Chào Thử Chủ Nhật, 08/11 Việc nên làm tiếp Nộp Bài tập 03 Hạn 23:59 hôm nay. Khoảng 30 phút Mở bài tập Hôm nay Buổi 5 · An ninh mạng Ngày mai, 13:30–16:00 · P.405 Sắp tới Tiếp tục học Sâu Morris là gì Lớp 761988 · Thứ Sáu, 09:00 Sâu Morris là gì Lớp 761987 · Thứ Năm, 09:00
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:203:5 › TC-UX10-18/19/20/21 lỗi tải, làm mới lỗi, rỗng, 15 trên 40
+INFO lỗi lần đầu: Hôm nay Chủ Nhật, 22/11 Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng. Chi tiết kỹ thuật Thử lại
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:347:7 › TC-UX10-17 Red Thread khi bấm việc (reduce=false): < 300 ms; reduce → không chạy
+INFO reduce=false hoạt cảnh sau khi bấm (1242 ms): [{"n":"background-color","d":140},{"n":"background-color","d":140}]
+
+INFO reduce=false không tính chỉ báo tải: ["background-color:140"]
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:319:5 › TC-UX11-7/8/9 sv.moi nhập mã; GV/TA không có khối của SV; 375 px thứ tự + thanh dưới
+INFO 375 SV: {"ov":false,"cur":["Hôm nay"],"ys":[175,464,696]}
+
+[desktop] › e2e/qc-uiux91-w4.spec.ts:32:5 › TC-UX16-1 cột Quá trình: 6 / 5,5 / 7,915 → 6,000 / 5,500 / 7,915; ô nhập giữ nguyên chữ người dùng
+INFO Quá trình: ["6,000","5,500","7,915"] | Điểm học phần: ["6,50","7,50","8,50"] | ô nhập tuần: ["6,000","5,500","7,915"] | ô nhập cuối kỳ: ["7,00","8,50","9,00"]
+
+[desktop] › e2e/qc-uiux91-w3.spec.ts:347:7 › TC-UX10-17 Red Thread khi bấm việc (reduce=true): < 300 ms; reduce → không chạy
+INFO reduce=true hoạt cảnh sau khi bấm (1250 ms): [{"n":"background-color","d":1},{"n":"background-color","d":1}]
+
+INFO reduce=true không tính chỉ báo tải: ["background-color:1"]
+
+[desktop] › e2e/qc-uiux91-w4.spec.ts:49:5 › TC-UX16-8 1.000 sinh viên: DOM chỉ giữ ≤ 80 hàng (ảo hoá), cuộn xuống vẫn có hàng
+INFO số hàng DOM: 21 → 29 | scrollHeight: 4906
+
+[desktop] › e2e/qc-uiux91-w4.spec.ts:62:5 › TC-UX16-9/10/11 Thiếu điểm: hàng thiếu có chữ, hàng đủ trống, liên kết lọc; không hàng thiếu thì ẩn cột; không có «Đủ»
+INFO tiêu đề phụ: Thiếu điểm: 2 sinh viên | trạng thái hàng: ["","","","","Thiếu điểm","Thiếu điểm"]
+
+INFO sau lọc: số hàng 2
+
+INFO cột khi không ai thiếu: ["Sinh viên","Kiểm tra tuần","Thi cuối kỳ","Bài thi giữa kỳ","Điểm cộng","Điểm trừ","Quá trình","Điểm học phần","Điểm chữ","Hành động"]
+
+[desktop] › e2e/qc-uiux91-w4.spec.ts:94:5 › TC-UX16-18 lỗi tải: ApiErrorNotice + Thử lại; sổ đã chốt chỉ đọc
+INFO sổ đã chốt: số input 0
+
+  1) [desktop] › e2e/visual.spec.ts:79:9 › home @390 ───────────────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      2578 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: home-390.png
+
+    Call log:
+      - Expect "toHaveScreenshot(home-390.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 2578 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 2578 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      104 |       await page.locator("main").first().waitFor();
+      105 |       await settle(page);
+    > 106 |       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });
+          |                          ^
+      107 |     }
+      108 |   }
+      109 | }
+        at shoot (/Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:106:26)
+        at /Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:82:9
+
+    attachment #1: home-390 (image/png) ────────────────────────────────────────────────────────────
+    Expected: e2e/visual.spec.ts-snapshots/home-390.png
+    Received: test-results/visual-home-390-desktop/home-390-actual.png
+    Diff:     test-results/visual-home-390-desktop/home-390-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/visual-home-390-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual-home-390-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/visual-home-390-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2) [desktop] › e2e/visual.spec.ts:79:9 › chat @1440 ──────────────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      9355 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: chat-1440.png
+
+    Call log:
+      - Expect "toHaveScreenshot(chat-1440.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 9355 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 9355 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      104 |       await page.locator("main").first().waitFor();
+      105 |       await settle(page);
+    > 106 |       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });
+          |                          ^
+      107 |     }
+      108 |   }
+      109 | }
+        at shoot (/Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:106:26)
+        at /Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:82:9
+
+    attachment #1: chat-1440 (image/png) ───────────────────────────────────────────────────────────
+    Expected: e2e/visual.spec.ts-snapshots/chat-1440.png
+    Received: test-results/visual-chat-1440-desktop/chat-1440-actual.png
+    Diff:     test-results/visual-chat-1440-desktop/chat-1440-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/visual-chat-1440-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual-chat-1440-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/visual-chat-1440-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  3) [desktop] › e2e/visual.spec.ts:79:9 › threads @390 ────────────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      2870 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: threads-390.png
+
+    Call log:
+      - Expect "toHaveScreenshot(threads-390.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 2870 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 2870 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      104 |       await page.locator("main").first().waitFor();
+      105 |       await settle(page);
+    > 106 |       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });
+          |                          ^
+      107 |     }
+      108 |   }
+      109 | }
+        at shoot (/Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:106:26)
+        at /Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:82:9
+
+    attachment #1: threads-390 (image/png) ─────────────────────────────────────────────────────────
+    Expected: e2e/visual.spec.ts-snapshots/threads-390.png
+    Received: test-results/visual-threads-390-desktop/threads-390-actual.png
+    Diff:     test-results/visual-threads-390-desktop/threads-390-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/visual-threads-390-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual-threads-390-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/visual-threads-390-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  4) [desktop] › e2e/visual.spec.ts:79:9 › chat @390 ───────────────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      4398 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: chat-390.png
+
+    Call log:
+      - Expect "toHaveScreenshot(chat-390.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 4398 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 4398 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      104 |       await page.locator("main").first().waitFor();
+      105 |       await settle(page);
+    > 106 |       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });
+          |                          ^
+      107 |     }
+      108 |   }
+      109 | }
+        at shoot (/Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:106:26)
+        at /Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:82:9
+
+    attachment #1: chat-390 (image/png) ────────────────────────────────────────────────────────────
+    Expected: e2e/visual.spec.ts-snapshots/chat-390.png
+    Received: test-results/visual-chat-390-desktop/chat-390-actual.png
+    Diff:     test-results/visual-chat-390-desktop/chat-390-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/visual-chat-390-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual-chat-390-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/visual-chat-390-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  5) [desktop] › e2e/visual.spec.ts:79:9 › threads @1440 ───────────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      8485 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: threads-1440.png
+
+    Call log:
+      - Expect "toHaveScreenshot(threads-1440.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 8485 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 8485 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      104 |       await page.locator("main").first().waitFor();
+      105 |       await settle(page);
+    > 106 |       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });
+          |                          ^
+      107 |     }
+      108 |   }
+      109 | }
+        at shoot (/Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:106:26)
+        at /Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:82:9
+
+    attachment #1: threads-1440 (image/png) ────────────────────────────────────────────────────────
+    Expected: e2e/visual.spec.ts-snapshots/threads-1440.png
+    Received: test-results/visual-threads-1440-desktop/threads-1440-actual.png
+    Diff:     test-results/visual-threads-1440-desktop/threads-1440-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/visual-threads-1440-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual-threads-1440-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/visual-threads-1440-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  6) [desktop] › e2e/visual.spec.ts:79:9 › inbox @390 ──────────────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      1836 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: inbox-390.png
+
+    Call log:
+      - Expect "toHaveScreenshot(inbox-390.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 1836 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 1836 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      104 |       await page.locator("main").first().waitFor();
+      105 |       await settle(page);
+    > 106 |       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });
+          |                          ^
+      107 |     }
+      108 |   }
+      109 | }
+        at shoot (/Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:106:26)
+        at /Users/kuro/checkouts/qc2seedt3/frontend/e2e/visual.spec.ts:82:9
+
+    attachment #1: inbox-390 (image/png) ───────────────────────────────────────────────────────────
+    Expected: e2e/visual.spec.ts-snapshots/inbox-390.png
+    Received: test-results/visual-inbox-390-desktop/inbox-390-actual.png
+    Diff:     test-results/visual-inbox-390-desktop/inbox-390-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/visual-inbox-390-desktop/e

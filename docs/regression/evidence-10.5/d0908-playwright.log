@@ -1,0 +1,164 @@
+build rc=0
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+Running 156 tests using 2 workers
+
+  ✓    1 [desktop] › e2e/grading-guidance.spec.ts:77:5 › ngăn bài tập: sửa chữ khi duyệt gửi text; 422 hiện lỗi tại chỗ; bài chấm bản cũ → Chấm lại (2.0s)
+  ✓    2 [desktop] › e2e/grading-guidance.spec.ts:39:5 › ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expected_version; không câu mô tả (2.2s)
+  ✓    3 [desktop] › e2e/grading-guidance.spec.ts:101:5 › sửa chữ lưu ý rồi Duyệt: thẻ hiện NGAY chữ đã sửa (không nháy về chữ gốc), hoàn tác giữ chữ sửa (f) (825ms)
+  ✓    4 [desktop] › e2e/grading-guidance.spec.ts:119:5 › rút lưu ý xong: ĐÚNG MỘT dòng «N lưu ý bị loại» (P-106-13), N cộng cả mục trùng, không liệt kê tiêu chí / lý do (885ms)
+  ✓    5 [desktop] › e2e/grading-guidance.spec.ts:132:5 › rút ra 0 lưu ý (API bỏ khoá draft khi 0): hiện «Không có lưu ý mới» + «N lưu ý bị loại» (GD-BUG-13, SRS AC8) (817ms)
+  ✓    6 [desktop] › e2e/grading-guidance.spec.ts:144:5 › khối «Lưu ý chấm»: «Bản v2 · 3 chờ duyệt»; nhãn «Đã áp dụng» / «lần sửa»; mục «Đã nghỉ» vẫn hiện (DEF-R106S-04/05, US-GD-04 AC1/AC2) (546ms)
+  ✓    7 [desktop] › e2e/grading-guidance.spec.ts:162:5 › khối «Lưu ý chấm»: chữ chiều «Gắt hơn / Nhẹ hơn / Làm rõ» (DEF-R106S-07, US-GD-04 AC2) (667ms)
+  ✓    8 [desktop] › e2e/grading-guidance.spec.ts:170:5 › khối «Lưu ý chấm»: chưa có lưu ý → «Chưa có lưu ý» một dòng; GET lỗi 500 → báo lỗi + Thử lại, bấm thì tải lại (DEF-R106S-06, US-GD-04 AC9) (1.2s)
+  ✓    9 [desktop] › e2e/grading-guidance.spec.ts:186:5 › khối «Lưu ý chấm»: stats 500 → «—» + Thử lại (không nói «chưa đủ bài»), bấm thì tải lại (DEF-R106S-11, US-GD-06 AC7) (757ms)
+  ✓   10 [desktop] › e2e/grading-guidance.spec.ts:200:5 › lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm» (506ms)
+  ✓   12 [desktop] › e2e/grading-guidance.spec.ts:246:5 › màn duyệt: «bản v1 · 3 lần sửa» trên nhãn tiêu chí mở lưu ý của tiêu chí đó; chip Bản cũ + Chấm lại xác nhận rồi gửi (598ms)
+  ✓   13 [desktop] › e2e/grading-guidance.spec.ts:264:5 › màn duyệt: lớp tắt tính năng (không có khối guidance) → không phụ đề, không chip (274ms)
+  ✓   11 [desktop] › e2e/grading-guidance.spec.ts:207:5 › hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố bị chặn MIXED_GUIDANCE nói rõ (5.8s)
+  ✓   15 [desktop] › e2e/grading-guidance.spec.ts:301:5 › Đặt lại sau khi đã áp dụng ở nơi khác: 409 ITEM_NOT_RESETTABLE báo tại chỗ (603ms)
+  ✓   16 [desktop] › e2e/private-chat.spec.ts:24:5 › layout / empty: một Panel, gợi ý bấm được, không nút nhờ giảng viên (956ms)
+  ✓   17 [desktop] › e2e/private-chat.spec.ts:32:5 › CLS: danh sách phiên về chậm và rỗng không làm cột chi tiết dịch (layout-shift ≤ 0,1) (2.2s)
+  ✓   18 [desktop] › e2e/private-chat.spec.ts:45:5 › 10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại» (932ms)
+  ✓   19 [desktop] › e2e/private-chat.spec.ts:53:5 › US-UX91-13 trạng thái đầu: ≤ 3 gợi ý hàng chữ (1 từ Hôm nay + 2 cố định), bấm chỉ điền ô nhập, không tự gửi (927ms)
+  ✓   20 [desktop] › e2e/private-chat.spec.ts:64:5 › US-UX91-13 phiên mới + xoá: không nút `Phiên mới` khi phiên trống, có khi ≥ 1 tin; xoá nằm trong menu ⋯ của hàng, không thùng rác (1.3s)
+  ✓   14 [desktop] › e2e/grading-guidance.spec.ts:274:5 › Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RESET đúng version; nút «Đặt lại» còn sau khi dòng Hoàn tác mất và lưu ý về Chờ duyệt (11.8s)
+  ✓   21 [desktop] › e2e/private-chat.spec.ts:80:5 › send: token chạy ra, trích nguồn mở tại chỗ, phản hồi có Hoàn tác, không placeholder (1.2s)
+  ✓   22 [desktop] › e2e/private-chat.spec.ts:105:5 › low confidence sentence only: một câu nhạt, không nút Nhờ giảng viên, không gọi /escalate (1.1s)
+  ✓   24 [desktop] › e2e/private-chat.spec.ts:144:5 › mask failed (DEF-R6-U5): lỗi che thông tin hiện «Chưa gửi được tin nhắn. Thử lại.» (1.0s)
+  ✓   23 [desktop] › e2e/private-chat.spec.ts:125:5 › overloaded retry: có dòng thời gian chờ + Thử lại, không thêm bong bóng người dùng, không nút nhờ giảng viên (1.2s)
+  ✓   26 [desktop] › e2e/private-chat.spec.ts:167:62 › removed source @1440 (DEF-R6-D1, SRS FEAT-docs-calendar 105): mở lại phiên có trích dẫn tài liệu đã xoá → «Nguồn đã gỡ», không tên cũ, không nút mở, không «Xem tài liệu» (966ms)
+  ✓   25 [desktop] › e2e/private-chat.spec.ts:156:5 › chat unavailable (DEF-R6-U6): 503 CHAT_UNAVAILABLE hiện «Chat chưa dùng được lúc này. Thử lại sau ít phút.» (1.0s)
+  ✓   27 [desktop] › e2e/private-chat.spec.ts:167:62 › removed source @375 (DEF-R6-D1, SRS FEAT-docs-calendar 105): mở lại phiên có trích dẫn tài liệu đã xoá → «Nguồn đã gỡ», không tên cũ, không nút mở, không «Xem tài liệu» (955ms)
+  ✓   28 [desktop] › e2e/private-chat.spec.ts:180:5 › exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất (968ms)
+  ✓   29 [desktop] › e2e/private-chat.spec.ts:191:5 › 409 EXAM_IN_PROGRESS khi gửi: giữ chữ trong ô soạn (1.0s)
+  ✓   30 [desktop] › e2e/private-chat.spec.ts:202:5 › draft: nháp tự lưu 2 s và khôi phục sau tải lại (4.3s)
+  ✓   31 [desktop] › e2e/private-chat.spec.ts:211:5 › draft theo phiên: đang xem một phiên, gõ nháp, tải lại → vẫn đúng phiên đó và nháp còn (UX13-19) (4.3s)
+  ✓   32 [desktop] › e2e/private-chat.spec.ts:226:5 › reload mid-stream: tin đang sinh được nối lại bằng Last-Event-ID, câu trả lời đủ (1.1s)
+  ✓   33 [desktop] › e2e/private-chat.spec.ts:242:5 › đang chảy: dấu trích dẫn thô [1, 2] không lộ cho sinh viên (QC dot-r «chữ thô») (1.1s)
+  ✓   34 [desktop] › e2e/private-chat.spec.ts:253:5 › calendar tool block: lịch hiện thành danh sách dòng, không JSON thô (1.1s)
+  ✓   35 [desktop] › e2e/private-chat.spec.ts:271:5 › my grade question: câu hỏi điểm của mình → câu trả lời có số, khối dữ liệu điểm không hiện thô, không nút nhờ giảng viên (993ms)
+  ✓   36 [desktop] › e2e/private-chat.spec.ts:313:5 › escalate button: có ở câu thường, một tooltip duy nhất, bấm đổi thành dòng trạng thái (1.1s)
+  ✓   37 [desktop] › e2e/private-chat.spec.ts:323:5 › escalate button: câu mẫu (can_escalate = false) không có nút (1.0s)
+  ✓   38 [desktop] › e2e/private-chat.spec.ts:333:5 › escalate double click: bấm đúp chỉ phát một request (1.1s)
+  ✓   39 [desktop] › e2e/private-chat.spec.ts:340:5 › escalate error: 500 hoàn lại nút kèm Thử lại, bấm lại thành công (1.1s)
+  ✓   40 [desktop] › e2e/private-chat.spec.ts:352:5 › escalate offline: giữ Đang gửi… rồi gửi lại khi có mạng, đúng một ticket (1.1s)
+  ✓   41 [desktop] › e2e/private-chat.spec.ts:362:5 › escalate cap: đã có 5 ticket mở thì nút khoá, tooltip nêu lý do (1.1s)
+  ✓   42 [desktop] › e2e/private-chat.spec.ts:368:5 › auto ticket: dưới ngưỡng đã tự mở → câu nhạt + dòng trạng thái, không nút, không số (1.1s)
+  ✓   43 [desktop] › e2e/private-chat.spec.ts:379:5 › claimed: 'đã chờ N phút' tự tăng mỗi phút khi để trang mở (QC US-P4-05 TC-28) (1.2s)
+  ✓   44 [desktop] › e2e/private-chat.spec.ts:388:5 › 375: không tràn ngang, vùng chạm ≥ 44 px (977ms)
+  ✓   45 [desktop] › e2e/thread-suggest.spec.ts:24:5 › sau precheck sạch: ≤ 3 thread đã xác nhận dưới ô tiêu đề, là liên kết; chữ đi trong thân, URL không có chữ (1.7s)
+  ✓   47 [desktop] › e2e/thread-suggest.spec.ts:58:5 › precheck phát hiện PII hoặc câu hỏi riêng tư: không gửi chữ tới similar-confirmed (2.3s)
+  ✓   46 [desktop] › e2e/thread-suggest.spec.ts:47:5 › trống / lỗi: không hiện gì, không báo lỗi (4.3s)
+  ✓   48 [desktop] › e2e/threads-crisis.spec.ts:26:5 › crisis dialog keeps draft: hộp hỗ trợ nêu đúng lời của máy chủ, Quay lại sửa giữ nguyên chữ, precheck không chặn (1.3s)
+  ✓   49 [desktop] › e2e/threads-crisis.spec.ts:39:5 › crisis dialog: Mở chat riêng mang nháp sang chat riêng (2.1s)
+  ✓   50 [desktop] › e2e/threads-crisis.spec.ts:48:5 › crisis dialog: trợ giảng không có chat riêng, chỉ còn Quay lại sửa (1.3s)
+  ✓   51 [desktop] › e2e/threads-moderation.spec.ts:19:5 › report undo: Báo cáo → Đã báo cáo · Hoàn tác (5 s) → DELETE; báo lại → Bạn đã báo cáo bài này, không phải lỗi (1.8s)
+  ✓   52 [desktop] › e2e/threads-moderation.spec.ts:47:5 › owner edit delete: sửa gửi version, PII → hai lối, xoá hỏi hậu quả bằng số rồi về danh sách (2.0s)
+  ✓   54 [desktop] › e2e/threads-moderation.spec.ts:105:5 › own hidden post: chủ bài thấy một dòng, không thấy người báo cáo (963ms)
+  ✓   53 [desktop] › e2e/threads-moderation.spec.ts:79:5 › staff hide pin: Ẩn bài cần lý do + version, Bỏ ẩn, Ghim; chủ bài thấy một dòng lý do (1.7s)
+  ✓   56 [desktop] › e2e/threads-moderation.spec.ts:133:5 › student list has no moderation tab (193ms)
+  -   57 [desktop] › e2e/threads-moderation.spec.ts:140:5 › 375: menu và biểu mẫu báo cáo không tràn ngang
+  ✓   55 [desktop] › e2e/threads-moderation.spec.ts:116:5 › pinned + moderation: ghim nằm trên items; Staff có hàng chờ, sinh viên không có tab (1.5s)
+  ✓   58 [desktop] › e2e/threads-moderation.spec.ts:151:5 › knowledge citation links the confirmed thread (1.0s)
+  ✓   59 [desktop] › e2e/threads.spec.ts:27:5 › layout: danh sách là một nguồn cấp, nhãn trạng thái, hành động chính duy nhất Đăng (956ms)
+  ✓   60 [desktop] › e2e/threads.spec.ts:37:5 › US-UX91-19 đoạn trích sạch: bỏ ký tự đầu dòng, gộp dòng, ≤ 140 ký tự; rỗng thì không dòng trống (945ms)
+  ✓   61 [desktop] › e2e/threads.spec.ts:54:5 › US-UX91-19 nhãn lặp: trạng thái đa số (≥ 80 %) nêu một lần ở đầu danh sách, chỉ hàng khác trạng thái mang nhãn (937ms)
+  ✓   62 [desktop] › e2e/threads.spec.ts:63:5 › US-UX91-19 di động: Bộ lọc là nút có biểu tượng + số bộ lọc đang bật, mở bảng trượt từ đáy (1.1s)
+  ✓   63 [desktop] › e2e/threads.spec.ts:75:5 › empty: câu dạy bước kế + Đặt câu hỏi (933ms)
+  ✓   64 [desktop] › e2e/threads.spec.ts:87:5 › list error: Sinh viên không thấy Chi tiết kỹ thuật (952ms)
+  ✓   65 [desktop] › e2e/threads.spec.ts:92:5 › list error: trợ giảng thấy Chi tiết kỹ thuật (972ms)
+  ✓   67 [desktop] › e2e/threads.spec.ts:113:5 › dialog two paths: chặn 422 → đúng hai nút hành động; ghi pii BLOCKED ở máy chủ, không có thread nào (1.1s)
+  ✓   68 [desktop] › e2e/threads.spec.ts:128:5 › blocked then redact: 422 → Ẩn thông tin rồi đăng → 201, khoá Idempotency-Key MỚI và redact:true (1.2s)
+  ✓   66 [desktop] › e2e/threads.spec.ts:97:5 › precheck debounce: gõ liên tục chỉ phát yêu cầu sau khi ngừng ≥ 800 ms; notice while typing hiện một dòng loại (3.9s)
+  ✓   69 [desktop] › e2e/threads.spec.ts:142:5 › switch keeps text: Chuyển sang chat riêng giữ đúng từng byte, mở /chat?session=… (1.8s)
+  ✓   70 [desktop] › e2e/threads.spec.ts:157:5 › SRS wording (DEF-R6-U2): hộp thoại chặn PII đề «Bài viết có thông tin cá nhân» (1.2s)
+  ✓   71 [desktop] › e2e/threads.spec.ts:164:5 › personal question: Ẩn thông tin rồi đăng bị khoá, còn Chuyển sang chat riêng (1.1s)
+  ✓   72 [desktop] › e2e/threads.spec.ts:174:5 › offline keeps draft: mất mạng giữ chữ, gửi lại cùng khoá; reload keeps draft (2.4s)
+  ✓   74 [desktop] › e2e/threads.spec.ts:198:5 › exam lock: ô soạn khoá kèm giờ mở lại (1.0s)
+  ✓   75 [desktop] › e2e/threads.spec.ts:208:5 › student detail: nhãn AI + Chờ xác nhận, nguồn mở tại chỗ, KHÔNG có độ tin cậy / nút duyệt (1.0s)
+  ✓   73 [desktop] › e2e/threads.spec.ts:188:5 › reload keeps draft (4.4s)
+  ✓   76 [desktop] › e2e/threads.spec.ts:221:5 › staff review: Xác nhận / Chỉnh sửa / Loại cạnh bản nháp, độ tin cậy 0,72 (1.5s)
+  ✓   77 [desktop] › e2e/threads.spec.ts:245:5 › staff review menu (DEF-R7-12, DESIGN §13): mục loại bản nháp AI ghi «Loại khỏi tri thức» (954ms)
+  ✓   78 [desktop] › e2e/threads.spec.ts:256:5 › 375: danh sách và soạn không tràn ngang (954ms)
+  -   79 [mobile] › e2e/grading-guidance.spec.ts:39:5 › ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expected_version; không câu mô tả
+  -   80 [mobile] › e2e/grading-guidance.spec.ts:101:5 › sửa chữ lưu ý rồi Duyệt: thẻ hiện NGAY chữ đã sửa (không nháy về chữ gốc), hoàn tác giữ chữ sửa (f)
+  -   81 [mobile] › e2e/grading-guidance.spec.ts:119:5 › rút lưu ý xong: ĐÚNG MỘT dòng «N lưu ý bị loại» (P-106-13), N cộng cả mục trùng, không liệt kê tiêu chí / lý do
+  -   82 [mobile] › e2e/grading-guidance.spec.ts:132:5 › rút ra 0 lưu ý (API bỏ khoá draft khi 0): hiện «Không có lưu ý mới» + «N lưu ý bị loại» (GD-BUG-13, SRS AC8)
+  ✓   83 [mobile] › e2e/grading-guidance.spec.ts:144:5 › khối «Lưu ý chấm»: «Bản v2 · 3 chờ duyệt»; nhãn «Đã áp dụng» / «lần sửa»; mục «Đã nghỉ» vẫn hiện (DEF-R106S-04/05, US-GD-04 AC1/AC2) (541ms)
+  ✓   84 [mobile] › e2e/grading-guidance.spec.ts:162:5 › khối «Lưu ý chấm»: chữ chiều «Gắt hơn / Nhẹ hơn / Làm rõ» (DEF-R106S-07, US-GD-04 AC2) (352ms)
+  ✓   85 [mobile] › e2e/grading-guidance.spec.ts:170:5 › khối «Lưu ý chấm»: chưa có lưu ý → «Chưa có lưu ý» một dòng; GET lỗi 500 → báo lỗi + Thử lại, bấm thì tải lại (DEF-R106S-06, US-GD-04 AC9) (734ms)
+  -   87 [mobile] › e2e/grading-guidance.spec.ts:77:5 › ngăn bài tập: sửa chữ khi duyệt gửi text; 422 hiện lỗi tại chỗ; bài chấm bản cũ → Chấm lại
+  -   88 [mobile] › e2e/grading-guidance.spec.ts:200:5 › lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»
+  -   89 [mobile] › e2e/grading-guidance.spec.ts:207:5 › hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố bị chặn MIXED_GUIDANCE nói rõ
+  -   90 [mobile] › e2e/grading-guidance.spec.ts:246:5 › màn duyệt: «bản v1 · 3 lần sửa» trên nhãn tiêu chí mở lưu ý của tiêu chí đó; chip Bản cũ + Chấm lại xác nhận rồi gửi
+  -   91 [mobile] › e2e/grading-guidance.spec.ts:264:5 › màn duyệt: lớp tắt tính năng (không có khối guidance) → không phụ đề, không chip
+  -   92 [mobile] › e2e/grading-guidance.spec.ts:274:5 › Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RESET đúng version; nút «Đặt lại» còn sau khi dòng Hoàn tác mất và lưu ý về Chờ duyệt
+  ✓   86 [mobile] › e2e/grading-guidance.spec.ts:186:5 › khối «Lưu ý chấm»: stats 500 → «—» + Thử lại (không nói «chưa đủ bài»), bấm thì tải lại (DEF-R106S-11, US-GD-06 AC7) (672ms)
+  -   93 [mobile] › e2e/grading-guidance.spec.ts:301:5 › Đặt lại sau khi đã áp dụng ở nơi khác: 409 ITEM_NOT_RESETTABLE báo tại chỗ
+  -   94 [mobile] › e2e/private-chat.spec.ts:24:5 › layout / empty: một Panel, gợi ý bấm được, không nút nhờ giảng viên
+  -   95 [mobile] › e2e/private-chat.spec.ts:32:5 › CLS: danh sách phiên về chậm và rỗng không làm cột chi tiết dịch (layout-shift ≤ 0,1)
+  -   96 [mobile] › e2e/private-chat.spec.ts:45:5 › 10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại»
+  -   97 [mobile] › e2e/private-chat.spec.ts:53:5 › US-UX91-13 trạng thái đầu: ≤ 3 gợi ý hàng chữ (1 từ Hôm nay + 2 cố định), bấm chỉ điền ô nhập, không tự gửi
+  -   99 [mobile] › e2e/private-chat.spec.ts:64:5 › US-UX91-13 phiên mới + xoá: không nút `Phiên mới` khi phiên trống, có khi ≥ 1 tin; xoá nằm trong menu ⋯ của hàng, không thùng rác
+  -   98 [mobile] › e2e/private-chat.spec.ts:80:5 › send: token chạy ra, trích nguồn mở tại chỗ, phản hồi có Hoàn tác, không placeholder
+  -  101 [mobile] › e2e/private-chat.spec.ts:125:5 › overloaded retry: có dòng thời gian chờ + Thử lại, không thêm bong bóng người dùng, không nút nhờ giảng viên
+  -  100 [mobile] › e2e/private-chat.spec.ts:105:5 › low confidence sentence only: một câu nhạt, không nút Nhờ giảng viên, không gọi /escalate
+  -  102 [mobile] › e2e/private-chat.spec.ts:156:5 › chat unavailable (DEF-R6-U6): 503 CHAT_UNAVAILABLE hiện «Chat chưa dùng được lúc này. Thử lại sau ít phút.»
+  -  103 [mobile] › e2e/private-chat.spec.ts:144:5 › mask failed (DEF-R6-U5): lỗi che thông tin hiện «Chưa gửi được tin nhắn. Thử lại.»
+  -  104 [mobile] › e2e/private-chat.spec.ts:167:62 › removed source @1440 (DEF-R6-D1, SRS FEAT-docs-calendar 105): mở lại phiên có trích dẫn tài liệu đã xoá → «Nguồn đã gỡ», không tên cũ, không nút mở, không «Xem tài liệu»
+  -  105 [mobile] › e2e/private-chat.spec.ts:167:62 › removed source @375 (DEF-R6-D1, SRS FEAT-docs-calendar 105): mở lại phiên có trích dẫn tài liệu đã xoá → «Nguồn đã gỡ», không tên cũ, không nút mở, không «Xem tài liệu»
+  -  106 [mobile] › e2e/private-chat.spec.ts:180:5 › exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất
+  -  107 [mobile] › e2e/private-chat.spec.ts:191:5 › 409 EXAM_IN_PROGRESS khi gửi: giữ chữ trong ô soạn
+  -  108 [mobile] › e2e/private-chat.spec.ts:202:5 › draft: nháp tự lưu 2 s và khôi phục sau tải lại
+  -  109 [mobile] › e2e/private-chat.spec.ts:211:5 › draft theo phiên: đang xem một phiên, gõ nháp, tải lại → vẫn đúng phiên đó và nháp còn (UX13-19)
+  -  110 [mobile] › e2e/private-chat.spec.ts:242:5 › đang chảy: dấu trích dẫn thô [1, 2] không lộ cho sinh viên (QC dot-r «chữ thô»)
+  -  111 [mobile] › e2e/private-chat.spec.ts:226:5 › reload mid-stream: tin đang sinh được nối lại bằng Last-Event-ID, câu trả lời đủ
+  -  112 [mobile] › e2e/private-chat.spec.ts:253:5 › calendar tool block: lịch hiện thành danh sách dòng, không JSON thô
+  -  113 [mobile] › e2e/private-chat.spec.ts:271:5 › my grade question: câu hỏi điểm của mình → câu trả lời có số, khối dữ liệu điểm không hiện thô, không nút nhờ giảng viên
+  -  114 [mobile] › e2e/private-chat.spec.ts:313:5 › escalate button: có ở câu thường, một tooltip duy nhất, bấm đổi thành dòng trạng thái
+  -  115 [mobile] › e2e/private-chat.spec.ts:323:5 › escalate button: câu mẫu (can_escalate = false) không có nút
+  -  116 [mobile] › e2e/private-chat.spec.ts:333:5 › escalate double click: bấm đúp chỉ phát một request
+  -  117 [mobile] › e2e/private-chat.spec.ts:340:5 › escalate error: 500 hoàn lại nút kèm Thử lại, bấm lại thành công
+  -  118 [mobile] › e2e/private-chat.spec.ts:362:5 › escalate cap: đã có 5 ticket mở thì nút khoá, tooltip nêu lý do
+  -  119 [mobile] › e2e/private-chat.spec.ts:352:5 › escalate offline: giữ Đang gửi… rồi gửi lại khi có mạng, đúng một ticket
+  -  121 [mobile] › e2e/private-chat.spec.ts:379:5 › claimed: 'đã chờ N phút' tự tăng mỗi phút khi để trang mở (QC US-P4-05 TC-28)
+  -  120 [mobile] › e2e/private-chat.spec.ts:368:5 › auto ticket: dưới ngưỡng đã tự mở → câu nhạt + dòng trạng thái, không nút, không số
+  -  122 [mobile] › e2e/private-chat.spec.ts:388:5 › 375: không tràn ngang, vùng chạm ≥ 44 px
+  -  123 [mobile] › e2e/thread-suggest.spec.ts:24:5 › sau precheck sạch: ≤ 3 thread đã xác nhận dưới ô tiêu đề, là liên kết; chữ đi trong thân, URL không có chữ
+  -  124 [mobile] › e2e/thread-suggest.spec.ts:47:5 › trống / lỗi: không hiện gì, không báo lỗi
+  -  125 [mobile] › e2e/thread-suggest.spec.ts:58:5 › precheck phát hiện PII hoặc câu hỏi riêng tư: không gửi chữ tới similar-confirmed
+  -  126 [mobile] › e2e/threads-crisis.spec.ts:26:5 › crisis dialog keeps draft: hộp hỗ trợ nêu đúng lời của máy chủ, Quay lại sửa giữ nguyên chữ, precheck không chặn
+  -  127 [mobile] › e2e/threads-crisis.spec.ts:39:5 › crisis dialog: Mở chat riêng mang nháp sang chat riêng
+  -  128 [mobile] › e2e/threads-crisis.spec.ts:48:5 › crisis dialog: trợ giảng không có chat riêng, chỉ còn Quay lại sửa
+  -  129 [mobile] › e2e/threads-moderation.spec.ts:19:5 › report undo: Báo cáo → Đã báo cáo · Hoàn tác (5 s) → DELETE; báo lại → Bạn đã báo cáo bài này, không phải lỗi
+  -  130 [mobile] › e2e/threads-moderation.spec.ts:47:5 › owner edit delete: sửa gửi version, PII → hai lối, xoá hỏi hậu quả bằng số rồi về danh sách
+  -  131 [mobile] › e2e/threads-moderation.spec.ts:79:5 › staff hide pin: Ẩn bài cần lý do + version, Bỏ ẩn, Ghim; chủ bài thấy một dòng lý do
+  -  132 [mobile] › e2e/threads-moderation.spec.ts:105:5 › own hidden post: chủ bài thấy một dòng, không thấy người báo cáo
+  -  134 [mobile] › e2e/threads-moderation.spec.ts:133:5 › student list has no moderation tab
+  -  133 [mobile] › e2e/threads-moderation.spec.ts:116:5 › pinned + moderation: ghim nằm trên items; Staff có hàng chờ, sinh viên không có tab
+  -  136 [mobile] › e2e/threads-moderation.spec.ts:151:5 › knowledge citation links the confirmed thread
+  -  137 [mobile] › e2e/threads.spec.ts:27:5 › layout: danh sách là một nguồn cấp, nhãn trạng thái, hành động chính duy nhất Đăng
+  -  138 [mobile] › e2e/threads.spec.ts:37:5 › US-UX91-19 đoạn trích sạch: bỏ ký tự đầu dòng, gộp dòng, ≤ 140 ký tự; rỗng thì không dòng trống
+  -  139 [mobile] › e2e/threads.spec.ts:54:5 › US-UX91-19 nhãn lặp: trạng thái đa số (≥ 80 %) nêu một lần ở đầu danh sách, chỉ hàng khác trạng thái mang nhãn
+  -  140 [mobile] › e2e/threads.spec.ts:63:5 › US-UX91-19 di động: Bộ lọc là nút có biểu tượng + số bộ lọc đang bật, mở bảng trượt từ đáy
+  -  141 [mobile] › e2e/threads.spec.ts:75:5 › empty: câu dạy bước kế + Đặt câu hỏi
+  -  142 [mobile] › e2e/threads.spec.ts:87:5 › list error: Sinh viên không thấy Chi tiết kỹ thuật
+  -  143 [mobile] › e2e/threads.spec.ts:92:5 › list error: trợ giảng thấy Chi tiết kỹ thuật
+  -  144 [mobile] › e2e/threads.spec.ts:97:5 › precheck debounce: gõ liên tục chỉ phát yêu cầu sau khi ngừng ≥ 800 ms; notice while typing hiện một dòng loại
+  -  145 [mobile] › e2e/threads.spec.ts:113:5 › dialog two paths: chặn 422 → đúng hai nút hành động; ghi pii BLOCKED ở máy chủ, không có thread nào
+  -  146 [mobile] › e2e/threads.spec.ts:128:5 › blocked then redact: 422 → Ẩn thông tin rồi đăng → 201, khoá Idempotency-Key MỚI và redact:true
+  -  147 [mobile] › e2e/threads.spec.ts:142:5 › switch keeps text: Chuyển sang chat riêng giữ đúng từng byte, mở /chat?session=…
+  -  148 [mobile] › e2e/threads.spec.ts:157:5 › SRS wording (DEF-R6-U2): hộp thoại chặn PII đề «Bài viết có thông tin cá nhân»
+  -  149 [mobile] › e2e/threads.spec.ts:164:5 › personal question: Ẩn thông tin rồi đăng bị khoá, còn Chuyển sang chat riêng
+  -  150 [mobile] › e2e/threads.spec.ts:174:5 › offline keeps draft: mất mạng giữ chữ, gửi lại cùng khoá; reload keeps draft
+  -  151 [mobile] › e2e/threads.spec.ts:188:5 › reload keeps draft
+  -  152 [mobile] › e2e/threads.spec.ts:198:5 › exam lock: ô soạn khoá kèm giờ mở lại
+  -  153 [mobile] › e2e/threads.spec.ts:208:5 › student detail: nhãn AI + Chờ xác nhận, nguồn mở tại chỗ, KHÔNG có độ tin cậy / nút duyệt
+  -  154 [mobile] › e2e/threads.spec.ts:221:5 › staff review: Xác nhận / Chỉnh sửa / Loại cạnh bản nháp, độ tin cậy 0,72
+  -  155 [mobile] › e2e/threads.spec.ts:245:5 › staff review menu (DEF-R7-12, DESIGN §13): mục loại bản nháp AI ghi «Loại khỏi tri thức»
+  -  156 [mobile] › e2e/threads.spec.ts:256:5 › 375: danh sách và soạn không tràn ngang
+  ✓  135 [mobile] › e2e/threads-moderation.spec.ts:140:5 › 375: menu và biểu mẫu báo cáo không tràn ngang (1.0s)
+
+  74 skipped
+  82 passed (1.1m)

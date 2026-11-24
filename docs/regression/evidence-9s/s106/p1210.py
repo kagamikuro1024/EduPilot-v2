@@ -1,0 +1,12 @@
+import sys, json, time; sys.path.insert(0, ".")
+from gdlib import *
+print("route GRADING:", [ (x["task"], x["chain"]) for x in api("admin","GET","/admin/llm/routes")[1]["items"] if x["task"]=="GRADING"])
+flag("GRADING_GUIDANCE", True)
+t0=time.time(); a = fxa("P12-10 thật", 12); print("chấm xong thật", round(time.time()-t0), "s; assignment", a)
+print("lời gọi GRADING provider:", sql(f"select provider, model, count(*) from llm_audit where task='GRADING' and created_at > now() - interval '5 minutes' group by 1,2"))
+review_with(a, [(i, {"c2": "0.00"} if i >= 2 else {"c2": "0.00", "c3": "0.00"}) for i in range(8)])
+reset_reflect_limit()
+c, j, _ = api("teacher", "POST", G(a) + "/reflect", {}, idem=str(uuid.uuid4())); print("reflect", c, j)
+r = wait_job(j["job_id"], 240); print("job", r[0], r[1][:600], r[2][:300])
+print("DRAFT:", drafts(a)); print("tất cả:", sql(f"select status, criterion_id, direction, support from grading_guidance_items where assignment_id='{a}' order by created_at"))
+json.dump({"a": a}, open("/Users/kuro/.config/edupilot-team/qc3-work/p1210.json", "w"))
