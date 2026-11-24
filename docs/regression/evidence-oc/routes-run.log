@@ -164,3 +164,27 @@ CHAT|QC3-stub-ok|m1|ok||1|0
 RESTORE CHAT 200
 RESTORED đúng? True
 UNLOCK qc3 (run5) 2026-11-24T21:59:11.663212
+TC57 POST QC3-OC (có kiểm tra): 201 3.1 s id 01a20e20
+TC57 Test ×10: [(True, None, 3033), (True, None, 3309), (True, None, 2803), (True, None, 2635), (True, None, 2073), (True, None, 2514), (True, None, 4126), (True, None, 1621), (True, None, 2057), (True, None, 2420)]
+TC57 TIMEOUT 10000? False | max latency 4126
+create stub-ok 201
+create QC3-stub-bad 201
+TC62 POST QC3-stub-slow (có kiểm tra, upstream 20 s): 201 20.0 s last_test={'ok': True, 'at': '2026-11-24T15:16:52.639038Z', 'error_kind': None} version 1
+  bản ghi: 1
+TC62 PUT đổi base_url (kiểm tra lại, upstream 20 s): 200 20.0 s version 2 last_test {'ok': True, 'at': '2026-11-24T15:17:12.802027Z', 'error_kind': None}
+TC62 Test API nhà chậm: 200 {'ok': True, 'latency_ms': 20005} 20.0 s
+LOCK qc3 (run6) 2026-11-24T22:17:44.335112
+TC61 [stub-bad (200 không JSON), stub-ok] (lần, provider trả lời, request tới stub-bad, circuit): [(1, 'QC3-stub-ok', 1, 'closed'), (2, 'QC3-stub-ok', 1, 'closed'), (3, 'QC3-stub-ok', 1, 'closed'), (4, 'QC3-stub-ok', 1, 'closed'), (5, 'QC3-stub-ok', 1, 'open'), (6, 'QC3-stub-ok', 0, 'open'), (7, 'QC3-stub-ok', 0, 'open')]
+CHAT|QC3-stub-ok|m1|ok||1|8
+CHAT|QC3-stub-ok|m1|ok||1|2
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|3
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|1
+AUDIT-DEGRADED CHAT=[stub-bad]: HTTP 200 degraded= True provider(API)= ''
+CHAT|QC3-stub-bad|mb|degraded|BAD_RESPONSE|0|t
+AUDIT-DEGRADED CHAT=[stub-bad, stub-bad] (mạch có thể đang mở): True | QC3-stub-bad|mb|degraded|circuit_open|0
+RESTORE CHAT 200
+RESTORED đúng? True
+UNLOCK qc3 (run6) 2026-11-24T22:18:28.383249
