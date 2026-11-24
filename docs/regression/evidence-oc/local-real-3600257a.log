@@ -1,0 +1,28 @@
+=== RUN   TestQC3_OC32_chat
+    zz_qc3_oc_test.go:227: OK 12.355s text="Chào" in=43 out=124 estimated=false
+--- PASS: TestQC3_OC32_chat (12.36s)
+=== RUN   TestQC3_OC33_stream
+    zz_qc3_oc_test.go:258: OK delta=3 text="1\n2\n3\n4\n5" usage in=47 out=66
+--- PASS: TestQC3_OC33_stream (16.86s)
+=== RUN   TestQC3_OC34_structured
+    zz_qc3_oc_test.go:283: OK lần 1: score=9 comment="Bài làm nêu đúng 2 ưu điểm của chỉ mục B-tree: cây cân bằng giúp tra cứu O(log n"
+    zz_qc3_oc_test.go:283: OK lần 2: score=10 comment="Bài làm nêu đúng 2 ưu điểm của chỉ mục B-tree: cây cân bằng giúp tra cứu O(log n"
+    zz_qc3_oc_test.go:283: OK lần 3: score=10 comment="Bài làm nêu đúng và đủ 2 ưu điểm của chỉ mục B-tree: cây cân bằng giúp tra cứu O"
+--- PASS: TestQC3_OC34_structured (19.22s)
+=== RUN   TestQC3_OC37_wrongKey
+    zz_qc3_oc_test.go:300: OK Kind=AUTH status=401 sau 283ms detail="{\"error\":{\"type\":\"authentication_error\",\"message\":\"Invalid credential\"}}"
+--- PASS: TestQC3_OC37_wrongKey (0.28s)
+=== RUN   TestQC3_OC40_badModel
+    zz_qc3_oc_test.go:315: OK Kind=BAD_REQUEST status=400 sau 314ms detail="{\"error\":{\"type\":\"server_error\",\"message\":\"Model deepseek-v9-khong-co isn't included in OpenCode Go. See the models it includes at https://opencode.ai/console/go.\"}}"
+--- PASS: TestQC3_OC40_badModel (0.31s)
+=== RUN   TestQC3_OC50_realSmallCap
+    zz_qc3_oc_test.go:404: OK MaxTokens=16: 7.782s, text="B-tree là cấu trúc cây cân bằng được dùng để xây dựng chỉ mục.", tokens_out=174
+    zz_qc3_oc_test.go:404: OK MaxTokens=256: 7.773s, text="B-tree là cấu trúc cây cân bằng được dùng làm chỉ mục.", tokens_out=107
+--- PASS: TestQC3_OC50_realSmallCap (15.56s)
+=== RUN   TestQC3_OC49_realStructuredNoTruncate
+    zz_qc3_oc_test.go:426: OK lần 1: 7.354s, JSON đủ (summary + 3 điểm), tokens_out=163
+    zz_qc3_oc_test.go:426: OK lần 2: 6.434s, JSON đủ (summary + 3 điểm), tokens_out=164
+    zz_qc3_oc_test.go:426: OK lần 3: 4.24s, JSON đủ (summary + 3 điểm), tokens_out=155
+--- PASS: TestQC3_OC49_realStructuredNoTruncate (18.03s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/provider	82.897s

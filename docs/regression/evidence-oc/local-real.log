@@ -1,0 +1,19 @@
+=== RUN   TestQC3_OC32_chat
+    zz_qc3_oc_test.go:227: OK 17.866s text="Chào" in=43 out=69 estimated=false
+--- PASS: TestQC3_OC32_chat (17.87s)
+=== RUN   TestQC3_OC33_stream
+    zz_qc3_oc_test.go:258: OK delta=3 text="1\n2\n3\n4\n5" usage in=47 out=66
+--- PASS: TestQC3_OC33_stream (21.82s)
+=== RUN   TestQC3_OC34_structured
+    zz_qc3_oc_test.go:283: OK lần 1: score=10 comment="Bài làm nêu đúng 2 ưu điểm của chỉ mục B-tree: cây cân bằng cho tra cứu O(log n)"
+    zz_qc3_oc_test.go:283: OK lần 2: score=9.5 comment="Bài làm nêu đúng 2 ưu điểm của chỉ mục B-tree: cây cân bằng cho tra cứu O(log n)"
+    zz_qc3_oc_test.go:283: OK lần 3: score=9 comment="Bài làm nêu đúng 2 ưu điểm của chỉ mục B-tree: cây cân bằng giúp tra cứu O(log n"
+--- PASS: TestQC3_OC34_structured (38.81s)
+=== RUN   TestQC3_OC37_wrongKey
+    zz_qc3_oc_test.go:300: OK Kind=AUTH status=401 sau 276ms detail="{\"error\":{\"type\":\"authentication_error\",\"message\":\"Invalid credential\"}}"
+--- PASS: TestQC3_OC37_wrongKey (0.28s)
+=== RUN   TestQC3_OC40_badModel
+    zz_qc3_oc_test.go:315: OK Kind=BAD_REQUEST status=400 sau 272ms detail="{\"error\":{\"type\":\"server_error\",\"message\":\"Model deepseek-v9-khong-co isn't included in OpenCode Go. See the models it includes at https://opencode.ai/console/go.\"}}"
+--- PASS: TestQC3_OC40_badModel (0.27s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/provider	79.206s

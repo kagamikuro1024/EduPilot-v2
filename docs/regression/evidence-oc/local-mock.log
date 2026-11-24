@@ -1,0 +1,38 @@
+=== RUN   TestQC3_OC02_03_04_headers
+    zz_qc3_oc_test.go:82: OK task="GRADING" stream=false UA=edupilot/2.0 session=edupilot-grading effort=low
+    zz_qc3_oc_test.go:82: OK task="CHAT" stream=true UA=edupilot/2.0 session=edupilot-chat effort=low
+    zz_qc3_oc_test.go:82: OK task="" stream=false UA=edupilot/2.0 session=edupilot effort=low
+    zz_qc3_oc_test.go:82: OK task="" stream=true UA=edupilot/2.0 session=edupilot effort=low
+--- PASS: TestQC3_OC02_03_04_headers (0.00s)
+=== RUN   TestQC3_OC05_structured
+    zz_qc3_oc_test.go:105: OK response_format=json_object; system chứa schema; thân={"messages":[{"content":"Chỉ trả về MỘT đối tượng JSON hợp lệ theo đúng JSON Schema sau, không thêm chữ nào khác:\n{\"type\":\"object\",\"properties\":{\"score\":{\"type\":\"number\"}},\"required\":[\
+--- PASS: TestQC3_OC05_structured (0.00s)
+=== RUN   TestQC3_OC06_07_08_hosts
+    zz_qc3_oc_test.go:129: OK http://127.0.0.1:20128/v1 → khớp OpenCode=false
+    zz_qc3_oc_test.go:129: OK https://opencode.ai.evil.example/v1 → khớp OpenCode=false
+    zz_qc3_oc_test.go:129: OK https://api.opencode.ai/v1 → khớp OpenCode=false
+    zz_qc3_oc_test.go:129: OK https://opencode.ai@evil.example/v1 → khớp OpenCode=false
+    zz_qc3_oc_test.go:129: OK https://evil.example/opencode.ai/v1 → khớp OpenCode=false
+    zz_qc3_oc_test.go:129: OK http://localhost:8080/v1 → khớp OpenCode=false
+    zz_qc3_oc_test.go:129: OK https://opencode.ai:443/inference/go/v1 → khớp OpenCode=true
+--- PASS: TestQC3_OC06_07_08_hosts (0.00s)
+=== RUN   TestQC3_OC24_redact
+    zz_qc3_oc_test.go:148: OK HTTP 401 Kind=AUTH Detail="{\"error\":{\"message\":\"bad key [REDACTED] Authorization: Bearer [REDACTED]"
+    zz_qc3_oc_test.go:148: OK HTTP 500 Kind=SERVER Detail="{\"error\":{\"message\":\"bad key [REDACTED] Authorization: Bearer [REDACTED]"
+--- PASS: TestQC3_OC24_redact (0.00s)
+=== RUN   TestQC3_OC39_statusMap
+    zz_qc3_oc_test.go:174: OK HTTP 401 → AUTH retry_after=2s next=true breaker=true requests=1 0s
+    zz_qc3_oc_test.go:174: OK HTTP 403 → AUTH retry_after=2s next=true breaker=true requests=1 0s
+    zz_qc3_oc_test.go:174: OK HTTP 404 → MODEL_NOT_FOUND retry_after=2s next=true breaker=false requests=1 0s
+    zz_qc3_oc_test.go:174: OK HTTP 400 → BAD_REQUEST retry_after=2s next=false breaker=false requests=1 0s
+    zz_qc3_oc_test.go:174: OK HTTP 429 → RATE_LIMIT retry_after=2s next=true breaker=false requests=1 0s
+    zz_qc3_oc_test.go:174: OK HTTP 500 → SERVER retry_after=2s next=true breaker=true requests=1 0s
+--- PASS: TestQC3_OC39_statusMap (0.00s)
+=== RUN   TestQC3_OC43_timeout
+    zz_qc3_oc_test.go:191: OK Kind=TIMEOUT sau 2.001s
+--- PASS: TestQC3_OC43_timeout (2.00s)
+=== RUN   TestQC3_OC44_redirect
+    zz_qc3_oc_test.go:207: OK Kind=BAD_RESPONSE, máy chủ đích nhận 0 request
+--- PASS: TestQC3_OC44_redirect (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/provider	2.464s

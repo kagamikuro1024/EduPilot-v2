@@ -1,0 +1,86 @@
+LOCK qc3 2026-11-24T21:30:02.270067
+StartedAt gateway 2026-11-24T14:03:00.990754889Z worker 2026-11-24T14:03:16.73289024Z
+TC29 PUT route teacher 403 FORBIDDEN
+TC29 PUT route ta 403 FORBIDDEN
+TC29 PUT route sv.gioi 403 FORBIDDEN
+TC29 teacher GET routes 200
+TC29 CHAT chain đổi? False version 134 == 134
+TC30 model_id không tồn tại 422 VALIDATION_FAILED [{'field': 'chain[0]', 'code': 'MODEL_NOT_FOUND', 'message': 'mô hình không tồn tại'}]
+TC30 chain rỗng 422 ROUTE_INVALID {'field': 'chain', 'rule': 'chain_empty'}
+TC30 version cũ 409 VERSION_CONFLICT {'current_version': 134}
+TC30 CHAT vẫn chạy sau PUT lỗi: 200 OpenCode Go Chào 5.3 s
+PUT CHAT→QC fake 200
+  chat ngay sau PUT: provider OpenCode Go sau 6.45 s kể từ PUT
+PUT CHAT→OpenCode Go 200
+  chat ngay sau PUT: provider OpenCode Go deepseek-v4.1-flash 'Chào' sau 8.03 s kể từ PUT; call 8.0 s
+StartedAt giữa chừng: gateway True worker True
+PUT CHAT→QC 9router 200
+  chat ngay sau PUT: HTTP 200 {'degraded': True, 'fallback_index': 0, 'model': '', 'provider': '', 'queue_wait_ms': 0, 'text': 'AI tạm thời không khả dụng. Câu hỏi của bạn đã được ghi lại, g sau 8.61 s kể từ PUT; call 8.6 s
+  PUT→QC fake lại: provider QC fake
+AUDIT theo lớp QCOC1:
+CHAT|OpenCode Go|deepseek-v4.1-flash|ok||0|6440
+CHAT|OpenCode Go|deepseek-v4.1-flash|ok||0|8010
+CHAT|||degraded|SERVER|0|8596
+CHAT|QC fake|fake-chat|ok||0|1
+RESTORE CHAT 200
+RESTORED đúng? True
+UNLOCK qc3 2026-11-24T21:30:34.491580
+LOCK qc3 (run2) 2026-11-24T21:31:05.794632
+RELOAD →QC fake None
+RELOAD →OpenCode Go (thời điểm gửi lời gọi đúng tuyến mới, kể từ PUT) 0.01 lời gọi đầu sau PUT đi tới: OpenCode Go
+RELOAD →QC lỗi (nhà hỏng, lỗi nhanh) 0.18
+RELOAD →QC fake 0.01
+RELOAD →OpenCode Go (thời điểm gửi lời gọi đúng tuyến mới, kể từ PUT) 0.01 lời gọi đầu sau PUT đi tới: OpenCode Go
+RELOAD →QC lỗi (nhà hỏng, lỗi nhanh) 0.5
+RELOAD →QC fake 0.01
+RELOAD →OpenCode Go (thời điểm gửi lời gọi đúng tuyến mới, kể từ PUT) 0.01 lời gọi đầu sau PUT đi tới: QC fake
+RELOAD →QC lỗi (nhà hỏng, lỗi nhanh) 0.46
+RELOAD →QC fake 0.01
+RELOAD →OpenCode Go (thời điểm gửi lời gọi đúng tuyến mới, kể từ PUT) 0.01 lời gọi đầu sau PUT đi tới: OpenCode Go
+RELOAD →QC lỗi (nhà hỏng, lỗi nhanh) 0.51
+RESTORE CHAT 200
+RESTORED đúng? True
+UNLOCK qc3 (run2) 2026-11-24T21:31:55.053151
+create QC3-stub-ok 201 01a20df9-118c-7267-b7dd-87e32d6db23d
+create QC3-stub-429 201 01a20df9-1195-716e-9e29-3a280c960e5e
+create QC3-stub-500 201 01a20df9-119a-79a3-8366-dd9c4c7b9c11
+create QC3-badkey 201 01a20df9-11a0-7a92-830d-a283b5cf1d48
+LOCK qc3 (run3) 2026-11-24T21:32:57.737189
+E2E-HOST stub-ok: 200 QC3-stub-ok 'stub trả lời' | stub nhận 1 request; UA= OpenAI/Go 3.71.1 session= None reasoning_effort trong thân= False
+CHAT|QC3-stub-ok|m1|ok||0|5
+TC41 6 lời gọi [badkey(OpenCode khoá sai), stub-ok]: [('QC3-stub-ok', False, 0.5), ('QC3-stub-ok', False, 0.3), ('QC3-stub-ok', False, 0.3), ('QC3-stub-ok', False, 0.4), ('QC3-stub-ok', False, 0.3), ('QC3-stub-ok', False, 0.0)]
+CHAT|QC3-stub-ok|m1|ok||1|518
+CHAT|QC3-stub-ok|m1|ok||1|278
+CHAT|QC3-stub-ok|m1|ok||1|278
+CHAT|QC3-stub-ok|m1|ok||1|380
+CHAT|QC3-stub-ok|m1|ok||1|283
+CHAT|QC3-stub-ok|m1|ok||1|1
+TC41 circuit sau 6 lần: {'QC3-OC': 'closed', 'QC3-UI-OC': 'closed', 'QC3-stub-ok': 'closed', 'QC3-stub-429': 'closed', 'QC3-stub-500': 'closed', 'QC3-badkey': 'open'}
+TC31 DELETE nhà đang trong tuyến → 409 PROVIDER_IN_USE
+TC42a 429: 6 lời gọi → [('QC3-stub-ok', 1.0), ('QC3-stub-ok', 1.0), ('QC3-stub-ok', 1.0), ('QC3-stub-ok', 1.0), ('QC3-stub-ok', 1.0), ('QC3-stub-ok', 1.0)] | stub429 nhận 12 request
+CHAT|QC3-stub-ok|m1|ok||1|1006
+CHAT|QC3-stub-ok|m1|ok||1|1004
+CHAT|QC3-stub-ok|m1|ok||1|1004
+CHAT|QC3-stub-ok|m1|ok||1|1003
+CHAT|QC3-stub-ok|m1|ok||1|1003
+CHAT|QC3-stub-ok|m1|ok||1|1005
+TC42a circuit: {'QC3-OC': 'closed', 'QC3-UI-OC': 'closed', 'QC3-stub-ok': 'closed', 'QC3-stub-429': 'closed', 'QC3-stub-500': 'closed', 'QC3-badkey': 'open'}
+TC42b 500 (lần, provider, số request tới stub500, circuit): [(1, 'QC3-stub-ok', 2, 'closed'), (2, 'QC3-stub-ok', 2, 'closed'), (3, 'QC3-stub-ok', 2, 'closed'), (4, 'QC3-stub-ok', 2, 'closed'), (5, 'QC3-stub-ok', 2, 'open'), (6, 'QC3-stub-ok', 0, 'open'), (7, 'QC3-stub-ok', 0, 'open'), (8, 'QC3-stub-ok', 0, 'open')]
+CHAT|QC3-stub-ok|m1|ok||1|162
+CHAT|QC3-stub-ok|m1|ok||1|200
+CHAT|QC3-stub-ok|m1|ok||1|174
+CHAT|QC3-stub-ok|m1|ok||1|123
+CHAT|QC3-stub-ok|m1|ok||1|278
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|0
+TC42b chờ 32 s (LLM_BREAKER_OPEN=30 s)…
+TC42b sau 32 s: provider QC3-stub-ok stub500 nhận 2 circuit open
+TC36 stub nhận 1 request; chứa tên thật? False | chứa MSSV thật? False | có placeholder? True
+TC36 trích: {"messages":[{"content":"Bạn là trợ giảng của một lớp đại học. Hãy xưng \"bạn\" với người dùng và trả lời bằng tiếng Việt, ngắn gọn. Quy tắc: - Giữ nguyên mọi chuỗi dạng [[...]] (ví dụ [[SV_1]]) đúng như đã nhận; không giải thích, không sửa, không đoán nghĩa. - Chỉ dùng thông tin nằm trong khối <ngữ_cảnh>. Nếu ngữ cảnh không trả lời được câu hỏi, câu ĐẦU TIÊN của bạn phải đúng nguyên văn: \"Mình chưa tìm thấy nội 
+TC36 llm_audit pii_masked_count: CHAT|QC3-stub-ok|2|ok
+RESTORE CHAT 200
+RESTORE CLASSIFY 200
+RESTORE UTILITY 200
+RESTORED đúng? True
+UNLOCK qc3 (run3) 2026-11-24T21:34:00.660474
