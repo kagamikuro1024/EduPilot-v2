@@ -1,0 +1,9 @@
+xong tắt {'calls': 0, 'fast': 0, 'fallback': 0, 'fail_closed': 0}
+xong bật {'calls': 21, 'fast': 2, 'fallback': 19, 'fail_closed': 0}
+route off: đúng 31/36 (có kỳ vọng khối), lỗi 0
+route on: đúng 31/36 (có kỳ vọng khối), lỗi 0
+paraphrase off: đúng 0/10 (có kỳ vọng khối), lỗi 0
+paraphrase on: đúng 2/10 (có kỳ vọng khối), lỗi 0
+khác giữa tắt / bật: 2
+   ('Em lỡ mấy buổi học rồi ạ', 'PERSONAL_ATTENDANCE', [], ['attendance'])
+   ('Thành tích của mình trong môn này tới nay ra sao', 'PERSONAL_GRADE', [], ['grade_summary'])
