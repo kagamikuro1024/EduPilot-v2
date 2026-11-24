@@ -345,9 +345,21 @@ def svg(off, on):
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 {h}" font-family="sans-serif">' + "".join(parts) + "</svg>\n"
 
 
+def provider_label(meta):
+    """Nhãn provider decision theo chế độ đo (DEF-R105S-07): thật → tên mô hình trả về; giả → p50 / p95 của bản giả."""
+    r = meta.get("real")
+    return f"provider decision THẬT ({r.get('model') or r.get('status')})" if r else f"provider decision GIẢ (p50 {meta['fake_p50']} / p95 {meta['fake_p95']} ms)"
+
+
+def latency_limit(meta):
+    if meta.get("real"):
+        return "- Độ trễ decision ở các bảng «tắt / bật» là của provider thật qua mạng từ máy chạy script (số chi tiết ở bảng «Lượt thật»); độ chính xác là của mô hình thật trên bộ nhãn này."
+    return "- Độ trễ decision là mẫu log-chuẩn của provider giả (p50 / p95 ở trên), không phải trễ mạng từ Việt Nam; nhãn trả theo bản phát lại `llm/testdata/decision-replay.json` dựng từ chính bộ nhãn này (mô phỏng, không phải độ chính xác của Gemini)."
+
+
 def markdown(off, on, v, paths, meta):
     L = ["# Decision model: đo trước / sau", "",
-         f"Cấu hình: MacBook Apple Silicon, Colima 6 CPU / 10 GB · provider decision GIẢ (p50 {meta['fake_p50']} / p95 {meta['fake_p95']} ms) · lượt chat {ROUNDS} · {meta['when']} · lớp {CLASS}.", "",
+         f"Cấu hình: MacBook Apple Silicon, Colima 6 CPU / 10 GB · {provider_label(meta)} · lượt chat {ROUNDS} · {meta['when']} · lớp {CLASS}.", "",
          "## Chat (30 câu × lượt)", "", "| | tắt | bật |", "|---|---|---|",
          f"| TTFT p50 / p95 (ms) | {off['chat']['ttft']['p50_ms']} / {off['chat']['ttft']['p95_ms']} | {on['chat']['ttft']['p50_ms']} / {on['chat']['ttft']['p95_ms']} |",
          f"| Sự kiện đầu p50 / p95 (ms) | {off['chat']['first_event']['p50_ms']} / {off['chat']['first_event']['p95_ms']} | {on['chat']['first_event']['p50_ms']} / {on['chat']['first_event']['p95_ms']} |",
@@ -366,7 +378,7 @@ def markdown(off, on, v, paths, meta):
          "", "## Kết luận từng cổng", "", "| Cổng | Kết luận | Số liệu |", "|---|---|---|"]
     L += [f"| {g} | **{k}** | {why} |" for g, (k, why) in v.items()]
     L += ["", "## Giới hạn", "",
-          "- Độ trễ decision là mẫu log-chuẩn của provider giả (p50 / p95 ở trên), không phải trễ mạng từ Việt Nam; nhãn trả theo bản phát lại `llm/testdata/decision-replay.json` dựng từ chính bộ nhãn này (mô phỏng, không phải độ chính xác của Gemini).",
+          latency_limit(meta),
           "- Độ chính xác chat đo bằng block dữ liệu của trợ lý (điểm danh / điểm / cộng điểm) trong câu trả lời, không đọc nhãn ý định nội bộ.",
           "- Câu trả lời trả từ cache bị loại khỏi TTFT; cache là theo lớp nên lượt «bật» có thể có nhiều câu cache hơn lượt «tắt» (xem hàng «Loại khỏi TTFT»).",
           "- Cột «thật» (AC6): " + ("xem bảng dưới." if meta.get("real") else "chờ phép PM.")]

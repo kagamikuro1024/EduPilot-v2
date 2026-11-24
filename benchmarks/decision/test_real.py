@@ -22,5 +22,21 @@ class RealGate(unittest.TestCase):
         self.assertIn("trần 300", run.real_error(False, on, ["--real"], 301))
 
 
+class Label(unittest.TestCase):
+    """DEF-R105S-07: đầu báo cáo không in «GIẢ» khi chạy --real."""
+    fake = {"fake_p50": "426", "fake_p95": "682"}
+
+    def test_fake(self):
+        self.assertIn("GIẢ (p50 426 / p95 682 ms)", run.provider_label(self.fake))
+        self.assertIn("log-chuẩn", run.latency_limit(self.fake))
+
+    def test_real(self):
+        m = {**self.fake, "real": {"status": "ok", "model": "gemini-decision-1"}}
+        self.assertIn("THẬT (gemini-decision-1)", run.provider_label(m))
+        self.assertNotIn("GIẢ", run.provider_label(m))
+        self.assertNotIn("log-chuẩn", run.latency_limit(m))
+        self.assertNotIn("GIẢ", run.latency_limit(m))
+
+
 if __name__ == "__main__":
     unittest.main()
