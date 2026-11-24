@@ -1,8 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test, type APIRequestContext, type Locator, type Page } from "@playwright/test";
-import { QUESTIONS as PE_QUESTIONS } from "../../scripts/exam-seed-data.mjs";
-import { APPROVED as PRACTICE_QUESTIONS } from "../../scripts/practice-seed-data.mjs";
 import { call, courseId, login, needReal, uiLogin } from "./qc-real-lib";
 
 // TC-12-10 (DEF-R10S-13 / P-11-111, US-P9-12 AC3): thi thử 20 câu trên API THẬT, không route.fulfill. Tải lại ở câu 8 giữ vị trí + lựa chọn; mất mạng ở câu 12–14 không mất câu trả lời;
@@ -14,17 +12,28 @@ const N = 20;
 interface Key { type: string; options?: string[]; correct?: number[]; value?: boolean; accepted?: string[] }
 // Ba nguồn của ngân hàng seed: 80 câu luyện đề, 20 câu PE, và các câu GENERATED (bản ghi `practice-generate-seed` của nhà cung cấp giả: seed/demo/fake_llm.json).
 interface Rec { name: string; response: { questions?: { type: string; stem: string; options: { body: string; correct: boolean }[] }[] } }
-const GENERATED: (Key & { stem: string })[] = (JSON.parse(readFileSync(join(__dirname, "../../seed/demo/fake_llm.json"), "utf8")).recordings as Rec[])
-  .filter((r) => r.name === "practice-generate-seed").flatMap((r) => r.response.questions ?? [])
-  .map((q) => ({ type: q.type, stem: q.stem, options: q.options.map((o) => o.body), correct: q.options.flatMap((o, i) => (o.correct ? [i] : [])) }));
-const KEYS = new Map<string, Key>([...PRACTICE_QUESTIONS, ...PE_QUESTIONS, ...GENERATED].map((q: Key & { stem: string }) => [q.stem, q]));
+const ROOT = join(__dirname, "../..");
+// Khoá đáp án nạp lúc CHẠY (đường dẫn động): `next build` trong image chỉ có frontend/ nên không được import tĩnh ra ngoài frontend/.
+let KEYS = new Map<string, Key>();
+async function loadKeys() {
+  if (KEYS.size) return;
+  const seed = async (f: string) => (await import(join(ROOT, "scripts", f))) as Record<string, (Key & { stem: string })[]>;
+  const generated: (Key & { stem: string })[] = (JSON.parse(readFileSync(join(ROOT, "seed/demo/fake_llm.json"), "utf8")).recordings as Rec[])
+    .filter((r) => r.name === "practice-generate-seed").flatMap((r) => r.response.questions ?? [])
+    .map((q) => ({ type: q.type, stem: q.stem, options: q.options.map((o) => o.body), correct: q.options.flatMap((o, i) => (o.correct ? [i] : [])) }));
+  const all = [...(await seed("practice-seed-data.mjs")).APPROVED, ...(await seed("exam-seed-data.mjs")).QUESTIONS, ...generated];
+  KEYS = new Map(all.map((q) => [q.stem, q]));
+}
 
 // Kế hoạch tính tay: câu 4, 8, 12, 16 trả lời SAI có chủ đích, câu 20 bỏ trống, 15 câu còn lại đúng ⇒ 15/20 (quy đổi 7,5/10).
 const wrongAt = (n: number) => n % 4 === 0 && n < N;
 const blankAt = (n: number) => n === N;
 const EXPECTED = Array.from({ length: N }, (_, i) => i + 1).filter((n) => !wrongAt(n) && !blankAt(n)).length;
 
-test.beforeEach(() => needReal());
+test.beforeEach(async () => {
+  needReal();
+  await loadKeys();
+});
 
 const mock = (page: Page) => page.locator("[data-part=practice-mock]");
 
