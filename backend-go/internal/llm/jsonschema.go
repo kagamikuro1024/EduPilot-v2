@@ -2,6 +2,7 @@ package llm
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"regexp"
@@ -22,7 +23,7 @@ func ValidateJSON(schema, data json.RawMessage) error {
 	dec := json.NewDecoder(strings.NewReader(string(data)))
 	dec.UseNumber()
 	if err := dec.Decode(&v); err != nil {
-		return fmt.Errorf("không phải JSON hợp lệ: %w", err)
+		return errors.New("không phải JSON hợp lệ") // KHÔNG kèm lỗi của bộ đọc: nó nêu ký tự đầu của đầu ra (log structured_invalid, US-P1-02 AC10)
 	}
 	return check(s, v, "$")
 }
@@ -142,11 +143,11 @@ func checkObject(s map[string]any, v any, path string) error {
 		switch ap := s["additionalProperties"].(type) {
 		case bool:
 			if !known && !ap {
-				return fmt.Errorf("%s: trường thừa %q (additionalProperties=false)", path, k)
+				return fmt.Errorf("%s: trường thừa (additionalProperties=false)", path) // không nêu tên trường: do mô hình sinh ra
 			}
 		case map[string]any:
 			if !known {
-				if err := check(ap, obj[k], path+"."+k); err != nil {
+				if err := check(ap, obj[k], path+".*"); err != nil {
 					return err
 				}
 			}

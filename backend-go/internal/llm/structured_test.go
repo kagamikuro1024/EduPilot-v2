@@ -194,3 +194,32 @@ type syncBuf struct {
 
 func (s *syncBuf) Write(p []byte) (int, error) { s.mu.Lock(); defer s.mu.Unlock(); return s.b.Write(p) }
 func (s *syncBuf) String() string              { s.mu.Lock(); defer s.mu.Unlock(); return s.b.String() }
+
+// DEF-OC-SI-01: dòng structured_invalid chỉ có LOẠI lỗi + đường dẫn lấy từ schema của ta; không chuỗi nào từ đầu ra LLM
+// (tên trường thừa, ký tự đầu của đầu ra không phải JSON, khoá của map additionalProperties).
+func TestStructuredInvalidLogHasNoModelStrings(t *testing.T) {
+	t.Parallel()
+	const secret = "BIMAT123"
+	mapSchema := `{"type":"object","properties":{"m":{"type":"object","additionalProperties":{"type":"string"}}},"required":["m"],"additionalProperties":false}`
+	for _, tc := range []struct{ name, schema, out string }{
+		{"trường thừa", classifySchema, `{"label":"hoi_dap","confidence":1,"` + secret + `":1}`},
+		{"không phải JSON", classifySchema, secret + ` không phải json`},
+		{"khoá của map", mapSchema, `{"m":{"` + secret + `":5}}`},
+		{"kiểu hợp nhất", `{"type":["string","null"]}`, `{"` + secret + `":1}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			var buf syncBuf
+			wrong := &stub{name: "A", chat: func(int, provider.ChatOpts) (provider.Result, error) { return provider.Result{Text: tc.out}, nil }}
+			g, _ := newGatewayLog(t, slog.New(slog.NewTextHandler(&buf, nil)), wrong)
+			_, _ = g.Structured(t.Context(), llm.Request{Task: llm.TaskClassify, Messages: userMsg("hỏi")}, json.RawMessage(tc.schema))
+			out := buf.String()
+			if !strings.Contains(out, "structured_invalid") {
+				t.Fatalf("không có dòng log: %s", out)
+			}
+			if strings.Contains(out, secret) || strings.Contains(out, "invalid character") {
+				t.Errorf("log chứa chuỗi từ đầu ra: %s", out)
+			}
+		})
+	}
+}
