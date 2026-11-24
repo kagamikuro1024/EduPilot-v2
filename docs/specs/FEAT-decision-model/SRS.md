@@ -50,7 +50,7 @@ sequenceDiagram
     S-->>G: từ chối ngay
     G-->>C: Path=FALLBACK (không chờ)
   else được cấp
-    G->>P: POST /v1beta/decisions (thật) hoặc đọc bản phát lại (fake)
+    G->>P: POST {base}/decisions (Google) hoặc {base}/systemone (host opencode.ai) (thật), hoặc đọc bản phát lại (fake)
     P-->>G: xác suất | lỗi | 400 safety | hết giờ
     G->>A: 1 dòng (token, trễ, status, error_kind, gate, path) — không nội dung
     G-->>C: Verdict + Path
