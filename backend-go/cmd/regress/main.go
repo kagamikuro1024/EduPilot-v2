@@ -1,7 +1,7 @@
 // Command regress: chạy lại ca hồi quy chấm bài (FEAT-grading-guidance M2) — CÔNG CỤ VẬN HÀNH ở môi trường đo, không phải service thường trực, không nằm trong image.
 //
 //	regress run    --assignment <id> | --course <id> [--limit N] [--baseline benchmarks/guidance/baseline.json] [--write-baseline path] [--e2]
-//	regress export --course <id> --out /duong/dan/ngoai/repo.jsonl      (mặc định TỪ CHỐI: REGRESSION_EXPORT_ALLOWED=false)
+//	regress export --course <id> --out /duong/dan/ngoai/repo.jsonl --actor <email ADMIN>      (mặc định TỪ CHỐI: REGRESSION_EXPORT_ALLOWED=false)
 //
 // `run` đọc ca + văn bản bài NGAY TRONG DB, chấm lại qua cổng LLM (9router ở môi trường đo) với lưu ý ở phiên bản HIỆN HÀNH của bài tập, in MAE / lệch / số ca xấu đi,
 // rồi so với baseline: «Có lùi» → thoát 1. CI không chạy lệnh này (cần stack test + LLM).
@@ -24,6 +24,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
@@ -71,6 +72,7 @@ func runExport(args []string, getenv func(string) string, stdout, stderr io.Writ
 	fs.SetOutput(stderr)
 	course := fs.String("course", "", "id lớp")
 	out := fs.String("out", "", "tệp JSONL đầu ra (đường dẫn tuyệt đối, NGOÀI repo)")
+	actor := fs.String("actor", "", "email quản trị viên (ADMIN) chịu trách nhiệm lần xuất; ghi vào audit_log")
 	if fs.Parse(args) != nil {
 		return 2
 	}
@@ -83,6 +85,10 @@ func runExport(args []string, getenv func(string) string, stdout, stderr io.Writ
 		say(stderr, "--out phải nằm NGOÀI thư mục repo đang chạy")
 		return 2
 	}
+	if strings.TrimSpace(*actor) == "" {
+		say(stderr, "cần --actor <email ADMIN> (ghi vào audit_log: ai xuất)")
+		return 2
+	}
 	ctx := context.Background()
 	d, err := connect(ctx, getenv, false)
 	if err != nil {
@@ -90,7 +96,12 @@ func runExport(args []string, getenv func(string) string, stdout, stderr io.Writ
 		return 1
 	}
 	defer d.close(ctx)
-	n, err := exportCases(ctx, d, cid, *out)
+	adminID, err := resolveAdmin(ctx, store.New(d.pool), *actor)
+	if err != nil {
+		say(stderr, err)
+		return 3
+	}
+	n, err := exportCases(ctx, d, cid, adminID, *out)
 	if err != nil {
 		say(stderr, err)
 		return 1
@@ -107,7 +118,19 @@ type exportLine struct {
 	Text      string         `json:"text"` // đã qua privacy.Detect + Redact
 }
 
-func exportCases(ctx context.Context, d *deps, course uuid.UUID, out string) (int, error) {
+// resolveAdmin tra email → user_id; chỉ ADMIN được xuất (CLI không có phiên: --actor là «ai» của audit_log).
+func resolveAdmin(ctx context.Context, q *store.Queries, email string) (uuid.UUID, error) {
+	u, err := q.GetUserByEmail(ctx, auth.NormalizeEmail(email))
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("--actor %q: không tìm thấy tài khoản", email)
+	}
+	if u.Role != store.UserRoleADMIN {
+		return uuid.Nil, fmt.Errorf("--actor %q: không phải ADMIN", email)
+	}
+	return u.ID, nil
+}
+
+func exportCases(ctx context.Context, d *deps, course, actor uuid.UUID, out string) (int, error) {
 	q := store.New(d.pool)
 	rows, err := q.RegressionRunCases(ctx, store.RegressionRunCasesParams{CourseID: course, PageLimit: 5000})
 	if err != nil {
@@ -140,7 +163,7 @@ func exportCases(ctx context.Context, d *deps, course uuid.UUID, out string) (in
 			return 0, fmt.Errorf("ghi: %w", err)
 		}
 	}
-	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &course, Entity: "grading_regression_cases", EntityID: course.String(), Action: "regress.export", After: mustJSON(map[string]any{"cases": len(rows)})}); err != nil {
+	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &course, ActorID: &actor, Entity: "grading_regression_cases", EntityID: course.String(), Action: "regress.export", After: mustJSON(map[string]any{"cases": len(rows)})}); err != nil {
 		return 0, fmt.Errorf("audit: %w", err)
 	}
 	return len(rows), nil

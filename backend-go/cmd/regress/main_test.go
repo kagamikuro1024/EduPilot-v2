@@ -8,8 +8,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
+
+	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/testutil"
 )
 
 // TestRegressCLIRefusesExport — `export` mặc định TỪ CHỐI (REGRESSION_EXPORT_ALLOWED vắng / false / sai): thoát ≠ 0, không tạo tệp, không chạm DB / mạng (getenv không có DATABASE_URL vẫn dừng đúng chỗ).
@@ -95,4 +100,51 @@ func TestBaselineFileParses(t *testing.T) {
 	require.NoError(t, json.Unmarshal(raw, &b))
 	require.Positive(t, b.N)
 	require.NotPanics(t, func() { regressed(Report{MAE: "0.00", Bias: "0.00"}, b, 0.10) })
+}
+
+// TestRegressExportNeedsActor — DEF-R106S-26: thiếu --actor → thoát 2 trước khi chạm DB / tạo tệp.
+func TestRegressExportNeedsActor(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "ca.jsonl")
+	var so, se bytes.Buffer
+	code := run([]string{"export", "--course", "00000000-0000-7000-8000-000000000001", "--out", out}, func(k string) string {
+		return map[string]string{"REGRESSION_EXPORT_ALLOWED": "true"}[k]
+	}, &so, &se)
+	require.Equal(t, 2, code)
+	require.Contains(t, se.String(), "--actor")
+	require.NoFileExists(t, out)
+}
+
+// TestRegressExportAuditsActor — DEF-R106S-26 / US-GD-07 AC5: audit_log `regress.export` có actor_id = ADMIN đã tra; TEACHER / email lạ bị từ chối.
+func TestRegressExportAuditsActor(t *testing.T) {
+	ctx := t.Context()
+	pool, err := pgxpool.New(ctx, testutil.MigratedPostgresURL(t))
+	require.NoError(t, err)
+	t.Cleanup(pool.Close)
+	q := store.New(pool)
+	hash := "x" // chỉ cần thoả ràng buộc users_active_password_chk
+	mk := func(email string, role store.UserRole) uuid.UUID {
+		u, err := q.InsertUser(ctx, store.InsertUserParams{Email: email, FullName: email, Role: role, Status: store.UserStatusACTIVE, PasswordHash: &hash})
+		require.NoError(t, err)
+		return u.ID
+	}
+	admin, teacher := mk("admin@edupilot.local", store.UserRoleADMIN), mk("gv@edupilot.local", store.UserRoleTEACHER)
+	var course uuid.UUID
+	require.NoError(t, pool.QueryRow(ctx, `insert into courses (subject_code, class_code, name, semester, join_code, created_by) values ('INT1006', '761987', 'An ninh mạng', '2026-2027-HK1', 'AN7K2MQ', $1) returning id`, teacher).Scan(&course))
+
+	got, err := resolveAdmin(ctx, q, "  Admin@EduPilot.local ")
+	require.NoError(t, err)
+	require.Equal(t, admin, got)
+	for _, bad := range []string{"gv@edupilot.local", "khong-co@edupilot.local"} {
+		_, err := resolveAdmin(ctx, q, bad)
+		require.Error(t, err, bad)
+	}
+
+	d := &deps{pool: pool}
+	n, err := exportCases(ctx, d, course, admin, filepath.Join(t.TempDir(), "ca.jsonl"))
+	require.NoError(t, err)
+	require.Zero(t, n)
+	var actor *uuid.UUID
+	require.NoError(t, pool.QueryRow(ctx, `select actor_id from audit_log where action = 'regress.export' and course_id = $1`, course).Scan(&actor))
+	require.NotNil(t, actor)
+	require.Equal(t, admin, *actor)
 }
