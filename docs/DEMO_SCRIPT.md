@@ -40,7 +40,7 @@ Giới hạn cứng: kịch bản chính **≤ 13:30**, dự trữ **≥ 1:30**.
 | 7 | Điện thoại thật hoặc giả lập 375 px: Sinh viên D, Sinh viên B, Giảng viên (cho điểm danh); thêm 2 sinh viên khác để quét QR | Đăng nhập sẵn, mỗi tài khoản một hồ sơ trình duyệt | – |
 | 8 | Tab Mailpit `http://localhost:8025`, hộp thư trống | Xoá thư cũ trong Mailpit | Không còn thư |
 | 9 | File quy chế lớp 2 trên máy demo | `seed/demo/quy-che-lop2.pdf` (xem mục 6) | File mở được |
-| 10 | Có sẵn vài dòng nhật ký để xem ở Bước 8 | Chạy thử Bước 5 và 6 một lần trước (công bố, xác nhận công thức tạo dòng `assignments / publish`, `grade_entries / set`) | `/admin/audit` (24 giờ) có dòng |
+| 10 | Có sẵn vài dòng nhật ký để xem ở Bước 8 | Chạy thử Bước 5 và 6 một lần trước (công bố bài chấm tạo dòng `grading_results / grading_result.publish`; xác nhận công thức tạo `grade_schemes / confirm`; Bước 4 tạo `attendance`; P-11-112) | `/admin/audit` (24 giờ) có dòng |
 | 11 | Video dự phòng sẵn trên laptop và USB | mục 5.3 | Phát thử 5 s |
 
 Tài khoản seed (mật khẩu `SEED_DEFAULT_PASSWORD`, mặc định `Edupilot#Seed-2026`): `admin@edupilot.local`, `teacher@edupilot.local`, `sv.kha@edupilot.local` (Sinh viên B, lớp 761987), `sv.moi@edupilot.local` (Sinh viên D, chưa vào lớp nào), `sv.nguyco@edupilot.local` (Sinh viên C, lớp 761987). Lớp 761987 mã tham gia `AN7K2MQ`; lớp 761988 mã `BX4P9TW`. Bộ chọn lớp của giảng viên mở sẵn ở **761987**; chỉ đổi sang 761988 ở các bước nói rõ.
@@ -163,8 +163,8 @@ Nếu hội đồng hỏi: lớp chưa đủ câu hỏi → «Chưa đủ dữ l
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 11:30 | Admin | `/admin/audit` | Mở (khoảng 24 giờ) | Các dòng vừa tạo ở Bước 4–6: `attendance`, `assignments` (publish), `grade_entries` (set); mỗi dòng có thời điểm, người làm kèm vai, thực thể, hành động, khoá đổi; không có giá trị cũ / mới | P10 (P-11-30) |
-| 11:45 | Admin | `/admin/audit` | Ô «Thực thể» gõ `grade_entries` | Chỉ còn các dòng sổ điểm của Bước 6 | P10 |
+| 11:30 | Admin | `/admin/audit` | Mở (khoảng 24 giờ) | Các dòng vừa tạo ở Bước 4–6: `attendance`, `grading_results` (`grading_result.publish`), `grade_schemes` (`extract` / `edit` / `confirm`; công thức lớp 2 ở Bước 6); mỗi dòng có thời điểm, người làm kèm vai, thực thể, hành động, khoá đổi; không có giá trị cũ / mới | P10 (P-11-30) |
+| 11:45 | Admin | `/admin/audit` | Ô «Thực thể» gõ `grade_schemes` | Chỉ còn các dòng công thức điểm của Bước 6 | P10 |
 
 Nếu hội đồng hỏi: chỉ Admin vào được (giảng viên / TA / sinh viên 403); chính việc mở nhật ký cũng được ghi lại. E2E: `audit.spec.ts`; Go: `TestAuditRBAC`.
 
