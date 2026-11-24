@@ -99,6 +99,9 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
   Kiểm: `go test ./internal/insight -run 'TestKnowledgeGapPromptOnlyQualified|TestKnowledgeGapNameGuard' -v` → `ok` (fake provider ghi lại lời nhắc: không chứa chuỗi của câu dưới ngưỡng; fake trả `name` / `why` / `recommendation` có đúng 6 từ liên tiếp của câu dưới ngưỡng → thay / bỏ; 5 từ liên tiếp → giữ; từ trùng chỉ trong câu đạt ngưỡng → giữ).
   Kiểm (AC14): `go test ./internal/insight -run 'TestKnowledgeGapUncoveredMinStudents' -v` → `ok` (bảng: 1 sinh viên hỏi 5 lần → rỗng; 2 sinh viên → rỗng; 3 sinh viên → có, số lần đúng; ranh giới 2 / 3; câu khác hoa thường / khoảng trắng gộp một nhóm).
 
+- AC18 (chương / tuần của chủ đề — P-11-115). Given báo cáo có chủ đề Then `chapter` / `week` lấy từ tài liệu của chunk gần tâm cụm nhất trong **mọi tài liệu của lớp trừ `THREAD_KNOWLEDGE`**, kể cả tài liệu không phân loại (`category` NULL); và chỉ khi độ tương đồng tâm cụm → chunk **≥ 0,35** (SRS 4.0). Given chủ đề ngoài tài liệu (chunk gần nhất dưới 0,35, ví dụ chủ đề lạc đề) Then `chapter = null`, `week = null`, giao diện không hiện chương / tuần, báo cáo vẫn tạo và vẫn xếp hạng. Given lớp có hai tài liệu khác chương, một trong hai `category` NULL Then chủ đề gần tài liệu NULL ra chương của tài liệu đó (không dồn về một chương).
+  Kiểm: `go test ./internal/insight -run 'TestKnowledgeGapChapter' -v` → `ok` (bảng: tài liệu category NULL được chọn; `THREAD_KNOWLEDGE` bị loại; độ tương đồng 0,38 → có chương; 0,32 → null; đúng 0,35 → có chương; không có chunk → null); số ngưỡng đo lại khi đổi mô hình nhúng.
+
 ### Ngoài phạm vi của story này
 - Màn `/insights` (US-P10-05); thống kê điểm thi (US-P10-06).
 

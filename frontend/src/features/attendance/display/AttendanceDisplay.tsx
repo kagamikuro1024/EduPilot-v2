@@ -98,6 +98,7 @@ function Live({ course, session }: { course: string; session: string }) {
   return (
     <main className={s.root} id="main" data-part="display" data-state={st.kind}>
       <h1 className="ep-sr-only">Màn chiếu điểm danh</h1>
+      <div className={s.left}>
       <section className={s.qrBox} aria-label="Mã QR">
         {st.kind === "loading" && <Skeleton className={s.skeleton} />}
         {st.kind === "error" && (
@@ -109,13 +110,14 @@ function Live({ course, session }: { course: string; session: string }) {
         {st.kind === "live" && st.stale && <div className={`${s.centered} ${s.warn}`} data-part="offline">Mất kết nối</div>}
         {(st.kind === "closed" || st.kind === "none") && <div className={`${s.centered} ${s.countSize}`} data-part="closed">{st.kind === "none" ? "Chưa mở" : "Đã đóng"}</div>}
       </section>
+      {st.kind === "live" && !st.stale && (
+        <div className={s.codeBox}>
+          <p className={s.meta}>Mã điểm danh</p>
+          <p className={s.code} data-part="short-code" aria-label={`Mã ngắn ${st.display.short_code.split("").join(" ")}`}>{grouped(st.display.short_code)}</p>
+        </div>
+      )}
+      </div>
       <section className={s.side}>
-        {st.kind === "live" && !st.stale && (
-          <>
-            <p className={s.meta}>Mã điểm danh</p>
-            <p className={s.code} data-part="short-code" aria-label={`Mã ngắn ${st.display.short_code.split("").join(" ")}`}>{grouped(st.display.short_code)}</p>
-          </>
-        )}
         <p className={s.count} data-part="count">
           {count}
           {headcount != null && <span className={s.of}> / {headcount}</span>}
