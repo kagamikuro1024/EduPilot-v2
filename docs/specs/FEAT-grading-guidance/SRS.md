@@ -212,6 +212,7 @@ sequenceDiagram
 | Cờ tắt giữa lúc chạy | Việc chưa nhận chạy với bản hiện hành (0) | Không đổi |
 | `cmd/regress run` khi `REGRESSION_RUN_ALLOWED` ≠ `true` | Từ chối, thoát ≠ 0, nêu tên biến, không đọc DB, không gọi LLM | – (CLI) |
 | `cmd/regress export` khi chưa cho phép | Từ chối, thoát ≠ 0 | – (CLI) |
+| `cmd/regress export` thiếu `--actor` / `--actor` không phải ADMIN | Thoát 2 / thoát 3, không xuất | – (CLI) |
 | Xoá dữ liệu sinh viên | Bỏ id khỏi `source_result_ids`; `support < 2` → `needs_recheck`; xoá ca liên quan | Nhãn «Cần xem lại» |
 
 ## 4. Yêu cầu chức năng
@@ -272,7 +273,7 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 ### 4.3 M2 — Ca hồi quy
 - Ghi ca khi cờ `REGRESSION_CAPTURE` bật: (a) `review` kết quả có tiêu chí lệch ≥ `REGRESSION_MIN_DELTA` → `GRADING_EDIT` (`source_id` = id kết quả, `criterion_id`); (b) phúc khảo `ADJUSTED` → `GRADING_APPEAL`; (c) thread `CORRECTED` → `THREAD_CORRECTED`, `REJECTED` → `THREAD_REJECTED` (`source_id` = id bài). `expected` chỉ số / enum: `{ai_score, teacher_score, direction, rubric_hash}` hoặc `{state}`; **không** văn bản.
-- `cmd/regress` (Go, CLI vận hành, môi trường đo; cùng module; không service thường trực): `run` chỉ chạy khi `REGRESSION_RUN_ALLOWED=true` (mặc định `false`: từ chối, thoát ≠ 0, nêu tên biến), đọc ca và nội dung **trong DB**, gọi `internal/llm` (9router), in báo cáo; so `benchmarks/guidance/baseline.json`; `export` mặc định từ chối (`REGRESSION_EXPORT_ALLOWED=false`); khi cho phép: `privacy.Mask` + `Detect`, id băm, ghi **ngoài repo**, `audit_log`.
+- `cmd/regress` (Go, CLI vận hành, môi trường đo; cùng module; không service thường trực): `run` chỉ chạy khi `REGRESSION_RUN_ALLOWED=true` (mặc định `false`: từ chối, thoát ≠ 0, nêu tên biến), đọc ca và nội dung **trong DB**, gọi `internal/llm` (9router), in báo cáo; so `benchmarks/guidance/baseline.json`; `export` mặc định từ chối (`REGRESSION_EXPORT_ALLOWED=false`); khi cho phép: bắt buộc `--actor <email ADMIN>` (thiếu cờ → thoát 2; không có tài khoản / không phải ADMIN → thoát 3), `privacy.Mask` + `Detect`, id băm, ghi **ngoài repo**, `audit_log` (`actor_id` = ADMIN đó). Thứ tự kiểm: chưa cho phép (thoát 3) → thiếu tham số / `--actor` (thoát 2) → tra ADMIN (thoát 3).
 - Ca `THREAD_*` phục vụ E2 (golden set escalation): `run` có chế độ `--e2` đọc câu hỏi + đáp án xác nhận trong DB để đối chiếu `confidence`/chuyển giảng viên; chi tiết chấm ở `benchmarks/e2/README.md`.
 
 ### 4.4 M4 — Câu tương tự lúc soạn
