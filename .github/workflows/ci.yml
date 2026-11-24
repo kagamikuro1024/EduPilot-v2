@@ -281,6 +281,9 @@ jobs:
         run: node --test scripts/ci-guard.test.mjs
       - name: build (như production)
         run: pnpm -C frontend build
+      # Dựng đúng image triển khai (context = gốc repo như docker-compose.local.yml). `pnpm build` trên host có đủ repo nên không thấy tệp thiếu trong context Docker (DEF-R10S-23).
+      - name: image frontend (docker build như compose)
+        run: docker build -f frontend/Dockerfile -t ep-frontend-ci .
 
   e2e:
     # TL-CI #3a + DEF-R7-01: Playwright chia 4 shard THEO THỜI GIAN (frontend/e2e/support/shard.mjs: LPT từ giây CPU của từng tệp ở shard-weights.json), không theo số test:
