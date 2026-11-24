@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 529 · Trượt: 1 · Chờ test N: 0   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 531 · Trượt: 1 · Chờ test N: 0   (P+F+N = 532). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -27,7 +27,7 @@ Cách chạy:
 | US-P3-08 | 29 | 29 | 0 | 0 |  |
 | US-P8-01 | 62 | 62 | 0 | 0 |  |
 | US-P8-02 | 49 | 49 | 0 | 0 |  |
-| US-P8-03 | 60 | 60 | 0 | 0 |  |
+| US-P8-03 | 62 | 62 | 0 | 0 |  |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -513,6 +513,8 @@ Cách chạy:
 | TC-P8-03-09 | P | tạo → 201 |
 | TC-P8-03-10 | P | GV lớp khác tạo ở lớp này → 403 |
 | TC-P8-03-11 | P | xoá tại chỗ (menu «Thêm với …» → Xoá) trên ep-r @6201b665 (có eb8f16a0): trước 1; dòng «Đã xoá sự kiện · Hoàn tác»=true; DB count 1 (trong 5 s) → 0 sau 6,5 s; dòng biến mất=true; sự kiện thứ hai xoá rồi Hoàn tác ≤5 s → DB 1, hiện lại=true; hộp thoại modal (<dialog open>)=0; menu «Thêm với…» là popover role=dialog, không phải modal |
+| TC-P8-03-11b-d1440 | P | ep-r FE @8f87223b (có eb8f16a0), lớp QC3P8U, gv.s8f: 1440px: tạo qua API 201; thấy trên lịch=true; menu «Thêm với…»→Sửa (modal=0); sửa tên «QC3 sửa d1440 505213»→«QC3 sửa d1440 505213 (đã đổi)» và giờ 2026-11-26T10:00→2026-11-26T12:00 (UTC+7 trong ô); yêu cầu ["PUT /courses/01a1f03c-40fc-77f6-a505-c519802a3e52/calendar/events/01a20eda-1efc-7d09-ba3e-773c6a9a4891 200"] (uuid thô=true); DB trước [QC3 sửa d1440 505213/2026-11-26 03:00:00+00/1] → sau [QC3 sửa d1440 505213 (đã đổi)/2026-11-26 05:00:00+00/2] (đổi=true); thông báo lỗi=không; sau tải lại thấy tên mới=true, tên cũ biến mất=true; sự kiện 01a20eda-1efc-7d09-ba3e-773c6a9a4891 |
+| TC-P8-03-11b-m375 | P | ep-r FE @8f87223b (có eb8f16a0), lớp QC3P8U, gv.s8f: 375px: tạo qua API 201; thấy trên lịch=true; menu «Thêm với…»→Sửa (modal=0); sửa tên «QC3 sửa m375 505213»→«QC3 sửa m375 505213 (đã đổi)» và giờ 2026-11-27T10:00→2026-11-27T12:00 (UTC+7 trong ô); yêu cầu ["PUT /courses/01a1f03c-40fc-77f6-a505-c519802a3e52/calendar/events/01a20eda-5606-7158-9247-3b2cad6ac8ca 200"] (uuid thô=true); DB trước [QC3 sửa m375 505213/2026-11-27 03:00:00+00/1] → sau [QC3 sửa m375 505213 (đã đổi)/2026-11-27 05:00:00+00/2] (đổi=true); thông báo lỗi=không; sau tải lại thấy tên mới=true, tên cũ biến mất=true; sự kiện 01a20eda-5606-7158-9247-3b2cad6ac8ca |
 | TC-P8-03-12 | P | ETag=W/"4PgGAwvHxDQ8RGzv" → If-None-Match → 304 |
 | TC-P8-03-13 | P | sau sửa sự kiện, ETag cũ → 200 |
 | TC-P8-03-14 | P | qua mốc opens_at: ETag cũ → 200 (200 = EffectiveStatus đổi); trạng thái ['SCHEDULED']→['OPEN']; và sau khi bắt đầu lượt thi → 200 IN_PROGRESS (TC-P8-03-14-a) |

@@ -43,6 +43,7 @@
 |5.5|DEF-R5.5-01|Trung bình|TC-UI7-06|MỞ|`pnpm lint` frontend rc=1 (TC-UI7-06)|
 |6|DEF-R6-01|Thấp|TC-P3-01-49|MỞ|Vai DB của ứng dụng là siêu quyền|
 |6|DEF-R6-02|Cao|TC-P3-02-21|ĐÓNG|Bộ nhớ đệm roster PII không bị vô hiệu khi sinh viên vào lớp (duyệt hoặc vào bằn|
+|6|DEF-R6-C1|Cao|TC-P8-03-11, TC-P8-03-11b|ĐÓNG|Sửa/xoá sự kiện từ giao diện lịch trả 404 (id gộp calendar_event:<uuid>); eb8f16a0, chạy lại P 21/11 (xoá) và 25/11 (sửa)|
 |6|DEF-R6-C-01|Thấp|TC-P3-06-42|ĐÓNG|Dòng khoá ở /threads dùng chữ của chat thay vì "Đăng bài tạm khóa…"|
 |6|DEF-R6-U1|Thấp|TC-P3-05-35|MỞ|Chữ «Tìm hiểu» của chat riêng khác SRS|
 |6|DEF-R6-U2|Thấp|TC-P3-06-09|MỞ|Tiêu đề hộp thoại PII ở Threads khác SRS|

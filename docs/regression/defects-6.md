@@ -39,6 +39,14 @@
 - Mức: Thấp · TC: TC-P3-02-50 · Kỳ vọng (SRS dòng 114) «Chưa gửi được tin nhắn. Thử lại.» · Thực tế «AI đang gián đoạn. Thử lại sau.» (backend-go/internal/chat/buf.go errorText nhánh mặc định). Fail-closed đúng (go test TestMaskFailsClosed, TestMaskNoCourseFailsClosed); không bắn được thật vì PRIVACY_MASK_TIMEOUT_MS=1 không làm tin ngắn quá hạn.
 ### DEF-R6-U6 — (ĐÃ SỬA 812ab974; chạy lại P ngày 2026-11-21 trên ep-r 425396a7) Chữ CHAT_UNAVAILABLE ở UI khác SRS
 - Mức: Thấp · TC: TC-P3-05-26 · API đạt (503 CHAT_UNAVAILABLE khi tra khoá lỗi, bảng exam_attempts đổi tên tạm). Kỳ vọng «Chat chưa dùng được lúc này. Thử lại sau ít phút.» · Thực tế frontend/src/shared/i18n/vi.ts:68 «Chat tạm thời chưa dùng được. Thử lại sau.»
+### DEF-R6-C1 — (ĐÃ SỬA eb8f16a0; chạy lại P 2026-11-21 xoá + 2026-11-25 sửa, ep-r FE @8f87223b) Sửa/xoá sự kiện từ giao diện lịch trả 404, DB không đổi
+- Mức: Cao · TC: TC-P8-03-11 (xoá + Hoàn tác), TC-P8-03-11b (sửa tại chỗ, thêm 2026-11-25) · Sprint gốc: 6 · Hồi quy: KHÔNG
+- Bước tái hiện: GV mở /calendar, menu «Thêm với <tên>» → Xoá (hoặc Sửa → Lưu).
+- Kỳ vọng (US-P8-03; DESIGN: hoàn tác tại chỗ): DELETE/PUT chạy 200/204, DB đổi, tải lại phản ánh · Thực tế: UI hiện «Đã xoá sự kiện · Hoàn tác» rồi biến mất sau 5 s nhưng DB vẫn còn, sự kiện hiện lại sau khi tải lại; frontend gọi `/calendar/events/calendar_event:<uuid>` (id gộp của /calendar) → HTTP 404; API chỉ nhận <uuid> thô (`frontend/src/features/calendar/calendarApi.ts:67-68`).
+- Sửa: `eb8f16a0` cắt tiền tố nguồn (`uuid(id)`) trước khi gọi PUT/DELETE.
+- Chạy lại: xoá — `evidence-6/results-r3.tsv:449`, ep-r @6201b665: DB 1 → 0 sau 6,5 s; xoá rồi Hoàn tác ≤5 s → DB 1; modal 0. Sửa — `evidence-6/results-r4.tsv` + `evidence-6/scripts-r4/ui-edit.mjs`, ep-r FE @8f87223b, lớp QC3P8U: PUT `/calendar/events/<uuid thô>` = 200 ở 1440 và 375 px; đổi tên + dời giờ +2 h → DB version 1 → 2, tải lại còn; không thông báo lỗi.
+- Trạng thái: ĐÓNG
+
 ### DEF-R6-D1 — (ĐÃ SỬA ec157a06 + 210f72d6; chạy lại P 2026-11-21 @50fe1a97: API removed:true, UI «Nguồn đã gỡ» ở 1440 và 375) Trích dẫn cũ vẫn hiện tên tài liệu đã bị xoá, không có «Nguồn đã gỡ»
 - Mức: Trung bình · TC: TC-P3-05-42 (phần b); ảnh hưởng nghi ngờ TC-P8-02-20 · Sprint gốc: 6 · Hồi quy: KHÔNG RÕ
 - Bước tái hiện: 1. SV hỏi, nhận câu trả lời có trích dẫn tài liệu X. 2. GV xoá X. 3. SV mở lại phiên chat.
