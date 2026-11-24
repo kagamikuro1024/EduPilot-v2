@@ -84,6 +84,10 @@ func NewOpenAI(c OpenAIConfig) Provider {
 
 const openCodeUA = "edupilot/2.0"
 
+// openCodeReasoningHeadroom: deepseek-v4.1-flash dùng ~600–1400 token suy luận NGAY CẢ ở effort=low và chúng tính vào max_tokens; với trần 1024 của gateway,
+// 2/5 lượt UTILITY bị cắt cụt giữa JSON (đo trên OpenCode Go thật) → BAD_RESPONSE. ponytail: cộng cố định; cấu hình theo mô hình khi cần.
+const openCodeReasoningHeadroom = 4096
+
 // isOpenCodeGo nhận ra OpenCode Go theo host của base_url (so khớp chính xác, `opencode.ai.evil.example` không khớp).
 func isOpenCodeGo(base string) bool {
 	u, err := url.Parse(base)
@@ -134,6 +138,9 @@ func (p *oaClient) params(o ChatOpts) openai.ChatCompletionNewParams {
 		prm.Temperature = openai.Float(t)
 	}
 	if o.MaxTokens > 0 {
+		if p.ocgo {
+			o.MaxTokens += openCodeReasoningHeadroom
+		}
 		// OpenAI / Anthropic: max_completion_tokens; Gemini và máy chủ tương thích: max_tokens (research mục "Ảnh hưởng").
 		if p.typ == "openai" || p.typ == "anthropic" {
 			prm.MaxCompletionTokens = openai.Int(int64(o.MaxTokens))
