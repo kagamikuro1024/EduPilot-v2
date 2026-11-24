@@ -2,7 +2,7 @@
 # Cổng nghiệm thu PE (US-PE-09 AC8): chạy từng bước, in bảng PASS/FAIL, dòng cuối `GATE PE: PASS|FAIL`.
 #   bash scripts/gate-pe.sh                 # bước không cần stack: go vet, test Go, sqlc, ui-antipatterns, Playwright exam.spec.ts
 #   GATE_K6=1 K6_BASE=https://localhost:773 bash scripts/gate-pe.sh    # thêm 3 kịch bản k6 trên stack TEST đã seed (xem benchmarks/load/exam-submit.js)
-#   GATE_SEED=1 bash scripts/gate-pe.sh     # thêm check-exam-seed.mjs bank|scores|demo (API_URL, SEED_DEFAULT_PASSWORD như seed.mjs)
+#   GATE_SEED=1 bash scripts/gate-pe.sh     # thêm check-exam-seed.mjs bank|scores|demo + Playwright *.real.spec.ts (khoá chat khi thi, thi thử 20 câu) (API_URL, SEED_DEFAULT_PASSWORD như seed.mjs)
 set -u
 cd "$(dirname "$0")/.."
 export DOCKER_HOST="${DOCKER_HOST:-unix://$HOME/.colima/default/docker.sock}" TESTCONTAINERS_RYUK_DISABLED=true
@@ -30,6 +30,7 @@ run "Playwright exam.spec.ts" fe sh -c 'E2E_API_PORT=${E2E_API_PORT:-3334} pnpm 
 
 if [ "${GATE_SEED:-}" = "1" ]; then
   for m in bank scores demo; do run "check-exam-seed.mjs $m" node scripts/check-exam-seed.mjs "$m"; done
+  run "Playwright *.real.spec.ts (TC-10-09, TC-12-10; API thật, seed)" fe env QC_REAL=1 QC_BASE="$(node -e 'console.log(new URL(process.argv[1]).origin)' "${API_URL:-https://localhost/api/v1}")" QC_PW="${SEED_DEFAULT_PASSWORD:-}" pnpm exec playwright test -c playwright.real.config.ts --workers=2
 fi
 if [ "${GATE_K6:-}" = "1" ]; then
   k6run() { k6 run -q -e BASE="${K6_BASE:-https://localhost}" -e SCENARIO="$1" ${2:+-e RUN="$2"} benchmarks/load/exam-submit.js; }
