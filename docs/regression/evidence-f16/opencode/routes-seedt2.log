@@ -1,0 +1,13 @@
+PUT CHAT 200
+PUT CLASSIFY 200
+PUT UTILITY 200
+PUT GRADING 200
+PUT QUESTION_GEN 200
+PUT INSIGHT 200
+sau CHAT [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau CLASSIFY [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau UTILITY [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau GRADING [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau QUESTION_GEN [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau INSIGHT [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau EMBEDDING []

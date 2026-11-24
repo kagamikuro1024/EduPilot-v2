@@ -1,0 +1,252 @@
+{
+ "meta": {
+  "commit": "e6f89f6c",
+  "timestamp": "2026-11-24T14:44:54.682Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "compose_project": "ep-r",
+   "CHAT": [
+    {
+     "provider": "OpenCode Go",
+     "model": "deepseek-v4.1-flash",
+     "rpm_limit": null
+    }
+   ],
+   "EMBEDDING": [
+    {
+     "provider": "OpenCode Go",
+     "model": "text-embedding-3-small",
+     "rpm_limit": null
+    }
+   ],
+   "model": "OpenCode Go/deepseek-v4.1-flash",
+   "rpm_limit": null
+  }
+ },
+ "at": "2026-11-24T14:44:54.682Z",
+ "summary": {
+  "n": 5,
+  "ai_answered": 5,
+  "ai_after_s": {
+   "n": 5,
+   "p50": 24.1,
+   "p90": 24.4,
+   "p95": 24.4,
+   "max": 24.4,
+   "mean": 22
+  }
+ },
+ "results": [
+  {
+   "title": "Phân biệt virus và sâu máy tính",
+   "thread_id": "01a20e02-02ef-78f6-85b0-b4026b67b420",
+   "ai_after_s": 24.4,
+   "ai": {
+    "id": "01a20e02-5b47-776d-ae99-80837f363d50",
+    "kind": "AI",
+    "author": null,
+    "body": "Virus cần **sự can thiệp của người dùng** để lây lan, thường qua tệp/email hoặc phương tiện lưu trữ di động [3]. Sâu (worm) tự động thực thi mã, cài bản sao vào bộ nhớ máy bị nhiễm và tự khai thác lỗ hổng mạng để lây sang máy khác, thường làm chậm mạng [3][5].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 51,
+      "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 5,
+      "title": "Network Security Threats",
+      "page_no": 53,
+      "snippet": "- Some viruses are programmed to damage the computer by damaging programs, deleting files, or reformatting the hard disk.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:42:45.189Z",
+    "confidence": "0.693",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   },
+   "regen": {
+    "after_s": 18.1,
+    "ai": {
+     "id": "01a20e02-9f33-7151-87dd-a7f6ea5cf478",
+     "kind": "AI",
+     "author": null,
+     "body": "Virus cần **sự can thiệp của người dùng** để lây lan: qua mạng dưới dạng tệp/email hoặc qua phương tiện tháo lắp được; nó gắn vào chương trình khác để thực thi hành vi không mong muốn [2]. Ví dụ theo ngữ cảnh: virus lây khi bạn mở tệp đính kèm email hoặc dùng USB nhiễm mã độc [2].\n\nSâu (worm) **tự lây lan**: nó thực thi mã tùy ý, cài bản sao vào bộ nhớ máy bị nhiễm và lây sang máy khác; worm khai thác lỗ hổng mạng một cách độc lập và thường làm chậm mạng [2][4]. Ví dụ theo cơ chế: worm tự quét/lây sang máy khác qua lỗ hổng mạng mà không cần người dùng mở tệp [4].",
+     "verification_state": "PENDING",
+     "citations": [
+      {
+       "n": 2,
+       "title": "Network Security Threats",
+       "page_no": 51,
+       "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+       "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+      },
+      {
+       "n": 4,
+       "title": "Network Security Threats",
+       "page_no": 53,
+       "snippet": "- Some viruses are programmed to damage the computer by damaging programs, deleting files, or reformatting the hard disk.",
+       "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+      }
+     ],
+     "version": 1,
+     "created_at": "2026-11-24T14:43:02.576749Z",
+     "confidence": "0.578",
+     "rejected": false,
+     "hidden": null,
+     "edited": false
+    }
+   }
+  },
+  {
+   "title": "Phishing qua email",
+   "thread_id": "01a20e02-bba1-7bd1-832e-4841381b4a8e",
+   "ai_after_s": 18.1,
+   "ai": {
+    "id": "01a20e03-0048-72da-8a8a-cfb3d362021b",
+    "kind": "AI",
+    "author": null,
+    "body": "Theo tài liệu, phishing là việc dùng email hoặc phương thức khác để lừa người khác cung cấp thông tin nhạy cảm như số thẻ tín dụng hoặc mật khẩu [3]. Bạn có thể cảnh giác với email có dấu hiệu: giả danh đồng nghiệp, nhà cung cấp, đối tác, người có thẩm quyền hoặc nhân viên mới nhờ giúp [1]; đề nghị hỗ trợ rồi gây ra sự cố để thao túng bạn [1]; gửi phần mềm/bản vá miễn phí để cài [1]; đính kèm virus hoặc Trojan Horse [1]; dùng thuật ngữ nội bộ để tạo tin cậy [1]; hoặc mời nhận thưởng khi đăng ký tài khoản/mật khẩu [1].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 24,
+      "snippet": "- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 129,
+      "snippet": "- Posing as a fellow employee, as an employee of a vendor, partner company, or law enforcement, as someone in authority, as a new employee requesting help, as a vendor or systems manufacturer calling",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:43:27.428864Z",
+    "confidence": "0.376",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  },
+  {
+   "title": "DoS và DDoS",
+   "thread_id": "01a20e03-1601-743b-8e9b-76a8a21f8888",
+   "ai_after_s": 24.2,
+   "ai": {
+    "id": "01a20e03-69d5-74ff-8bcc-a0c19adf7c13",
+    "kind": "AI",
+    "author": null,
+    "body": "Theo tài liệu, DDoS dùng phương thức tấn công tương tự DoS thông thường nhưng hoạt động ở quy mô lớn hơn nhiều: thường có hàng trăm hoặc hàng nghìn điểm tấn công cùng lúc nhằm làm quá tải mục tiêu [3].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 101,
+      "snippet": "- DDoS attack risks include: - – Downtime and productivity loss - – Revenue loss from sales and support services - – Lost customer loyalty - – Theft of information - – Extortion - – Stock price",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:43:54.450115Z",
+    "confidence": "0.864",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  },
+  {
+   "title": "Trojan horse",
+   "thread_id": "01a20e03-87f5-799d-9588-2e8088bffbfc",
+   "ai_after_s": 24.1,
+   "ai": {
+    "id": "01a20e03-e372-760c-be8e-e1630b768f54",
+    "kind": "AI",
+    "author": null,
+    "body": "Trojan horse là chương trình trông như thực hiện chức năng hữu ích nhưng thực chất tạo điều kiện truy cập trái phép vào hệ thống [2]. Khác với virus, Trojan horse **không tự nhân bản** [2]; nó chỉ là một ứng dụng được viết để trông giống thứ khác nhưng thực chất là công cụ tấn công [3].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 2,
+      "title": "Network Security Threats",
+      "page_no": 58,
+      "snippet": "http://www.cbc.ca/technology/story/2009/12/16/f-forbes-adobe-hacked-software.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 51,
+      "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:44:25.58556Z",
+    "confidence": "0.767",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  },
+  {
+   "title": "Tấn công do thám",
+   "thread_id": "01a20e03-f9e2-76bf-9ae9-c9343439c782",
+   "ai_after_s": 18.1,
+   "ai": {
+    "id": "01a20e04-3d8e-73f7-959b-7e69be65c6c3",
+    "kind": "AI",
+    "author": null,
+    "body": "Tấn công do thám (reconnaissance) — còn gọi là thu thập thông tin — là việc phát hiện và lập bản đồ trái phép các hệ thống, dịch vụ hoặc lỗ hổng, thường xảy ra trước một cuộc tấn công truy cập hoặc DoS [1]. Các hình thức gồm: truy vấn thông tin trên Internet (dùng công cụ như whois, nslookup để biết ai sở hữu tên miền và địa chỉ được gán) [1], quét ping (ICMP sweep) để xác định dải IP nào ứng với host đang sống [1], quét cổng (gửi thông điệp tới từng cổng để xem cổng có được dùng và có thể bị dò lỗ hổng) [1], và dùng packet sniffer [1]. Ngoài ra, kẻ tấn công còn dùng ping scan để xác định mục tiêu dễ bị tổn thương và application scan để nhận diện hệ điều hành, phần mềm có lỗ hổng [2].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 72,
+      "snippet": "- Reconnaissance also known as information gathering is the unauthorized discovery and mapping of systems, services, or vulnerabilities. - – In most cases, precedes an access or DoS attack.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 2,
+      "title": "Network Security Threats",
+      "page_no": 61,
+      "snippet": "- – Vulnerable targets are identified using ping scans. - – Application scans are used to identify operating systems and vulnerable software.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:44:48.653351Z",
+    "confidence": "0.795",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  }
+ ]
+}

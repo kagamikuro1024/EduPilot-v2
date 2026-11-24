@@ -1,0 +1,216 @@
+[
+ {
+  "title": "Phishing qua email",
+  "thread_id": "01a20e04-cfd7-70d1-910b-592f9354b6f9",
+  "ai_after_s": 9.3,
+  "ai": {
+   "id": "01a20e04-eadd-7b03-a590-ebde93648b48",
+   "kind": "AI",
+   "author": null,
+   "body": "Bạn có thể nhận ra email lừa đảo (phishing) qua việc kẻ tấn công dùng email nhằm dụ người nhận cung cấp thông tin nhạy cảm như số thẻ tín dụng hoặc mật khẩu [3]. Các dấu hiệu khác gồm: giả danh đồng nghiệp, nhà cung cấp/đối tác, người có thẩm quyền hoặc nhân viên mới nhờ giúp; gửi phần mềm/bản vá miễn phí để cài; đính kèm virus hoặc Trojan Horse; và mời nhận thưởng khi đăng ký tài khoản bằng username/password [1].",
+   "verification_state": "PENDING",
+   "citations": [
+    {
+     "n": 3,
+     "title": "Network Security Threats",
+     "page_no": 24,
+     "snippet": "- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.",
+     "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+    },
+    {
+     "n": 1,
+     "title": "Network Security Threats",
+     "page_no": 129,
+     "snippet": "- Posing as a fellow employee, as an employee of a vendor, partner company, or law enforcement, as someone in authority, as a new employee requesting help, as a vendor or systems manufacturer calling",
+     "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+    }
+   ],
+   "version": 1,
+   "created_at": "2026-11-24T14:45:33.020509Z",
+   "confidence": "0.444",
+   "rejected": false,
+   "hidden": null,
+   "edited": false
+  },
+  "ai_state": {
+   "ai_state": "ANSWERED"
+  },
+  "regen": {
+   "after_s": 15.1,
+   "ai": {
+    "id": "01a20e05-281c-7a2d-8a1c-455d1ab03a14",
+    "kind": "AI",
+    "author": null,
+    "body": "Bạn có thể nhận ra email phishing qua các dấu hiệu: email giả danh đồng nghiệp, nhà cung cấp, đối tác, cơ quan thực thi pháp luật hoặc người có thẩm quyền để tạo lòng tin [1]; dụ bạn cung cấp thông tin nhạy cảm như số thẻ tín dụng hoặc mật khẩu [5]; đính kèm virus/Trojan Horse trong email [1]; mời bạn đăng ký nhận thưởng tại website bằng username và mật khẩu [1]; hoặc gửi phần mềm/bản vá miễn phí để bạn cài đặt [1].\n\nVí dụ cụ thể: một email tự xưng là nhân viên nhà cung cấp hệ thống, gửi “bản vá” đính kèm và đề nghị bạn cài đặt [1]; hoặc email báo bạn trúng thưởng và yêu cầu đăng ký bằng tài khoản/mật khẩu [1].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 129,
+      "snippet": "- Posing as a fellow employee, as an employee of a vendor, partner company, or law enforcement, as someone in authority, as a new employee requesting help, as a vendor or systems manufacturer calling",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 5,
+      "title": "Network Security Threats",
+      "page_no": 24,
+      "snippet": "- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:45:48.699354Z",
+    "confidence": "0.487",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   }
+  }
+ },
+ {
+  "title": "DoS và DDoS",
+  "thread_id": "01a20e05-41cf-7a71-92df-a3f6a1a955bc",
+  "ai_after_s": 6.1,
+  "ai": {
+   "id": "01a20e05-5318-7ce1-8fc6-e7b55d7247f6",
+   "kind": "AI",
+   "author": null,
+   "body": "DDoS dùng phương thức tấn công tương tự DoS thông thường nhưng hoạt động ở quy mô lớn hơn nhiều: thường có hàng trăm hoặc hàng nghìn điểm tấn công cùng lúc nhằm làm quá tải mục tiêu [3].",
+   "verification_state": "PENDING",
+   "citations": [
+    {
+     "n": 3,
+     "title": "Network Security Threats",
+     "page_no": 101,
+     "snippet": "- DDoS attack risks include: - – Downtime and productivity loss - – Revenue loss from sales and support services - – Lost customer loyalty - – Theft of information - – Extortion - – Stock price",
+     "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+    }
+   ],
+   "version": 1,
+   "created_at": "2026-11-24T14:45:59.702123Z",
+   "confidence": "0.864",
+   "rejected": false,
+   "hidden": null,
+   "edited": false
+  },
+  "ai_state": {
+   "ai_state": "ANSWERED"
+  },
+  "regen": {
+   "after_s": 93.6,
+   "ai": {
+    "id": "01a20e06-bca1-7dd7-a507-64d7cb12c3c0",
+    "kind": "AI",
+    "author": null,
+    "body": "DDoS dùng phương thức tương tự DoS nhưng quy mô lớn hơn nhiều: thường có hàng trăm/hàng nghìn điểm tấn công cùng nhắm vào mục tiêu, trong khi DoS là phiên bản đơn giản hơn [3][4].\n\nVí dụ:\n- DoS: Ping of death, Smurf Attack, TCP SYN flood attack [1].\n- DDoS: Tribe Flood Network (TFN), Stacheldraht [4].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 99,
+      "snippet": "- A DDoS attack and the simpler version of a DoS attack on a server, send extremely large numbers of requests over a network or the Internet.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 4,
+      "title": "Network Security Threats",
+      "page_no": 101,
+      "snippet": "- DDoS attack risks include: - – Downtime and productivity loss - – Revenue loss from sales and support services - – Lost customer loyalty - – Theft of information - – Extortion - – Stock price",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 91,
+      "snippet": "- There are four categories of attacks: - – Malicious Code: Viruses, Worms and Trojan Horses - – Reconnaissance Attacks - – Access Attacks - – Denial of Service (DoS) Attacks Let ' s focus on DoS",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:47:32.256056Z",
+    "confidence": "0.871",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   }
+  }
+ },
+ {
+  "title": "Trojan horse",
+  "thread_id": "01a20e06-da9c-76fa-905d-f8aba69f7a90",
+  "ai_after_s": 24.1,
+  "ai": {
+   "id": "01a20e07-3519-70eb-99b8-0a4be6d5a31a",
+   "kind": "AI",
+   "author": null,
+   "body": "Trojan horse là chương trình trông như thực hiện chức năng hữu ích nhưng thực chất tạo điều kiện truy cập trái phép vào hệ thống; nó có thể trông hữu ích/vô hại nhưng gây hại khi được chạy [2].\n\nKhác virus ở điểm: Trojan horse **không tự nhân bản**, còn virus có thể tự sao chép và lây nhiễm mà người dùng không biết; virus cần có sự can thiệp của người dùng để lây lan [2][3]. Ngoài ra, Trojan là toàn bộ ứng dụng được viết để trông giống một thứ khác, còn virus thường gắn vào một chương trình khác để thực hiện chức năng không mong muốn [3].",
+   "verification_state": "PENDING",
+   "citations": [
+    {
+     "n": 2,
+     "title": "Network Security Threats",
+     "page_no": 58,
+     "snippet": "http://www.cbc.ca/technology/story/2009/12/16/f-forbes-adobe-hacked-software.",
+     "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+    },
+    {
+     "n": 3,
+     "title": "Network Security Threats",
+     "page_no": 51,
+     "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+     "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+    }
+   ],
+   "version": 1,
+   "created_at": "2026-11-24T14:48:03.095677Z",
+   "confidence": "0.660",
+   "rejected": false,
+   "hidden": null,
+   "edited": false
+  },
+  "ai_state": {
+   "ai_state": "ANSWERED"
+  },
+  "regen": {
+   "after_s": 9.1,
+   "ai": {
+    "id": "01a20e07-5bb4-7aa0-9f82-593647ac0005",
+    "kind": "AI",
+    "author": null,
+    "body": "Trojan horse là chương trình trông như có chức năng hữu ích nhưng thực chất tạo điều kiện cho truy cập trái phép vào hệ thống của người dùng [2]. Điểm khác virus: Trojan horse **không tự nhân bản**, còn virus có thể tự sao chép và cần sự can thiệp của người dùng để lây lan [2][4]; virus thường gắn vào chương trình khác để thực hiện hành vi không mong muốn, còn Trojan là cả ứng dụng được viết để trông giống thứ khác nhưng thực chất là công cụ tấn công [4].\n\nVí dụ cụ thể về Trojan horse: Trojan truy cập từ xa, Trojan gửi dữ liệu nhạy cảm như mật khẩu, Trojan phá hoại làm hỏng/xóa tệp, Trojan proxy, Trojan FTP mở cổng 21, Trojan vô hiệu hóa phần mềm bảo mật, hoặc Trojan từ chối dịch vụ làm chậm/ngừng hoạt động mạng [1].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 2,
+      "title": "Network Security Threats",
+      "page_no": 58,
+      "snippet": "http://www.cbc.ca/technology/story/2009/12/16/f-forbes-adobe-hacked-software.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 4,
+      "title": "Network Security Threats",
+      "page_no": 51,
+      "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     },
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 60,
+      "snippet": "- Remote - access Trojan Horse - – Enables unauthorized remote access - Data sending Trojan Horse - – Provides the attacker with sensitive data such as passwords - Destructive Trojan Horse - –",
+      "document_id": "01a1df28-8c4f-7185-bb07-8d4a41d1bbbb"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-24T14:48:12.977241Z",
+    "confidence": "0.875",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   }
+  }
+ }
+]

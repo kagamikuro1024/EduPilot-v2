@@ -1,0 +1,15 @@
+
+Running 6 tests using 1 worker
+
+(node:62946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:62946) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  1 [desktop] › e2e/qc-real-insights.spec.ts:16:1 › @real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/09/10/16/17/18) (2.2s)
+  ✓  2 [desktop] › e2e/qc-real-insights.spec.ts:57:1 › @real INS-2 thread ghim + buổi ôn tập (TC-05-11/12/14/15) (2.1s)
+  ✓  3 [desktop] › e2e/qc-real-insights.spec.ts:97:1 › @real INS-3 quyền, lỗi, 375 px (TC-05-19/20/21) (7.0s)
+
+  ✓  4 [desktop] › e2e/qc-real-insights.spec.ts:128:1 › @real INS-4 chọn kỳ (TC-04-04b) (1.5s)
+  ✓  5 [desktop] › e2e/qc-real-insights.spec.ts:154:1 › @real INS-5 nút nổi bật theo has_new_data (TC-05-06) + không dữ liệu mới (TC-05-08) (1.3s)
+  ✓  6 [desktop] › e2e/qc-real-insights.spec.ts:200:1 › @real INS-7 POST threads lỗi 500 giữ nháp (TC-05-13) (3.0s)
+
+  6 passed (17.7s)

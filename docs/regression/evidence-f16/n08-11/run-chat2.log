@@ -1,0 +1,35 @@
+=== chat 22:03:34
+Q01 COURSE_QA → COURSE_QA ev1=10ms tok1=50774ms done=64287ms {'has_citations': True}
+Q02 COURSE_QA → COURSE_QA ev1=9ms tok1=15710ms done=15723ms {'has_citations': False}
+Q03 COURSE_QA → COURSE_QA ev1=14ms tok1=8434ms done=11122ms {'has_citations': True}
+Q04 COURSE_QA → COURSE_QA ev1=8ms tok1=6042ms done=8637ms {'has_citations': True}
+Q05 COURSE_QA → COURSE_QA ev1=11ms tok1=11103ms done=22603ms {'has_citations': True}
+Q06 COURSE_QA → COURSE_QA ev1=9ms tok1=14737ms done=18418ms {'has_citations': True}
+Q07 COURSE_QA → COURSE_QA ev1=9ms tok1=7624ms done=7966ms {'has_citations': False}
+Q08 COURSE_QA → COURSE_QA ev1=9ms tok1=8395ms done=10036ms {'has_citations': True}
+Q09 COURSE_QA → COURSE_QA ev1=9ms tok1=14161ms done=32426ms {'has_citations': True}
+Q10 COURSE_QA → COURSE_QA ev1=8ms tok1=14663ms done=15036ms {'escalated': True}
+Q11 COURSE_QA → COURSE_QA ev1=15ms tok1=4878ms done=5053ms {'escalated': True}
+Q12 PERSONAL_ATTENDANCE → PERSONAL_ATTENDANCE ev1=7ms tok1=7072ms done=7208ms {'numbers_ok': True}
+Q13 PERSONAL_ATTENDANCE → PERSONAL_ATTENDANCE ev1=8ms tok1=7330ms done=8617ms {'numbers_ok': True}
+Q14 PERSONAL_PARTICIPATION → PERSONAL_PARTICIPATION ev1=6ms tok1=5596ms done=7423ms {'numbers_ok': True}
+Q15 PERSONAL_GRADE → PERSONAL_GRADE ev1=10ms tok1=2298ms done=3844ms {'mentions_bt03_score': False}
+Q16 PERSONAL_GRADE → PERSONAL_GRADE ev1=14ms tok1=4435ms done=7971ms {'mentions_bt03_score': False}
+Q17 WHAT_IF_GRADE → WHAT_IF_GRADE ev1=7ms tok1=18824ms done=21647ms {'mentions_bt03_score': False}
+Q18 GRADE_FORMULA → COURSE_QA ev1=8ms tok1=17448ms done=23171ms {'numbers_ok': True}
+Q19 OTHER_PERSON → OTHER_PERSON ev1=8ms tok1=11ms done=12ms {'refused_other': True}
+Q20 OTHER_PERSON → OTHER_PERSON ev1=6ms tok1=7ms done=8ms {'refused_other': True}
+Q21 EXAM_SCHEDULE → COURSE_QA ev1=5ms tok1=5977ms done=6548ms {}
+Q22 UPCOMING_EVENTS → UPCOMING_EVENTS ev1=9ms tok1=7151ms done=9325ms {}
+Q23 SMALLTALK → SMALLTALK ev1=6ms tok1=5382ms done=7868ms {}
+Q24 CRISIS → CRISIS ev1=6ms tok1=7ms done=8ms {}
+Q25 COURSE_QA → COURSE_QA ev1=6ms tok1=15321ms done=15894ms {'has_citations': False}
+Q26 COURSE_QA → COURSE_QA ev1=8ms tok1=10391ms done=11686ms {'has_citations': False}
+{'n': 26, 'intent_accuracy': '24/26', 'first_event_ms': {'n': 26, 'p50': 8, 'p90': 14, 'p95': 14, 'max': 15, 'mean': 9}, 'first_token_ms': {'n': 26, 'p50': 7330, 'p90': 17448, 'p95': 18824, 'max': 50774, 'mean': 10145}, 'done_ms': {'n': 26, 'p50': 8637, 'p90': 23171, 'p95': 32426, 'max': 64287, 'mean': 13174}, 'errors': [], 'llm_calls': 23}
+→ /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-f16/n08-11/out/chat.json
+=== escalate 22:11:05
+E1 {'intent': 'COURSE_QA', 'low_confidence': True, 'ticket': False, 'confidence': 0.304, 'citations': 2, 'error': None}
+E2 {'intent': 'UPCOMING_EVENTS', 'low_confidence': False, 'ticket': False, 'confidence': 1.0, 'citations': 0, 'error': None}
+E3 {'intent': 'COURSE_QA', 'low_confidence': True, 'ticket': False, 'confidence': 0.367, 'citations': 0, 'error': None}
+E4 {'intent': 'COURSE_QA', 'low_confidence': True, 'ticket': False, 'confidence': 0.295, 'citations': 0, 'error': None}
+=== done 22:12:03

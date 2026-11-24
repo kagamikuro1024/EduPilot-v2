@@ -1,0 +1,389 @@
+21:28:01 build gateway (available 6616 MB)
+ Image edupilot-gateway Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.51kB done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 2.21kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for gcr.io/distroless/static-debian12:nonroot
+#3 ...
+
+#4 [internal] load metadata for docker.io/library/golang:1.27
+#4 DONE 2.0s
+
+#3 [internal] load metadata for gcr.io/distroless/static-debian12:nonroot
+#3 DONE 2.4s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 62B done
+#5 DONE 0.0s
+
+#6 [build 1/6] FROM docker.io/library/golang:1.27@sha256:87f49b77a7b6a99ad7dc656be010ae453322459dd2ed902ac177649a302bc101
+#6 resolve docker.io/library/golang:1.27@sha256:87f49b77a7b6a99ad7dc656be010ae453322459dd2ed902ac177649a302bc101 done
+#6 DONE 0.0s
+
+#7 [gateway 1/2] FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
+#7 resolve gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab done
+#7 DONE 0.0s
+
+#8 [internal] load build context
+#8 transferring context: 10.92MB 0.2s done
+#8 DONE 0.2s
+
+#9 [build 3/6] COPY go.mod go.sum ./
+#9 CACHED
+
+#10 [build 4/6] RUN go mod download
+#10 CACHED
+
+#11 [build 5/6] COPY . .
+#11 CACHED
+
+#12 [build 2/6] WORKDIR /src
+#12 CACHED
+
+#13 [build 6/6] RUN go build -trimpath -ldflags "-s -w" -o /out/gateway ./cmd/gateway  && go build -trimpath -ldflags "-s -w" -o /out/worker ./cmd/worker  && go build -trimpath -ldflags "-s -w" -o /out/mock-graph ./cmd/mock-graph  && go build -trimpath -ldflags "-s -w" -o /out/mock-imap ./cmd/mock-imap
+#13 CACHED
+
+#14 [gateway 2/2] COPY --from=build /out/gateway /gateway
+#14 CACHED
+
+#15 resolving provenance for metadata file
+#15 DONE 0.0s
+
+#16 exporting to image
+#16 exporting layers done
+#16 exporting manifest sha256:3fb7b9b2cf0ccb00ee30b1f9dfd38d837d1e8cc61bf2ef4eeab07587bfc40b2a done
+#16 exporting config sha256:60538cc1ce40104b19eb50d1eb6331cd4c7d072e48e3b00f473f1c2f0a1c2208 done
+#16 exporting attestation manifest sha256:2ead7b38f6c43f37831cec8a53e079dc1769787cc2006d9dd77229db4a62badc done
+#16 exporting manifest list sha256:03f888436875e3e56b4d14e1f8124a55f2fece4ad13c87bf5b85b2695e4b92e4 done
+#16 naming to docker.io/library/edupilot-gateway:latest done
+#16 unpacking to docker.io/library/edupilot-gateway:latest done
+#16 DONE 0.0s
+ Image edupilot-gateway Built 
+21:28:04 gateway rc=0
+21:28:04 build worker (available 6616 MB)
+ Image edupilot-worker Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.94kB done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 2.21kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for gcr.io/distroless/static-debian12:nonroot
+#3 ...
+
+#4 [internal] load metadata for docker.io/library/golang:1.27
+#4 DONE 0.3s
+
+#3 [internal] load metadata for gcr.io/distroless/static-debian12:nonroot
+#3 DONE 0.4s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 62B done
+#5 DONE 0.0s
+
+#6 [build 1/6] FROM docker.io/library/golang:1.27@sha256:87f49b77a7b6a99ad7dc656be010ae453322459dd2ed902ac177649a302bc101
+#6 resolve docker.io/library/golang:1.27@sha256:87f49b77a7b6a99ad7dc656be010ae453322459dd2ed902ac177649a302bc101 done
+#6 DONE 0.0s
+
+#7 [worker 1/2] FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
+#7 resolve gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab done
+#7 DONE 0.0s
+
+#8 [internal] load build context
+#8 transferring context: 65.18kB 0.0s done
+#8 DONE 0.0s
+
+#9 [build 4/6] RUN go mod download
+#9 CACHED
+
+#10 [build 2/6] WORKDIR /src
+#10 CACHED
+
+#11 [build 5/6] COPY . .
+#11 CACHED
+
+#12 [build 3/6] COPY go.mod go.sum ./
+#12 CACHED
+
+#13 [build 6/6] RUN go build -trimpath -ldflags "-s -w" -o /out/gateway ./cmd/gateway  && go build -trimpath -ldflags "-s -w" -o /out/worker ./cmd/worker  && go build -trimpath -ldflags "-s -w" -o /out/mock-graph ./cmd/mock-graph  && go build -trimpath -ldflags "-s -w" -o /out/mock-imap ./cmd/mock-imap
+#13 CACHED
+
+#14 [worker 2/2] COPY --from=build /out/worker /worker
+#14 CACHED
+
+#15 resolving provenance for metadata file
+#15 DONE 0.0s
+
+#16 exporting to image
+#16 exporting layers done
+#16 exporting manifest sha256:be659ebd2fc133d8d0a0bb99eb4ff71b0585192aea41d3eaeecdf069ed45f812 done
+#16 exporting config sha256:5192efdc871d6802935c36fbe06674fdd12ee8d4f5d495bfff7e029eb5dd7f42 done
+#16 exporting attestation manifest sha256:cc82c65c3da4ced969f5015720b18063604137513ebee4daa68f2317fdd955bf done
+#16 exporting manifest list sha256:af0bbbd1d2805d49e44aba2cf93b71b178db8ab86b03deb45cde3c1fca58fc65 done
+#16 naming to docker.io/library/edupilot-worker:latest done
+#16 unpacking to docker.io/library/edupilot-worker:latest done
+#16 DONE 0.0s
+ Image edupilot-worker Built 
+21:28:06 worker rc=0
+21:28:06 build frontend (available 6605 MB)
+ Image qc2seedt2-frontend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 535B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 991B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:24-alpine
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 161B done
+#4 DONE 0.0s
+
+#5 [build 1/8] FROM docker.io/library/node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
+#5 resolve docker.io/library/node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5 done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 100.23kB 0.1s done
+#6 DONE 0.1s
+
+#7 [build 5/8] COPY frontend/package.json frontend/
+#7 CACHED
+
+#8 [build 2/8] WORKDIR /app
+#8 CACHED
+
+#9 [build 3/8] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+#9 CACHED
+
+#10 [build 4/8] RUN npm install -g "pnpm@$(node -p "require('./package.json').packageManager.split('@')[1]")"
+#10 CACHED
+
+#11 [build 6/8] RUN pnpm install --frozen-lockfile --filter frontend
+#11 CACHED
+
+#12 [build 7/8] COPY frontend frontend
+#12 DONE 0.3s
+
+#13 [build 8/8] RUN pnpm -C frontend build
+#13 0.256 $ next build
+#13 0.829 ▲ Next.js 16.3.7 (Turbopack)
+#13 1.131 ✓ Running next.config.ts took 302ms
+#13 1.145 - Experiments (use with caution):
+#13 1.145   ✓ inlineCss
+#13 1.145 
+#13 1.177   Creating an optimized production build ...
+#13 9.259 ✓ Compiled successfully in 7.9s
+#13 9.264   Running TypeScript ...
+#13 20.42   Finished TypeScript in 11.2s ...
+#13 20.43   Collecting page data using 5 workers ...
+#13 21.15   Generating static pages using 5 workers (0/40) ...
+#13 21.63   Generating static pages using 5 workers (10/40) 
+#13 21.86   Generating static pages using 5 workers (20/40) 
+#13 21.89   Generating static pages using 5 workers (30/40) 
+#13 21.93 ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+#13 22.06 ✓ Generating static pages using 5 workers (40/40) in 912ms
+#13 22.06   Finalizing page optimization ...
+#13 22.49 
+#13 22.49 Route (app)
+#13 22.49 ┌ ○ /
+#13 22.49 ├ ○ /_not-found
+#13 22.49 ├ ƒ /[...slug]
+#13 22.49 ├ ○ /admin/audit
+#13 22.49 ├ ○ /admin/courses
+#13 22.49 ├ ○ /admin/users
+#13 22.49 ├ ○ /analytics
+#13 22.49 ├ ○ /assignments
+#13 22.49 ├ ƒ /assignments/[id]
+#13 22.49 ├ ○ /attendance
+#13 22.49 ├ ○ /attendance/display
+#13 22.49 ├ ○ /calendar
+#13 22.49 ├ ○ /chat
+#13 22.49 ├ ○ /checkin
+#13 22.49 ├ ○ /class/members
+#13 22.49 ├ ○ /class/settings
+#13 22.49 ├ ƒ /dev/[...slug]
+#13 22.49 ├ ○ /documents
+#13 22.49 ├ ○ /exams
+#13 22.49 ├ ƒ /exams/[id]
+#13 22.49 ├ ƒ /exams/[id]/results
+#13 22.49 ├ ƒ /exams/[id]/similarity
+#13 22.49 ├ ƒ /exams/[id]/take
+#13 22.49 ├ ○ /forgot-password
+#13 22.49 ├ ○ /gradebook
+#13 22.49 ├ ○ /gradebook/scheme
+#13 22.49 ├ ○ /grading
+#13 22.49 ├ ƒ /grading/[submissionId]
+#13 22.49 ├ ○ /inbox
+#13 22.49 ├ ○ /insights
+#13 22.49 ├ ƒ /invite/[token]
+#13 22.49 ├ ○ /join
+#13 22.49 ├ ƒ /join/[code]
+#13 22.49 ├ ○ /library
+#13 22.49 ├ ƒ /library/[id]
+#13 22.49 ├ ○ /login
+#13 22.49 ├ ○ /manifest.webmanifest
+#13 22.49 ├ ○ /me
+#13 22.49 ├ ○ /observability
+#13 22.49 ├ ○ /practice
+#13 22.49 ├ ƒ /practice/[attemptId]
+#13 22.49 ├ ○ /practice/history
+#13 22.49 ├ ○ /questions
+#13 22.49 ├ ○ /register
+#13 22.49 ├ ○ /reset-password
+#13 22.49 ├ ○ /settings
+#13 22.49 ├ ○ /settings/integrations
+#13 22.49 ├ ○ /settings/llm
+#13 22.49 ├ ○ /students
+#13 22.49 ├ ƒ /students/[id]
+#13 22.49 ├ ○ /threads
+#13 22.49 ├ ƒ /threads/[id]
+#13 22.49 └ ○ /verify-email
+#13 22.49 
+#13 22.49 
+#13 22.49 ○  (Static)   prerendered as static content
+#13 22.49 ƒ  (Dynamic)  server-rendered on demand
+#13 22.49 
+#13 DONE 23.1s
+
+#8 [build 2/8] WORKDIR /app
+#8 CACHED
+
+#14 [stage-1 3/5] COPY --from=build --chown=node:node /app/frontend/.next/standalone ./
+#14 DONE 0.5s
+
+#15 [stage-1 4/5] COPY --from=build --chown=node:node /app/frontend/.next/static ./frontend/.next/static
+#15 DONE 0.0s
+
+#16 [stage-1 5/5] COPY --from=build --chown=node:node /app/frontend/public ./frontend/public
+#16 DONE 0.1s
+
+#17 exporting to image
+#17 exporting layers
+#17 exporting layers 2.3s done
+#17 exporting manifest sha256:93351453369cc503363a79b6de617781625aaf6d5c0169f974fc70bef45d5776 done
+#17 exporting config sha256:b6865f437841d2f8e39396097c1891ec6aac40409244cd9f0ddc5681a639a1c9 done
+#17 exporting attestation manifest sha256:ff1e4257d37a4249a4b7ff6d6ed523fc340dafce5391b0500ee42e2e204f8f7d 0.0s done
+#17 exporting manifest list sha256:de6b6229828391f59214bdb0b8b013006a0861a96188028eff4a6a80a8fe3924 done
+#17 naming to docker.io/library/qc2seedt2-frontend:latest done
+#17 unpacking to docker.io/library/qc2seedt2-frontend:latest
+#17 unpacking to docker.io/library/qc2seedt2-frontend:latest 0.6s done
+#17 DONE 3.0s
+
+#18 resolving provenance for metadata file
+#18 DONE 0.0s
+ Image qc2seedt2-frontend Built 
+21:28:34 frontend rc=0
+21:28:34 up -d (start toàn stack, giữ volume)
+ Container qc2seedt2-frontend-1 Recreate 
+ Container qc2seedt2-judge-1 Recreate 
+ Container qc2seedt2-mock-graph-1 Recreate 
+ Container qc2seedt2-docling-1 Recreate 
+ Container qc2seedt2-mock-imap-1 Recreate 
+ Container qc2seedt2-migrate-1 Recreate 
+ Container qc2seedt2-judge-1 Recreated 
+ Container qc2seedt2-frontend-1 Recreated 
+ Container qc2seedt2-migrate-1 Recreated 
+ Container qc2seedt2-mock-imap-1 Recreated 
+ Container qc2seedt2-mock-graph-1 Recreated 
+ Container qc2seedt2-gateway-1 Recreate 
+ Container qc2seedt2-worker-1 Recreate 
+ Container qc2seedt2-docling-1 Recreated 
+ Container qc2seedt2-worker-1 Recreated 
+ Container qc2seedt2-gateway-1 Recreated 
+ Container qc2seedt2-mock-graph-1 Starting 
+ Container qc2seedt2-docling-1 Starting 
+ Container qc2seedt2-mock-imap-1 Starting 
+ Container qc2seedt2-redis-1 Starting 
+ Container qc2seedt2-postgres-1 Starting 
+ Container qc2seedt2-judge-1 Starting 
+ Container qc2seedt2-minio-1 Starting 
+ Container qc2seedt2-mailpit-1 Starting 
+ Container qc2seedt2-frontend-1 Starting 
+ Container qc2seedt2-mock-graph-1 Started 
+ Container qc2seedt2-docling-1 Started 
+ Container qc2seedt2-mock-imap-1 Started 
+ Container qc2seedt2-redis-1 Started 
+ Container qc2seedt2-postgres-1 Started 
+ Container qc2seedt2-postgres-1 Waiting 
+ Container qc2seedt2-postgres-1 Waiting 
+ Container qc2seedt2-judge-1 Started 
+ Container qc2seedt2-minio-1 Started 
+ Container qc2seedt2-mailpit-1 Started 
+ Container qc2seedt2-frontend-1 Started 
+ Container qc2seedt2-postgres-1 Healthy 
+ Container qc2seedt2-postgres-1 Healthy 
+ Container qc2seedt2-pgbouncer-1 Starting 
+ Container qc2seedt2-migrate-1 Starting 
+ Container qc2seedt2-pgbouncer-1 Started 
+ Container qc2seedt2-migrate-1 Started 
+ Container qc2seedt2-redis-1 Waiting 
+ Container qc2seedt2-mailpit-1 Waiting 
+ Container qc2seedt2-mock-graph-1 Waiting 
+ Container qc2seedt2-judge-1 Waiting 
+ Container qc2seedt2-redis-1 Waiting 
+ Container qc2seedt2-minio-1 Waiting 
+ Container qc2seedt2-mock-graph-1 Waiting 
+ Container qc2seedt2-migrate-1 Waiting 
+ Container qc2seedt2-pgbouncer-1 Waiting 
+ Container qc2seedt2-migrate-1 Waiting 
+ Container qc2seedt2-pgbouncer-1 Waiting 
+ Container qc2seedt2-redis-1 Healthy 
+ Container qc2seedt2-migrate-1 Exited 
+ Container qc2seedt2-mock-graph-1 Healthy 
+ Container qc2seedt2-migrate-1 Exited 
+ Container qc2seedt2-redis-1 Healthy 
+ Container qc2seedt2-mock-graph-1 Healthy 
+ Container qc2seedt2-mailpit-1 Healthy 
+ Container qc2seedt2-judge-1 Healthy 
+ Container qc2seedt2-minio-1 Healthy 
+ Container qc2seedt2-pgbouncer-1 Healthy 
+ Container qc2seedt2-pgbouncer-1 Healthy 
+ Container qc2seedt2-worker-1 Starting 
+ Container qc2seedt2-gateway-1 Starting 
+ Container qc2seedt2-worker-1 Started 
+ Container qc2seedt2-gateway-1 Started 
+ Container qc2seedt2-gateway-1 Waiting 
+ Container qc2seedt2-gateway-1 Healthy 
+ Container qc2seedt2-caddy-1 Starting 
+ Container qc2seedt2-caddy-1 Started 
+ Container qc2seedt2-redis-1 Waiting 
+ Container qc2seedt2-judge-1 Waiting 
+ Container qc2seedt2-frontend-1 Waiting 
+ Container qc2seedt2-caddy-1 Waiting 
+ Container qc2seedt2-worker-1 Waiting 
+ Container qc2seedt2-mock-graph-1 Waiting 
+ Container qc2seedt2-migrate-1 Waiting 
+ Container qc2seedt2-mock-imap-1 Waiting 
+ Container qc2seedt2-minio-1 Waiting 
+ Container qc2seedt2-docling-1 Waiting 
+ Container qc2seedt2-gateway-1 Waiting 
+ Container qc2seedt2-mailpit-1 Waiting 
+ Container qc2seedt2-postgres-1 Waiting 
+ Container qc2seedt2-pgbouncer-1 Waiting 
+ Container qc2seedt2-migrate-1 Exited 
+ Container qc2seedt2-mock-graph-1 Healthy 
+ Container qc2seedt2-judge-1 Healthy 
+ Container qc2seedt2-redis-1 Healthy 
+ Container qc2seedt2-frontend-1 Healthy 
+ Container qc2seedt2-worker-1 Healthy 
+ Container qc2seedt2-mailpit-1 Healthy 
+ Container qc2seedt2-mock-imap-1 Healthy 
+ Container qc2seedt2-minio-1 Healthy 
+ Container qc2seedt2-postgres-1 Healthy 
+ Container qc2seedt2-gateway-1 Healthy 
+ Container qc2seedt2-pgbouncer-1 Healthy 
+ Container qc2seedt2-docling-1 Healthy 
+ Container qc2seedt2-caddy-1 Healthy 
+up rc=0
+UP_DONE

@@ -1,0 +1,9 @@
+=== threads 21:42:21
+Phân biệt virus và sâu máy tính 24.4 s True True
+Phishing qua email 18.1 s True False
+DoS và DDoS 24.2 s True False
+Trojan horse 24.1 s True False
+Tấn công do thám 18.1 s True False
+{'n': 5, 'ai_answered': 5, 'ai_after_s': {'n': 5, 'p50': 24.1, 'p90': 24.4, 'p95': 24.4, 'max': 24.4, 'mean': 22}}
+→ /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-f16/n08-11/out/threads.json
+=== done 21:44:54

@@ -7,7 +7,7 @@ source $R/docs/regression/env/ep-r-env.sh
 LOCK=/tmp/qc2-lock-global; LOG=/tmp/qc2-global-changes.log
 for i in $(seq 1 80); do mkdir $LOCK 2>/dev/null && break; sleep 15; done
 echo qc2 > $LOCK/owner
-echo "$(date +%T) qc2: LOCK rebuild ep-r gateway+worker @$(git rev-parse --short HEAD); ≤15 phút" >> $LOG
+echo "$(date +%T) qc2: LOCK rebuild ep-r gateway+worker @$(git rev-parse --short HEAD) (+AI_SUMMARY_TIMEOUT=60s); ≤15 phút" >> $LOG
 for sv in gateway worker; do
   fr=$(colima ssh -- free -m | awk '/^Mem/{print $7}'); echo "build $sv free=$fr"; [ "${fr:-0}" -ge 2500 ] || { echo 'RAM < 2500, dừng'; break; }
   $EPR_C build $sv 2>&1 | tail -3; $EPR_C up -d --no-deps $sv 2>&1 | tail -3

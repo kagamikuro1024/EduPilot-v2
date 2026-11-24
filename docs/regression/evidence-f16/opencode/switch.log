@@ -1,0 +1,8 @@
+PUT provider try 1 200 
+base_url https://opencode.ai/inference/go/openai/v1
+embed model 01a20e01-4886-79f8-9fb9-74334f67749e 1536
+test chat 200 {'ok': True, 'latency_ms': 5605}
+test embed 200 {'ok': True, 'latency_ms': 2478}
+EMBEDDING trước [] 0 None
+PUT EMBEDDING 200 {"task": "EMBEDDING", "lane": "BATCH", "chain": [{"model_id": "01a20e01-4886-79f8-9fb9-74334f67749e", "provider_id": "01a20de1-39c7-7f15-8a4d-97ed33b42adb", "provider_name": "OpenCode Go", "model": "text-embedding-3-small"}], "params": {}, "version": 1, "reindex_required": false}
+sau {'model_id': '01a20e01-4886-79f8-9fb9-74334f67749e', 'provider_name': 'OpenCode Go', 'model': 'text-embedding-3-small', 'dims': 1536, 'reindex_required': False, 'indexed_chunks': None}

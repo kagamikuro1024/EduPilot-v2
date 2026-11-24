@@ -1,47 +1,227 @@
 [
  {
   "account": "sv.gioi",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6508-7d9b-8577-7497e45a2315/ai-summary → 504 {\"code\":\"DEADLINE_EXCEEDED\",\"message\":\"Xử lý quá thời hạn.\",\"trace_id\":\"e31eb85c09a1664b74b11be172dc913e\"}\n",
+  "s": 10.9,
+  "draft": {
+   "summary": "Sinh viên có mặt đủ 10/10 buổi được ghi nhận, không vắng, trễ hay không phép. Điểm tham gia ghi nhận 3.00 với 12 lượt phát biểu. Thời gian học theo tuần là 300, 300, 300, 0 phút; số câu hỏi theo tuần là 0, 0, 1, 68; số bài đăng là 0, 0, 6, 0. Không có mã lý do rủi ro.",
+   "strengths": [
+    "Duy trì hiện diện đầy đủ trong 10/10 buổi được ghi nhận.",
+    "Có 12 lượt phát biểu, cho thấy mức tham gia ở lớp.",
+    "Có hoạt động hỏi đáp và bài đăng trong một số tuần."
+   ],
+   "concerns": [
+    "Thời gian học tuần 4 ghi nhận 0 phút, khác với 300 phút ở ba tuần trước.",
+    "Câu hỏi tập trung mạnh ở tuần 4 với 68 lượt, trong khi tuần 1–2 là 0.",
+    "Bài đăng chỉ xuất hiện ở tuần 3 với 6 bài, các tuần còn lại là 0."
+   ],
+   "suggestions": [
+    "Duy trì tỉ lệ hiện diện hiện tại.",
+    "Phân bổ thời gian học đều hơn giữa các tuần, tránh để tuần 4 ở mức 0.",
+    "Cân đối hoạt động hỏi đáp và bài đăng giữa các tuần để ổn định hơn."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 1
  },
  {
   "account": "sv.gioi",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6508-7d9b-8577-7497e45a2315/ai-summary → 504 {\"code\":\"DEADLINE_EXCEEDED\",\"message\":\"Xử lý quá thời hạn.\",\"trace_id\":\"ea16f1ec2c5fe07d9d6b045326ac227e\"}\n",
+  "s": 12.6,
+  "draft": {
+   "summary": "Dữ liệu cho thấy sinh viên có mặt đầy đủ 10/10 buổi, không vắng, không trễ, không có buổi nghỉ có phép. Sinh viên có 12 lượt phát biểu và điểm tham gia ghi nhận 3,00. Thời gian học là 300 phút/tuần trong 3 tuần đầu, nhưng tuần 4 ghi nhận 0 phút. Số câu hỏi chủ yếu tập trung ở tuần 4 với 68 lượt, trong khi các tuần trước là 0, 0, 1. Bài đăng chỉ xuất hiện ở tuần 3 với 6 lượt. Không có mã lý do rủi ro.",
+   "strengths": [
+    "Có mặt đầy đủ 10/10 buổi, không vắng hoặc trễ.",
+    "Có 12 lượt phát biểu trong lớp.",
+    "Duy trì 300 phút học/tuần trong 3 tuần đầu."
+   ],
+   "concerns": [
+    "Tuần 4 ghi nhận 0 phút học, khác với 3 tuần trước.",
+    "Số câu hỏi tăng mạnh ở tuần 4 (68 lượt) so với các tuần trước.",
+    "Bài đăng chỉ có ở tuần 3 (6 lượt), các tuần khác ghi nhận 0."
+   ],
+   "suggestions": [
+    "Rà soát phân bố thời gian học và hoạt động hỏi/đăng bài theo tuần để duy trì mức đều hơn.",
+    "Tiếp tục duy trì tỷ lệ có mặt và phát biểu trong lớp.",
+    "Đối chiếu dữ liệu tuần 4 với các tuần khác để xác nhận tính đầy đủ của ghi nhận."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 2
  },
  {
   "account": "sv.gioi",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6508-7d9b-8577-7497e45a2315/ai-summary → 429 Retry-After 2197s",
+  "s": 7.6,
+  "draft": {
+   "summary": "Sinh viên có mặt đủ 10/10 buổi, không vắng/trễ; số lần phát biểu là 12. Thời gian học ghi nhận 300 phút/tuần trong 3 tuần đầu và 0 phút ở tuần 4. Số câu hỏi theo tuần là 0,0,1,68; bài đăng là 0,0,6,0. Không có mã lý do rủi ro.",
+   "strengths": [
+    "Duy trì hiện diện đầy đủ 10/10 buổi.",
+    "Có 12 lần phát biểu.",
+    "Ba tuần đầu duy trì 300 phút học mỗi tuần."
+   ],
+   "concerns": [
+    "Tuần 4 ghi nhận 0 phút học.",
+    "Số câu hỏi tăng mạnh ở tuần 4 (68) sau 1 câu ở tuần 3.",
+    "Bài đăng chỉ xuất hiện ở tuần 3 (6) và không có ở tuần 4."
+   ],
+   "suggestions": [
+    "Duy trì mức hiện diện hiện tại.",
+    "Phân bổ thời gian học đều hơn, chú ý tuần 4.",
+    "Chủ động đặt câu hỏi rải đều các tuần thay vì tập trung."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 3
  },
  {
   "account": "sv.kha",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6513-7e2b-8949-19e226a24332/ai-summary → 429 Retry-After 2189s",
+  "s": 8.5,
+  "draft": {
+   "summary": "Dữ liệu ghi nhận sinh viên có 10 buổi điểm danh: 7 present, 2 absent, 1 late, 0 excused. Tương tác: 2 lượt phát biểu, points_total 0.50. Thời gian học theo tuần: 150, 150, 150, 2 phút. Số câu hỏi theo tuần: 1, 0, 7, 120; số bài đăng: 0, 0, 2, 0. Không có mã lý do rủi ro được ghi.",
+   "strengths": [
+    "Có mặt 7/10 buổi điểm danh được ghi nhận.",
+    "Thời gian học 150 phút/tuần trong 3 tuần đầu.",
+    "Có 2 lượt phát biểu và 2 bài đăng ở tuần 3."
+   ],
+   "concerns": [
+    "Vắng 2 buổi và đi muộn 1 buổi trong 10 buổi ghi nhận.",
+    "Thời gian học tuần 4 chỉ 2 phút, thấp hơn 150 phút ở 3 tuần trước.",
+    "Số lượt phát biểu là 2; số bài đăng chỉ xuất hiện ở tuần 3 với 2 bài."
+   ],
+   "suggestions": [
+    "Duy trì đều đặn việc tham dự và thời gian học như 3 tuần đầu.",
+    "Tăng cường phát biểu trong các buổi tiếp theo.",
+    "Theo dõi diễn biến học tập và tương tác ở tuần 4 để có điều chỉnh phù hợp."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 1
  },
  {
   "account": "sv.kha",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6513-7e2b-8949-19e226a24332/ai-summary → 429 Retry-After 2181s",
+  "s": 9.9,
+  "draft": {
+   "summary": "Dữ liệu ghi nhận 10 buổi: 7 có mặt, 2 vắng, 1 muộn, 0 có phép; phát biểu 2 lần, điểm tham gia 0,50. Thời gian học theo tuần là 150, 150, 150 và 2 phút; số câu hỏi theo tuần là 1, 0, 7, 120; số bài đăng theo tuần là 0, 0, 2, 0. Không có mã lý do rủi ro.",
+   "strengths": [
+    "Có mặt 7/10 buổi ghi nhận.",
+    "Số câu hỏi tăng lên 7 ở tuần 3 và 120 ở tuần 4.",
+    "Có 2 bài đăng ở tuần 3."
+   ],
+   "concerns": [
+    "Thời gian học tuần 4 chỉ 2 phút, giảm mạnh so với 150 phút ở ba tuần trước.",
+    "Có 2 buổi vắng và 1 buổi muộn trong 10 buổi ghi nhận.",
+    "Số lần phát biểu ghi nhận là 2."
+   ],
+   "suggestions": [
+    "Theo dõi và duy trì thời gian học đều hơn giữa các tuần.",
+    "Tăng cường tham gia phát biểu nếu phù hợp với yêu cầu môn học.",
+    "Xem lại cách phân bổ câu hỏi và bài đăng giữa các tuần để ổn định hơn."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 2
  },
  {
   "account": "sv.kha",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6513-7e2b-8949-19e226a24332/ai-summary → 429 Retry-After 2173s",
+  "s": 6.3,
+  "draft": {
+   "summary": "Dữ liệu ghi nhận 10 buổi: 7 có mặt, 2 vắng, 1 đi muộn, 0 vắng có phép. Điểm tham gia là 0,50 với 2 lượt phát biểu. Thời gian học theo tuần lần lượt là 150, 150, 150 và 2 phút. Số câu hỏi theo tuần là 1, 0, 7, 120; số bài đăng là 0, 0, 2, 0. Không có mã lý do rủi ro.",
+   "strengths": [
+    "Có mặt trong 7/10 buổi đã ghi nhận.",
+    "Thời gian học duy trì 150 phút/tuần trong 3 tuần đầu.",
+    "Số câu hỏi tăng lên 120 ở tuần 4."
+   ],
+   "concerns": [
+    "Có 2 buổi vắng và 1 buổi đi muộn trong 10 buổi.",
+    "Số lượt phát biểu là 2 và điểm tham gia là 0,50.",
+    "Thời gian học tuần 4 giảm còn 2 phút."
+   ],
+   "suggestions": [
+    "Theo dõi thời gian học ở tuần 4 và các tuần tiếp theo.",
+    "Tăng cường tham gia phát biểu trong lớp.",
+    "Duy trì tỷ lệ có mặt và hạn chế đi muộn."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 3
  },
  {
   "account": "sv.nguyco",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-651a-7710-9d22-1bc37fec90bb/ai-summary → 429 Retry-After 2165s",
+  "s": 9.2,
+  "draft": {
+   "summary": "Trong 10 buổi được ghi nhận, sinh viên có 4 buổi có mặt, 5 buổi vắng và 1 buổi trễ. Điểm tham gia ghi nhận 0,25 với 1 lần phát biểu. Số phút học theo tuần lần lượt là 28, 35, 120, 0; số lượt hỏi theo tuần là 0, 0, 0, 59; số bài đăng theo tuần đều là 0. Dữ liệu có các mã rủi ro GRADE_LOW, STUDY_LOW, ACTIVITY_LOW.",
+   "strengths": [
+    "Có 4/10 buổi có mặt trong dữ liệu điểm danh.",
+    "Có 1 lần phát biểu và điểm tham gia ghi nhận 0,25.",
+    "Tuần 3 ghi nhận 120 phút học; tuần 4 có 59 lượt hỏi."
+   ],
+   "concerns": [
+    "Vắng 5/10 buổi và có 1 buổi trễ.",
+    "Số phút học có tuần bằng 0; số bài đăng các tuần đều bằng 0.",
+    "Có các mã rủi ro GRADE_LOW, STUDY_LOW, ACTIVITY_LOW."
+   ],
+   "suggestions": [
+    "Duy trì hiện diện đều đặn hơn trong các buổi được ghi nhận.",
+    "Phân bổ thời gian học ổn định hơn giữa các tuần.",
+    "Tăng cường phát biểu và đăng bài để tăng mức tham gia."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 1
  },
  {
   "account": "sv.nguyco",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-651a-7710-9d22-1bc37fec90bb/ai-summary → 429 Retry-After 2157s",
+  "s": 9.8,
+  "draft": {
+   "summary": "Trong 10 buổi được ghi nhận, sinh viên có 4 buổi có mặt, 1 buổi muộn và 5 buổi vắng, không có buổi vắng có phép. Điểm tham gia là 0,25 với 1 lần phát biểu. Thời gian học theo tuần lần lượt là 28, 35, 120 và 0 phút; số câu hỏi theo tuần là 0, 0, 0 và 59; số bài đăng là 0 ở cả 4 tuần.",
+   "strengths": [
+    "Có mặt 4/10 buổi và có 1 buổi muộn trong dữ liệu điểm danh.",
+    "Có 1 lần phát biểu, điểm tham gia ghi nhận 0,25.",
+    "Tuần 3 có 120 phút học, cao nhất trong các tuần được ghi nhận."
+   ],
+   "concerns": [
+    "Vắng 5/10 buổi và không có buổi vắng có phép.",
+    "Thời gian học không đều, tuần 4 ghi nhận 0 phút.",
+    "Số bài đăng là 0 ở cả 4 tuần; số câu hỏi chỉ tập trung ở tuần 4 với 59 lượt."
+   ],
+   "suggestions": [
+    "Cải thiện chuyên cần, hạn chế vắng mặt và đi muộn.",
+    "Duy trì thời gian học đều hơn giữa các tuần.",
+    "Tăng tương tác qua phát biểu/thảo luận và bài đăng đều đặn hơn."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 2
  },
  {
   "account": "sv.nguyco",
-  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-651a-7710-9d22-1bc37fec90bb/ai-summary → 429 Retry-After 2149s",
+  "s": 11.0,
+  "draft": {
+   "summary": "Trong 10 buổi được ghi nhận: có mặt 4, vắng 5, muộn 1, có phép 0. Điểm tham gia 0.25 với 1 lượt phát biểu. Số phút học theo tuần: 28, 35, 120, 0. Số lượt hỏi theo tuần: 0, 0, 0, 59; số bài đăng: 0 ở cả 4 tuần. Hệ thống ghi nhận các mã rủi ro GRADE_LOW, STUDY_LOW, ACTIVITY_LOW.",
+   "strengths": [
+    "Có mặt 4/10 buổi được ghi nhận và có 1 buổi muộn.",
+    "Có 1 lượt phát biểu và điểm tham gia 0.25.",
+    "Tuần 3 có 120 phút học; tuần 4 có 59 lượt hỏi."
+   ],
+   "concerns": [
+    "Vắng 5/10 buổi được ghi nhận; không có buổi có phép.",
+    "Số phút học tuần 4 là 0; các tuần còn lại là 28, 35, 120.",
+    "Số bài đăng là 0 ở cả 4 tuần; số lượt hỏi là 0 ở tuần 1–3."
+   ],
+   "suggestions": [
+    "Theo dõi chuyên cần và có biện pháp hỗ trợ phù hợp khi vắng.",
+    "Khuyến khích duy trì thời lượng học đều hơn theo tuần.",
+    "Gợi ý tăng tương tác qua phát biểu/bài đăng và tiếp tục sử dụng kênh hỏi bài."
+   ]
+  },
+  "contains_name": false,
+  "contains_code": false,
   "try": 3
  }
 ]

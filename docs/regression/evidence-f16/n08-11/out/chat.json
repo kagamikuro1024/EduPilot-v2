@@ -1,60 +1,84 @@
 {
- "at": "2026-11-24T14:19:10.272Z",
+ "at": "2026-11-24T15:11:04.999Z",
  "summary": {
   "n": 26,
   "intent_accuracy": "24/26",
   "first_event_ms": {
    "n": 26,
-   "p50": 9,
+   "p50": 8,
    "p90": 14,
-   "p95": 17,
-   "max": 18,
-   "mean": 10
+   "p95": 14,
+   "max": 15,
+   "mean": 9
   },
   "first_token_ms": {
    "n": 26,
-   "p50": 19,
-   "p90": 9696,
-   "p95": 15597,
-   "max": 19803,
-   "mean": 2794
+   "p50": 7330,
+   "p90": 17448,
+   "p95": 18824,
+   "max": 50774,
+   "mean": 10145
   },
   "done_ms": {
    "n": 26,
-   "p50": 20,
-   "p90": 10038,
-   "p95": 15844,
-   "max": 20190,
-   "mean": 2946
+   "p50": 8637,
+   "p90": 23171,
+   "p95": 32426,
+   "max": 64287,
+   "mean": 13174
   },
   "errors": [],
-  "llm_calls": 4
+  "llm_calls": 23
  },
  "results": [
   {
    "http": 200,
-   "ms_headers": 8,
-   "ms_first_event": 8,
-   "ms_first_token": 21,
-   "ms_done": 25,
+   "ms_headers": 10,
+   "ms_first_event": 10,
+   "ms_first_token": 50774,
+   "ms_done": 64287,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20de9-fa01-7ea9-b5c0-5261e924c0a3",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
+   "message_id": "01a20e15-6deb-7062-aa35-976f7f41f53d",
+   "content": "Bạn có thể hiểu theo tài liệu: kẻ tấn công dùng email hoặc phương thức khác để dụ người khác cung cấp thông tin nhạy cảm như số thẻ tín dụng hoặc mật khẩu [6].\n\nMột số dấu hiệu nhận diện email/tình huống lừa đảo:\n- Giả danh đồng nghiệp, nhà cung cấp, đối tác, cơ quan thực thi pháp luật, người có thẩm quyền hoặc nhân viên mới nhờ giúp [7].\n- Giả vờ giúp khi có sự cố rồi tạo ra sự cố để thao túng nạn nhân [7].\n- Gửi phần mềm/bản vá miễn phí để cài đặt, hoặc gửi virus/Trojan Horse dưới dạng tệp đính kèm [7].\n- Dùng cửa sổ pop-up giả yêu cầu đăng nhập lại bằng mật khẩu [7].\n- Dùng thuật ngữ nội bộ để tạo tin cậy, hoặc tặng thưởng khi đăng ký tên người dùng/mật khẩu [7].",
+   "citations": 2,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 24,
+      "latency_ms": 2674,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     },
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "timeout",
+      "tokens_in": 0,
+      "latency_ms": 10001,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "2ac1e16d20522184844c35484e5fe384",
-    "confidence": 0.0,
+    "trace_id": "f9c8c47194d1e7841de165ed20913352",
+    "confidence": 0.381,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -62,33 +86,57 @@
    "expect_intent": "COURSE_QA",
    "intent": "COURSE_QA",
    "intent_ok": true,
-   "has_citations": false,
-   "llm_calls": 0
+   "has_citations": true,
+   "llm_calls": 2
   },
   {
    "http": 200,
-   "ms_headers": 7,
-   "ms_first_event": 7,
-   "ms_first_token": 12,
-   "ms_done": 14,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 15710,
+   "ms_done": 15723,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-0a00-7d49-9cbb-af31ccf1902e",
+   "message_id": "01a20e16-795e-7f6f-b444-ba32f09c6e5d",
    "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
    "citations": 0,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "timeout",
+      "tokens_in": 0,
+      "latency_ms": 10002,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     },
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 17,
+      "latency_ms": 2133,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "544d28fd91195479ba60347c40615a61",
-    "confidence": 0.0,
+    "trace_id": "c94ee63a87258e34c1ac3e9ad32ecc23",
+    "confidence": 0.219,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -97,66 +145,92 @@
    "intent": "COURSE_QA",
    "intent_ok": true,
    "has_citations": false,
-   "llm_calls": 0
+   "llm_calls": 2
   },
   {
    "http": 200,
-   "ms_headers": 8,
-   "ms_first_event": 8,
-   "ms_first_token": 19,
-   "ms_done": 20,
+   "ms_headers": 14,
+   "ms_first_event": 14,
+   "ms_first_token": 8434,
+   "ms_done": 11122,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-19f3-76dc-8c9c-f2f668f913fc",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
-   "low_confidence": true,
+   "message_id": "01a20e16-c702-7cd0-b44c-b16e3981bd31",
+   "content": "DDoS dùng phương thức tấn công tương tự DoS nhưng hoạt động ở quy mô lớn hơn nhiều: thường có hàng trăm hoặc hàng nghìn điểm tấn công cùng nhắm vào một mục tiêu để làm quá tải đường truyền [4].",
+   "citations": 1,
+   "low_confidence": false,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 23,
+      "latency_ms": 1916,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "0c9f5f979dafeb5fb6acfc1ba564b15a",
-    "confidence": 0.0,
+    "trace_id": "a845b2e9c7a3b63a6b3a26b75b6cc5b5",
+    "confidence": 0.876,
     "masked_count": 0,
-    "low_confidence": true
+    "low_confidence": false
    },
    "id": "Q03",
    "expect_intent": "COURSE_QA",
    "intent": "COURSE_QA",
    "intent_ok": true,
-   "has_citations": false,
-   "llm_calls": 0
+   "has_citations": true,
+   "llm_calls": 1
   },
   {
    "http": 200,
-   "ms_headers": 9,
-   "ms_first_event": 9,
-   "ms_first_token": 19,
-   "ms_done": 21,
+   "ms_headers": 7,
+   "ms_first_event": 8,
+   "ms_first_token": 6042,
+   "ms_done": 8637,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-29f5-7c6c-a5a4-1fc0ffcbc135",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
+   "message_id": "01a20e17-0276-7e2b-a4ec-c6f38b4a4d43",
+   "content": "Sâu máy tính (worm) không cần người dùng can thiệp để lây lan, trong khi virus cần sự can thiệp của người dùng [6][5]. Worm tự thực thi mã và cài bản sao của nó vào bộ nhớ máy bị nhiễm để lây sang máy khác; virus thường gắn vào một chương trình khác để thực hiện hành vi không mong muốn [6].",
+   "citations": 2,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 21,
+      "latency_ms": 1612,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "18e981a25c236dbbedc2a98e535f0402",
-    "confidence": 0.0,
+    "trace_id": "9f29573a8f9b4d39f8489971b193639c",
+    "confidence": 0.561,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -164,33 +238,46 @@
    "expect_intent": "COURSE_QA",
    "intent": "COURSE_QA",
    "intent_ok": true,
-   "has_citations": false,
-   "llm_calls": 0
+   "has_citations": true,
+   "llm_calls": 1
   },
   {
    "http": 200,
-   "ms_headers": 8,
-   "ms_first_event": 8,
-   "ms_first_token": 17,
-   "ms_done": 19,
+   "ms_headers": 11,
+   "ms_first_event": 11,
+   "ms_first_token": 11103,
+   "ms_done": 22603,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-39ef-70c1-bd78-07d869108049",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
+   "message_id": "01a20e17-3486-7b29-afca-126605b4a8d1",
+   "content": "Social engineering là cách thao túng người trong mạng để lấy thông tin truy cập [2]. Các dạng được nêu gồm: qua điện thoại, dumpster diving (lục thùng rác), và reverse social engineering [2]. Ngoài ra tài liệu còn liệt kê các thủ đoạn như giả làm đồng nghiệp/nhà cung cấp/người có thẩm quyền, giả làm nhân viên mới nhờ giúp, gửi phần mềm/vi-rút đính kèm, dùng cửa sổ pop-up giả yêu cầu đăng nhập lại, để USB/CD chứa mã độc quanh nơi làm việc [7].",
+   "citations": 2,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 32,
+      "latency_ms": 1573,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "398a64a95c0a3abb2247e39b27cf0a1d",
-    "confidence": 0.0,
+    "trace_id": "3a891b7fb0943528997ee8b24dc4ca79",
+    "confidence": 0.643,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -198,33 +285,57 @@
    "expect_intent": "COURSE_QA",
    "intent": "COURSE_QA",
    "intent_ok": true,
-   "has_citations": false,
-   "llm_calls": 0
+   "has_citations": true,
+   "llm_calls": 1
   },
   {
    "http": 200,
-   "ms_headers": 7,
-   "ms_first_event": 7,
-   "ms_first_token": 13,
-   "ms_done": 15,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 14737,
+   "ms_done": 18418,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-49de-7a80-b001-2e7b7abcf9f8",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
+   "message_id": "01a20e17-9ced-742a-8667-06b8cd5d3728",
+   "content": "Tấn công xen giữa (man-in-the-middle) là kiểu tấn công nhằm: đánh cắp thông tin; chiếm phiên đang chạy để truy cập tài nguyên mạng nội bộ; phân tích lưu lượng để thu thập thông tin về mạng và người dùng; gây DoS; làm hỏng dữ liệu truyền; và chèn thông tin mới vào phiên mạng [1].\n\nVí dụ: một người làm việc cho ISP của bạn giành được quyền truy cập tất cả gói tin truyền giữa mạng của bạn và mạng khác [1].",
+   "citations": 1,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "timeout",
+      "tokens_in": 0,
+      "latency_ms": 10005,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     },
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 23,
+      "latency_ms": 1836,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "afceb652d36188cb990a1823becc32bc",
-    "confidence": 0.0,
+    "trace_id": "bb41b79e35f085ffb3eeac5c8551d70d",
+    "confidence": 0.51,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -232,33 +343,46 @@
    "expect_intent": "COURSE_QA",
    "intent": "COURSE_QA",
    "intent_ok": true,
-   "has_citations": false,
-   "llm_calls": 0
+   "has_citations": true,
+   "llm_calls": 2
   },
   {
    "http": 200,
-   "ms_headers": 6,
-   "ms_first_event": 6,
-   "ms_first_token": 10,
-   "ms_done": 12,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 7624,
+   "ms_done": 7966,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-59de-7fc6-9254-91185ecb92f2",
+   "message_id": "01a20e17-f502-75d9-a7c1-61a6650508bd",
    "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
    "citations": 0,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 29,
+      "latency_ms": 3458,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "6f03bda356321b11a75d3dfeec942fad",
-    "confidence": 0.0,
+    "trace_id": "249467b29b56b5784cf3b52dc6d789cb",
+    "confidence": 0.031,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -267,32 +391,45 @@
    "intent": "COURSE_QA",
    "intent_ok": true,
    "has_citations": false,
-   "llm_calls": 0
+   "llm_calls": 1
   },
   {
    "http": 200,
    "ms_headers": 9,
    "ms_first_event": 9,
-   "ms_first_token": 16,
-   "ms_done": 19,
+   "ms_first_token": 8395,
+   "ms_done": 10036,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-69ce-7ecb-b3cc-af69a47fb976",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
+   "message_id": "01a20e18-2414-7d88-be1c-54680a25de91",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Ngữ cảnh chỉ liệt kê botnet trong nhóm malware \"for profit\" [8], nhưng không định nghĩa hay mô tả cách sử dụng botnet trong tấn công.",
+   "citations": 1,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 13,
+      "latency_ms": 2168,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "bfd209604a8285c6b8514e35b82ecbe1",
-    "confidence": 0.0,
+    "trace_id": "a08eb0cf5d49d190f1965c436442f932",
+    "confidence": 0.324,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -300,67 +437,104 @@
    "expect_intent": "COURSE_QA",
    "intent": "COURSE_QA",
    "intent_ok": true,
-   "has_citations": false,
-   "llm_calls": 0
+   "has_citations": true,
+   "llm_calls": 1
   },
   {
    "http": 200,
-   "ms_headers": 8,
+   "ms_headers": 9,
    "ms_first_event": 9,
-   "ms_first_token": 16,
-   "ms_done": 18,
+   "ms_first_token": 14161,
+   "ms_done": 32426,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-79ec-7895-acae-71242d5da627",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
-   "low_confidence": true,
+   "message_id": "01a20e18-5b87-766d-abe1-d343cf474087",
+   "content": "Sinh viên bị cảnh báo học vụ khi vi phạm **hai trong ba điều kiện a, b, c** sau [1]:\n\n- **a. Điểm trung bình chung tích lũy** dưới mức: <1.20 (tương đương năm thứ nhất), <1.40 (năm thứ hai), <1.60 (năm thứ ba), <1.80 (các năm tiếp theo và cuối khóa) [1].\n- **b. Điểm trung bình chung học kì**: <0.80 đối với học kì đầu của khóa học; <1.0 đối với các học kì tiếp theo [4].\n- **c.** Tổng số tín chỉ các học phần bị điểm F tồn đọng từ đầu khóa đến thời điểm xét vượt quá 24 tín chỉ; hoặc tổng số tín chỉ không đạt trong học kì vượt quá 50% khối lượng đăng kí học trong học kì (áp dụng cho sinh viên tuyển sinh từ năm 2022 trở đi) [4].\n\nNgoài ra, quy chế xét học vụ dựa trên kết quả học tập không áp dụng với một số trường hợp như sinh viên năm thứ nhất trong 02 học kì đầu thuộc chương trình yêu cầu năng lực ngoại ngữ nhưng chưa đạt, hoặc sinh viên đang nghỉ học tạm thời và bảo lưu kết quả học tập [3].",
+   "citations": 3,
+   "low_confidence": false,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 19,
+      "latency_ms": 2945,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "6d7efe74681a82ce64af7c8c4bdbe0ae",
-    "confidence": 0.0,
+    "trace_id": "9beb664e2218acbc2b6ba9122022d081",
+    "confidence": 1.0,
     "masked_count": 0,
-    "low_confidence": true
+    "low_confidence": false
    },
    "id": "Q09",
    "expect_intent": "COURSE_QA",
    "intent": "COURSE_QA",
    "intent_ok": true,
-   "has_citations": false,
-   "llm_calls": 0
+   "has_citations": true,
+   "llm_calls": 1
   },
   {
    "http": 200,
    "ms_headers": 8,
    "ms_first_event": 8,
-   "ms_first_token": 16,
-   "ms_done": 18,
+   "ms_first_token": 14663,
+   "ms_done": 15036,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-89e3-7098-87d9-80e257fd18a2",
+   "message_id": "01a20e18-ea4b-7ca0-b698-3e4a59b01c72",
    "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
    "citations": 0,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "timeout",
+      "tokens_in": 0,
+      "latency_ms": 10002,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     },
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 32,
+      "latency_ms": 1743,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "62415a2ee963f9b7e9c7208eb4825fde",
-    "confidence": 0.0,
+    "trace_id": "068a24bb8ded416a2523fc5ca18cf9ea",
+    "confidence": 0.272,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -369,32 +543,45 @@
    "intent": "COURSE_QA",
    "intent_ok": true,
    "escalated": true,
-   "llm_calls": 0
+   "llm_calls": 2
   },
   {
    "http": 200,
-   "ms_headers": 11,
-   "ms_first_event": 11,
-   "ms_first_token": 17,
-   "ms_done": 19,
+   "ms_headers": 15,
+   "ms_first_event": 15,
+   "ms_first_token": 4878,
+   "ms_done": 5053,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-99db-7543-85d7-06b354b8a603",
+   "message_id": "01a20e19-35f8-7251-9d1a-635349e6ed83",
    "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
    "citations": 0,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 27,
+      "latency_ms": 1825,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "669ca650899f782c001051ed6b128fed",
-    "confidence": 0.0,
+    "trace_id": "2a76406e87b5332b2cc3dcb9e0874cdc",
+    "confidence": 0.371,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -403,14 +590,14 @@
    "intent": "COURSE_QA",
    "intent_ok": true,
    "escalated": true,
-   "llm_calls": 0
+   "llm_calls": 1
   },
   {
    "http": 200,
-   "ms_headers": 6,
-   "ms_first_event": 6,
-   "ms_first_token": 3847,
-   "ms_done": 4148,
+   "ms_headers": 7,
+   "ms_first_event": 7,
+   "ms_first_token": 7072,
+   "ms_done": 7208,
    "stages": [
     "received",
     "generating"
@@ -439,63 +626,8 @@
    ],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-a9d9-7e68-ab45-aa597fefaa4d",
-   "content": "Bạn đã nghỉ **2 buổi** (các buổi gần đây: 27/09/2026 – buổi 3 và 18/10/2026 – buổi 6).",
-   "citations": 0,
-   "low_confidence": false,
-   "degraded": false,
-   "ticket": false,
-   "db": {
-    "llm": [],
-    "intent": "PERSONAL_ATTENDANCE",
-    "trace_id": "401977ce5b7b4d6c8621017d8233caa1",
-    "confidence": 1.0,
-    "masked_count": 0,
-    "low_confidence": false
-   },
-   "id": "Q12",
-   "expect_intent": "PERSONAL_ATTENDANCE",
-   "intent": "PERSONAL_ATTENDANCE",
-   "intent_ok": true,
-   "numbers_ok": true,
-   "llm_calls": 0
-  },
-  {
-   "http": 200,
-   "ms_headers": 11,
-   "ms_first_event": 11,
-   "ms_first_token": 3936,
-   "ms_done": 4599,
-   "stages": [
-    "received",
-    "generating"
-   ],
-   "blocks": [
-    {
-     "kind": "attendance",
-     "data": {
-      "absent": 2,
-      "excused": 0,
-      "late": 1,
-      "present": 7,
-      "recent_absent": [
-       {
-        "date": "2026-10-18",
-        "session_no": 6
-       },
-       {
-        "date": "2026-09-27",
-        "session_no": 3
-       }
-      ],
-      "recorded": 10
-     }
-    }
-   ],
-   "notices": [],
-   "error": null,
-   "message_id": "01a20dea-ca04-756c-91e2-5208f77dcf67",
-   "content": "Chuyên cần của bạn hiện có 10 buổi được ghi nhận: 7 buổi có mặt, 1 buổi muộn, 2 buổi vắng, 0 buổi vắng có phép. Hai buổi vắng gần đây là 18/10/2026 (buổi 6) và 27/09/2026 (buổi 3).",
+   "message_id": "01a20e19-59ad-72d9-8859-af9c7449a83c",
+   "content": "Bạn đã nghỉ 2 buổi (các buổi ngày 2026-09-27 và 2026-10-18).",
    "citations": 0,
    "low_confidence": false,
    "degraded": false,
@@ -506,16 +638,71 @@
       "task": "CHAT",
       "model": "deepseek-v4.1-flash",
       "status": "ok",
-      "tokens_in": 399,
-      "latency_ms": 4581,
-      "tokens_out": 249,
+      "tokens_in": 397,
+      "latency_ms": 7186,
+      "tokens_out": 165,
       "queue_wait_ms": 0,
       "fallback_index": 0,
       "pii_masked_count": 0
      }
     ],
     "intent": "PERSONAL_ATTENDANCE",
-    "trace_id": "90e06961a155bc0232885ae83c067b07",
+    "trace_id": "5289c6670bc3cdc8ade5fbb780fd6643",
+    "confidence": 1.0,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "Q12",
+   "expect_intent": "PERSONAL_ATTENDANCE",
+   "intent": "PERSONAL_ATTENDANCE",
+   "intent_ok": true,
+   "numbers_ok": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 8,
+   "ms_first_event": 8,
+   "ms_first_token": 7330,
+   "ms_done": 8617,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 7,
+      "recent_absent": [
+       {
+        "date": "2026-10-18",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-27",
+        "session_no": 3
+       }
+      ],
+      "recorded": 10
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a20e19-85e1-704f-8603-afbfcc8d115d",
+   "content": "Chuyên cần của bạn: 7 buổi có mặt, 2 buổi vắng, 1 buổi muộn, 0 buổi vắng có phép; tổng cộng ghi nhận 10 buổi. Hai buổi vắng gần đây là ngày 27/09/2026 (buổi 3) và 18/10/2026 (buổi 6).",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "3c157e9941cbd20806e05d3736edaf67",
     "confidence": 1.0,
     "masked_count": 0,
     "low_confidence": false
@@ -525,14 +712,14 @@
    "intent": "PERSONAL_ATTENDANCE",
    "intent_ok": true,
    "numbers_ok": true,
-   "llm_calls": 1
+   "llm_calls": 0
   },
   {
    "http": 200,
-   "ms_headers": 10,
-   "ms_first_event": 10,
-   "ms_first_token": 5713,
-   "ms_done": 6100,
+   "ms_headers": 6,
+   "ms_first_event": 6,
+   "ms_first_token": 5596,
+   "ms_done": 7423,
    "stages": [
     "received",
     "generating"
@@ -560,8 +747,8 @@
    ],
    "notices": [],
    "error": null,
-   "message_id": "01a20dea-ebf8-7210-9ac3-69c58e42c65a",
-   "content": "Bạn đã được cộng tổng cộng 0.50 điểm phát biểu, gồm 2 lần, mỗi lần 0.25 điểm (ngày 2026-11-15).",
+   "message_id": "01a20e19-b783-7132-adfb-da7cba0c0a46",
+   "content": "Bạn đã được cộng tổng cộng 0.50 điểm phát biểu, gồm 2 lần phát biểu (mỗi lần 0.25 điểm, cùng ngày 2026-11-15).",
    "citations": 0,
    "low_confidence": false,
    "degraded": false,
@@ -569,7 +756,7 @@
    "db": {
     "llm": [],
     "intent": "PERSONAL_PARTICIPATION",
-    "trace_id": "6e9b84abe2a5aa987f4a6db6f4c31acc",
+    "trace_id": "729f91e2b245d33f527120f3e06efa67",
     "confidence": 1.0,
     "masked_count": 0,
     "low_confidence": false
@@ -585,8 +772,8 @@
    "http": 200,
    "ms_headers": 10,
    "ms_first_event": 10,
-   "ms_first_token": 7241,
-   "ms_done": 7364,
+   "ms_first_token": 2298,
+   "ms_done": 3844,
    "stages": [
     "received",
     "generating"
@@ -736,7 +923,7 @@
    ],
    "notices": [],
    "error": null,
-   "message_id": "01a20deb-13c8-7d26-8808-2e98578cbb8b",
+   "message_id": "01a20e19-e4a8-7bc2-b3e3-335058c5d2f6",
    "content": "Điểm giữa kỳ của bạn là 7,5 (trọng số 20%).",
    "citations": 0,
    "low_confidence": false,
@@ -745,7 +932,7 @@
    "db": {
     "llm": [],
     "intent": "PERSONAL_GRADE",
-    "trace_id": "dc07a17b39d144c71ffe116249fbf713",
+    "trace_id": "cc3a3bc68b2a580fcfa79526eafbc027",
     "confidence": 1.0,
     "masked_count": 0,
     "low_confidence": false
@@ -759,10 +946,10 @@
   },
   {
    "http": 200,
-   "ms_headers": 14,
+   "ms_headers": 10,
    "ms_first_event": 14,
-   "ms_first_token": 15597,
-   "ms_done": 15844,
+   "ms_first_token": 4435,
+   "ms_done": 7971,
    "stages": [
     "received",
     "generating"
@@ -912,8 +1099,8 @@
    ],
    "notices": [],
    "error": null,
-   "message_id": "01a20deb-40dd-74f2-8a70-72d88c839744",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+   "message_id": "01a20e1a-03ac-74c6-91ed-04efc07e2171",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.\n\nTrong ngữ cảnh chỉ có điểm Giữa kỳ (7,5), Kiểm tra hằng tuần (8) và Thi cuối kỳ (6,5), không có thông tin về \"Bài tập 03\". Bạn có thể kiểm tra trong hệ thống quản lý đào tạo của trường nhé.",
    "citations": 0,
    "low_confidence": false,
    "degraded": false,
@@ -921,7 +1108,7 @@
    "db": {
     "llm": [],
     "intent": "PERSONAL_GRADE",
-    "trace_id": "12daf8d780ddbd34370f47a4a41539b5",
+    "trace_id": "516e6a4f6eb7fb7434aa854e5716d61a",
     "confidence": 1.0,
     "masked_count": 0,
     "low_confidence": false
@@ -935,10 +1122,10 @@
   },
   {
    "http": 200,
-   "ms_headers": 11,
-   "ms_first_event": 11,
-   "ms_first_token": 19803,
-   "ms_done": 20190,
+   "ms_headers": 7,
+   "ms_first_event": 7,
+   "ms_first_token": 18824,
+   "ms_done": 21647,
    "stages": [
     "received",
     "generating"
@@ -1088,8 +1275,8 @@
    ],
    "notices": [],
    "error": null,
-   "message_id": "01a20deb-8eef-70f5-90f6-8f6c4d8fa27f",
-   "content": "Nếu cuối kỳ bạn được 8 điểm: điểm học phần thô = 8,25 × 40% + 8 × 60% = 8,1; làm tròn đến 0,5 thành **8,0**, tương ứng điểm chữ **B+**. Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
+   "message_id": "01a20e1a-32c1-74f0-bc3e-eda8bb7d6fce",
+   "content": "Nếu bạn được 8,0 điểm thi cuối kỳ và giữ nguyên điểm quá trình 8,25 (đã gồm 0,5 điểm cộng, không bị trừ vắng), thì:\n\n- Điểm học phần thô = 8,25 × 40% + 8,0 × 60% = **8,1**\n- Làm tròn đến 0,5: **8,0**\n- Điểm chữ tương ứng: **B+**\n\nĐiểm chính thức vẫn nằm ở hệ thống quản lý đào tạo của trường.",
    "citations": 0,
    "low_confidence": false,
    "degraded": false,
@@ -1101,15 +1288,15 @@
       "model": "deepseek-v4.1-flash",
       "status": "ok",
       "tokens_in": 1446,
-      "latency_ms": 20162,
-      "tokens_out": 448,
+      "latency_ms": 21628,
+      "tokens_out": 839,
       "queue_wait_ms": 0,
       "fallback_index": 0,
       "pii_masked_count": 0
      }
     ],
     "intent": "WHAT_IF_GRADE",
-    "trace_id": "c212397bb7efa3934775693bf030c706",
+    "trace_id": "0c79287fa92bf92f166a49a7947fff80",
     "confidence": 1.0,
     "masked_count": 0,
     "low_confidence": false
@@ -1123,51 +1310,75 @@
   },
   {
    "http": 200,
-   "ms_headers": 18,
-   "ms_first_event": 18,
-   "ms_first_token": 35,
-   "ms_done": 39,
+   "ms_headers": 8,
+   "ms_first_event": 8,
+   "ms_first_token": 17448,
+   "ms_done": 23171,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20deb-ede9-7bbf-b955-80454a0d8467",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
-   "citations": 0,
-   "low_confidence": true,
+   "message_id": "01a20e1a-980f-7fc5-857a-26a3a32323af",
+   "content": "Điểm học phần của lớp được tính như sau:\n\n- **Điểm quá trình: 40%** điểm học phần, gồm điểm kiểm tra giữa kỳ (20% điểm học phần) và điểm kiểm tra hằng tuần (20% điểm học phần) [1].\n- **Điểm thi cuối kỳ: 60%** điểm học phần [1].\n\nLưu ý thêm: điểm kiểm tra hằng tuần lấy từ các bài trắc nghiệm hằng tuần trên hệ thống; bài kiểm tra lập trình chỉ để luyện tập, không tính vào điểm học phần [1]. Điểm học phần được làm tròn đến 0,5 điểm (điểm đúng giữa hai mức thì làm tròn lên mức cao hơn) [2].",
+   "citations": 2,
+   "low_confidence": false,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "timeout",
+      "tokens_in": 0,
+      "latency_ms": 10001,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     },
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 21,
+      "latency_ms": 1739,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "f2c5cc9245f3782b73e1108d42b5f374",
-    "confidence": 0.0,
+    "trace_id": "66068a2a7fe632bb2cbd0e0b9e49e361",
+    "confidence": 0.959,
     "masked_count": 0,
-    "low_confidence": true
+    "low_confidence": false
    },
    "id": "Q18",
    "expect_intent": "GRADE_FORMULA",
    "intent": "COURSE_QA",
    "intent_ok": false,
-   "numbers_ok": false,
-   "llm_calls": 0
+   "numbers_ok": true,
+   "llm_calls": 2
   },
   {
    "http": 200,
    "ms_headers": 8,
    "ms_first_event": 8,
-   "ms_first_token": 13,
-   "ms_done": 14,
+   "ms_first_token": 11,
+   "ms_done": 12,
    "stages": [
     "received"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20deb-fdfe-74b9-a593-11f4afb1799e",
+   "message_id": "01a20e1b-02c9-7192-b34f-0e1c5657163e",
    "content": "Mình chỉ xem được dữ liệu của chính bạn.",
    "citations": 0,
    "low_confidence": false,
@@ -1176,7 +1387,7 @@
    "db": {
     "llm": [],
     "intent": "OTHER_PERSON",
-    "trace_id": "706da23ca2b5f95cf86b02ac0e6ec93c",
+    "trace_id": "d43cd7b6b07a63c17eb8a18462f945ac",
     "confidence": null,
     "masked_count": 0,
     "low_confidence": false
@@ -1190,17 +1401,17 @@
   },
   {
    "http": 200,
-   "ms_headers": 17,
-   "ms_first_event": 17,
-   "ms_first_token": 19,
-   "ms_done": 22,
+   "ms_headers": 6,
+   "ms_first_event": 6,
+   "ms_first_token": 7,
+   "ms_done": 8,
    "stages": [
     "received"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dec-0e04-79bc-a7cf-da34d5c84344",
+   "message_id": "01a20e1b-12b9-712a-b490-01730517efb7",
    "content": "Mình chỉ xem được dữ liệu của chính bạn.",
    "citations": 0,
    "low_confidence": false,
@@ -1209,7 +1420,7 @@
    "db": {
     "llm": [],
     "intent": "OTHER_PERSON",
-    "trace_id": "d158b4cbcef975bcc9a57c28b44e79df",
+    "trace_id": "6c870acfacdb311ec51fd2b78d8a3db5",
     "confidence": null,
     "masked_count": 0,
     "low_confidence": false
@@ -1223,28 +1434,41 @@
   },
   {
    "http": 200,
-   "ms_headers": 11,
-   "ms_first_event": 11,
-   "ms_first_token": 20,
-   "ms_done": 23,
+   "ms_headers": 5,
+   "ms_first_event": 5,
+   "ms_first_token": 5977,
+   "ms_done": 6548,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dec-1e1b-7df3-929b-98dc352b4e50",
+   "message_id": "01a20e1b-22a4-7d87-b8dd-13078f064999",
    "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
    "citations": 0,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 21,
+      "latency_ms": 2408,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "762641e216f36179a80e288ef5e90575",
-    "confidence": 0.0,
+    "trace_id": "1add22f671b854729b624114fcf2da4c",
+    "confidence": 0.322,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -1252,14 +1476,14 @@
    "expect_intent": "EXAM_SCHEDULE",
    "intent": "COURSE_QA",
    "intent_ok": false,
-   "llm_calls": 0
+   "llm_calls": 1
   },
   {
    "http": 200,
-   "ms_headers": 13,
-   "ms_first_event": 13,
-   "ms_first_token": 6502,
-   "ms_done": 7983,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 7151,
+   "ms_done": 9325,
    "stages": [
     "received",
     "generating"
@@ -1289,28 +1513,16 @@
    ],
    "notices": [],
    "error": null,
-   "message_id": "01a20dec-2e3c-7224-ab16-0cb1d2a259f0",
-   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Trong ngữ cảnh chỉ có lịch thi giữa kỳ (Chủ Nhật, 29/11 · 07:00, Phòng 301) và Buổi 12 (Chủ Nhật, 29/11 · 09:00–11:30, P.302), không có hạn nộp bài.",
+   "message_id": "01a20e1b-4c35-7d77-af06-c3519d6b1cd5",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Trong ngữ cảnh chỉ có lịch thi giữa kỳ và Buổi 12, không có hạn nộp bài.",
    "citations": 0,
    "low_confidence": false,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [
-     {
-      "task": "EMBEDDING",
-      "model": "fake-embed",
-      "status": "ok",
-      "tokens_in": 12,
-      "latency_ms": 0,
-      "tokens_out": 0,
-      "queue_wait_ms": 0,
-      "fallback_index": 0,
-      "pii_masked_count": 0
-     }
-    ],
+    "llm": [],
     "intent": "UPCOMING_EVENTS",
-    "trace_id": "e6e4c49910bb2334727ff4ec87916a40",
+    "trace_id": "9f8ae5d27d86048ed3693f11c0168576",
     "confidence": 1.0,
     "masked_count": 0,
     "low_confidence": false
@@ -1319,14 +1531,14 @@
    "expect_intent": "UPCOMING_EVENTS",
    "intent": "UPCOMING_EVENTS",
    "intent_ok": true,
-   "llm_calls": 1
+   "llm_calls": 0
   },
   {
    "http": 200,
-   "ms_headers": 12,
-   "ms_first_event": 12,
-   "ms_first_token": 9696,
-   "ms_done": 10038,
+   "ms_headers": 6,
+   "ms_first_event": 6,
+   "ms_first_token": 5382,
+   "ms_done": 7868,
    "stages": [
     "received",
     "generating"
@@ -1334,28 +1546,16 @@
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dec-5d5c-76ed-a14d-9533f36601d1",
-   "content": "Chào bạn! Mình là trợ giảng của lớp, bạn cần hỏi gì về nội dung bài học cứ nêu nhé.",
+   "message_id": "01a20e1b-80b4-7240-ad22-0db4e25232ed",
+   "content": "Chào bạn! Có gì cần mình hỗ trợ về nội dung lớp học thì cứ hỏi nhé.",
    "citations": 0,
    "low_confidence": false,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [
-     {
-      "task": "EMBEDDING",
-      "model": "fake-embed",
-      "status": "ok",
-      "tokens_in": 7,
-      "latency_ms": 1,
-      "tokens_out": 0,
-      "queue_wait_ms": 0,
-      "fallback_index": 0,
-      "pii_masked_count": 0
-     }
-    ],
+    "llm": [],
     "intent": "SMALLTALK",
-    "trace_id": "9e10fe48555815d0e7143d9c89c77dc2",
+    "trace_id": "0e701e5057e11e8c7759df4ccf93fd0d",
     "confidence": null,
     "masked_count": 0,
     "low_confidence": false
@@ -1364,7 +1564,7 @@
    "expect_intent": "SMALLTALK",
    "intent": "SMALLTALK",
    "intent_ok": true,
-   "llm_calls": 1
+   "llm_calls": 0
   },
   {
    "http": 200,
@@ -1378,7 +1578,7 @@
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dec-9478-72f8-9cb4-826f35f50586",
+   "message_id": "01a20e1b-af56-7e22-b41a-882400878a4a",
    "content": "Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hãy nói chuyện với giảng viên của bạn nhé. Phòng Công tác sinh viên, phòng 101 nhà A1, giờ hành chính",
    "citations": 0,
    "low_confidence": false,
@@ -1387,7 +1587,7 @@
    "db": {
     "llm": [],
     "intent": "CRISIS",
-    "trace_id": "9168c8068785fe37c877b98af7e52d16",
+    "trace_id": "638a774a3cb58fd4c27da7cf9104c20d",
     "confidence": null,
     "masked_count": 0,
     "low_confidence": false
@@ -1402,26 +1602,50 @@
    "http": 200,
    "ms_headers": 6,
    "ms_first_event": 6,
-   "ms_first_token": 14,
-   "ms_done": 16,
+   "ms_first_token": 15321,
+   "ms_done": 15894,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dec-a459-70e4-9792-87afa5011f92",
+   "message_id": "01a20e1b-bf3e-7094-8a1c-93e145dfbaf2",
    "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
    "citations": 0,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "timeout",
+      "tokens_in": 0,
+      "latency_ms": 10003,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     },
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 27,
+      "latency_ms": 1591,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "338a935d0832ef185e7ff1ef176e508a",
-    "confidence": 0.0,
+    "trace_id": "06ad3277bfc180c611226ce58320c083",
+    "confidence": 0.128,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -1430,32 +1654,45 @@
    "intent": "COURSE_QA",
    "intent_ok": true,
    "has_citations": false,
-   "llm_calls": 0
+   "llm_calls": 2
   },
   {
    "http": 200,
-   "ms_headers": 9,
-   "ms_first_event": 9,
-   "ms_first_token": 16,
-   "ms_done": 18,
+   "ms_headers": 8,
+   "ms_first_event": 8,
+   "ms_first_token": 10391,
+   "ms_done": 11686,
    "stages": [
     "received",
-    "searching"
+    "searching",
+    "generating"
    ],
    "blocks": [],
    "notices": [],
    "error": null,
-   "message_id": "01a20dec-b45e-7132-b8a6-296453fd0356",
+   "message_id": "01a20e1c-0d79-72f0-82f2-f63086b678cb",
    "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
    "citations": 0,
    "low_confidence": true,
    "degraded": false,
    "ticket": false,
    "db": {
-    "llm": [],
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "text-embedding-3-small",
+      "status": "ok",
+      "tokens_in": 11,
+      "latency_ms": 3885,
+      "tokens_out": 0,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 0
+     }
+    ],
     "intent": "COURSE_QA",
-    "trace_id": "a9b6a3f1291be944a22160f4e1b8032e",
-    "confidence": 0.0,
+    "trace_id": "d0242d785992ab91e0b7a00b24a749ec",
+    "confidence": 0.184,
     "masked_count": 0,
     "low_confidence": true
    },
@@ -1464,7 +1701,7 @@
    "intent": "COURSE_QA",
    "intent_ok": true,
    "has_citations": false,
-   "llm_calls": 0
+   "llm_calls": 1
   }
  ]
 }

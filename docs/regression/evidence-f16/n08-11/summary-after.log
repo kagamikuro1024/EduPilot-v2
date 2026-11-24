@@ -1,0 +1,10 @@
+sv.gioi 1 {'account': 'sv.gioi', 's': 10.9, 'contains_name': False, 'contains_code': False, 'try': 1}
+sv.gioi 2 {'account': 'sv.gioi', 's': 12.6, 'contains_name': False, 'contains_code': False, 'try': 2}
+sv.gioi 3 {'account': 'sv.gioi', 's': 7.6, 'contains_name': False, 'contains_code': False, 'try': 3}
+sv.kha 1 {'account': 'sv.kha', 's': 8.5, 'contains_name': False, 'contains_code': False, 'try': 1}
+sv.kha 2 {'account': 'sv.kha', 's': 9.9, 'contains_name': False, 'contains_code': False, 'try': 2}
+sv.kha 3 {'account': 'sv.kha', 's': 6.3, 'contains_name': False, 'contains_code': False, 'try': 3}
+sv.nguyco 1 {'account': 'sv.nguyco', 's': 9.2, 'contains_name': False, 'contains_code': False, 'try': 1}
+sv.nguyco 2 {'account': 'sv.nguyco', 's': 9.8, 'contains_name': False, 'contains_code': False, 'try': 2}
+sv.nguyco 3 {'account': 'sv.nguyco', 's': 11.0, 'contains_name': False, 'contains_code': False, 'try': 3}
+SUMMARY_DONE

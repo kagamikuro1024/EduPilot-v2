@@ -5,6 +5,7 @@ services:
     environment:
       BLOB_PUBLIC_ENDPOINT: localhost:1143
       BLOB_PUBLIC_USE_SSL: "true"
+      AI_SUMMARY_TIMEOUT: 60s  # PM 24/11: nhận xét 360 với OpenCode Go (độ trễ 7–42 s) trượt hạn mặc định 20 s
   worker:
     environment:
       TICKET_SLA_TICK: 1m

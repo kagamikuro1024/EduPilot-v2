@@ -5,10 +5,10 @@
   "intent": "COURSE_QA",
   "low_confidence": true,
   "ticket": false,
-  "confidence": 0.0,
-  "citations": 0,
+  "confidence": 0.304,
+  "citations": 2,
   "error": null,
-  "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
+  "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Ngữ cảnh chỉ đề cập đến nghĩa vụ tài chính khi xin thôi học hoặc bảo lưu [2][5], không có mức học phí học kỳ sau."
  },
  {
   "id": "E2",
@@ -27,7 +27,7 @@
   "intent": "COURSE_QA",
   "low_confidence": true,
   "ticket": false,
-  "confidence": 0.0,
+  "confidence": 0.367,
   "citations": 0,
   "error": null,
   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
@@ -38,7 +38,7 @@
   "intent": "COURSE_QA",
   "low_confidence": true,
   "ticket": false,
-  "confidence": 0.0,
+  "confidence": 0.295,
   "citations": 0,
   "error": null,
   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
