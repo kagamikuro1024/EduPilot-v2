@@ -91,7 +91,7 @@ const insightNearestChunk = `-- name: InsightNearestChunk :one
 select d.title, d.week_no
 from content_chunks c
 join documents d on d.id = c.document_id
-where $1::uuid = any (c.course_ids) and c.embedding is not null and d.category <> 'THREAD_KNOWLEDGE'
+where $1::uuid = any (c.course_ids) and c.embedding is not null and d.category is distinct from 'THREAD_KNOWLEDGE'
 order by c.embedding <=> $2::vector
 limit 1
 `
