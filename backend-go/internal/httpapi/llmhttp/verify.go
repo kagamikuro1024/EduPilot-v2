@@ -173,6 +173,11 @@ func (a *Admin) probe(ctx context.Context, typ string, baseURL *string, key stri
 	return done("")
 }
 
+// afterProbeCtx: ctx để ghi DB sau một probe dài; hạn của request có thể đã hết ngay khi probe xong (probe có thể chạy tới probeTimeout).
+func afterProbeCtx(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.WithoutCancel(ctx), afterProbe)
+}
+
 // verifyBeforeSave kiểm tra kết nối trước khi lưu (SRS 3.3). Sai → ghi 422 VALIDATION_FAILED và trả false: KHÔNG ghi gì.
 func (a *Admin) verifyBeforeSave(w http.ResponseWriter, r *http.Request, typ string, baseURL *string, key string, c *candidate) bool {
 	if c == nil {
@@ -251,7 +256,7 @@ func baseHostOf(typ string, baseURL *string) string {
 
 // finishTest ghi audit_log (host, không khoá / đường dẫn) rồi trả kết quả. providerID nil = khoá ứng viên chưa lưu.
 func (a *Admin) finishTest(w http.ResponseWriter, r *http.Request, providerID *uuid.UUID, typ string, baseURL *string, c candidate, out outcome) {
-	ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), afterProbe) // hạn của request có thể đã hết ngay sau một probe dài
+	ctx, cancel := afterProbeCtx(r.Context())
 	defer cancel()
 	if err := a.RT.Config.AuditTest(ctx, providerID, typ, baseHostOf(typ, baseURL), c.model, out.OK, out.Kind); err != nil {
 		a.Log.ErrorContext(ctx, "không ghi được audit_log của Test LLM", "error", err.Error())
@@ -315,7 +320,7 @@ func (a *Admin) testSaved(w http.ResponseWriter, r *http.Request) {
 	}
 	out := a.probe(ctx, p.Type, base, key, *c)
 	if in.APIKey == nil && in.BaseURL == nil && in.Model == "" { // chỉ kết quả của cấu hình ĐÃ LƯU mới vào last_test
-		rctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), afterProbe)
+		rctx, cancel := afterProbeCtx(ctx)
 		defer cancel()
 		if err := a.RT.Config.RecordTest(rctx, id, out.OK, out.Kind); err != nil {
 			a.Log.WarnContext(ctx, "không lưu được kết quả Test", "error", err.Error())
