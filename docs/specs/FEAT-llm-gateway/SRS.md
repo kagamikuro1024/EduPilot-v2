@@ -158,7 +158,7 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 | `openai` | `https://api.openai.com/v1` | |
 | `anthropic` | `https://api.anthropic.com/v1/` | lớp tương thích OpenAI; **bỏ qua `response_format`** (kể cả `json_object`) nên `Structured` = tool bắt buộc (bên dưới); không có endpoint nhúng |
 | `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai/` | lớp tương thích OpenAI (beta) |
-| `openai_compatible` | bắt buộc ở bản ghi (vLLM, LM Studio, máy chủ trường) | khoá có thể rỗng |
+| `openai_compatible` | bắt buộc ở bản ghi (vLLM, LM Studio, máy chủ trường, 9router, OpenCode Go) | khoá có thể rỗng |
 | `fake` | — | provider giả (8.3); có thể tạo ở DB cho dev / test |
 
 **`Structured` — chọn CỐ ĐỊNH theo `type`, một lời gọi (D47; không thử `json_schema` rồi lùi):**
@@ -186,6 +186,8 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 | `BAD_REQUEST` | 400, 422, nội dung bị lọc | không | **không** | không |
 | `DIMS_MISMATCH` | vectơ ≠ 1536 | không | không (không có dự phòng cho embedding) | không |
 | `CANCELLED` | `ctx` huỷ bởi client | không | không | không |
+
+**OpenCode Go (24/11, P-11-106):** nhà cung cấp thật thứ hai, **không** thêm `type` (không migration, không đổi enum): bản ghi `type = openai_compatible`, `base_url = https://opencode.ai/inference/go/v1`, model chat `deepseek-v4.1-flash`; 9router **giữ nguyên**, đổi tuyến giữa hai bên chỉ bằng `/settings/llm` (không dựng lại). Nhận ra theo **`Hostname()` của `base_url` bằng đúng `opencode.ai`** (so chính xác; `opencode.ai.evil.example`, host 9router, host khác **không** khớp). Khi khớp: mọi lời gọi qua client này gửi `User-Agent: edupilot/2.0`; mỗi lời gọi `Chat` / `Stream` (kể cả `Structured`, đi qua `Chat`) thêm header `x-opencode-session: edupilot-<task chữ thường>` (task rỗng → `edupilot`) và tham số `reasoning_effort=low`. Host khác: **không** gửi cả ba. `Structured` giữ cách của `openai_compatible` (`json_object` + schema trong lời nhắc hệ thống). Khoá chỉ nhập ở `/settings/llm` (mã hoá, FR-4), không nằm trong repo, `.env` mẫu hay log. Nhánh lỗi dùng bảng ánh xạ ở trên, **không** thêm loại mới: model chưa được phép ở vùng (Global) → lỗi nhà cung cấp (401 / 403 → `AUTH`, 404 → `MODEL_NOT_FOUND`, 400 → `BAD_REQUEST`) trả về ngay và chuyển nhà tiếp nếu chuỗi có, **không treo**; hết hạn mức gói → 429 → `RATE_LIMIT` → luật thử lại / cầu dao hiện có.
 
 **Quy tắc `base_url` (Q-QC-P102-1, Q-QC-P104-1):** scheme `http` | `https`; có host; không userinfo; không fragment; ≤ 300 ký tự; sai → 422 `INVALID_BASE_URL`. **Không** chặn loopback / link-local / mạng nội bộ / tên dịch vụ compose (máy chủ trong trường là trường hợp dùng thật; chỉ ADMIN đặt; Q15 **[CHỦ DỰ ÁN]**). Giảm thiểu: client không theo chuyển hướng; hạn Test 10 s; thân phản hồi nhà cung cấp không bao giờ trả ra (Test chỉ trả câu theo `error_kind`); `audit_log` ghi host.
 
@@ -287,6 +289,7 @@ Nâng làn của `GRADING`, `QUESTION_GEN`, `INSIGHT` lên INTERACTIVE → `ErrB
 | FR-30 | Màn `/settings/llm` 4 phần; khoá chỉ ghi; Test phụ; nâng cao mở dần; mức dùng | 05-AC1…AC8 |
 | FR-31 | Màn xử lý lỗi, vai, mobile, bàn phím, thay mock | 05-AC9…AC14 |
 | FR-32 | Kịch bản "Bạn tự kiểm" (API và giao diện) | 04-AC12, 05-AC15 |
+| FR-33 | OpenCode Go: nhận theo `Hostname() == opencode.ai`; chỉ khi khớp mới gửi `User-Agent`, `x-opencode-session`, `reasoning_effort=low`; 9router giữ, đổi tuyến bằng `/settings/llm` | 02-AC18 |
 
 ## 5. Dữ liệu
 
