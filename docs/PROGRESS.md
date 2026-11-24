@@ -28,13 +28,13 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | P6 Sổ điểm | Xong | 2026-10-31 | 2026-10-31 | ĐẠT kỹ thuật (`sprints/8/qc/gate-P6.md`); tính tay A, B, C của chủ dự án còn nợ | `00016_gradebook`; decimal, không `float64`; AI chỉ trích nháp; snapshot bất biến; MSSV chỉ theo danh sách lớp (#20) |
 | P7 Chấm bài | Xong | 2026-10-31 | 2026-11-01 | ĐẠT kỹ thuật (`sprints/9/qc/gate-P7.md`); nợ G7-23 LCP `/assignments/[id]` 4,7 s | `00017_assignments`; chấm mù hai lượt, kiểm bằng mã; thư chỉ tin khi `dmarc=pass`; Teams qua `mock-graph` |
 | P8 Tài liệu + Lịch | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P8.md`) | `docling-serve` (profile `ingest`), tìm lai RRF + `tsv`, lịch UNION, ICS token băm |
-| P9 Luyện đề | QC đạt (smoke hồi quy 24/11: 244 P · 4 F Thấp đang sửa) | 2026-11-12 | 2026-11-24 | `docs/regression/smoke-10.md` (nhánh `qc2/regression`) | `00019_practice`; chấm bằng `quiz` (không LLM); lượt luyện là bản chụp câu; đáp án thi thử chỉ lộ sau nộp; nhập Forms chỉ TEACHER, ghi `QUIZ` không công bố |
+| P9 Luyện đề | QC đạt (smoke hồi quy 25/11: 248 ca, 0 F sau TC-12-16) | 2026-11-12 | 2026-11-24 | `docs/regression/smoke-10.md` (nhánh `qc2/regression`) | `00019_practice`; chấm bằng `quiz` (không LLM); lượt luyện là bản chụp câu; đáp án thi thử chỉ lộ sau nộp; nhập Forms chỉ TEACHER, ghi `QUIZ` không công bố |
 | P10 Đánh giá | Chưa | | | | → vạch bảo vệ |
 | PR Sẵn sàng thí điểm | Chưa | | | | → vạch thí điểm thật |
 
 ## Luồng end-to-end (tick khi có spec E2E xanh cho đường chính + một nhánh lỗi)
 
-F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) · F6 ☑ (sprint 6) · F7 ☑ (sprint 7) · F8 ☑ (sprint 7) · F9 ☑ (sprint 9) · F10 ☑ (sprint 8) · F11 ☑ (sprint 9) · F12 ☐ · F13 ☑ (sprint 6) · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐ · F19 ☑ (sprint 5, `playwright-cli` + e2e)
+F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) · F6 ☑ (sprint 6) · F7 ☑ (sprint 7) · F8 ☑ (sprint 7) · F9 ☑ (sprint 9) · F10 ☑ (sprint 8) · F11 ☑ (sprint 9) · F12 ☑ (sprint 10; E2E `practice.real.spec.ts` + TC-12-15 một mạch, 25/11) · F13 ☑ (sprint 6) · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐ · F19 ☑ (sprint 5, `playwright-cli` + e2e)
 
 ## Phiên gần nhất
 - Ngày: 2026-11-01
