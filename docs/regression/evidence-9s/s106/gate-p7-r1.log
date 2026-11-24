@@ -1,0 +1,368 @@
+▶ go vet ./...
+▶ go test -race submission + jobs + grading + submission/source
+ok  	github.com/edupilot/backend-go/internal/submission	41.164s
+ok  	github.com/edupilot/backend-go/internal/submission/source	3.046s
+ok  	github.com/edupilot/backend-go/internal/jobs	4.378s
+ok  	github.com/edupilot/backend-go/internal/grading	135.613s
+ok  	github.com/edupilot/backend-go/internal/assignment	120.298s
+▶ TestStudentNeverSeesDraftGrade
+=== RUN   TestStudentNeverSeesDraftGrade/d_DRAFT_NEEDS_REVIEW
+=== RUN   TestStudentNeverSeesDraftGrade/d_DRAFT_INJECTION_SUSPECTED
+=== RUN   TestStudentNeverSeesDraftGrade/e_REVIEWED_chưa_công_bố
+=== RUN   TestStudentNeverSeesDraftGrade/f_FAILED
+--- PASS: TestStudentNeverSeesDraftGrade (1.00s)
+    --- PASS: TestStudentNeverSeesDraftGrade/a_chưa_chấm (0.06s)
+    --- PASS: TestStudentNeverSeesDraftGrade/b_QUEUED (0.03s)
+    --- PASS: TestStudentNeverSeesDraftGrade/b_RUNNING (0.02s)
+    --- PASS: TestStudentNeverSeesDraftGrade/c_DRAFT_chưa_cờ (0.02s)
+    --- PASS: TestStudentNeverSeesDraftGrade/d_DRAFT_NEEDS_REVIEW (0.02s)
+    --- PASS: TestStudentNeverSeesDraftGrade/d_DRAFT_INJECTION_SUSPECTED (0.02s)
+    --- PASS: TestStudentNeverSeesDraftGrade/e_REVIEWED_chưa_công_bố (0.02s)
+    --- PASS: TestStudentNeverSeesDraftGrade/f_FAILED (0.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.813s
+▶ TestImapToDraftGrade
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: c6212b20de4f59e4c1085ee407b4a56b779bbfed6d7d523139ee0246b1a9d714
+  Test ProcessID: 7465cb82-f23e-4b6f-94b7-970f686e7736
+2026/11/24 22:41:48 ✅ Container started: 68f6ff853df5
+2026/11/24 22:41:48 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:41:48 🔔 Container is ready: 68f6ff853df5
+2026/11/24 22:41:48 ✅ Container started: 5636bc78d64d
+2026/11/24 22:41:48 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/24 22:41:48 🔔 Container is ready: 5636bc78d64d
+2026/11/24 22:41:48 ✅ Container started: b8d9c357e377
+2026/11/24 22:41:48 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/24 22:41:48 🔔 Container is ready: b8d9c357e377
+--- PASS: TestImapToDraftGrade (0.69s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.216s
+▶ TestGradingJobSurvivesWorkerKill
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 537ddf4ffad9cbb60b91fed828067e036005d95aa2113279c70fec69e434c569
+  Test ProcessID: 364ace4a-31bb-4674-9a73-bcbb9015ca2f
+2026/11/24 22:41:50 ✅ Container started: 68f6ff853df5
+2026/11/24 22:41:50 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:41:50 🔔 Container is ready: 68f6ff853df5
+2026/11/24 22:41:51 ✅ Container started: 5636bc78d64d
+2026/11/24 22:41:51 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/24 22:41:51 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestGradingJobSurvivesWorkerKill (0.96s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.470s
+▶ TestTeamsSyncAgainstMockGraph
+=== RUN   TestTeamsSyncAgainstMockGraph/throttle
+=== RUN   TestTeamsSyncAgainstMockGraph/expired_token
+=== RUN   TestTeamsSyncAgainstMockGraph/no_consent
+=== RUN   TestTeamsSyncAgainstMockGraph/slow
+=== RUN   TestTeamsSyncAgainstMockGraph/partial_failure
+--- PASS: TestTeamsSyncAgainstMockGraph (34.74s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/happy (0.84s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/paged (0.54s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/throttle (0.53s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/expired_token (1.05s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/no_consent (0.46s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/slow (30.49s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/partial_failure (0.82s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	35.250s
+▶ go test -race Teams (source)
+ok  	github.com/edupilot/backend-go/internal/submission/source	1.976s
+▶ go test seed Bài tập (isolation, canary, unmatched, v2, imap, teams)
+ok  	github.com/edupilot/backend-go/internal/integration	6.477s
+▶ go test TestExtractLop1V2MatchesExpected
+ok  	github.com/edupilot/backend-go/internal/grading	1.261s
+▶ go test ./internal/contract/...
+ok  	github.com/edupilot/backend-go/internal/contract	32.962s
+▶ sha256sum -c seed/expected_final_grades.csv.sha256
+seed/expected_final_grades.csv: OK
+▶ Playwright assignment-lifecycle + grade-appeal
+$ NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_BLOB_ORIGIN=http://blob.test NEXT_PUBLIC_API_URL=http://localhost:${E2E_API_PORT:-3312} next build
+▲ Next.js 16.3.7 (Turbopack)
+✓ Running next.config.ts took 81ms
+- Experiments (use with caution):
+  ✓ inlineCss
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.6s
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 10 workers ...
+  Generating static pages using 10 workers (0/42) ...
+  Generating static pages using 10 workers (10/42) 
+  Generating static pages using 10 workers (20/42) 
+  Generating static pages using 10 workers (31/42) 
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Generating static pages using 10 workers (42/42) in 4.1s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[...slug]
+├ ○ /admin/audit
+├ ○ /admin/courses
+├ ○ /admin/users
+├ ○ /analytics
+├ ○ /assignments
+├ ƒ /assignments/[id]
+├ ○ /attendance
+├ ○ /attendance/display
+├ ○ /calendar
+├ ○ /chat
+├ ○ /checkin
+├ ○ /class/members
+├ ○ /class/settings
+├ ƒ /dev/[...slug]
+├ ○ /dev/data
+├ ○ /dev/ui
+├ ○ /documents
+├ ○ /exams
+├ ƒ /exams/[id]
+├ ƒ /exams/[id]/results
+├ ƒ /exams/[id]/similarity
+├ ƒ /exams/[id]/take
+├ ○ /forgot-password
+├ ○ /gradebook
+├ ○ /gradebook/scheme
+├ ○ /grading
+├ ƒ /grading/[submissionId]
+├ ○ /inbox
+├ ○ /insights
+├ ƒ /invite/[token]
+├ ○ /join
+├ ƒ /join/[code]
+├ ○ /library
+├ ƒ /library/[id]
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ○ /me
+├ ○ /observability
+├ ○ /practice
+├ ƒ /practice/[attemptId]
+├ ○ /practice/history
+├ ○ /questions
+├ ○ /register
+├ ○ /reset-password
+├ ○ /settings
+├ ○ /settings/integrations
+├ ○ /settings/llm
+├ ○ /students
+├ ƒ /students/[id]
+├ ○ /threads
+├ ƒ /threads/[id]
+└ ○ /verify-email
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+Running 62 tests using 2 workers
+
+  ✓   2 [desktop] › e2e/assignment-lifecycle.spec.ts:23:5 › assignments tab: «Đã nộp / Tổng» lấy lại khi cửa sổ lấy lại tiêu điểm — bài nộp tải lên / ZIP vào sau không còn hiện 0 (GV-BUG S2-2) (1.1s)
+  ✓   1 [desktop] › e2e/assignment-lifecycle.spec.ts:39:5 › assignments tab: dòng bài tập là LIÊN KẾT thật (href sâu), bấm thường mở ngăn, mở thẳng bằng ?open= (GV-BUG j) (1.5s)
+  ✓   3 [desktop] › e2e/assignment-lifecycle.spec.ts:50:5 › assignments tab layout: Tabs, một Panel + bảng năm cột, Tạo bài tập chỉ của giảng viên, TA chỉ xem (1.6s)
+  ✓   5 [desktop] › e2e/assignment-lifecycle.spec.ts:128:5 › drawer conflict: 409 VERSION_CONFLICT hiện dòng báo + Giữ của tôi / Dùng của họ (638ms)
+  ✓   6 [desktop] › e2e/assignment-lifecycle.spec.ts:159:5 › drawer double submit: bấm đúp Tạo chỉ gửi một POST (3.1s)
+  ✓   7 [desktop] › e2e/assignment-lifecycle.spec.ts:195:5 › assignments tab states: khung xương, rỗng, lỗi kèm Thử lại (488ms)
+  ✓   8 [desktop] › e2e/assignment-lifecycle.spec.ts:238:5 › student page states: bốn trạng thái, đề bài Markdown, tiêu chí, có mục «Bài tập» ở thanh điều hướng (P-11-14) (715ms)
+  ✓   4 [desktop] › e2e/assignment-lifecycle.spec.ts:98:5 › drawer offline draft: chữ đã gõ giữ nguyên sau khi tải lại, mất mạng thì xếp hàng và tự gửi lại (6.4s)
+  ✓  10 [desktop] › e2e/assignment-lifecycle.spec.ts:284:5 › submit confirms with server timestamp: presign → PUT kho tệp → submit, xác nhận bằng giờ máy chủ (392ms)
+  ✓  11 [desktop] › e2e/assignment-lifecycle.spec.ts:304:5 › submit late: xác nhận vừa nộp kèm «Nộp muộn n ngày» ngay (không đợi tải lại); có điểm thì dòng trạng thái là «Đã có điểm» (DEF-R9S-09, US-P7-03 AC1/AC3) (402ms)
+  ✓  12 [desktop] › e2e/assignment-lifecycle.spec.ts:319:5 › submit offline retry: kho tệp hỏng giữ nguyên tệp đã chọn, Thử lại xin presign mới (474ms)
+  ✓   9 [desktop] › e2e/assignment-lifecycle.spec.ts:267:5 › dropzone rejects before upload: sai đuôi / quá 20 MB / rỗng báo tại chỗ, không có presign (1.6s)
+  ✓  14 [desktop] › e2e/assignment-lifecycle.spec.ts:353:5 › submit resume complete: vé còn hạn hiện Chưa hoàn tất nộp, Hoàn tất dùng lại upload_id (772ms)
+  ✓  15 [desktop] › e2e/assignment-lifecycle.spec.ts:369:5 › assignment page 375: một cột, vùng nộp ≥ 48 px, nút đủ rộng, không cuộn ngang (319ms)
+  ✓  13 [desktop] › e2e/assignment-lifecycle.spec.ts:335:5 › submit double click: bấm đúp Nộp bài chỉ tạo một bản nộp (2.4s)
+  ✓  17 [desktop] › e2e/assignment-lifecycle.spec.ts:450:5 › unmatched dismiss: lý do rỗng không gửi, bỏ qua xong có Hoàn tác trong 5 giây (615ms)
+  ✓  18 [desktop] › e2e/assignment-lifecycle.spec.ts:471:5 › unmatched states: khung xương, rỗng, lỗi kèm Thử lại (479ms)
+  ✓  16 [desktop] › e2e/assignment-lifecycle.spec.ts:395:5 › unmatched assign: chọn bài + sinh viên gợi ý rồi Gán, 409 và 403 báo bằng chữ (2.5s)
+  ✓  19 [desktop] › e2e/assignment-lifecycle.spec.ts:496:5 › unmatched mail ignored: mục Thư không xử lý được chỉ hiện khi có thư, lý do bằng tiếng Việt (552ms)
+  ✓  20 [desktop] › e2e/assignment-lifecycle.spec.ts:542:5 › queue: toàn bài chưa chấm — lọc mặc định không che bài, Chấm tất cả bấm được (GV-BUG lọc mặc định + khoá Chấm tất cả) (596ms)
+  ✓  21 [desktop] › e2e/assignment-lifecycle.spec.ts:551:5 › queue: lớp chưa có bài nộp — «Chưa có bài nộp» + Tải bài lên (DEF-R9S-07, TC-P7-08-13) (445ms)
+  ✓  22 [desktop] › e2e/assignment-lifecycle.spec.ts:559:5 › grading: không có ?tab= — mở «Hàng chờ» khi còn việc chờ, ngược lại «Bài tập» (DEF-R9S-08, US-P7-02 AC1) (608ms)
+  ✓  23 [desktop] › e2e/assignment-lifecycle.spec.ts:570:5 › queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3) (1.3s)
+  ✓  24 [desktop] › e2e/assignment-lifecycle.spec.ts:582:5 › queue: người khác chấm lại — hàng chờ lấy lại khi tab hiện ra lại, không giữ số cũ (GV-BUG o) (1.1s)
+  ✓  25 [desktop] › e2e/assignment-lifecycle.spec.ts:600:5 › queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ (1.2s)
+  ✓  26 [desktop] › e2e/assignment-lifecycle.spec.ts:624:5 › queue: bài «Chấm lỗi» nêu nguyên nhân bằng chữ (US-P7-06 AC10, US-P7-07 AC4; DEF-R9S-02) (1.2s)
+  ✓  28 [desktop] › e2e/assignment-lifecycle.spec.ts:644:5 › review two columns: trái 52–58 % / phải 42–48 %, tiêu chí phẳng, Duyệt bài cuối cột (750ms)
+  ✓  29 [desktop] › e2e/assignment-lifecycle.spec.ts:674:5 › evidence scroll and highlight: bấm trích dẫn thì cột trái tô sáng đúng đoạn (417ms)
+  ✓  27 [desktop] › e2e/assignment-lifecycle.spec.ts:634:5 › grading ta cannot see publish: TA duyệt được nhưng không có nút Công bố (1.4s)
+  ✓  30 [desktop] › e2e/assignment-lifecycle.spec.ts:685:5 › review amber notice for disagree: nêu đúng số của hai lượt chấm (544ms)
+  ✓  32 [desktop] › e2e/assignment-lifecycle.spec.ts:714:5 › review version conflict: 409 giữ điểm đã gõ, nêu giá trị người kia, MỘT thông báo (US-15 AC7, lỗi #8) (571ms)
+  ✓  31 [desktop] › e2e/assignment-lifecycle.spec.ts:694:5 › review edit score undo: lưu lạc quan, bước 0,25 báo tại ô, hoàn tác đưa về giá trị cũ (1.1s)
+  ✓  33 [desktop] › e2e/assignment-lifecycle.spec.ts:742:5 › review version conflict: Dùng của họ đổi ô sang giá trị người kia (539ms)
+  ✓  34 [desktop] › e2e/assignment-lifecycle.spec.ts:755:5 › review comment autosave: nháp lưu vào máy mỗi 2 giây (2.5s)
+  ✓  36 [desktop] › e2e/assignment-lifecycle.spec.ts:776:5 › review key A next: duyệt rồi sang bài kế, có thanh tiến độ (382ms)
+  ✓  35 [desktop] › e2e/assignment-lifecycle.spec.ts:765:5 › review draft restore: mở lại bài thì nhận xét đang soạn còn nguyên (2.9s)
+  ✓  37 [desktop] › e2e/assignment-lifecycle.spec.ts:794:5 › queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (M = số bài lúc mở, cố định) và lọc «Cần xem kỹ» bỏ đi thì GIỮ khi vào lại (GV-BUG c, d) (835ms)
+  ✓  39 [desktop] › e2e/assignment-lifecycle.spec.ts:831:5 › queue: người khác duyệt bớt bài → hàng chờ làm mới khi cửa sổ lấy lại tiêu điểm / tab hiện lại, không cần tải lại (DEF-R106S-21) (556ms)
+  -  40 [desktop] › e2e/assignment-lifecycle.spec.ts:849:5 › tab Bài tập ở 375 px: liên kết tiêu đề là vùng chạm ≥ 44 px cao, rộng hết hàng; chạm sát mép phải vẫn mở bài (DEF-R106S-22, P-106-13 j)
+  ✓  38 [desktop] › e2e/assignment-lifecycle.spec.ts:812:5 › queue: lọc «Cần xem kỹ» người dùng đã tắt GIỮ khi sang tab Bài tập rồi về, và khi tải lại (DEF-R106S-20, P-106-13 d) (1.2s)
+  ✓  41 [desktop] › e2e/assignment-lifecycle.spec.ts:865:5 › review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng (1.5s)
+  ✓  43 [desktop] › e2e/assignment-lifecycle.spec.ts:887:5 › review running locked: đang chấm thì khoá Duyệt bài kèm lý do (470ms)
+  ✓  42 [desktop] › e2e/assignment-lifecycle.spec.ts:875:5 › review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên (2.3s)
+  ✓  44 [desktop] › e2e/assignment-lifecycle.spec.ts:897:5 › grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Thử lại (911ms)
+  ✓  45 [desktop] › e2e/assignment-lifecycle.spec.ts:924:5 › publish bulk confirm: chọn bài đã duyệt, xác nhận hậu quả bằng số, dòng đổi sang Đã công bố (1.2s)
+  ✓  46 [desktop] › e2e/assignment-lifecycle.spec.ts:951:5 › publish bulk conflict: bài bị sửa chen ngang thì cả lô dừng và nói rõ số bài (1.0s)
+  ✓  47 [desktop] › e2e/assignment-lifecycle.spec.ts:967:5 › student sees published result: điểm, tiêu chí, trích dẫn, trừ muộn — không có chữ nháp hay AI (307ms)
+  ✓  48 [desktop] › e2e/assignment-lifecycle.spec.ts:984:5 › student grading shows no score: chưa công bố thì chỉ thấy Đang chấm (377ms)
+  ✓  49 [desktop] › e2e/assignment-lifecycle.spec.ts:994:5 › queue progress: tiến độ lô lấy từ job, không đếm theo số dòng đã tải (3.7s)
+  ✓  50 [desktop] › e2e/assignment-lifecycle.spec.ts:1010:5 › teams sync happy then throttle: tiến độ, danh sách không lấy được, lần hai 429 khoá nút kèm lý do (3.8s)
+  ✓  51 [desktop] › e2e/assignment-lifecycle.spec.ts:1042:5 › teams sync no_consent: việc hỏng nói bằng chữ, trang vẫn dùng được (532ms)
+  ✓  52 [desktop] › e2e/assignment-lifecycle.spec.ts:1056:5 › teams sync hidden: bài không có kênh Teams thì không có nút (535ms)
+  ✓  54 [desktop] › e2e/assignment-lifecycle.spec.ts:1127:5 › student page hides html comment: chú thích nội bộ của tệp đề bài không hiện thành chữ (383ms)
+  ✓  55 [desktop] › e2e/grade-appeal.spec.ts:28:5 › student files appeal: chọn tiêu chí theo tên, lý do, gửi một lần (519ms)
+  ✓  56 [desktop] › e2e/grade-appeal.spec.ts:49:5 › appeal window and states: hết hạn hoặc đã gửi thì không có nút, đã quyết thì hiện phản hồi (683ms)
+  ✓  53 [desktop] › e2e/assignment-lifecycle.spec.ts:1065:5 › demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu chí 2, duyệt, công bố → B thấy 7,5 cùng nhận xét (2.1s)
+  ✓  57 [desktop] › e2e/grade-appeal.spec.ts:67:5 › appeal already filed: gửi lần hai bị từ chối bằng chữ, chữ đang gõ còn nguyên (635ms)
+  ✓  59 [desktop] › e2e/grade-appeal.spec.ts:109:5 › teacher decides appeal: sửa điểm kèm phản hồi bắt buộc, xác nhận không quyết lại (751ms)
+  ✓  60 [desktop] › e2e/grade-appeal.spec.ts:137:5 › ta cannot decide appeal: trợ giảng chỉ đọc khối phúc khảo (522ms)
+  ✓  61 [desktop] › e2e/grade-appeal.spec.ts:149:5 › appeal decided twice: 409 nói bằng chữ (406ms)
+  ✓  58 [desktop] › e2e/grade-appeal.spec.ts:82:5 › appeal offline draft: mất mạng không mất chữ, mở lại vẫn còn và gửi lại được (4.5s)
+  ✓  62 [desktop] › e2e/grade-appeal.spec.ts:166:5 › appeal locked gradebook drift: sửa điểm khi sổ đã chốt ⇒ Khác bản chốt, Mở khoá → Chốt điểm, sinh viên nhận thông báo (3.2s)
+
+  1 skipped
+  61 passed (40.6s)
+▶ ui-antipatterns.sh
+✓ Màu viết cứng ngoài shared/styles
+✓ Màu viết cứng trong style của .tsx
+✓ Xám chung chung của Tailwind
+✓ Bo góc kiểu SaaS / số cứng
+✓ Bóng ngoài Popover/Dialog/Menu/Drawer/Composer
+✓ Cỡ chữ tuỳ ý ngoài thang vai trò
+✓ z-index số cứng
+✓ fetch / XMLHttpRequest / axios ngoài shared/data
+✓ confirm / alert
+✓ Spinner riêng hoặc toàn trang
+✓ <table> thô ngoài DataTable
+✓ Hiệu ứng bị cấm (glass, chữ gradient, nảy)
+✓ Gamification (streak, leaderboard, confetti)
+✓ Khung vỏ dùng nền đặc
+✓ Từ kỹ thuật trong màn sinh viên
+✓ Dialog ngoài danh sách việc cần bảo vệ
+✓ Emoji làm icon chức năng
+✓ Token / bí mật ghi vào storage
+✓ Tailwind / @theme
+✓ Bóng elevation ngoài Panel
+✓ Bo góc panel ngoài Panel
+✓ Panel lồng Panel (cùng tệp)
+✓ Câu mô tả tĩnh dưới tiêu đề
+✓ Khung tự đặt độ rộng
+✓ Chiều cao theo màn ngoài shared/
+✓ Với tay vào primitive
+✓ Meta lặp lớp đang chọn
+✓ Tiêu đề tự dựng ngoài shared/ui
+✓ Nút rỗng trùng nút đầu trang
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+✓ Chữ Threads / Insights / Analytics hiển thị
+✓ Luật :hover ngoài @media (hover: hover)
+▶ check-assignments-seed.mjs bt03
+(node:81506) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK 22/22 khớp ngay + 3 chưa khớp + 6 không nộp; bản ghi: IN_APP 13 · IMAP 8 (kèm sv29 + thư lạ) · UPLOAD 5 (kèm sv30)
+
+▶ check-assignments-seed.mjs counts
+(node:81508) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1/20] Admin đầu tiên (gateway admin create)…
+(node:81509) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2/20] Mời giảng viên và trợ giảng, nhận lời mời…
+[3/20] Mở hai lớp 761987 / 761988, gán giảng viên và TA…
+[4/20] Tạo buổi học (buổi hôm nay của hai lớp)…
+[5/20] Lớp 761987: nhập danh sách 30 sinh viên, nhận lời mời…
+[6/20] Đăng ký, xác minh email và đăng nhập các sinh viên còn lại…
+[7/20] Lớp 761988: 24 sinh viên vào bằng mã, bật duyệt, 3 sinh viên chờ duyệt…
+[8/20] sv.lech (MSSV trùng B) vào lớp 761987 bằng mã…
+[9/20] Giảng viên bỏ qua mục thiết lập của lớp 761987…
+[10/20] Ngân hàng câu hỏi, hai bài thi mẫu và lượt làm (lớp 761987)…
+   Đã có hai bài thi mẫu, không tạo thêm.
+[19/20] Bài tập 03 / 04 lớp 761987: 26 bài nộp (app, ZIP, thư IMAP thử), thẻ IMAP + Teams…
+[11/20] Tài liệu (docling thật) và sự kiện lịch…
+[12/20] Lịch sử chat riêng của sinh viên lớp 761987 (≈ 150 câu, ghi thẳng, không tự mở ticket)…
+[13/20] Thread lớp 761987 (12) và 761988 (3), đủ trạng thái bài AI…
+[14/20] Điểm danh buổi 1–9 và phát biểu lớp 761987 (270 dòng, kế hoạch theo SEED_RNG)…
+[15/20] Quy chế môn, công thức điểm (extract → confirm), nhập điểm giữa kỳ / cuối kỳ lớp 761987…
+[16/20] Thời gian học 10 tuần (lớp 761988: 3 tuần), rải hoạt động, tính at-risk…
+[17/20] Ticket đủ trạng thái lớp 761987 (qua chat + escalate + trả lời thật)…
+[18/20] Kiểm duyệt Threads lớp 761987: 2 báo cáo, 1 thread tự ẩn, 1 bình luận bị ẩn, 1 thread ghim…
+[20/20] Luyện đề: ngân hàng, hàng chờ duyệt, Quiz và lượt luyện của 13 sinh viên (lớp 761987)…
+   Đã tạo 0 lượt luyện mới (còn lại giữ nguyên nếu đã có).
+[+] Điểm danh bằng mã: lớp 761988 bật, buổi 1 có hai cửa sổ đã đóng…
+Seed xong trong 23 s.
+Seed xong (không đổi)
+  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)
+  60 tài khoản (1 Admin, 1 giảng viên, 1 TA, 57 sinh viên); mật khẩu = SEED_DEFAULT_PASSWORD
+  Lớp 761987: 20 câu trắc nghiệm APPROVED + 5 câu AI_DRAFT + 2 bài code; hai bài thi mẫu (24 lượt trắc nghiệm + 6 lượt code) tự đóng và công bố ≤ 3 phút — `node scripts/check-exam-seed.mjs bank|scores|demo`
+  Lớp 761987: 6 tài liệu READY (quy chế trường scan = OTHER, quy chế học phần = COURSE_POLICY, 2 bài giảng, 1 đề tham khảo, 1 đáp án canary) + 2 sự kiện thi; lớp 761988: bài giảng dùng chung + 1 sự kiện — `node scripts/check-docs-seed.mjs`
+  ≈ 150 câu hỏi chat riêng (sinh viên lớp 761987), 12 thread lớp 761987 + 3 thread lớp 761988 — `node scripts/check-chat-seed.mjs [threads]`
+  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 / sv26 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`
+  Lớp 761987: công thức điểm CONFIRMED (trích từ quy chế học phần bằng provider giả, TEACHER xác nhận), điểm giữa kỳ / cuối kỳ nhập bằng XLSX và đã công bố, sổ CHƯA chốt; lớp 761988: chưa có quy chế — `node scripts/check-grade-seed.mjs`
+  Lớp 761987: Bài tập 03 (26 bài nộp: 13 app, 5 ZIP, 8 thư IMAP thử; 3 chưa khớp; chưa chấm) + Bài tập 04 (kênh Teams, chưa đồng bộ) — `node scripts/check-assignments-seed.mjs`
+  Lớp 761987: Luyện đề — 82 câu APPROVED (8 chủ đề, gồm 8 trả lời ngắn + 2 tự luận) + 20 câu PENDING + 1 Quiz tính điểm (đã công bố, 3 lượt) + câu EXTRACTED / GENERATED có trích dẫn + ngân hàng riêng của lớp 761988 + ≈ 40 lượt của 13 sinh viên (B sai nhiều An toàn ứng dụng web; C đang dở 1 lượt) — `node scripts/check-practice-seed.mjs`
+  Decision model: provider `decision-fake` + 3 cổng tắt (SEED_DECISION_DEMO=1 bật cả ba cho lớp 761987) — `node scripts/check-decision-seed.mjs`
+  Học từ lần sửa: tắt (SEED_GUIDANCE_DEMO=1 bật cờ + dữ liệu demo cho BT03) — `node scripts/check-guidance-seed.mjs`
+  Điểm danh bằng mã: lớp 761988 bật; buổi 1 có 2 cửa sổ đã đóng (22 lượt vòng 1 đủ ca cờ, vòng 2 + RECHECK_MISS, over_headcount); sv.gioi chưa có lượt — `node scripts/check-checkin-seed.mjs`
+  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)
+counts {"assignments":2,"matched":22,"unmatched":3,"inApp":13,"inbound":8,"documents":8,"imap":true,"teams":true} (không đổi sau seed lần hai)
+
+▶ check-assignments-seed.mjs grade
+(node:81719) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+22/22 khớp expected_grading.json
+
+▶ check-assignments-seed.mjs demo5
+(node:81835) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+B 7.50
+
+▶ check-assignments-seed.mjs teams
+(node:81850) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+teams OK: 24 khớp + 1 chưa khớp (Bài tập 04…)
+
+▶ check-assignments-seed.mjs v2
+(node:81855) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+30/30 OK (bản 2)
+
+
+Bạn tự kiểm (chủ dự án tự làm — gate không thay được):
+- Gửi 1 mail vào hộp thử đúng mẫu `[BT03] MSSV` và 1 mail sai mẫu → một cái khớp, một cái vào Chưa khớp.
+- Đọc 5 bài AI chấm: bằng chứng trích đúng từ bài; nhận xét dùng được.
+- Sinh viên KHÔNG thấy điểm trước khi công bố.
+- `Đồng bộ từ Teams` kịch bản happy rồi throttle: bài về đủ, tiến độ mượt; no_consent: thông báo đọc hiểu được.
+- So một phản hồi của mock-graph với ví dụ trong tài liệu Microsoft Graph: tên trường khớp từng chữ.
+- Bắt đầu chấm tay 60 bài cho E3 (việc chỉ bạn làm được).
+
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 7 |
+| PASS | go test -race submission + jobs + grading + submission/source | 142 |
+| PASS | TestStudentNeverSeesDraftGrade | 7 |
+| PASS | TestImapToDraftGrade | 2 |
+| PASS | TestGradingJobSurvivesWorkerKill | 3 |
+| PASS | TestTeamsSyncAgainstMockGraph | 37 |
+| PASS | go test -race Teams (source) | 3 |
+| PASS | go test seed Bài tập (isolation, canary, unmatched, v2, imap, teams) | 10 |
+| PASS | go test TestExtractLop1V2MatchesExpected | 3 |
+| PASS | go test ./internal/contract/... | 35 |
+| PASS | sha256sum -c seed/expected_final_grades.csv.sha256 | 0 |
+| PASS | Playwright assignment-lifecycle + grade-appeal | 84 |
+| PASS | ui-antipatterns.sh | 2 |
+| PASS | check-assignments-seed.mjs bt03 | 0 |
+| PASS | check-assignments-seed.mjs counts | 24 |
+| PASS | check-assignments-seed.mjs grade | 55 |
+| PASS | check-assignments-seed.mjs demo5 | 0 |
+| PASS | check-assignments-seed.mjs teams | 3 |
+| PASS | check-assignments-seed.mjs v2 | 13 |
+
+GATE P7: PASS

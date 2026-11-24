@@ -1,0 +1,1045 @@
+▶ go vet ./...
+▶ go test -race ./internal/grade/... (30/30 khớp CSV)
+=== RUN   TestNoFloatInGrade
+--- PASS: TestNoFloatInGrade (0.10s)
+=== RUN   TestForbiddenImports
+--- PASS: TestForbiddenImports (0.06s)
+=== RUN   TestEngineIsPure
+--- PASS: TestEngineIsPure (0.00s)
+=== RUN   TestNoPolicyConstants
+--- PASS: TestNoPolicyConstants (0.01s)
+=== RUN   TestAdjustedUpdatesResultInPlace
+2026/11/24 22:30:47 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: fd0795f25dd4d641fde2c4fceab9d1b7e29e527c2f970557540030e016689601
+  Test ProcessID: 48115b9d-0d72-4623-ae83-e7cf6099383a
+2026/11/24 22:30:47 ✅ Container started: 68f6ff853df5
+2026/11/24 22:30:47 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:30:48 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAdjustedUpdatesResultInPlace (0.80s)
+=== RUN   TestAdjustedWhenLockedKeepsSnapshot
+--- PASS: TestAdjustedWhenLockedKeepsSnapshot (0.67s)
+=== RUN   TestAdjustedShowsDriftWhenLocked
+--- PASS: TestAdjustedShowsDriftWhenLocked (0.67s)
+=== RUN   TestAdjustedAfterUnlockThenRefinalizeNotifies
+--- PASS: TestAdjustedAfterUnlockThenRefinalizeNotifies (0.64s)
+=== RUN   TestAdjustedSerializesWithFinalize
+--- PASS: TestAdjustedSerializesWithFinalize (1.14s)
+=== RUN   TestAssignmentItemReadsPublishedLatest
+--- PASS: TestAssignmentItemReadsPublishedLatest (0.65s)
+=== RUN   TestUnmatchedBlocksZeroScore
+--- PASS: TestUnmatchedBlocksZeroScore (0.71s)
+=== RUN   TestNoSubmissionZeroOnlyWhenNoUnmatched
+--- PASS: TestNoSubmissionZeroOnlyWhenNoUnmatched (0.66s)
+=== RUN   TestFinalizeIncompleteWhenUnmatched
+--- PASS: TestFinalizeIncompleteWhenUnmatched (0.64s)
+=== RUN   TestAssignmentOpenIsIncomplete
+--- PASS: TestAssignmentOpenIsIncomplete (1.33s)
+=== RUN   TestIgnoredMailBlocksZeroScore
+--- PASS: TestIgnoredMailBlocksZeroScore (0.64s)
+=== RUN   TestAssignmentItemReadsPublishedDirect
+--- PASS: TestAssignmentItemReadsPublishedDirect (0.67s)
+=== RUN   TestPublishWritesNoGradeEntries
+--- PASS: TestPublishWritesNoGradeEntries (0.65s)
+=== RUN   TestAssignmentItemBatchNoNPlusOne
+--- PASS: TestAssignmentItemBatchNoNPlusOne (1.46s)
+=== RUN   TestAssignmentItemEqualsStudentView
+--- PASS: TestAssignmentItemEqualsStudentView (0.63s)
+=== RUN   TestAssignmentItemLateLinkAfterPublish
+--- PASS: TestAssignmentItemLateLinkAfterPublish (0.64s)
+=== RUN   TestAssignmentItemNotEditable
+--- PASS: TestAssignmentItemNotEditable (0.59s)
+=== RUN   TestAssignmentItemNotPublishable
+--- PASS: TestAssignmentItemNotPublishable (0.59s)
+=== RUN   TestExpectedFinalGradesUnchanged
+--- PASS: TestExpectedFinalGradesUnchanged (0.00s)
+=== RUN   TestPublishWhenLockedKeepsSnapshot
+--- PASS: TestPublishWhenLockedKeepsSnapshot (0.64s)
+=== RUN   TestPublishShowsDriftWhenLocked
+--- PASS: TestPublishShowsDriftWhenLocked (0.65s)
+=== RUN   TestPublishThenUnlockRefinalizeNotifies
+--- PASS: TestPublishThenUnlockRefinalizeNotifies (0.64s)
+=== RUN   TestPublishSerializesWithFinalize
+--- PASS: TestPublishSerializesWithFinalize (1.11s)
+=== RUN   TestAssignmentItemLinkValidation
+--- PASS: TestAssignmentItemLinkValidation (0.61s)
+=== RUN   TestStudentViewSharedByToolAndMeGrades
+--- PASS: TestStudentViewSharedByToolAndMeGrades (0.76s)
+=== RUN   TestMeGradesShowsAssignmentComponent
+--- PASS: TestMeGradesShowsAssignmentComponent (0.65s)
+=== RUN   TestConfirmRBAC
+2026/11/24 22:31:07 ✅ Container started: 5636bc78d64d
+2026/11/24 22:31:07 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/24 22:31:07 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestConfirmRBAC (0.73s)
+=== RUN   TestConfirmIdempotent
+--- PASS: TestConfirmIdempotent (0.63s)
+=== RUN   TestConfirmOnlyFromHandler
+--- PASS: TestConfirmOnlyFromHandler (0.12s)
+=== RUN   TestEngineExpected30
+=== RUN   TestEngineExpected30/sv.gioi
+=== RUN   TestEngineExpected30/sv.kha
+=== RUN   TestEngineExpected30/sv.nguyco
+=== RUN   TestEngineExpected30/sv04
+=== RUN   TestEngineExpected30/sv05
+=== RUN   TestEngineExpected30/sv06
+=== RUN   TestEngineExpected30/sv07
+=== RUN   TestEngineExpected30/sv08
+=== RUN   TestEngineExpected30/sv09
+=== RUN   TestEngineExpected30/sv10
+=== RUN   TestEngineExpected30/sv11
+=== RUN   TestEngineExpected30/sv12
+=== RUN   TestEngineExpected30/sv13
+=== RUN   TestEngineExpected30/sv14
+=== RUN   TestEngineExpected30/sv15
+=== RUN   TestEngineExpected30/sv16
+=== RUN   TestEngineExpected30/sv17
+=== RUN   TestEngineExpected30/sv18
+=== RUN   TestEngineExpected30/sv19
+=== RUN   TestEngineExpected30/sv20
+=== RUN   TestEngineExpected30/sv21
+=== RUN   TestEngineExpected30/sv22
+=== RUN   TestEngineExpected30/sv23
+=== RUN   TestEngineExpected30/sv24
+=== RUN   TestEngineExpected30/sv25
+=== RUN   TestEngineExpected30/sv26
+=== RUN   TestEngineExpected30/sv27
+=== RUN   TestEngineExpected30/sv28
+=== RUN   TestEngineExpected30/sv29
+=== RUN   TestEngineExpected30/sv30
+--- PASS: TestEngineExpected30 (0.01s)
+    --- PASS: TestEngineExpected30/sv.gioi (0.00s)
+    --- PASS: TestEngineExpected30/sv.kha (0.00s)
+    --- PASS: TestEngineExpected30/sv.nguyco (0.00s)
+    --- PASS: TestEngineExpected30/sv04 (0.00s)
+    --- PASS: TestEngineExpected30/sv05 (0.00s)
+    --- PASS: TestEngineExpected30/sv06 (0.00s)
+    --- PASS: TestEngineExpected30/sv07 (0.00s)
+    --- PASS: TestEngineExpected30/sv08 (0.00s)
+    --- PASS: TestEngineExpected30/sv09 (0.00s)
+    --- PASS: TestEngineExpected30/sv10 (0.00s)
+    --- PASS: TestEngineExpected30/sv11 (0.00s)
+    --- PASS: TestEngineExpected30/sv12 (0.00s)
+    --- PASS: TestEngineExpected30/sv13 (0.00s)
+    --- PASS: TestEngineExpected30/sv14 (0.00s)
+    --- PASS: TestEngineExpected30/sv15 (0.00s)
+    --- PASS: TestEngineExpected30/sv16 (0.00s)
+    --- PASS: TestEngineExpected30/sv17 (0.00s)
+    --- PASS: TestEngineExpected30/sv18 (0.00s)
+    --- PASS: TestEngineExpected30/sv19 (0.00s)
+    --- PASS: TestEngineExpected30/sv20 (0.00s)
+    --- PASS: TestEngineExpected30/sv21 (0.00s)
+    --- PASS: TestEngineExpected30/sv22 (0.00s)
+    --- PASS: TestEngineExpected30/sv23 (0.00s)
+    --- PASS: TestEngineExpected30/sv24 (0.00s)
+    --- PASS: TestEngineExpected30/sv25 (0.00s)
+    --- PASS: TestEngineExpected30/sv26 (0.00s)
+    --- PASS: TestEngineExpected30/sv27 (0.00s)
+    --- PASS: TestEngineExpected30/sv28 (0.00s)
+    --- PASS: TestEngineExpected30/sv29 (0.00s)
+    --- PASS: TestEngineExpected30/sv30 (0.00s)
+=== RUN   TestEngineCases
+=== RUN   TestEngineCases/S01-san-QT
+=== RUN   TestEngineCases/S02-tran-cong-dung-1.00
+=== RUN   TestEngineCases/S03-tran-cong-1.25
+=== RUN   TestEngineCases/S04-vang-2-mien
+=== RUN   TestEngineCases/S05-vang-3-tru-0.5
+=== RUN   TestEngineCases/S06-su-kien-PENALTY
+=== RUN   TestEngineCases/S07-liet-vang-7
+=== RUN   TestEngineCases/S08-vang-6-chua-liet
+=== RUN   TestEngineCases/S09-thieu-cuoi-ky
+=== RUN   TestEngineCases/S10-lam-tron-0.1-nua-len
+=== RUN   TestEngineCases/S11-lam-tron-0.5-duoi-1-chut
+=== RUN   TestEngineCases/S12-A-khong-len-A+
+=== RUN   TestEngineCases/S13-bai-thi-chua-cong-bo
+=== RUN   TestEngineCases/S14-item-tay-trong-chua-cong-bo
+=== RUN   TestEngineCases/S15-item-tay-trong-da-cong-bo
+=== RUN   TestEngineCases/S16-chia-khong-het
+=== RUN   TestEngineCases/S17-nhom-QT-bang-0
+=== RUN   TestEngineCases/S18-PENALTY-khong-ap-dung
+--- PASS: TestEngineCases (0.01s)
+    --- PASS: TestEngineCases/S01-san-QT (0.00s)
+    --- PASS: TestEngineCases/S02-tran-cong-dung-1.00 (0.00s)
+    --- PASS: TestEngineCases/S03-tran-cong-1.25 (0.00s)
+    --- PASS: TestEngineCases/S04-vang-2-mien (0.00s)
+    --- PASS: TestEngineCases/S05-vang-3-tru-0.5 (0.00s)
+    --- PASS: TestEngineCases/S06-su-kien-PENALTY (0.00s)
+    --- PASS: TestEngineCases/S07-liet-vang-7 (0.00s)
+    --- PASS: TestEngineCases/S08-vang-6-chua-liet (0.00s)
+    --- PASS: TestEngineCases/S09-thieu-cuoi-ky (0.00s)
+    --- PASS: TestEngineCases/S10-lam-tron-0.1-nua-len (0.00s)
+    --- PASS: TestEngineCases/S11-lam-tron-0.5-duoi-1-chut (0.00s)
+    --- PASS: TestEngineCases/S12-A-khong-len-A+ (0.00s)
+    --- PASS: TestEngineCases/S13-bai-thi-chua-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S14-item-tay-trong-chua-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S15-item-tay-trong-da-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S16-chia-khong-het (0.00s)
+    --- PASS: TestEngineCases/S17-nhom-QT-bang-0 (0.00s)
+    --- PASS: TestEngineCases/S18-PENALTY-khong-ap-dung (0.00s)
+=== RUN   TestRoundHalfUpTable
+=== RUN   TestRoundHalfUpTable/0.5/6.25
+=== RUN   TestRoundHalfUpTable/0.5/6.75
+=== RUN   TestRoundHalfUpTable/0.5/6.5
+=== RUN   TestRoundHalfUpTable/0.5/6.249
+=== RUN   TestRoundHalfUpTable/0.5/6.251
+=== RUN   TestRoundHalfUpTable/0.5/8.25
+=== RUN   TestRoundHalfUpTable/0.5/5.75
+=== RUN   TestRoundHalfUpTable/0.5/0.25
+=== RUN   TestRoundHalfUpTable/0.1/7.25
+=== RUN   TestRoundHalfUpTable/0.1/7.35
+=== RUN   TestRoundHalfUpTable/0.1/7.24
+=== RUN   TestRoundHalfUpTable/1/6.5
+=== RUN   TestRoundHalfUpTable/1/6.49
+=== RUN   TestRoundHalfUpTable/0.25/6.125
+--- PASS: TestRoundHalfUpTable (0.01s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.75 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.5 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.249 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.251 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/8.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/5.75 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/0.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.1/7.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.1/7.35 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.1/7.24 (0.00s)
+    --- PASS: TestRoundHalfUpTable/1/6.5 (0.00s)
+    --- PASS: TestRoundHalfUpTable/1/6.49 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.25/6.125 (0.00s)
+=== RUN   TestNoIntermediateRounding
+--- PASS: TestNoIntermediateRounding (0.00s)
+=== RUN   TestDivRoundNoDrift
+--- PASS: TestDivRoundNoDrift (0.00s)
+=== RUN   TestMissingScoreIncomplete
+--- PASS: TestMissingScoreIncomplete (0.00s)
+=== RUN   TestMissingScoreZeroRule
+--- PASS: TestMissingScoreZeroRule (0.00s)
+=== RUN   TestMissingScoreZeroRuleExplains
+--- PASS: TestMissingScoreZeroRuleExplains (0.00s)
+=== RUN   TestMissingScoreZeroOnlyWhenSourceClosed
+--- PASS: TestMissingScoreZeroOnlyWhenSourceClosed (0.00s)
+=== RUN   TestExpectedStudentC
+--- PASS: TestExpectedStudentC (0.00s)
+=== RUN   TestFailConditions
+--- PASS: TestFailConditions (0.00s)
+=== RUN   TestFinalExactlyThreeNotFail
+--- PASS: TestFinalExactlyThreeNotFail (0.00s)
+=== RUN   TestZeroWeightGroupNoDivide
+--- PASS: TestZeroWeightGroupNoDivide (0.00s)
+=== RUN   TestBonusNoEffectWarning
+--- PASS: TestBonusNoEffectWarning (0.00s)
+=== RUN   TestPenaltyNotApplicable
+--- PASS: TestPenaltyNotApplicable (0.00s)
+=== RUN   TestPenaltyNotInSchemeWarning
+--- PASS: TestPenaltyNotInSchemeWarning (0.00s)
+=== RUN   TestBonusNotApplicable
+--- PASS: TestBonusNotApplicable (0.00s)
+=== RUN   TestParamsDriveResult
+--- PASS: TestParamsDriveResult (0.00s)
+=== RUN   TestMissingParamIsError
+=== RUN   TestMissingParamIsError/thiếu_cap
+=== RUN   TestMissingParamIsError/khoá_lạ
+=== RUN   TestMissingParamIsError/cap_là_số_JSON
+=== RUN   TestMissingParamIsError/cap_âm
+=== RUN   TestMissingParamIsError/bước_lạ
+=== RUN   TestMissingParamIsError/thang_hở
+=== RUN   TestMissingParamIsError/thang_không_giảm
+=== RUN   TestMissingParamIsError/liệt_loại_lạ
+=== RUN   TestMissingParamIsError/free_không_nguyên
+--- PASS: TestMissingParamIsError (0.00s)
+    --- PASS: TestMissingParamIsError/thiếu_cap (0.00s)
+    --- PASS: TestMissingParamIsError/khoá_lạ (0.00s)
+    --- PASS: TestMissingParamIsError/cap_là_số_JSON (0.00s)
+    --- PASS: TestMissingParamIsError/cap_âm (0.00s)
+    --- PASS: TestMissingParamIsError/bước_lạ (0.00s)
+    --- PASS: TestMissingParamIsError/thang_hở (0.00s)
+    --- PASS: TestMissingParamIsError/thang_không_giảm (0.00s)
+    --- PASS: TestMissingParamIsError/liệt_loại_lạ (0.00s)
+    --- PASS: TestMissingParamIsError/free_không_nguyên (0.00s)
+=== RUN   TestExplainOrderAndQuotes
+--- PASS: TestExplainOrderAndQuotes (0.00s)
+=== RUN   TestExplainUserFilledHasNoQuote
+--- PASS: TestExplainUserFilledHasNoQuote (0.00s)
+=== RUN   TestExplainExprRecomputesValue
+--- PASS: TestExplainExprRecomputesValue (0.03s)
+=== RUN   TestExplainFullPrecision
+--- PASS: TestExplainFullPrecision (0.01s)
+=== RUN   TestWhatIfNoWrite
+--- PASS: TestWhatIfNoWrite (0.00s)
+=== RUN   TestMinFinalFor
+--- PASS: TestMinFinalFor (0.37s)
+=== RUN   TestLineTextSameNumbersNoCode
+--- PASS: TestLineTextSameNumbersNoCode (0.04s)
+=== RUN   TestFinalizeSnapshotsAll
+--- PASS: TestFinalizeSnapshotsAll (0.68s)
+=== RUN   TestFinalizeEqualsPreview
+--- PASS: TestFinalizeEqualsPreview (0.75s)
+=== RUN   TestFinalizeIdempotent
+--- PASS: TestFinalizeIdempotent (0.64s)
+=== RUN   TestFinalizeOneTxAndAudit
+--- PASS: TestFinalizeOneTxAndAudit (0.67s)
+=== RUN   TestFinalizeLop1MatchesExpected
+--- PASS: TestFinalizeLop1MatchesExpected (0.78s)
+=== RUN   TestFinalizeNotConfirmed
+--- PASS: TestFinalizeNotConfirmed (0.62s)
+=== RUN   TestFinalizeIncompleteAllOrNothing
+--- PASS: TestFinalizeIncompleteAllOrNothing (0.60s)
+=== RUN   TestFinalizeIncomplete40
+--- PASS: TestFinalizeIncomplete40 (0.60s)
+=== RUN   TestFinalizeAlreadyLocked
+--- PASS: TestFinalizeAlreadyLocked (0.63s)
+=== RUN   TestFinalizeUnpublishedExamIsIncomplete
+--- PASS: TestFinalizeUnpublishedExamIsIncomplete (0.66s)
+=== RUN   TestLockedBlocksWrites
+--- PASS: TestLockedBlocksWrites (0.62s)
+=== RUN   TestSnapshotUnaffectedBySourceChange
+--- PASS: TestSnapshotUnaffectedBySourceChange (0.65s)
+=== RUN   TestDriftFlag
+--- PASS: TestDriftFlag (0.67s)
+=== RUN   TestUnlockRequiresReason
+--- PASS: TestUnlockRequiresReason (0.64s)
+=== RUN   TestUnlockWhenOpen
+--- PASS: TestUnlockWhenOpen (0.60s)
+=== RUN   TestUnlockAudit
+--- PASS: TestUnlockAudit (0.60s)
+=== RUN   TestUnlockRBAC
+--- PASS: TestUnlockRBAC (0.67s)
+=== RUN   TestFinalizeRBAC
+--- PASS: TestFinalizeRBAC (0.67s)
+=== RUN   TestRefinalizeNewVersion
+--- PASS: TestRefinalizeNewVersion (0.62s)
+=== RUN   TestOldSnapshotHashUnchanged
+--- PASS: TestOldSnapshotHashUnchanged (0.63s)
+=== RUN   TestSnapshotHistoryReadable
+--- PASS: TestSnapshotHistoryReadable (0.64s)
+=== RUN   TestRefinalizeSkipsLeftStudent
+--- PASS: TestRefinalizeSkipsLeftStudent (0.65s)
+=== RUN   TestFinalizeNotifiesAll
+--- PASS: TestFinalizeNotifiesAll (0.65s)
+=== RUN   TestRefinalizeNotifiesOnlyChanged
+--- PASS: TestRefinalizeNotifiesOnlyChanged (0.64s)
+=== RUN   TestNotifyNoNumbers
+--- PASS: TestNotifyNoNumbers (0.63s)
+=== RUN   TestNotifyDedupe
+--- PASS: TestNotifyDedupe (0.61s)
+=== RUN   TestFinalizeConcurrent
+--- PASS: TestFinalizeConcurrent (0.65s)
+=== RUN   TestFinalizeVsPutRace
+--- PASS: TestFinalizeVsPutRace (17.11s)
+=== RUN   TestWriteTxLocksGradebookShared
+--- PASS: TestWriteTxLocksGradebookShared (0.00s)
+=== RUN   TestFinalize1000Under3s
+--- PASS: TestFinalize1000Under3s (1.31s)
+=== RUN   TestFinalizeNoNPlusOne
+--- PASS: TestFinalizeNoNPlusOne (1.00s)
+=== RUN   TestRBACMatrix
+--- PASS: TestRBACMatrix (0.77s)
+=== RUN   TestGradebookRBAC
+--- PASS: TestGradebookRBAC (0.65s)
+=== RUN   TestPreviewRBAC
+--- PASS: TestPreviewRBAC (0.77s)
+=== RUN   TestPutEntryOK
+--- PASS: TestPutEntryOK (0.68s)
+=== RUN   TestPutEntryOutOfRange
+--- PASS: TestPutEntryOutOfRange (0.74s)
+=== RUN   TestPutEntryPrecision
+--- PASS: TestPutEntryPrecision (0.69s)
+=== RUN   TestPutEntryClear
+--- PASS: TestPutEntryClear (0.74s)
+=== RUN   TestPutEntryBlankStringRejected
+--- PASS: TestPutEntryBlankStringRejected (0.63s)
+=== RUN   TestPutEntryExamItemRejected
+--- PASS: TestPutEntryExamItemRejected (0.65s)
+=== RUN   TestPutEntryReturnsRowResult
+--- PASS: TestPutEntryReturnsRowResult (0.75s)
+=== RUN   TestPutEntryUnder300ms
+--- PASS: TestPutEntryUnder300ms (0.94s)
+=== RUN   TestPutEntryConflictBody
+--- PASS: TestPutEntryConflictBody (0.79s)
+=== RUN   TestPutEntryLocked
+--- PASS: TestPutEntryLocked (0.70s)
+=== RUN   TestPutEntryAuditRow
+--- PASS: TestPutEntryAuditRow (0.70s)
+=== RUN   TestPutEntryAuditFailClosed
+--- PASS: TestPutEntryAuditFailClosed (0.64s)
+=== RUN   TestEntryHistoryFromAudit
+--- PASS: TestEntryHistoryFromAudit (0.69s)
+=== RUN   TestPublishItemToggle
+--- PASS: TestPublishItemToggle (0.72s)
+=== RUN   TestPublishItemAudit
+--- PASS: TestPublishItemAudit (0.71s)
+=== RUN   TestPublishExamItemNotToggleable
+--- PASS: TestPublishExamItemNotToggleable (0.76s)
+=== RUN   TestPublishLockedRejected
+--- PASS: TestPublishLockedRejected (0.67s)
+=== RUN   TestPublishedColumnShownInGradebook
+--- PASS: TestPublishedColumnShownInGradebook (0.69s)
+=== RUN   TestGradebookWarningsPenaltyNotInScheme
+--- PASS: TestGradebookWarningsPenaltyNotInScheme (0.66s)
+=== RUN   TestGradebookNoSchemeHasNoColumns
+--- PASS: TestGradebookNoSchemeHasNoColumns (0.59s)
+=== RUN   TestGradebookNoNPlusOne
+--- PASS: TestGradebookNoNPlusOne (0.67s)
+=== RUN   TestGradebookPageP95
+--- PASS: TestGradebookPageP95 (0.81s)
+=== RUN   TestGradebookExplainNoSeqScan
+--- PASS: TestGradebookExplainNoSeqScan (0.61s)
+=== RUN   TestPreviewUsesCompute
+--- PASS: TestPreviewUsesCompute (0.65s)
+=== RUN   TestImportPreviewNoWrite
+--- PASS: TestImportPreviewNoWrite (0.64s)
+=== RUN   TestImportMappingSuggest
+--- PASS: TestImportMappingSuggest (0.64s)
+=== RUN   TestImportNegativeScoreIsOutOfRange
+--- PASS: TestImportNegativeScoreIsOutOfRange (0.61s)
+=== RUN   TestImportParseErrors
+--- PASS: TestImportParseErrors (0.64s)
+=== RUN   TestImportDecimalComma
+--- PASS: TestImportDecimalComma (0.67s)
+=== RUN   TestImportPrecisionRejected
+--- PASS: TestImportPrecisionRejected (0.69s)
+=== RUN   TestImportFormattedCellValue
+--- PASS: TestImportFormattedCellValue (0.88s)
+=== RUN   TestImportStudentCodeAsText
+--- PASS: TestImportStudentCodeAsText (0.81s)
+=== RUN   TestImportMatchesEnrollmentSnapshot
+--- PASS: TestImportMatchesEnrollmentSnapshot (0.74s)
+=== RUN   TestImportSelfDeclaredCodeIgnored
+--- PASS: TestImportSelfDeclaredCodeIgnored (0.68s)
+=== RUN   TestImportCodeJoinedRowUnverified
+--- PASS: TestImportCodeJoinedRowUnverified (0.74s)
+=== RUN   TestImportRosterWinsOverCodeRow
+--- PASS: TestImportRosterWinsOverCodeRow (0.85s)
+=== RUN   TestImportBlankKeepsOld
+--- PASS: TestImportBlankKeepsOld (0.71s)
+=== RUN   TestImportCommitOneTx
+--- PASS: TestImportCommitOneTx (0.67s)
+=== RUN   TestImportIdempotentSameFile
+--- PASS: TestImportIdempotentSameFile (0.66s)
+=== RUN   TestImportHasErrorsBlocks
+--- PASS: TestImportHasErrorsBlocks (0.66s)
+=== RUN   TestImportSkipErrors
+--- PASS: TestImportSkipErrors (0.65s)
+=== RUN   TestImportAuditPerChange
+--- PASS: TestImportAuditPerChange (0.65s)
+=== RUN   TestImportLockedOrExam
+--- PASS: TestImportLockedOrExam (0.70s)
+=== RUN   TestImportLop1MatchesExpected
+--- PASS: TestImportLop1MatchesExpected (0.76s)
+=== RUN   TestImportZipBomb
+--- PASS: TestImportZipBomb (1.48s)
+=== RUN   TestImportTooManyRows
+--- PASS: TestImportTooManyRows (2.15s)
+=== RUN   TestImportCorruptFile
+--- PASS: TestImportCorruptFile (0.69s)
+=== RUN   TestImportSha256Mismatch
+--- PASS: TestImportSha256Mismatch (0.66s)
+=== RUN   TestImportFormulaCellNotExecuted
+--- PASS: TestImportFormulaCellNotExecuted (0.65s)
+=== RUN   TestImportNoLocalDisk
+--- PASS: TestImportNoLocalDisk (0.00s)
+=== RUN   TestExportLayoutAndNote
+--- PASS: TestExportLayoutAndNote (0.66s)
+=== RUN   TestExportFromSnapshotWhenLocked
+--- PASS: TestExportFromSnapshotWhenLocked (0.68s)
+=== RUN   TestExportFormulaInjection
+--- PASS: TestExportFormulaInjection (0.68s)
+=== RUN   TestExportHeadersAndAudit
+--- PASS: TestExportHeadersAndAudit (0.65s)
+=== RUN   TestImport1000Under3s
+--- PASS: TestImport1000Under3s (0.97s)
+=== RUN   TestExport1000Under3s
+--- PASS: TestExport1000Under3s (0.83s)
+=== RUN   TestImportNoNPlusOne
+--- PASS: TestImportNoNPlusOne (0.72s)
+=== RUN   TestImportRBAC
+--- PASS: TestImportRBAC (0.68s)
+=== RUN   TestExportRBAC
+--- PASS: TestExportRBAC (0.67s)
+=== RUN   TestImportPresignValidation
+--- PASS: TestImportPresignValidation (0.65s)
+=== RUN   TestImportMauFixture
+--- PASS: TestImportMauFixture (0.65s)
+=== RUN   TestExamScorePublishedOnly
+=== PAUSE TestExamScorePublishedOnly
+=== RUN   TestExamScoreFollowsAdjust
+=== PAUSE TestExamScoreFollowsAdjust
+=== RUN   TestExamScoreMissingIsNotZero
+=== PAUSE TestExamScoreMissingIsNotZero
+=== RUN   TestExamScoreScale
+=== PAUSE TestExamScoreScale
+=== RUN   TestExamScoreMatchesSeedCSV
+=== PAUSE TestExamScoreMatchesSeedCSV
+=== RUN   TestInputsFromP5
+=== PAUSE TestInputsFromP5
+=== RUN   TestInputsExcusedLateNotAbsent
+=== PAUSE TestInputsExcusedLateNotAbsent
+=== RUN   TestInputsActiveOnly
+=== PAUSE TestInputsActiveOnly
+=== RUN   TestInputsMatchExpectedCRM
+=== PAUSE TestInputsMatchExpectedCRM
+=== RUN   TestManualEntriesAndClosed
+=== PAUSE TestManualEntriesAndClosed
+=== RUN   TestCrossCourseIsolation
+=== PAUSE TestCrossCourseIsolation
+=== RUN   TestExamFromOtherCourseRejected
+=== PAUSE TestExamFromOtherCourseRejected
+=== RUN   TestLeftStudentExcluded
+=== PAUSE TestLeftStudentExcluded
+=== RUN   TestMeGradesNoSchemeStatus
+--- PASS: TestMeGradesNoSchemeStatus (0.63s)
+=== RUN   TestMeGradesOwnOnly
+--- PASS: TestMeGradesOwnOnly (0.70s)
+=== RUN   TestMeGradesIgnoresStudentParam
+--- PASS: TestMeGradesIgnoresStudentParam (0.68s)
+=== RUN   TestMeGradesNoStore
+--- PASS: TestMeGradesNoStore (0.63s)
+=== RUN   TestPendingItemHasNoScore
+--- PASS: TestPendingItemHasNoScore (0.94s)
+=== RUN   TestNoDraftLeak
+--- PASS: TestNoDraftLeak (0.71s)
+=== RUN   TestNoDraftLeakQT
+--- PASS: TestNoDraftLeakQT (0.65s)
+=== RUN   TestStudentDTOAllowlist
+--- PASS: TestStudentDTOAllowlist (0.70s)
+=== RUN   TestMeGradesFinalLockedAt
+--- PASS: TestMeGradesFinalLockedAt (0.80s)
+=== RUN   TestMeGradesFinalFromSnapshot
+--- PASS: TestMeGradesFinalFromSnapshot (0.72s)
+=== RUN   TestMeGradesIsolation
+--- PASS: TestMeGradesIsolation (0.73s)
+=== RUN   TestStudentCannotCallStaffGradeRoutes
+--- PASS: TestStudentCannotCallStaffGradeRoutes (0.71s)
+=== RUN   TestSnapshotIDOR
+--- PASS: TestSnapshotIDOR (0.66s)
+=== RUN   TestMeWhatIfNoWrite
+--- PASS: TestMeWhatIfNoWrite (0.66s)
+=== RUN   TestMeWhatIfTargetLetter
+--- PASS: TestMeWhatIfTargetLetter (0.72s)
+=== RUN   TestMeWhatIfIncomplete
+--- PASS: TestMeWhatIfIncomplete (0.89s)
+=== RUN   TestMeWhatIfOutOfRange
+--- PASS: TestMeWhatIfOutOfRange (0.69s)
+=== RUN   TestRBACMatrixAll
+--- PASS: TestRBACMatrixAll (0.89s)
+=== RUN   TestSchemePutRecheck
+--- PASS: TestSchemePutRecheck (0.66s)
+=== RUN   TestSchemePutVersionConflict
+--- PASS: TestSchemePutVersionConflict (0.62s)
+=== RUN   TestSchemePutOnlyDraft
+--- PASS: TestSchemePutOnlyDraft (0.61s)
+=== RUN   TestSchemePutValidation
+--- PASS: TestSchemePutValidation (0.62s)
+=== RUN   TestFilledByUserNoCitation
+--- PASS: TestFilledByUserNoCitation (0.67s)
+=== RUN   TestImpactThreeSamples
+--- PASS: TestImpactThreeSamples (0.69s)
+=== RUN   TestImpactNoWrite
+--- PASS: TestImpactNoWrite (0.62s)
+=== RUN   TestImpactNoCompleteStudents
+--- PASS: TestImpactNoCompleteStudents (0.61s)
+=== RUN   TestConfirmFlow
+--- PASS: TestConfirmFlow (0.61s)
+=== RUN   TestConfirmSupersedeBeforeConfirm
+--- PASS: TestConfirmSupersedeBeforeConfirm (0.64s)
+=== RUN   TestConfirmCreatesGradebookRow
+--- PASS: TestConfirmCreatesGradebookRow (0.61s)
+=== RUN   TestConfirmBlockedWhenLocked
+--- PASS: TestConfirmBlockedWhenLocked (0.59s)
+=== RUN   TestConfirmBlockedByUnclear
+--- PASS: TestConfirmBlockedByUnclear (0.63s)
+=== RUN   TestConfirmStaleVersion
+--- PASS: TestConfirmStaleVersion (0.64s)
+=== RUN   TestSchemeEditRace
+--- PASS: TestSchemeEditRace (0.62s)
+=== RUN   TestConfirmCarryOverEntries
+--- PASS: TestConfirmCarryOverEntries (0.67s)
+=== RUN   TestConfirmNoCarryOnMaxScoreChange
+--- PASS: TestConfirmNoCarryOnMaxScoreChange (0.68s)
+=== RUN   TestConfirmNoCarryOnSourceChange
+--- PASS: TestConfirmNoCarryOnSourceChange (0.70s)
+=== RUN   TestConfirmAudit
+--- PASS: TestConfirmAudit (0.78s)
+=== RUN   TestNewPolicyMakesNewDraft
+--- PASS: TestNewPolicyMakesNewDraft (0.78s)
+=== RUN   TestConfirmedUnchangedUntilConfirm
+--- PASS: TestConfirmedUnchangedUntilConfirm (0.81s)
+=== RUN   TestDiffAgainstConfirmed
+--- PASS: TestDiffAgainstConfirmed (0.69s)
+=== RUN   TestStatusStates
+--- PASS: TestStatusStates (0.61s)
+=== RUN   TestStatusPendingDraft
+--- PASS: TestStatusPendingDraft (0.63s)
+=== RUN   TestStatusBlocksFinalizeWithoutScheme
+--- PASS: TestStatusBlocksFinalizeWithoutScheme (0.64s)
+=== RUN   TestSourceDocumentDeletedKeepsConfirmed
+--- PASS: TestSourceDocumentDeletedKeepsConfirmed (0.60s)
+=== RUN   TestReminderWeeklyOncePerWeek
+--- PASS: TestReminderWeeklyOncePerWeek (0.62s)
+=== RUN   TestReminderCatchUp
+--- PASS: TestReminderCatchUp (0.60s)
+=== RUN   TestReminderStopsWhenConfirmed
+--- PASS: TestReminderStopsWhenConfirmed (0.65s)
+=== RUN   TestReminderSkipsArchived
+--- PASS: TestReminderSkipsArchived (0.58s)
+=== RUN   TestReminderRecipientsTeacherOnly
+--- PASS: TestReminderRecipientsTeacherOnly (0.59s)
+=== RUN   TestRecomputeOnDocumentChanged
+--- PASS: TestRecomputeOnDocumentChanged (0.63s)
+=== CONT  TestExamScoreMissingIsNotZero
+=== CONT  TestInputsActiveOnly
+=== CONT  TestExamFromOtherCourseRejected
+=== CONT  TestExamScoreMatchesSeedCSV
+=== CONT  TestExamScoreScale
+=== CONT  TestLeftStudentExcluded
+=== CONT  TestExamScorePublishedOnly
+=== CONT  TestExamScoreFollowsAdjust
+=== CONT  TestCrossCourseIsolation
+=== CONT  TestManualEntriesAndClosed
+=== CONT  TestInputsMatchExpectedCRM
+=== CONT  TestInputsExcusedLateNotAbsent
+--- PASS: TestExamScoreMissingIsNotZero (1.99s)
+--- PASS: TestInputsActiveOnly (2.00s)
+=== CONT  TestInputsFromP5
+--- PASS: TestExamScorePublishedOnly (2.00s)
+--- PASS: TestCrossCourseIsolation (2.00s)
+--- PASS: TestExamScoreFollowsAdjust (2.01s)
+--- PASS: TestManualEntriesAndClosed (2.01s)
+--- PASS: TestExamFromOtherCourseRejected (2.01s)
+--- PASS: TestLeftStudentExcluded (2.01s)
+--- PASS: TestInputsMatchExpectedCRM (2.04s)
+--- PASS: TestExamScoreMatchesSeedCSV (2.17s)
+--- PASS: TestExamScoreScale (3.10s)
+--- PASS: TestInputsFromP5 (1.14s)
+--- PASS: TestInputsExcusedLateNotAbsent (1.16s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	143.415s
+▶ internal/grade không có float64 ngoài test
+▶ go test ./internal/grading (trích công thức + bản ghi demo)
+=== RUN   TestDemoModeRecordingsCoverPolicies
+2026/11/24 22:33:15 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d6f9d89b8b1f6eaacc442c5f22f00da221824e68bbcaf52740a57ab92a0afb2a
+  Test ProcessID: 682146ee-4d46-4866-953f-3356242349f1
+2026/11/24 22:33:15 ✅ Container started: 68f6ff853df5
+2026/11/24 22:33:15 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:33:15 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDemoModeRecordingsCoverPolicies (1.11s)
+=== RUN   TestExtractGradeScheme
+--- PASS: TestExtractGradeScheme (0.43s)
+=== RUN   TestExtractLop2OneUnclear
+--- PASS: TestExtractLop2OneUnclear (0.45s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	2.907s
+▶ TestSeedGradebookExpected
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: cbfed083ae12b9434c93de0d3750d3b6c0c4d1d622470ad30f59f076a351d5c0
+  Test ProcessID: 0d67d8b9-42f6-4be7-9796-308746f614fa
+2026/11/24 22:33:19 ✅ Container started: 68f6ff853df5
+2026/11/24 22:33:19 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:33:19 🔔 Container is ready: 68f6ff853df5
+2026/11/24 22:33:20 ✅ Container started: 5636bc78d64d
+2026/11/24 22:33:20 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/24 22:33:20 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSeedGradebookExpected (0.85s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.583s
+▶ TestSeedGradebookIsolation
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8986a87753a71ea260e66d0336b057009b4912607647032fd59dd71934e348bf
+  Test ProcessID: bedc8893-7f3e-4110-a190-6c672cf13344
+2026/11/24 22:33:22 ✅ Container started: 68f6ff853df5
+2026/11/24 22:33:22 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:33:22 🔔 Container is ready: 68f6ff853df5
+2026/11/24 22:33:23 ✅ Container started: 5636bc78d64d
+2026/11/24 22:33:23 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/24 22:33:23 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSeedGradebookIsolation (1.17s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.697s
+▶ TestSeedGradebookAdminForbidden
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 4dc106413b47056ffe07d14b97135eb8cd85e6cc1630343c07b7f1344e2771c6
+  Test ProcessID: efb3d35a-91b1-4bc5-92df-805f53359c8d
+2026/11/24 22:33:25 ✅ Container started: 68f6ff853df5
+2026/11/24 22:33:25 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:33:26 🔔 Container is ready: 68f6ff853df5
+2026/11/24 22:33:26 ✅ Container started: 5636bc78d64d
+2026/11/24 22:33:26 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/24 22:33:26 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSeedGradebookAdminForbidden (1.28s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.807s
+▶ TestSeedRiskAfterGradebook
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 4ff1f80a20a71e7a49d8f413badac32675c5f200c08bab16562c182ecf605b20
+  Test ProcessID: 0d142161-bd90-4a17-a0f8-66d6c53d3db5
+2026/11/24 22:33:29 ✅ Container started: 68f6ff853df5
+2026/11/24 22:33:29 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/24 22:33:29 🔔 Container is ready: 68f6ff853df5
+2026/11/24 22:33:30 ✅ Container started: 5636bc78d64d
+2026/11/24 22:33:30 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/24 22:33:30 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSeedRiskAfterGradebook (0.88s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.409s
+▶ go test ./internal/contract/...
+ok  	github.com/edupilot/backend-go/internal/contract	32.502s
+▶ seed.mjs bị chặn khi NODE_ENV hoặc APP_ENV = production
+▶ check-grade-seed.mjs (stack đã seed: 30/30, A B C, lớp 2 → 409, số không đổi khi seed lần hai)
+(node:78030) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1/20] Admin đầu tiên (gateway admin create)…
+(node:78032) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2/20] Mời giảng viên và trợ giảng, nhận lời mời…
+[3/20] Mở hai lớp 761987 / 761988, gán giảng viên và TA…
+[4/20] Tạo buổi học (buổi hôm nay của hai lớp)…
+[5/20] Lớp 761987: nhập danh sách 30 sinh viên, nhận lời mời…
+[6/20] Đăng ký, xác minh email và đăng nhập các sinh viên còn lại…
+[7/20] Lớp 761988: 24 sinh viên vào bằng mã, bật duyệt, 3 sinh viên chờ duyệt…
+[8/20] sv.lech (MSSV trùng B) vào lớp 761987 bằng mã…
+[9/20] Giảng viên bỏ qua mục thiết lập của lớp 761987…
+[10/20] Ngân hàng câu hỏi, hai bài thi mẫu và lượt làm (lớp 761987)…
+   Đã có hai bài thi mẫu, không tạo thêm.
+[19/20] Bài tập 03 / 04 lớp 761987: 26 bài nộp (app, ZIP, thư IMAP thử), thẻ IMAP + Teams…
+[11/20] Tài liệu (docling thật) và sự kiện lịch…
+[12/20] Lịch sử chat riêng của sinh viên lớp 761987 (≈ 150 câu, ghi thẳng, không tự mở ticket)…
+[13/20] Thread lớp 761987 (12) và 761988 (3), đủ trạng thái bài AI…
+[14/20] Điểm danh buổi 1–9 và phát biểu lớp 761987 (270 dòng, kế hoạch theo SEED_RNG)…
+[15/20] Quy chế môn, công thức điểm (extract → confirm), nhập điểm giữa kỳ / cuối kỳ lớp 761987…
+[16/20] Thời gian học 10 tuần (lớp 761988: 3 tuần), rải hoạt động, tính at-risk…
+[17/20] Ticket đủ trạng thái lớp 761987 (qua chat + escalate + trả lời thật)…
+[18/20] Kiểm duyệt Threads lớp 761987: 2 báo cáo, 1 thread tự ẩn, 1 bình luận bị ẩn, 1 thread ghim…
+[20/20] Luyện đề: ngân hàng, hàng chờ duyệt, Quiz và lượt luyện của 13 sinh viên (lớp 761987)…
+   Đã tạo 0 lượt luyện mới (còn lại giữ nguyên nếu đã có).
+[+] Điểm danh bằng mã: lớp 761988 bật, buổi 1 có hai cửa sổ đã đóng…
+Seed xong trong 24 s.
+Seed xong (không đổi)
+  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)
+  60 tài khoản (1 Admin, 1 giảng viên, 1 TA, 57 sinh viên); mật khẩu = SEED_DEFAULT_PASSWORD
+  Lớp 761987: 20 câu trắc nghiệm APPROVED + 5 câu AI_DRAFT + 2 bài code; hai bài thi mẫu (24 lượt trắc nghiệm + 6 lượt code) tự đóng và công bố ≤ 3 phút — `node scripts/check-exam-seed.mjs bank|scores|demo`
+  Lớp 761987: 6 tài liệu READY (quy chế trường scan = OTHER, quy chế học phần = COURSE_POLICY, 2 bài giảng, 1 đề tham khảo, 1 đáp án canary) + 2 sự kiện thi; lớp 761988: bài giảng dùng chung + 1 sự kiện — `node scripts/check-docs-seed.mjs`
+  ≈ 150 câu hỏi chat riêng (sinh viên lớp 761987), 12 thread lớp 761987 + 3 thread lớp 761988 — `node scripts/check-chat-seed.mjs [threads]`
+  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 / sv26 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`
+  Lớp 761987: công thức điểm CONFIRMED (trích từ quy chế học phần bằng provider giả, TEACHER xác nhận), điểm giữa kỳ / cuối kỳ nhập bằng XLSX và đã công bố, sổ CHƯA chốt; lớp 761988: chưa có quy chế — `node scripts/check-grade-seed.mjs`
+  Lớp 761987: Bài tập 03 (26 bài nộp: 13 app, 5 ZIP, 8 thư IMAP thử; 3 chưa khớp; chưa chấm) + Bài tập 04 (kênh Teams, chưa đồng bộ) — `node scripts/check-assignments-seed.mjs`
+  Lớp 761987: Luyện đề — 82 câu APPROVED (8 chủ đề, gồm 8 trả lời ngắn + 2 tự luận) + 20 câu PENDING + 1 Quiz tính điểm (đã công bố, 3 lượt) + câu EXTRACTED / GENERATED có trích dẫn + ngân hàng riêng của lớp 761988 + ≈ 40 lượt của 13 sinh viên (B sai nhiều An toàn ứng dụng web; C đang dở 1 lượt) — `node scripts/check-practice-seed.mjs`
+  Decision model: provider `decision-fake` + 3 cổng tắt (SEED_DECISION_DEMO=1 bật cả ba cho lớp 761987) — `node scripts/check-decision-seed.mjs`
+  Học từ lần sửa: tắt (SEED_GUIDANCE_DEMO=1 bật cờ + dữ liệu demo cho BT03) — `node scripts/check-guidance-seed.mjs`
+  Điểm danh bằng mã: lớp 761988 bật; buổi 1 có 2 cửa sổ đã đóng (22 lượt vòng 1 đủ ca cờ, vòng 2 + RECHECK_MISS, over_headcount); sv.gioi chưa có lượt — `node scripts/check-checkin-seed.mjs`
+  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)
+30/30 OK
+A B C OK
+lớp 2: chốt điểm 409
+impact p95 9 ms (≤ 300)
+counts {"docs":8,"columns":3,"entries":60} — không đổi sau lần chạy hai
+▶ Playwright gradebook + me
+$ NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_BLOB_ORIGIN=http://blob.test NEXT_PUBLIC_API_URL=http://localhost:${E2E_API_PORT:-3312} next build
+▲ Next.js 16.3.7 (Turbopack)
+✓ Running next.config.ts took 81ms
+- Experiments (use with caution):
+  ✓ inlineCss
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.1s
+  Running TypeScript ...
+  Finished TypeScript in 1821ms ...
+  Collecting page data using 10 workers ...
+  Generating static pages using 10 workers (0/42) ...
+  Generating static pages using 10 workers (10/42) 
+  Generating static pages using 10 workers (20/42) 
+  Generating static pages using 10 workers (31/42) 
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Generating static pages using 10 workers (42/42) in 3.3s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[...slug]
+├ ○ /admin/audit
+├ ○ /admin/courses
+├ ○ /admin/users
+├ ○ /analytics
+├ ○ /assignments
+├ ƒ /assignments/[id]
+├ ○ /attendance
+├ ○ /attendance/display
+├ ○ /calendar
+├ ○ /chat
+├ ○ /checkin
+├ ○ /class/members
+├ ○ /class/settings
+├ ƒ /dev/[...slug]
+├ ○ /dev/data
+├ ○ /dev/ui
+├ ○ /documents
+├ ○ /exams
+├ ƒ /exams/[id]
+├ ƒ /exams/[id]/results
+├ ƒ /exams/[id]/similarity
+├ ƒ /exams/[id]/take
+├ ○ /forgot-password
+├ ○ /gradebook
+├ ○ /gradebook/scheme
+├ ○ /grading
+├ ƒ /grading/[submissionId]
+├ ○ /inbox
+├ ○ /insights
+├ ƒ /invite/[token]
+├ ○ /join
+├ ƒ /join/[code]
+├ ○ /library
+├ ƒ /library/[id]
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ○ /me
+├ ○ /observability
+├ ○ /practice
+├ ƒ /practice/[attemptId]
+├ ○ /practice/history
+├ ○ /questions
+├ ○ /register
+├ ○ /reset-password
+├ ○ /settings
+├ ○ /settings/integrations
+├ ○ /settings/llm
+├ ○ /students
+├ ƒ /students/[id]
+├ ○ /threads
+├ ƒ /threads/[id]
+└ ○ /verify-email
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+Running 138 tests using 2 workers
+
+  ✓    1 [desktop] › e2e/datetime.spec.ts:19:5 › formatWhen: ranh giới nửa đêm theo giờ Việt Nam, không theo UTC (3ms)
+  ✓    2 [desktop] › e2e/datetime.spec.ts:8:5 › formatWhen: bảng quy ước AC2 (4ms)
+  ✓    3 [desktop] › e2e/datetime.spec.ts:25:5 › formatDay / formatTime / dateInputValue / longDate (1ms)
+  ✓    4 [desktop] › e2e/datetime.spec.ts:34:5 › chuỗi sai / null → '—', không ném lỗi (2ms)
+  ✓    5 [desktop] › e2e/datetime.spec.ts:43:5 › múi giờ của máy khác không đổi kết quả (mọi bộ định dạng đặt timeZone tường minh) (5ms)
+frame student: 0 / 112 lượt lệch
+  ✓    6 [desktop] › e2e/frame.spec.ts:24:7 › frame student: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (1.6m)
+frame ta: 0 / 112 lượt lệch
+  ✓    7 [desktop] › e2e/frame.spec.ts:24:7 › frame ta: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (1.6m)
+frame admin: 0 / 56 lượt lệch
+  ✓    9 [desktop] › e2e/frame.spec.ts:24:7 › frame admin: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (43.5s)
+  ✓   10 [desktop] › e2e/gradebook.spec.ts:23:5 › scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả (573ms)
+  ✓   11 [desktop] › e2e/gradebook.spec.ts:49:5 › unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở (473ms)
+  ✓   12 [desktop] › e2e/gradebook.spec.ts:67:5 › scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo (741ms)
+  ✓   13 [desktop] › e2e/gradebook.spec.ts:94:5 › scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và báo bằng InlineNotice (507ms)
+  ✓   14 [desktop] › e2e/gradebook.spec.ts:106:5 › impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm (368ms)
+  ✓   15 [desktop] › e2e/gradebook.spec.ts:116:5 › impact preview empty: chưa đủ điểm (379ms)
+  ✓   16 [desktop] › e2e/gradebook.spec.ts:122:5 › confirm irreversible: hộp thoại nêu ba con số, gửi version + Idempotency-Key, xong đổi chữ tại chỗ (không toast) (757ms)
+  ✓   17 [desktop] › e2e/gradebook.spec.ts:137:5 › confirm irreversible dropped: số điểm bị bỏ và lý do hiện trong hộp thoại (474ms)
+  ✓   18 [desktop] › e2e/gradebook.spec.ts:144:5 › new policy diff: có bản nháp cạnh bản đã xác nhận → chế độ so sánh do máy chủ tính (675ms)
+  ✓   19 [desktop] › e2e/gradebook.spec.ts:155:5 › scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ, tự gửi lại khi có mạng (3.6s)
+  ✓   20 [desktop] › e2e/gradebook.spec.ts:170:5 › scheme rbac: TA đọc được nhưng không có nút xác nhận, tải quy chế, ô điền; sinh viên bị chặn (779ms)
+  ✓   21 [desktop] › e2e/gradebook.spec.ts:185:5 › scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại (2.3s)
+  ✓   22 [desktop] › e2e/gradebook.spec.ts:203:5 › scheme source removed: trích dẫn hiện «Tài liệu nguồn đã gỡ», còn đoạn trích, không có liên kết mở trang (513ms)
+  ✓   23 [desktop] › e2e/gradebook.spec.ts:214:5 › scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px (427ms)
+  ✓   24 [desktop] › e2e/gradebook.spec.ts:232:5 › new policy upload: tải → đọc → trích có tiến độ, xong có bản nháp; trích dùng Idempotency-Key (3.5s)
+  ✓   25 [desktop] › e2e/gradebook.spec.ts:254:5 › new policy upload failed: tải hỏng giữ tên tệp và có Tải lại (306ms)
+  ✓   26 [desktop] › e2e/gradebook.spec.ts:274:5 › gradebook layout: một Panel, cột Sinh viên cố định, cột theo item + Điểm cộng… Trạng thái, không thẻ KPI (1.0s)
+  ✓   27 [desktop] › e2e/gradebook.spec.ts:287:5 › official note: đúng một dòng ghi chú cố định dưới bảng (330ms)
+  ✓   28 [desktop] › e2e/gradebook.spec.ts:293:5 › cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ (1.2s)
+  ✓   29 [desktop] › e2e/gradebook.spec.ts:335:5 › cell edit instant: cột tính hiện … trong lúc chờ rồi đổi theo phản hồi của máy chủ (1.8s)
+  ✓   30 [desktop] › e2e/gradebook.spec.ts:348:5 › cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ (1.5s)
+  ✓   31 [desktop] › e2e/gradebook.spec.ts:378:5 › explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt (1.7s)
+  ✓   32 [desktop] › e2e/gradebook.spec.ts:398:5 › virtualized 1000: DOM ≤ 60 dòng, cuộn tải trang kế theo con trỏ (1.9s)
+  ✓   33 [desktop] › e2e/gradebook.spec.ts:412:5 › type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn về, chữ còn (1.0s)
+  ✓   34 [desktop] › e2e/gradebook.spec.ts:424:5 › gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại (1.5s)
+  ✓   35 [desktop] › e2e/gradebook.spec.ts:445:5 › offline cell: mất mạng giữ chữ, nhãn Chưa lưu tại ô, tự gửi lại khi có mạng (4.3s)
+  ✓   36 [desktop] › e2e/gradebook.spec.ts:459:5 › gradebook rbac: TA đọc bảng, giải trình, lịch sử nhưng không có ô nhập, menu cột, Chốt điểm; sổ đã chốt khoá mọi ô (719ms)
+  ✓   37 [desktop] › e2e/gradebook.spec.ts:473:5 › publish column: menu cột công bố / gỡ; cột bài thi không có menu (1.2s)
+  ✓   38 [desktop] › e2e/gradebook.spec.ts:489:5 › penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện (738ms)
+  ✓   39 [desktop] › e2e/gradebook.spec.ts:503:5 › gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức (522ms)
+  ✓   40 [desktop] › e2e/gradebook.spec.ts:528:5 › import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đổi không cần tải lại, công bố mặc định tắt (828ms)
+  ✓   41 [desktop] › e2e/gradebook.spec.ts:558:5 › forms import flow: ba bước, xem trước có bảng điểm + dòng chưa khớp, ghi không công bố, xác nhận cần Idempotency-Key (US-P9-11) (929ms)
+  ✓   42 [desktop] › e2e/gradebook.spec.ts:591:5 › forms import teacher only: TA không có menu nhập nào (341ms)
+  ✓   43 [desktop] › e2e/gradebook.spec.ts:597:5 › import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors (717ms)
+  ✓   44 [desktop] › e2e/gradebook.spec.ts:618:5 › import upload failed: giữ tên tệp và có Tải lại; chọn cột và hạng mục không mất (1.9s)
+  ✓   45 [desktop] › e2e/gradebook.spec.ts:633:5 › import publish option: bật Công bố cột thì ghi xong gọi công bố đúng cột (705ms)
+  ✓   46 [desktop] › e2e/gradebook.spec.ts:646:5 › export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có Nhập (1.7s)
+  ✓   47 [desktop] › e2e/gradebook.spec.ts:677:5 › finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu bảng Đã chốt v1, ô khoá, Mở khoá ở menu, không toast (695ms)
+  ✓   48 [desktop] › e2e/gradebook.spec.ts:702:5 › finalize incomplete list: 409 hiện danh sách sinh viên thiếu kèm liên kết tới ô, chữ tiếng Việt (1.5s)
+  ✓   49 [desktop] › e2e/gradebook.spec.ts:720:5 › unlock reason: hậu quả bằng số, lý do 10–500 ký tự khoá nút, mở khoá xong ô nhập lại được (993ms)
+  ✓   50 [desktop] › e2e/gradebook.spec.ts:741:5 › snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý do mở khoá, chọn bản cũ xem điểm đã chốt; TA cũng xem được (1.6s)
+  ✓   51 [desktop] › e2e/gradebook.spec.ts:766:5 › lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở (1.7s)
+  ✓   52 [desktop] › e2e/gradebook.spec.ts:799:5 › f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc (4.0s)
+  ✓   53 [desktop] › e2e/me.spec.ts:48:5 › me content and layout: chuyên cần một câu + buổi vắng / muộn; điểm cộng một câu; thời gian học ở CUỐI; không khối điểm giả (1.0s)
+  ✓   54 [desktop] › e2e/me.spec.ts:64:5 › me no gamification (no gamify): không streak, xếp hạng, vòng tiến độ, huy hiệu, confetti, so sánh bạn học (954ms)
+  ✓   55 [desktop] › e2e/me.spec.ts:73:5 › me study trend small no judgement: biểu đồ thấp (≈ 96 px), không mục tiêu, không tô đỏ tuần thấp (975ms)
+  ✓   56 [desktop] › e2e/me.spec.ts:84:5 › me study time off shows state: tắt đo → 'Đang tắt' thay biểu đồ; chưa có dữ liệu → khối ẩn (1.9s)
+  ✓   57 [desktop] › e2e/me.spec.ts:98:5 › me states: lớp chưa điểm danh → câu rỗng không nút; lỗi → Thử lại rồi tải được (1.1s)
+  ✓   58 [desktop] › e2e/me.spec.ts:111:5 › me error: Sinh viên không thấy Chi tiết kỹ thuật (962ms)
+  ✓   59 [desktop] › e2e/me.spec.ts:119:5 › me offline keeps content: lỗi khi làm mới không xoá nội dung đã tải (1.4s)
+  ✓   60 [desktop] › e2e/me.spec.ts:131:5 › me staff blocked: TA / giảng viên / admin vào /me thấy màn chặn chung (không chuyển hướng), có nút Về Hôm nay, không gọi API của sinh viên (783ms)
+  ✓   61 [desktop] › e2e/me.spec.ts:146:5 › me two courses isolated: đổi lớp ở bộ chọn → số đổi theo, không lẫn (1.2s)
+  ✓   62 [desktop] › e2e/me.spec.ts:163:5 › me 375: một cột, không tràn ngang, chữ Việt dài không vỡ (998ms)
+  ✓   63 [desktop] › e2e/me.spec.ts:188:5 › grade section: câu nhận định theo trạng thái, thành phần đã công bố / chưa công bố, đúng một dòng ghi chú cố định (2.8s)
+  ✓   64 [desktop] › e2e/me.spec.ts:210:5 › calculation linear: phép tính từng dòng cùng thứ tự, Căn cứ mở đoạn quy chế tại chỗ, số dấu phẩy, không gamify (1.2s)
+  ✓   65 [desktop] › e2e/me.spec.ts:232:5 › what if inline: gõ số → tính tại chỗ bằng máy chủ, ngoài thang báo tại ô và không gọi, mạng lỗi giữ số đã gõ (3.4s)
+  ✓   66 [desktop] › e2e/me.spec.ts:262:5 › grade states: lỗi → nguyên nhân + Thử lại; chưa công bố gì → câu rỗng; mất mạng không xoá nội dung khác (1.1s)
+  ✓   67 [desktop] › e2e/me.spec.ts:273:5 › grade mobile 375: khối điểm một cột, không tràn ngang (939ms)
+frame teacher: 0 / 144 lượt lệch
+  ✓    8 [desktop] › e2e/frame.spec.ts:24:7 › frame teacher: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (2.0m)
+  ✓   68 [desktop] › e2e/me.spec.ts:281:5 › assignments section: mỗi bài một dòng tên · hạn · trạng thái, mở sang trang bài tập (US-P7-03 AC10) (971ms)
+INFO me 375 scrollHeight 1395
+  ✓   69 [desktop] › e2e/me.spec.ts:301:5 › me 375: Thời gian học và Bài tập gập sẵn, Mở hiện nội dung; trang ≤ 1.600 px (US-UX91-20 AC8) (1.1s)
+  ✓   70 [mobile] › e2e/datetime.spec.ts:8:5 › formatWhen: bảng quy ước AC2 (5ms)
+  ✓   71 [mobile] › e2e/datetime.spec.ts:25:5 › formatDay / formatTime / dateInputValue / longDate (1ms)
+  ✓   72 [mobile] › e2e/datetime.spec.ts:34:5 › chuỗi sai / null → '—', không ném lỗi (1ms)
+  ✓   73 [mobile] › e2e/datetime.spec.ts:43:5 › múi giờ của máy khác không đổi kết quả (mọi bộ định dạng đặt timeZone tường minh) (3ms)
+  -   74 [mobile] › e2e/frame.spec.ts:24:7 › frame student: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -   75 [mobile] › e2e/frame.spec.ts:24:7 › frame ta: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -   76 [mobile] › e2e/frame.spec.ts:24:7 › frame teacher: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -   77 [mobile] › e2e/frame.spec.ts:24:7 › frame admin: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -   78 [mobile] › e2e/gradebook.spec.ts:23:5 › scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả
+  -   79 [mobile] › e2e/gradebook.spec.ts:49:5 › unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở
+  -   80 [mobile] › e2e/gradebook.spec.ts:67:5 › scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo
+  -   81 [mobile] › e2e/gradebook.spec.ts:94:5 › scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và báo bằng InlineNotice
+  -   82 [mobile] › e2e/gradebook.spec.ts:106:5 › impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm
+  -   83 [mobile] › e2e/gradebook.spec.ts:116:5 › impact preview empty: chưa đủ điểm
+  -   84 [mobile] › e2e/gradebook.spec.ts:122:5 › confirm irreversible: hộp thoại nêu ba con số, gửi version + Idempotency-Key, xong đổi chữ tại chỗ (không toast)
+  -   85 [mobile] › e2e/gradebook.spec.ts:137:5 › confirm irreversible dropped: số điểm bị bỏ và lý do hiện trong hộp thoại
+  -   86 [mobile] › e2e/gradebook.spec.ts:144:5 › new policy diff: có bản nháp cạnh bản đã xác nhận → chế độ so sánh do máy chủ tính
+  -   87 [mobile] › e2e/gradebook.spec.ts:155:5 › scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ, tự gửi lại khi có mạng
+  ✓   89 [mobile] › e2e/datetime.spec.ts:19:5 › formatWhen: ranh giới nửa đêm theo giờ Việt Nam, không theo UTC (4ms)
+  -   88 [mobile] › e2e/gradebook.spec.ts:170:5 › scheme rbac: TA đọc được nhưng không có nút xác nhận, tải quy chế, ô điền; sinh viên bị chặn
+  -   90 [mobile] › e2e/gradebook.spec.ts:203:5 › scheme source removed: trích dẫn hiện «Tài liệu nguồn đã gỡ», còn đoạn trích, không có liên kết mở trang
+  -   92 [mobile] › e2e/gradebook.spec.ts:214:5 › scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px
+  -   93 [mobile] › e2e/gradebook.spec.ts:232:5 › new policy upload: tải → đọc → trích có tiến độ, xong có bản nháp; trích dùng Idempotency-Key
+  -   91 [mobile] › e2e/gradebook.spec.ts:185:5 › scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại
+  -   94 [mobile] › e2e/gradebook.spec.ts:254:5 › new policy upload failed: tải hỏng giữ tên tệp và có Tải lại
+  -   96 [mobile] › e2e/gradebook.spec.ts:287:5 › official note: đúng một dòng ghi chú cố định dưới bảng
+  -   95 [mobile] › e2e/gradebook.spec.ts:274:5 › gradebook layout: một Panel, cột Sinh viên cố định, cột theo item + Điểm cộng… Trạng thái, không thẻ KPI
+  -   97 [mobile] › e2e/gradebook.spec.ts:293:5 › cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ
+  -   98 [mobile] › e2e/gradebook.spec.ts:335:5 › cell edit instant: cột tính hiện … trong lúc chờ rồi đổi theo phản hồi của máy chủ
+  -   99 [mobile] › e2e/gradebook.spec.ts:348:5 › cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ
+  -  100 [mobile] › e2e/gradebook.spec.ts:378:5 › explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt
+  -  101 [mobile] › e2e/gradebook.spec.ts:398:5 › virtualized 1000: DOM ≤ 60 dòng, cuộn tải trang kế theo con trỏ
+  -  102 [mobile] › e2e/gradebook.spec.ts:412:5 › type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn về, chữ còn
+  -  103 [mobile] › e2e/gradebook.spec.ts:424:5 › gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại
+  -  104 [mobile] › e2e/gradebook.spec.ts:445:5 › offline cell: mất mạng giữ chữ, nhãn Chưa lưu tại ô, tự gửi lại khi có mạng
+  -  105 [mobile] › e2e/gradebook.spec.ts:459:5 › gradebook rbac: TA đọc bảng, giải trình, lịch sử nhưng không có ô nhập, menu cột, Chốt điểm; sổ đã chốt khoá mọi ô
+  -  106 [mobile] › e2e/gradebook.spec.ts:473:5 › publish column: menu cột công bố / gỡ; cột bài thi không có menu
+  -  107 [mobile] › e2e/gradebook.spec.ts:489:5 › penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện
+  -  108 [mobile] › e2e/gradebook.spec.ts:503:5 › gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức
+  -  109 [mobile] › e2e/gradebook.spec.ts:528:5 › import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đổi không cần tải lại, công bố mặc định tắt
+  -  110 [mobile] › e2e/gradebook.spec.ts:558:5 › forms import flow: ba bước, xem trước có bảng điểm + dòng chưa khớp, ghi không công bố, xác nhận cần Idempotency-Key (US-P9-11)
+  -  111 [mobile] › e2e/gradebook.spec.ts:591:5 › forms import teacher only: TA không có menu nhập nào
+  -  112 [mobile] › e2e/gradebook.spec.ts:597:5 › import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors
+  -  113 [mobile] › e2e/gradebook.spec.ts:618:5 › import upload failed: giữ tên tệp và có Tải lại; chọn cột và hạng mục không mất
+  -  114 [mobile] › e2e/gradebook.spec.ts:633:5 › import publish option: bật Công bố cột thì ghi xong gọi công bố đúng cột
+  -  115 [mobile] › e2e/gradebook.spec.ts:646:5 › export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có Nhập
+  -  116 [mobile] › e2e/gradebook.spec.ts:677:5 › finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu bảng Đã chốt v1, ô khoá, Mở khoá ở menu, không toast
+  -  117 [mobile] › e2e/gradebook.spec.ts:702:5 › finalize incomplete list: 409 hiện danh sách sinh viên thiếu kèm liên kết tới ô, chữ tiếng Việt
+  -  118 [mobile] › e2e/gradebook.spec.ts:720:5 › unlock reason: hậu quả bằng số, lý do 10–500 ký tự khoá nút, mở khoá xong ô nhập lại được
+  -  119 [mobile] › e2e/gradebook.spec.ts:741:5 › snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý do mở khoá, chọn bản cũ xem điểm đã chốt; TA cũng xem được
+  -  120 [mobile] › e2e/gradebook.spec.ts:766:5 › lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở
+  -  121 [mobile] › e2e/gradebook.spec.ts:799:5 › f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc
+  -  122 [mobile] › e2e/me.spec.ts:48:5 › me content and layout: chuyên cần một câu + buổi vắng / muộn; điểm cộng một câu; thời gian học ở CUỐI; không khối điểm giả
+  -  123 [mobile] › e2e/me.spec.ts:64:5 › me no gamification (no gamify): không streak, xếp hạng, vòng tiến độ, huy hiệu, confetti, so sánh bạn học
+  -  124 [mobile] › e2e/me.spec.ts:73:5 › me study trend small no judgement: biểu đồ thấp (≈ 96 px), không mục tiêu, không tô đỏ tuần thấp
+  -  125 [mobile] › e2e/me.spec.ts:84:5 › me study time off shows state: tắt đo → 'Đang tắt' thay biểu đồ; chưa có dữ liệu → khối ẩn
+  -  126 [mobile] › e2e/me.spec.ts:98:5 › me states: lớp chưa điểm danh → câu rỗng không nút; lỗi → Thử lại rồi tải được
+  -  127 [mobile] › e2e/me.spec.ts:111:5 › me error: Sinh viên không thấy Chi tiết kỹ thuật
+  -  128 [mobile] › e2e/me.spec.ts:119:5 › me offline keeps content: lỗi khi làm mới không xoá nội dung đã tải
+  -  129 [mobile] › e2e/me.spec.ts:131:5 › me staff blocked: TA / giảng viên / admin vào /me thấy màn chặn chung (không chuyển hướng), có nút Về Hôm nay, không gọi API của sinh viên
+  -  130 [mobile] › e2e/me.spec.ts:146:5 › me two courses isolated: đổi lớp ở bộ chọn → số đổi theo, không lẫn
+  -  131 [mobile] › e2e/me.spec.ts:163:5 › me 375: một cột, không tràn ngang, chữ Việt dài không vỡ
+  -  132 [mobile] › e2e/me.spec.ts:188:5 › grade section: câu nhận định theo trạng thái, thành phần đã công bố / chưa công bố, đúng một dòng ghi chú cố định
+  -  133 [mobile] › e2e/me.spec.ts:210:5 › calculation linear: phép tính từng dòng cùng thứ tự, Căn cứ mở đoạn quy chế tại chỗ, số dấu phẩy, không gamify
+  -  134 [mobile] › e2e/me.spec.ts:232:5 › what if inline: gõ số → tính tại chỗ bằng máy chủ, ngoài thang báo tại ô và không gọi, mạng lỗi giữ số đã gõ
+  -  135 [mobile] › e2e/me.spec.ts:262:5 › grade states: lỗi → nguyên nhân + Thử lại; chưa công bố gì → câu rỗng; mất mạng không xoá nội dung khác
+  -  136 [mobile] › e2e/me.spec.ts:273:5 › grade mobile 375: khối điểm một cột, không tràn ngang
+  -  137 [mobile] › e2e/me.spec.ts:281:5 › assignments section: mỗi bài một dòng tên · hạn · trạng thái, mở sang trang bài tập (US-P7-03 AC10)
+  -  138 [mobile] › e2e/me.spec.ts:301:5 › me 375: Thời gian học và Bài tập gập sẵn, Mở hiện nội dung; trang ≤ 1.600 px (US-UX91-20 AC8)
+
+  64 skipped
+  74 passed (3.7m)
+▶ ui-antipatterns.sh
+✓ Màu viết cứng ngoài shared/styles
+✓ Màu viết cứng trong style của .tsx
+✓ Xám chung chung của Tailwind
+✓ Bo góc kiểu SaaS / số cứng
+✓ Bóng ngoài Popover/Dialog/Menu/Drawer/Composer
+✓ Cỡ chữ tuỳ ý ngoài thang vai trò
+✓ z-index số cứng
+✓ fetch / XMLHttpRequest / axios ngoài shared/data
+✓ confirm / alert
+✓ Spinner riêng hoặc toàn trang
+✓ <table> thô ngoài DataTable
+✓ Hiệu ứng bị cấm (glass, chữ gradient, nảy)
+✓ Gamification (streak, leaderboard, confetti)
+✓ Khung vỏ dùng nền đặc
+✓ Từ kỹ thuật trong màn sinh viên
+✓ Dialog ngoài danh sách việc cần bảo vệ
+✓ Emoji làm icon chức năng
+✓ Token / bí mật ghi vào storage
+✓ Tailwind / @theme
+✓ Bóng elevation ngoài Panel
+✓ Bo góc panel ngoài Panel
+✓ Panel lồng Panel (cùng tệp)
+✓ Câu mô tả tĩnh dưới tiêu đề
+✓ Khung tự đặt độ rộng
+✓ Chiều cao theo màn ngoài shared/
+✓ Với tay vào primitive
+✓ Meta lặp lớp đang chọn
+✓ Tiêu đề tự dựng ngoài shared/ui
+✓ Nút rỗng trùng nút đầu trang
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+✓ Chữ Threads / Insights / Analytics hiển thị
+✓ Luật :hover ngoài @media (hover: hover)
+NHẮC (không tự động): chủ dự án tự tính tay Sinh viên A, B, C bằng máy tính rồi so với giải trình điểm trên màn hình (docs/phases/P6.md — "Bạn tự kiểm").
+
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 1 |
+| PASS | go test -race ./internal/grade/... (30/30 khớp CSV) | 147 |
+| PASS | internal/grade không có float64 ngoài test | 0 |
+| PASS | go test ./internal/grading (trích công thức + bản ghi demo) | 7 |
+| PASS | TestSeedGradebookExpected | 3 |
+| PASS | TestSeedGradebookIsolation | 3 |
+| PASS | TestSeedGradebookAdminForbidden | 4 |
+| PASS | TestSeedRiskAfterGradebook | 3 |
+| PASS | go test ./internal/contract/... | 34 |
+| PASS | seed.mjs bị chặn khi NODE_ENV hoặc APP_ENV = production | 1 |
+| PASS | check-grade-seed.mjs (stack đã seed: 30/30, A B C, lớp 2 → 409, số không đổi khi seed lần hai) | 24 |
+| PASS | Playwright gradebook + me | 260 |
+| PASS | ui-antipatterns.sh | 2 |
+
+GATE P6: PASS
