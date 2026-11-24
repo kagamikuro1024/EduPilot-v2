@@ -77,6 +77,14 @@ export function RealChat({ courseId }: { courseId: string }) {
   const endRef = useRef<HTMLDivElement>(null);
   const resumed = useRef<string | null>(null);
 
+  // điều hướng cùng route tới ?session=… (chuông «GV đã trả lời» lúc đang ở /chat): useState chỉ đọc URL một lần, nên theo URL khi nó đổi
+  const urlSid = params.get("session");
+  const [seenUrl, setSeenUrl] = useState(urlSid);
+  if (urlSid !== seenUrl) {
+    setSeenUrl(urlSid);
+    if (urlSid) setSid(urlSid);
+  }
+
   // phiên đang xem nằm trong URL: tải lại mở đúng phiên đó, nháp (khoá theo phiên) còn nguyên (UX13-19)
   useEffect(() => {
     window.history.replaceState(null, "", sid ? `/chat?session=${sid}` : "/chat");
