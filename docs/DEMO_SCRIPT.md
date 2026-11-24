@@ -93,7 +93,7 @@ Nếu hội đồng hỏi: mất mạng giữa lúc đang trả lời → tải 
 | --- | --- | --- | --- | --- | --- |
 | 03:30 | Sinh viên B (375 px) | `/chat`, lớp 1 | Gõ D3, gửi | "AI chưa đủ chắc chắn về câu này"; câu hỏi được chuyển cho giảng viên, trạng thái "Đang chờ giảng viên · vừa gửi" (xem Q3 về việc có cần bấm `Nhờ giảng viên hỗ trợ`) | P4 (chat: P3) |
 | 04:00 | Giảng viên | `/` → `/inbox` | Mở việc "Cần xử lý" mới nhất | Ticket ở lọc Open: câu hỏi gốc, thời gian chờ, lý do (độ tin cậy thấp) | P4 |
-| 04:15 | Giảng viên | `/inbox` | `Nhận` | Trạng thái Claimed, ghi tên người nhận | P4 |
+| 04:15 | Giảng viên | `/inbox` | `Nhận` | Trạng thái «Đã nhận»; tên người nhận chỉ hiện cho người thứ hai bấm `Nhận` (409: «… đã nhận câu này lúc hh:mm»), không hiện sau khi chính mình nhận | P4 |
 | 04:25 | Giảng viên | `/inbox` | Gõ D4 → `Gửi trả lời` | Ticket chuyển Answered | P4 |
 | 04:50 | Sinh viên B (375 px) | `/chat` | Mở chuông | Câu trả lời của giảng viên nằm ngay trong phiên chat, có nhãn người trả lời là giảng viên | P4 |
 | 05:05 | Người trình bày | `http://localhost:8025` (Mailpit, công cụ dev, không phải màn sản phẩm) | Mở thư mới nhất | Thư tới `sv.kha@edupilot.local` chứa câu trả lời và link về app | P4 (Mailpit: P0 L1) |
