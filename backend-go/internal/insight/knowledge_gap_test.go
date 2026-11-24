@@ -618,3 +618,28 @@ func TestKnowledgeGapChapterNullCategory(t *testing.T) {
 	require.NotNil(t, tcp.Week)
 	require.Equal(t, 3, *tcp.Week)
 }
+
+// TestKnowledgeGapChapterFloor — DEF-GP10-05: chương / tuần chỉ gán khi tâm cụm đủ gần một đoạn tài liệu; cụm lạc đề (vuông góc mọi đoạn) để trống, không ép về tài liệu «gần nhất».
+func TestKnowledgeGapChapterFloor(t *testing.T) {
+	r := newRig(t, 13)
+	ctx := t.Context()
+	r.seed()
+	var doc uuid.UUID
+	require.NoError(t, r.pool.QueryRow(ctx, `insert into documents (course_id, title, type, status, week_no, sha256) values ($1, 'Giáo trình TCP', 'LECTURE', 'READY', 3, $2) returning id`, r.course, strings.Repeat("a", 64)).Scan(&doc))
+	vec := make([]float32, llm.EmbedDims) // trục 0 = chủ đề TCP của stubLLM
+	vec[0] = 1
+	r.exec(`insert into content_chunks (document_id, course_ids, ord, text, embedding) values ($1, $2, 0, 'TCP', $3)`, doc, []uuid.UUID{r.course}, pgvector.NewVector(vec))
+	_, err := r.svc.RunNow(ctx, r.teacher, r.course, 30)
+	require.NoError(t, err)
+	byName := map[string]insight.Topic{}
+	for _, tp := range r.report().Topics {
+		byName[tp.Name] = tp
+	}
+	tcp, sql := byName["Chủ đề TCP"], byName["Chủ đề SQL"]
+	require.NotNil(t, tcp.Chapter)
+	require.Equal(t, "Giáo trình TCP", *tcp.Chapter)
+	require.NotNil(t, tcp.Week)
+	require.Equal(t, 3, *tcp.Week)
+	require.Nil(t, sql.Chapter, "cụm SQL vuông góc với đoạn duy nhất: không gán chương")
+	require.Nil(t, sql.Week)
+}

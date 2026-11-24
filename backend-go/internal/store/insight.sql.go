@@ -88,29 +88,30 @@ func (q *Queries) InsightChatQuestions(ctx context.Context, arg InsightChatQuest
 }
 
 const insightNearestChunk = `-- name: InsightNearestChunk :one
-select d.title, d.week_no
+select d.title, d.week_no, (1 - (c.embedding <=> $1::vector))::float8 as sim
 from content_chunks c
 join documents d on d.id = c.document_id
-where $1::uuid = any (c.course_ids) and c.embedding is not null and d.category is distinct from 'THREAD_KNOWLEDGE'
-order by c.embedding <=> $2::vector
+where $2::uuid = any (c.course_ids) and c.embedding is not null and d.category is distinct from 'THREAD_KNOWLEDGE'
+order by c.embedding <=> $1::vector
 limit 1
 `
 
 type InsightNearestChunkParams struct {
-	CourseID uuid.UUID
 	Centroid pgvector.Vector
+	CourseID uuid.UUID
 }
 
 type InsightNearestChunkRow struct {
 	Title  string
 	WeekNo *int16
+	Sim    float64
 }
 
-// Chương / tuần của tài liệu có đoạn gần tâm cụm nhất (metadata tài liệu của lớp).
+// Chương / tuần của tài liệu có đoạn gần tâm cụm nhất (metadata tài liệu của lớp) + độ tương đồng cosine để Go bỏ qua khi quá xa (DEF-GP10-05).
 func (q *Queries) InsightNearestChunk(ctx context.Context, arg InsightNearestChunkParams) (InsightNearestChunkRow, error) {
-	row := q.db.QueryRow(ctx, insightNearestChunk, arg.CourseID, arg.Centroid)
+	row := q.db.QueryRow(ctx, insightNearestChunk, arg.Centroid, arg.CourseID)
 	var i InsightNearestChunkRow
-	err := row.Scan(&i.Title, &i.WeekNo)
+	err := row.Scan(&i.Title, &i.WeekNo, &i.Sim)
 	return i, err
 }
 

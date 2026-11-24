@@ -50,6 +50,9 @@ const (
 	namedByFallback = "fallback"
 )
 
+// ponytail: hiệu chỉnh theo qwen3-embedding-8b (đo 25/11: liên quan ≥ 0,38, lạc đề ≤ 0,32); đổi mô hình nhúng phải đo lại — đưa ra cấu hình khi có mô hình thứ hai.
+const chapterTau = 0.35 // tâm cụm xa mọi đoạn tài liệu → không gán chương / tuần (DEF-GP10-05)
+
 // Service: tạo / đọc báo cáo. Gateway chỉ dùng Generate / Latest / Export; worker dùng Run (đăng ký qua Register).
 type Service struct {
 	Pool   *pgxpool.Pool
@@ -513,7 +516,7 @@ func (s *Service) build(ctx context.Context, q *store.Queries, courseID uuid.UUI
 		} else {
 			t.Examples = pickExamples(d.items, c.idx)
 		}
-		if ch, err := q.InsightNearestChunk(ctx, store.InsightNearestChunkParams{CourseID: courseID, Centroid: pgvector.NewVector(Centroid(vecs, c.idx))}); err == nil {
+		if ch, err := q.InsightNearestChunk(ctx, store.InsightNearestChunkParams{CourseID: courseID, Centroid: pgvector.NewVector(Centroid(vecs, c.idx))}); err == nil && ch.Sim >= chapterTau {
 			title := ch.Title
 			t.Chapter = &title
 			if ch.WeekNo != nil {

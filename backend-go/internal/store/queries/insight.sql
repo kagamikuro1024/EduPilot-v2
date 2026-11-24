@@ -47,8 +47,8 @@ select coalesce(greatest(
        ), 'epoch'::timestamptz)::timestamptz as watermark;
 
 -- name: InsightNearestChunk :one
--- Chương / tuần của tài liệu có đoạn gần tâm cụm nhất (metadata tài liệu của lớp).
-select d.title, d.week_no
+-- Chương / tuần của tài liệu có đoạn gần tâm cụm nhất (metadata tài liệu của lớp) + độ tương đồng cosine để Go bỏ qua khi quá xa (DEF-GP10-05).
+select d.title, d.week_no, (1 - (c.embedding <=> sqlc.arg(centroid)::vector))::float8 as sim
 from content_chunks c
 join documents d on d.id = c.document_id
 where sqlc.arg(course_id)::uuid = any (c.course_ids) and c.embedding is not null and d.category is distinct from 'THREAD_KNOWLEDGE'
