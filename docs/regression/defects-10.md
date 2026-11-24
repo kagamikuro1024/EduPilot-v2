@@ -14,7 +14,7 @@ Ghi nhận không phải lỗi sản phẩm: (1) check-practice-seed.mjs đỏ d
 | --- | --- | --- | --- |
 | DEF-R10S-01 | ĐÓNG @186bfe7b | TC-05-04 | Ma trận ô thiếu: `BuildMatrix` (matrix.go) chỉ ghi `notes` khi cả ngân hàng hết câu; bù từ chủ đề khác thì `notes=[]` — US-P9-05 AC1 (P-10-9): «mỗi lần bù ghi vào notes». Tái hiện: matrix [{QC-r10-F4:6},{big:4}] ô F4 chỉ 3 câu → 10 câu, notes rỗng. |
 | DEF-R10S-02 | ĐÓNG (P-11-63) | TC-10-16 | AC8: `question_id` lớp khác trong PUT answers phải `422 INVALID_QUESTION`; thực tế option của câu lớp 2 → `422 INVALID_OPTION_ID`, trường `question_id` → `422 VALIDATION_FAILED` (unknown). Không rò dữ liệu (GET câu lớp 2 → 403). Bất đồng mã lỗi giữa AC/SRS và mã — nếu chủ ý: PM→BA đổi AC. |
-| DEF-R10S-03 | Thấp | TC-12-16 | docs/PROGRESS.md: F12 ☐, P9 «Dev xong, chờ QC» chưa cập nhật (PM). |
+| DEF-R10S-03 | ĐÓNG @7a37b68c | TC-12-16 | docs/PROGRESS.md: F12 ☐, P9 «Dev xong, chờ QC» chưa cập nhật (PM). |
 | DEF-R10S-04 | ĐÓNG @186bfe7b | TC-06-07 | Lượt TOPIC ở ≥1024 px không có «Danh sách câu» (chỉ MockRun dựng aside). AC3 nói danh sách số câu cho màn làm bài; TC dùng lượt TOPIC. Có thể là bất đồng spec/TC — PM→BA nếu AC chỉ áp thi thử. |
 | DEF-R10S-05 | ĐÓNG @186bfe7b | TC-06-10 | TOPIC mất mạng khi «Kiểm tra»: thông báo «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.» (không phải «Chưa gửi được»); khi có mạng KHÔNG tự gửi lại (DB practice_answers = 0 sau 25 s); phải bấm lại. Ảnh: /tmp/qc9s/s10-0610-offline.png. |
 | DEF-R10S-06 | ĐÓNG @186bfe7b | TC-06-21 | Tải lại giữa lượt TOPIC: về đúng câu 6 nhưng lựa chọn chưa gửi ở câu 6 mất (nút Kiểm tra tắt) — TC kỳ vọng còn (nháp phía máy). |
