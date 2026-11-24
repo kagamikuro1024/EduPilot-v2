@@ -21,7 +21,8 @@ import (
 )
 
 const (
-	probeTimeout = 10 * time.Second // hạn tuyệt đối của một lần kiểm tra kết nối (SRS 8.2)
+	probeTimeout = 30 * time.Second // hạn tuyệt đối của một lần kiểm tra kết nối (SRS 8.2, P-11-108: nhà cung cấp thật chậm 10–40 s). Caddy response_header_timeout 35 s, WriteTimeout = REQUEST_TIMEOUT + 5 s
+	afterProbe   = 5 * time.Second  // ghi audit / last_test sau lần kiểm tra
 	testPerMin   = 10               // giới hạn Test / phút / người (`ep:llm:test:{user}`, SRS 5.5)
 	testWindow   = time.Minute
 )
@@ -128,7 +129,8 @@ func kindOf(err error, typ string) string {
 
 // probe gọi MỘT lời gọi nhỏ trực tiếp tới nhà cung cấp (không qua Scheduler: không tranh chỗ của chat): Chat max_tokens=1 hoặc Embed "ping".
 func (a *Admin) probe(ctx context.Context, typ string, baseURL *string, key string, c candidate) outcome {
-	ctx, cancel := context.WithTimeout(ctx, probeTimeout)
+	// Tách khỏi hạn của request: REQUEST_TIMEOUT (mặc định 30 s) đã chạy trước lúc probe bắt đầu nên sẽ cắt probe 30 s sớm hơn và trả 504 thay vì kết quả Test.
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), probeTimeout)
 	defer cancel()
 	start := a.Clock.Now()
 	done := func(kind string) outcome {
@@ -249,7 +251,8 @@ func baseHostOf(typ string, baseURL *string) string {
 
 // finishTest ghi audit_log (host, không khoá / đường dẫn) rồi trả kết quả. providerID nil = khoá ứng viên chưa lưu.
 func (a *Admin) finishTest(w http.ResponseWriter, r *http.Request, providerID *uuid.UUID, typ string, baseURL *string, c candidate, out outcome) {
-	ctx := r.Context()
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), afterProbe) // hạn của request có thể đã hết ngay sau một probe dài
+	defer cancel()
 	if err := a.RT.Config.AuditTest(ctx, providerID, typ, baseHostOf(typ, baseURL), c.model, out.OK, out.Kind); err != nil {
 		a.Log.ErrorContext(ctx, "không ghi được audit_log của Test LLM", "error", err.Error())
 	}
@@ -312,7 +315,9 @@ func (a *Admin) testSaved(w http.ResponseWriter, r *http.Request) {
 	}
 	out := a.probe(ctx, p.Type, base, key, *c)
 	if in.APIKey == nil && in.BaseURL == nil && in.Model == "" { // chỉ kết quả của cấu hình ĐÃ LƯU mới vào last_test
-		if err := a.RT.Config.RecordTest(ctx, id, out.OK, out.Kind); err != nil {
+		rctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), afterProbe)
+		defer cancel()
+		if err := a.RT.Config.RecordTest(rctx, id, out.OK, out.Kind); err != nil {
 			a.Log.WarnContext(ctx, "không lưu được kết quả Test", "error", err.Error())
 		}
 	}

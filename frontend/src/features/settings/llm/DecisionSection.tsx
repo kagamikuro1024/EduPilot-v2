@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient, fieldErrors, useCursorList, useUndoableAction } from "@/shared/data";
 import { Button, DataTable, EmptyState, Field, Input, InlineNotice, SegmentedControl, StatusText, Switch } from "@/shared/ui";
 import { DECISION_KEY, GATES, MODELS, PROVIDER_STATUS, useDecision, type DecisionCourse, type DecisionGate, type DecisionOverview, type DecisionProvider } from "./decisionApi";
-import { KEY, type Provider, type TestResult } from "./api";
+import { KEY, PROBE_TIMEOUT_MS, type Provider, type TestResult } from "./api";
 import { testMessage } from "./labels";
 import s from "./llm.module.css";
 
@@ -69,7 +69,7 @@ function ProviderRow({ data, rec, canEdit }: { data: DecisionOverview; rec: Prov
     if (!p) return;
     setTest({ pending: true });
     try {
-      const r = await apiClient.post<TestResult>(`/admin/llm/providers/${p.id}/test`, {});
+      const r = await apiClient.post<TestResult>(`/admin/llm/providers/${p.id}/test`, {}, { timeoutMs: PROBE_TIMEOUT_MS });
       setTest({ pending: false, result: r.data });
       void refresh();
     } catch (e) {

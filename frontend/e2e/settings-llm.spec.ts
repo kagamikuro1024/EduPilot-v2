@@ -40,6 +40,18 @@ test("đỏ chỉ là tín hiệu: lúc đầu tối đa 1 nút chữ đỏ (Th�
   }
 });
 
+test("Test kết nối chậm 17 s (P-11-108: hạn 30 s): giữ «Đang kiểm tra…», không báo mất kết nối ở mốc 15 s của apiClient", async ({ page }) => {
+  test.setTimeout(60_000);
+  await openLlm(page, "ADMIN", { [`POST ${P}/providers/${IDS.openai}/test`]: [{ body: { ok: true, latency_ms: 17000 }, delay: 17_000 }] });
+  await expect(page.locator("[data-part=provider-row]")).toHaveCount(2);
+  const row = page.locator("[data-part=provider-row]").nth(0);
+  await row.getByRole("button", { name: "Test kết nối" }).click();
+  await expect(row.getByRole("button", { name: /Đang kiểm tra/ })).toBeVisible();
+  await page.waitForTimeout(16_000);
+  await expect(row.getByRole("button", { name: /Đang kiểm tra/ })).toBeVisible();
+  await expect(row.getByText("Kết nối tốt · 17000 ms")).toBeVisible({ timeout: 5000 });
+});
+
 test("provider row: Test kết nối ở mỗi hàng, lỗi ngay dưới hàng, thêm nhà bấm đúp Lưu chỉ 1 POST", async ({ page }) => {
   await openLlm(page, "ADMIN", {
     [`POST ${P}/providers/${IDS.gemini}/test`]: [{ body: { ok: false, error_kind: "AUTH", message: "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.", latency_ms: 90 } }],
