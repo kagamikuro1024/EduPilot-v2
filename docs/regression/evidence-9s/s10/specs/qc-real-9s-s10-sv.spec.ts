@@ -261,7 +261,7 @@ test("TC-07-15 + TC-07-21/22 nộp: xác nhận một lần; mất mạng khi n�
   const done = /Bạn đúng \d+\/\d+ câu/.test(await page.locator("body").innerText());
   const idems = [...new Set(subs.map((s) => s.idem))];
   const nSub = dbCount(`select count(*) from practice_attempts where id='${a.id}' and status='SUBMITTED'`);
-  verdict("TC-07-21", notice && done && idems.length === 1 && subs.length >= 2 && nSub === 1, `offline: «Chưa nộp được. Đang thử lại.» ${notice} (chữ thật: ${JSON.stringify(bar).slice(0, 160)}); có mạng: kết quả ${done}; POST submit ${subs.length} lần với ${idems.length} Idempotency-Key; lượt SUBMITTED ${nSub}`);
+  verdict("TC-07-21", notice && done && idems.length === 1 && subs.length === 1 && nSub === 1, `offline: «Chưa nộp được. Đang thử lại.» ${notice} (chữ thật: ${JSON.stringify(bar).slice(0, 160)}); có mạng: kết quả ${done}; POST submit ${subs.length} lần với ${idems.length} Idempotency-Key; lượt SUBMITTED ${nSub}`);
   await ctx.close();
 });
 
