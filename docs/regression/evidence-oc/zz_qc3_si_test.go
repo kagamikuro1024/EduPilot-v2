@@ -58,3 +58,33 @@ func TestQC3_OC71_validNoLog(t *testing.T) {
 	}
 	t.Logf("OK đầu ra hợp lệ → không có dòng structured_invalid (log=%q)", strings.TrimSpace(out))
 }
+
+func siRunSchema(t *testing.T, schema, text string) string {
+	t.Helper()
+	var buf syncBuf
+	log := slog.New(slog.NewTextHandler(&buf, nil))
+	wrong := &stub{name: "A", chat: func(int, provider.ChatOpts) (provider.Result, error) { return provider.Result{Text: text, TokensOut: 9}, nil }}
+	g, _ := newGatewayLog(t, log, wrong)
+	_, _ = g.Structured(t.Context(), llm.Request{Task: llm.TaskClassify, Messages: userMsg("hỏi"), Params: llm.Params{MaxTokens: 100}}, json.RawMessage(schema))
+	return buf.String()
+}
+
+func TestQC3_OC70b_moreSchemas(t *testing.T) {
+	const sec = "BIMAT123"
+	for _, c := range []struct{ name, schema, text string }{
+		{"map additionalProperties kiểu sai", `{"type":"object","additionalProperties":{"type":"number"}}`, `{"` + sec + `":"x"}`},
+		{"mảng lồng, phần tử sai", `{"type":"object","properties":{"a":{"type":"array","items":{"type":"object","properties":{"n":{"type":"number"}},"required":["n"],"additionalProperties":false}}},"required":["a"]}`, `{"a":[{"n":1},{"n":"` + sec + `"}]}`},
+		{"maxLength", `{"type":"object","properties":{"s":{"type":"string","maxLength":3}},"required":["s"]}`, `{"s":"` + sec + `"}`},
+		{"enum trong mảng", `{"type":"object","properties":{"a":{"type":"array","items":{"type":"string","enum":["x","y"]}}},"required":["a"]}`, `{"a":["x","` + sec + `"]}`},
+		{"kiểu hợp nhất", `{"type":"object","properties":{"v":{"type":["string","null"]}},"required":["v"]}`, `{"v":{"` + sec + `":1}}`},
+		{"thân JSON có chữ thừa phía sau", `{"type":"object"}`, `{} ` + sec},
+		{"mảng ở gốc thay vì object", `{"type":"object"}`, `["` + sec + `"]`},
+	} {
+		out := siRunSchema(t, c.schema, c.text)
+		leak := strings.Contains(out, sec)
+		t.Logf("[%s] WARN=%d lộ=%v | %s", c.name, strings.Count(out, "structured_invalid"), leak, func() string { if i := strings.Index(out, "err="); i >= 0 { return strings.TrimSpace(out[i:]) }; return "(không có dòng WARN: " + strings.TrimSpace(out) + ")" }())
+		if leak {
+			t.Errorf("[%s] lộ=%v dòng=%d", c.name, leak, strings.Count(out, "structured_invalid"))
+		}
+	}
+}

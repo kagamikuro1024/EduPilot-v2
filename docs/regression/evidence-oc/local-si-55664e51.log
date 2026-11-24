@@ -1,0 +1,30 @@
+    zz_qc3_si_test.go:43: [không phải JSON (chữ thường)] dòng structured_invalid=1 | lộ "BIMAT123": false | log=time=2026-11-24T22:28:27.549+07:00 level=WARN msg=structured_invalid task=CLASSIFY provider=A tokens_out=50 cap=1024 err="không phải JSON hợp lệ"
+    zz_qc3_si_test.go:43: [JSON cụt ở trần] dòng structured_invalid=1 | lộ "BIMAT123": false | log=time=2026-11-24T22:28:27.550+07:00 level=WARN msg=structured_invalid task=CLASSIFY provider=A tokens_out=1024 cap=1024 err="không phải JSON hợp lệ"
+    zz_qc3_si_test.go:43: [sai enum] dòng structured_invalid=1 | lộ "BIMAT123": false | log=time=2026-11-24T22:28:27.550+07:00 level=WARN msg=structured_invalid task=CLASSIFY provider=A tokens_out=20 cap=1024 err="$.label: không thuộc enum"
+    zz_qc3_si_test.go:43: [sai kiểu] dòng structured_invalid=1 | lộ "BIMAT123": false | log=time=2026-11-24T22:28:27.550+07:00 level=WARN msg=structured_invalid task=CLASSIFY provider=A tokens_out=20 cap=1024 err="$.confidence: cần number"
+    zz_qc3_si_test.go:43: [thừa thuộc tính] dòng structured_invalid=1 | lộ "BIMAT123": false | log=time=2026-11-24T22:28:27.550+07:00 level=WARN msg=structured_invalid task=CLASSIFY provider=A tokens_out=20 cap=1024 err="$: trường thừa (additionalProperties=false)"
+    zz_qc3_si_test.go:43: [thiếu thuộc tính] dòng structured_invalid=1 | lộ "BIMAT123": false | log=time=2026-11-24T22:28:27.550+07:00 level=WARN msg=structured_invalid task=CLASSIFY provider=A tokens_out=8 cap=1024 err="$: thiếu trường bắt buộc \"confidence\""
+    zz_qc3_si_test.go:43: [rỗng] dòng structured_invalid=1 | lộ "BIMAT123": false | log=time=2026-11-24T22:28:27.550+07:00 level=WARN msg=structured_invalid task=CLASSIFY provider=A tokens_out=0 cap=1024 err="không phải JSON hợp lệ"
+--- PASS: TestQC3_OC70_structuredInvalidKinds (0.00s)
+    zz_qc3_si_test.go:59: OK đầu ra hợp lệ → không có dòng structured_invalid (log="")
+--- PASS: TestQC3_OC71_validNoLog (0.00s)
+ok  	github.com/edupilot/backend-go/internal/llm	0.735s
+    zz_qc3_si_test.go:85: [map additionalProperties kiểu sai] WARN=1 lộ=false | err="$.*: cần number"
+    zz_qc3_si_test.go:85: [mảng lồng, phần tử sai] WARN=1 lộ=false | err="$.a[1].n: cần number"
+    zz_qc3_si_test.go:85: [maxLength] WARN=1 lộ=false | err="$.s: dài hơn maxLength"
+    zz_qc3_si_test.go:85: [enum trong mảng] WARN=1 lộ=false | err="$.a[1]: không thuộc enum"
+    zz_qc3_si_test.go:85: [kiểu hợp nhất] WARN=1 lộ=false | err="$.v: không khớp kiểu nào ($.v: cần string; $.v: cần null)"
+--- FAIL: TestQC3_OC70b_moreSchemas (0.00s)
+panic: runtime error: slice bounds out of range [-1:] [recovered, repanicked]
+goroutine 23 [running]:
+FAIL	github.com/edupilot/backend-go/internal/llm	0.614s
+FAIL
+    zz_qc3_si_test.go:85: [map additionalProperties kiểu sai] WARN=1 lộ=false | err="$.*: cần number"
+    zz_qc3_si_test.go:85: [mảng lồng, phần tử sai] WARN=1 lộ=false | err="$.a[1].n: cần number"
+    zz_qc3_si_test.go:85: [maxLength] WARN=1 lộ=false | err="$.s: dài hơn maxLength"
+    zz_qc3_si_test.go:85: [enum trong mảng] WARN=1 lộ=false | err="$.a[1]: không thuộc enum"
+    zz_qc3_si_test.go:85: [kiểu hợp nhất] WARN=1 lộ=false | err="$.v: không khớp kiểu nào ($.v: cần string; $.v: cần null)"
+    zz_qc3_si_test.go:85: [thân JSON có chữ thừa phía sau] WARN=0 lộ=false | (không có dòng WARN: )
+    zz_qc3_si_test.go:85: [mảng ở gốc thay vì object] WARN=1 lộ=false | err="$: cần object"
+--- PASS: TestQC3_OC70b_moreSchemas (0.00s)
+ok  	github.com/edupilot/backend-go/internal/llm	0.652s

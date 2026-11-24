@@ -1,6 +1,6 @@
 # Smoke OpenCode Go (P-11-106, P-11-107) — kết quả
 Mã đã chạy: `8f548396` (sprint/11-p10-eval; dev `0e4bd078`, `3600257a`, `eec49533`, `76157fa7`, `843a6f4a`, `9e738647`, `18c134dd`) · LOCAL: worktree chỉ đọc qc3p, gọi thật OpenCode Go (trừ decision: không gọi thật) · STACK: `ep-qc` gateway/worker @0e4bd078, @3600257a, @843a6f4a · Người chạy: qc3 · Ngày: 2026-11-24
-Tổng TC: 72 · Đạt: 71 · Trượt: 1 · Chặn: 0 (TC nguồn: `tc-11-opencode-go.md`; lỗi: `defects-opencode-go.md`)
+Tổng TC: 72 · Đạt: 72 · Trượt: 0 · Chặn: 0 (TC nguồn: `tc-11-opencode-go.md`; lỗi: `defects-opencode-go.md`)
 
 Cách chạy: chương trình Go một lần (`evidence-oc/zz_qc3_oc_test.go`, `zz_qc3_emb_test.go`, đặt tạm vào `backend-go/internal/llm/provider`, đã xoá sau chạy); API/DB qua `evidence-oc/scripts/` (`oc.py`, `routes.py`, `run1..4.py`); Playwright `evidence-oc/ui/`; máy chủ giả `stub.py` (nhà `QC3-stub-*`, đã xoá). Đổi tuyến luôn dưới khoá `/tmp/qc-global.lock`, khôi phục đúng tuyến cũ (6 tác vụ = OpenCode Go/deepseek-v4.1-flash, EMBEDDING = fake-eval), xoá `ep:llm:cb:*`. Khoá thật không nằm trong bằng chứng (kiểm 0 lần).
 
@@ -76,9 +76,9 @@ Cách chạy: chương trình Go một lần (`evidence-oc/zz_qc3_oc_test.go`, `
 | TC-OC-67 | LOCAL | P | 6 URL giả (opencode.ai.evil.example, api.opencode.ai, opencode.ai@evil.example, evil.example/opencode.ai, localhost, OpenCode.ai.example.com) → đường Google /decisions + x-goog-api-key, không Bearer, không /systemone (URL có userinfo: net/http tự thêm Authorization Basic — không phải Bearer; API chặn userinfo/fragment: 3/3 → 422 INVALID_BASE_URL trên ep-qc) |
 | TC-OC-68 | LOCAL | P | System One và Google giống nhau: 529/500/502/503 → SERVER; 401/403 → AUTH; 429 → RATE_LIMIT; 400 và 422 → BAD_REQUEST; 404 → MODEL_NOT_FOUND; thân 200 HTML → BAD_RESPONSE; 302 không theo; khoá canary không lộ trong Error()/Detail |
 | TC-OC-69 | LOCAL | P | TestStructuredInvalidLogsTokensNotContent PASS @8f548396; ở 9e738647~1 + tệp test mới → FAIL (thiếu structured_invalid / task=CLASSIFY / tokens_out=777 trong log) |
-| TC-OC-70 | LOCAL | F | DEF-OC-SI-01 (Thấp): 5/7 ca đúng (1 dòng WARN, tokens_out/cap đúng: ca cụt tokens_out=1024=cap; sai enum/kiểu/thiếu chỉ có đường dẫn). NHƯNG (1) thuộc tính thừa: err = «$: trường thừa \"BIMAT123\" (additionalProperties=false)» — chép TÊN TRƯỜNG do mô hình sinh vào log; (2) không phải JSON: err = «invalid character 'B' looking for beginning of value» — lộ KÝ TỰ ĐẦU của đầu ra (BA đã cảnh báo ở P-11-110). AC10 «không chứa nội dung đầu ra» |
+| TC-OC-70 | LOCAL | P | chạy lại @55664e51: 7/7 ca đúng 1 dòng WARN, tokens_out/cap đúng (cụt ở trần 1024=1024), 0 lần lộ BIMAT123. err: thừa thuộc tính → «$: trường thừa (additionalProperties=false)» (không tên); không phải JSON/cụt/rỗng → «không phải JSON hợp lệ» (không ký tự); sai enum/kiểu/thiếu chỉ đường dẫn+loại. Thêm 7 dạng schema (map additionalProperties → «$.*», mảng lồng, maxLength, enum trong mảng, kiểu hợp nhất, mảng ở gốc): 0 lộ. DEF-OC-SI-01 đã sửa. (Quan sát: `{} BIMAT123` — chữ thừa sau JSON hợp lệ được chấp nhận, không có WARN) |
 | TC-OC-71 | LOCAL | P | đầu ra hợp lệ → log rỗng, không có structured_invalid |
-| TC-OC-72 | LOCAL | P | go test ./internal/llm/... ./internal/decision/... ./internal/llmconfig → xanh; test mới của dev ĐỎ ở 18c134dd~1 (path=/…/decisions auth="" goog=canary) |
+| TC-OC-72 | LOCAL | P | @55664e51: go test ./internal/llm/... ./internal/grading/... ./internal/insight/... ./internal/practice/... ./internal/decision/... ./internal/llmconfig → xanh; test mới của dev ở 18c134dd~1 ĐỎ |
 
 ## Quan sát cho PM / dev / BA (không đổi nhãn P)
 1. **Test kết nối / Lưu có kiểm tra (hạn 10 s, SRS 8.2) so với OpenCode Go 4–16 s**: có đợt 6/10 lượt `TIMEOUT` (cùng nhà lúc OK lúc TIMEOUT); ADMIN phải thử lại hoặc `skip_verify`. Đề xuất: hạn riêng cho host `opencode.ai` hoặc nới `probeTimeout`.
