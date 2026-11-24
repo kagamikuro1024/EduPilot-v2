@@ -84,3 +84,53 @@ RESTORE CLASSIFY 200
 RESTORE UTILITY 200
 RESTORED đúng? True
 UNLOCK qc3 (run3) 2026-11-24T21:34:00.660474
+TC51 ai-summary 1 409 0.3 s {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': '3461f2a6eff519500486219234c0d3fc'}
+TC51 ai-summary 2 409 0.0 s {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': 'f4ddb9dc068d4855471ffc7a56feee0b'}
+TC51 ai-summary 3 409 0.0 s {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': '84736fbb5089850be6a5fb26b8bd5c4f'}
+TC51 ai-summary 4 409 0.0 s {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': '1fa23f25861b8ac92d5be32e8b726e9c'}
+TC51 ai-summary 5 409 0.0 s {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': '7b85e7b7c4a98d97acf2d9577da61a4a'}
+
+TC51 ai-summary 1 200 20.7 s keys=draft len=878
+TC51 ai-summary 2 200 19.5 s keys=draft len=768
+TC51 ai-summary 3 200 12.0 s keys=draft len=851
+TC51 ai-summary 4 200 11.4 s keys=draft len=739
+TC51 ai-summary 5 200 11.4 s keys=draft len=889
+UTILITY|OpenCode Go|deepseek-v4.1-flash|ok||20474
+UTILITY|OpenCode Go|deepseek-v4.1-flash|ok||19477
+UTILITY|OpenCode Go|deepseek-v4.1-flash|ok||11950
+UTILITY|OpenCode Go|deepseek-v4.1-flash|ok||11372
+UTILITY|OpenCode Go|deepseek-v4.1-flash|ok||11351
+LOCK qc3 (run4) 2026-11-24T21:41:08.598319
+wk StartedAt 2026-11-24T14:38:41.9912939Z gw 2026-11-24T14:38:28.074668226Z
+PUT GRADING→QC fake 200
+grade-all OC01 (route fake) 202 {'job_id': '01a20e00-ead9-790f-a84e-93ef75209355', 'queued': 2}
+  xong sau None s
+AUDIT (worker, route fake):
+GRADING|QC fake|fake-chat|error|BAD_RESPONSE
+GRADING|QC fake|fake-chat|error|BAD_RESPONSE
+GRADING|QC fake|fake-chat|error|BAD_RESPONSE
+GRADING|QC fake|fake-chat|error|BAD_RESPONSE
+grading_results OC01: ERROR:  column "assignment_id" does not exist
+LINE 1: ...ect run_state,count(*) from grading_results where assignment...
+                                                             ^
+PUT GRADING→OpenCode Go 200
+create OC02 201
+publish 200
+submit sv.gioi 201
+submit sv.kha 201
+grade-all OC02 (route OpenCode Go) 202 {'job_id': '01a20e04-ac50-7d08-ae6d-49f3d6e733ff', 'queued': 2}
+  xong sau None s
+AUDIT (worker, route OpenCode Go):
+GRADING|OpenCode Go|deepseek-v4.1-flash|ok||23260|1
+GRADING|OpenCode Go|deepseek-v4.1-flash|ok||13821|1
+GRADING|OpenCode Go|deepseek-v4.1-flash|ok||16812|1
+GRADING|OpenCode Go|deepseek-v4.1-flash|ok||11273|1
+grading_results OC02: ERROR:  column "assignment_id" does not exist
+LINE 1: ...ect run_state,count(*) from grading_results where assignment...
+                                                             ^
+ERROR:  column gr.rubric_scores does not exist
+LINE 1: select s.id is not null, gr.run_state, left(gr.rubric_scores...
+                                                    ^
+cột grading_results: id,course_id,submission_id,round,run_state,status,attempts,not_before,lease_owner,lease_until,error_code,criteria,overall_feedback,total,ai_scores,ai_total_before_late,late_days,late_penalty,late_penalty_manual,llm_reported_total,flags,needs_review,confidence,pass_detail,deviation,teacher_changed_criteria,reviewed_by,reviewed_at,published_by,published_at,version,created_at,updated_at,guidance_version,ai_comments,first_reviewed_at,first_reviewed_by
+RESTORED đúng? True
+UNLOCK qc3 (run4) 2026-11-24T21:50:21.560997

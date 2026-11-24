@@ -93,6 +93,8 @@ Ký hiệu API: `A=/api/v1/admin/llm`. Vai: ADMIN `admin@edupilot.local`, TEACHE
 | TC-OC-49 | AC18 (P-11-107) | Khoá thật; chương trình Go tới OpenCode Go thật | `Structured` (schema `summary` + `points[]`), MaxTokens 1024, task UTILITY, 3 lần | Cả 3 lần JSON đủ và đúng schema, không `BAD_RESPONSE` (không bị cắt giữa JSON) | LOCAL |
 | TC-OC-50 | AC18 (P-11-107) | Như TC-OC-49 | `Chat` thật với MaxTokens 16 và 256 | Cả hai có nội dung chữ không rỗng (suy luận không ăn hết trần) | LOCAL |
 | TC-OC-51 | AC18 (P-11-107, vận hành) | `ep-qc` đã rebuild lên ≥ `3600257a`, tuyến UTILITY/NEAR_REALTIME = OpenCode Go | `docker inspect` gateway: `AI_SUMMARY_TIMEOUT=60s`; `git grep AI_SUMMARY_TIMEOUT backend-go/internal/platform/config`; TEACHER `POST /courses/{id}/students/{uid}/ai-summary` lớp `QCOC1` × 5 | Env gateway = 60s; mặc định trong mã vẫn 20 s (`durRange(..., 20*time.Second, …)`); 5 lượt đều 200 với nội dung, không `BAD_RESPONSE`, không 504, không 503 | STACK |
+| TC-OC-52 | AC18 (embedding, qc2 báo) | Khoá thật; chương trình Go; `base_url=https://opencode.ai/inference/go/openai/v1` | `Embed` model `text-embedding-3-small`, 2 chuỗi, dims 1536 | Không lỗi; 2 vectơ × 1536 chiều, không toàn 0; có số token | LOCAL |
+| TC-OC-53 | AC18 (nhánh lỗi, embedding) | Như TC-OC-52 nhưng `base_url=https://opencode.ai/inference/go/v1` | `Embed` | Lỗi nhà cung cấp rõ ràng (`MODEL_NOT_FOUND`, HTTP 404), trả về nhanh, không treo (`/inference/go/v1` không có `/embeddings`) | LOCAL |
 
 ## Phân quyền (tổng)
 `POST/PUT/DELETE A/providers*`, `POST A/providers/test`, `PUT A/routes`: chỉ ADMIN (TC-OC-14, 15, 29). `GET A/providers`, `GET A/routes`: ADMIN + TEACHER. TA, SV: 403 mọi thao tác. Khoá không bao giờ có trong phản hồi (TC-OC-20).

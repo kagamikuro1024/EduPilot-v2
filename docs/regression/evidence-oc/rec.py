@@ -6,5 +6,5 @@ def rec(tc,res,note):
 def tsv():
     R=dict((l.split('\t')[0],l.split('\t')[1]) for l in open(F).read().splitlines() if l) if os.path.exists(F) else {}
     n=lambda x:sum(1 for v in R.values() if v==x)
-    os.system(f'/tmp/qc3-oc-tsv.sh 51 {n("P")} {n("F")} {n("N")} "{sys.argv[1] if len(sys.argv)>1 else ""}"')
+    os.system(f'/tmp/qc3-oc-tsv.sh 53 {n("P")} {n("F")} {n("N")} "{sys.argv[1] if len(sys.argv)>1 else ""}"')
 if __name__=='__main__': tsv()

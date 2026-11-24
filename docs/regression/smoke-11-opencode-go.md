@@ -1,0 +1,71 @@
+# Smoke OpenCode Go (P-11-106, P-11-107) — kết quả
+Mã đã chạy: `262679d8` (sprint/11-p10-eval; dev `0e4bd078` + `3600257a`) · LOCAL: worktree chỉ đọc qc3p, gọi thật OpenCode Go · STACK: `ep-qc` gateway/worker @0e4bd078 (14:03Z) rồi @3600257a (14:38Z, AI_SUMMARY_TIMEOUT=60s) · Người chạy: qc3 · Ngày: 2026-11-24
+Tổng TC: 53 · Đạt: 53 · Trượt: 0 · Chặn: 0 (TC nguồn: `tc-11-opencode-go.md`)
+
+Cách chạy: chương trình Go một lần (`evidence-oc/zz_qc3_oc_test.go`, `zz_qc3_emb_test.go`, đặt tạm vào `backend-go/internal/llm/provider`, đã xoá sau chạy); API/DB qua `evidence-oc/scripts/` (`oc.py`, `routes.py`, `run1..4.py`); Playwright `evidence-oc/ui/`; máy chủ giả `stub.py` (nhà `QC3-stub-*`, đã xoá). Đổi tuyến luôn dưới khoá `/tmp/qc-global.lock`, khôi phục đúng tuyến cũ (6 tác vụ = OpenCode Go/deepseek-v4.1-flash, EMBEDDING = fake-eval), xoá `ep:llm:cb:*`. Khoá thật không nằm trong bằng chứng (kiểm 0 lần).
+
+## Kết quả từng ca
+| TC | Nhóm | KQ | Ghi chú |
+| --- | --- | --- | --- |
+| TC-OC-01 | LOCAL | P | go test ./internal/llm/provider -run OpenCode -v -count=1 → 5 passed (sprint/11-p10-eval, 0e4bd078…bf62e697) |
+| TC-OC-02 | LOCAL | P | Chat Task=GRADING, base opencode.ai (Transport→httptest): UA=edupilot/2.0, x-opencode-session=edupilot-grading, thân reasoning_effort=low (local-mock.log) |
+| TC-OC-03 | LOCAL | P | Stream Task=CHAT: UA edupilot/2.0, session edupilot-chat, effort low; luồng đọc hết |
+| TC-OC-04 | LOCAL | P | Task rỗng: session=edupilot (Chat và Stream), không dấu - thừa |
+| TC-OC-05 | LOCAL | P | Structured: UA+session+effort có; response_format.type=json_object; lời nhắc system chứa schema (score) |
+| TC-OC-06 | LOCAL | P | 9router http://127.0.0.1:20128/v1: Chat+Stream không UA edupilot/2.0, không session, thân không reasoning_effort |
+| TC-OC-07 | LOCAL | P | 5 URL giả (opencode.ai.evil.example, api.opencode.ai, opencode.ai@evil.example, evil.example/opencode.ai, localhost) × Chat+Stream: không gắn cờ nào |
+| TC-OC-08 | LOCAL | P | https://opencode.ai:443/inference/go/v1 khớp: đủ ba (Chat+Stream) |
+| TC-OC-09 | LOCAL | P | go test ./internal/llm/provider -count=1 → 63 passed |
+| TC-OC-10 | LOCAL | P | git show --stat 0e4bd078: chỉ openai.go + opencode_test.go; diff backend-go/db và api = 0 dòng; enum type openapi giữ 6 giá trị; CHECK llm_providers_type_chk không đổi |
+| TC-OC-11 | STACK | P | ADMIN POST providers QC3-OC (openai_compatible, https://opencode.ai/inference/go/v1, model deepseek-v4.1-flash, khoá thật) → 201, has_key=true, key_status=ok, version 1, không có trường khoá, 0 lần oc_sk_ trong thân. LƯU Ý: hai lần POST đầu 422 PROVIDER_UNREACHABLE «phản hồi quá chậm» (hạn kiểm tra 10 s, upstream 7–16 s), lần ba 201 sau 6 s — xem TC-OC-12 |
+| TC-OC-12 | STACK | P | POST /admin/llm/providers/{id}/test → 200 {ok:true, latency_ms 3,2–5,9 s} (12 lượt OK sau rebuild 3600257a; last_test.ok=true). LƯU Ý (không phải lỗi mã): hạn kiểm tra 10 s (SRS 8.2) so với upstream OpenCode Go 4–15 s ⇒ có đợt 6/10 lượt trả {ok:false,error_kind:TIMEOUT,10000 ms}, cùng một nhà lúc OK lúc TIMEOUT; đo trực tiếp max_tokens=1 tới opencode.ai: 6,9–16,5 s |
+| TC-OC-13 | STACK | P | Playwright ADMIN /settings/llm: Thêm nhà cung cấp → loại «Máy chủ riêng (tương thích OpenAI)», tên, URL, khoá, Cài đặt nâng cao → Tên mô hình → Lưu: hàng «QC3-UI-OC … Đã kết nối» xuất hiện, khoá không hiện lại. Test kết nối trên hàng: «Đã kết nối · Kết nối tốt · 5637 ms» (lần OK); các lần upstream chậm: «Nhà cung cấp phản hồi quá chậm.» + «Kết nối lỗi» (đúng hành vi hạn 10 s). Khoá sai: «Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.» + «Chưa lưu gì. Các ô khác vẫn giữ nguyên.», không tạo bản ghi (ui/add-test.png, test-ok.png) |
+| TC-OC-14 | STACK | P | ep-qc 0e4bd078: TEACHER/TA/SV × (POST providers, PUT, DELETE, POST providers/test, POST providers/{id}/test) = 15/15 → 403 FORBIDDEN; số nhà (13) và version OpenCode Go (1, enabled) không đổi |
+| TC-OC-15 | STACK | P | không token: POST providers 401, GET providers 401. (TEACHER GET 200; SV GET 403 đúng ma trận) |
+| TC-OC-16 | STACK | P | Playwright /settings/llm: TA và SV → «Bạn không có quyền xem màn này»; TEACHER thấy danh sách + «Chỉ quản trị viên được thay đổi cấu hình.», không có nút Test kết nối/Thêm nhà cung cấp/menu thao tác; ADMIN có đủ (probe-*.png) |
+| TC-OC-17 | STACK | P | trùng tên → 409 CONFLICT; ftp:// và «not a url» → 422 INVALID_BASE_URL; https://169.254.169.254/… → 422 PROVIDER_UNREACHABLE (cú pháp hợp lệ, không kết nối được; SRS 4.2 không chặn link-local); thiếu Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; không tạo bản ghi nào |
+| TC-OC-18 | STACK | P | gửi lại POST với CÙNG Idempotency-Key → 201 cùng id, DB còn đúng 1 bản ghi QC3-OC |
+| TC-OC-19 | STACK | P | PUT version=1 → 200 (v2, enabled=false); PUT version cũ (1) → 409 VERSION_CONFLICT, tên không đổi; PUT v2 → 200 (v3) |
+| TC-OC-20 | STACK | P | GET /admin/llm/providers (14 nhà): 0 lần oc_sk_, 0 trường api_key/key/key_last4, chỉ has_key/key_status; thân 201, PUT, replay: 0 lần khoá thật. GET /providers/{id} không tồn tại (405) — hợp đồng chỉ có PUT/DELETE |
+| TC-OC-21 | STACK | P | docker logs gateway+worker: trước rebuild (14:03Z, 993+4 dòng, gồm lượt AUTH/SERVER/429/500) và sau rebuild 3600257a (14:38Z, 359+2 dòng, gồm ai-summary, chấm bài thật, khoá sai): oc_sk_ = 0, khoá thật = 0, khoá sai thử = 0 |
+| TC-OC-22 | STACK | P | pg_dump --data-only toàn DB ep-qc trước (220 MB) và sau cả đợt (đủ llm_audit, audit_log, idempotency, bản ghi nhà): khoá thật 0, oc_sk_ 0, khoá sai 0, stubkey 0; api_key_enc là bản mã |
+| TC-OC-23 | LOCAL | P | git grep oc_sk_ toàn repo (cả docs) = 0; opencode.ai ngoài docs/test chỉ openai.go (hằng openCodeUA, isOpenCodeGo); .env.example không nhắc OpenCode/khoá; không có compose chứa khoá |
+| TC-OC-24 | LOCAL | P | máy chủ giả trả 401 và 500 kèm thân chứa đúng khoá + Bearer: Detail = «bad key [REDACTED] Authorization: Bearer [REDACTED]»; Kind AUTH/SERVER; Error() không chứa khoá |
+| TC-OC-25 | LOCAL | P | ba lần chạy go test -v (mock + gọi thật, 12 test): grep khoá thật trong toàn bộ stdout/stderr = 0 dòng |
+| TC-OC-26 | STACK | P | ep-qc 0e4bd078; StartedAt gateway 14:03:00Z, worker 14:03:16Z KHÔNG đổi sau nhiều lần PUT; PUT CHAT→OpenCode Go rồi chat → llm_audit provider=OpenCode Go, model=deepseek-v4.1-flash, status=ok, text «Chào». Lời gọi gửi ngay (≈10 ms) sau PUT 200 có lúc còn đi tuyến cũ (reload pub/sub bất đồng bộ, AC14 ≤ 1 s) |
+| TC-OC-27 | STACK | P | đổi tuyến nhà↔nhà: PUT→QC lỗi có hiệu lực 0,18/0,50/0,46/0,51 s (đo bằng gọi liên tục), PUT→QC fake 0,01 s; PUT→QC 9router: lời gọi rời OpenCode Go, 9router trả SERVER (upstream 9router trên ep-qc chết: Test TIMEOUT 10 s) → degraded, không còn dòng OpenCode sau thời điểm đổi. Không dựng lại container. Tuyến khôi phục đúng về OpenCode Go. LƯU Ý: audit không ghi tên nhà khi lỗi (provider rỗng) |
+| TC-OC-28 | STACK | P | worker 14:38:41Z không đổi; PUT GRADING→QC fake rồi grade-all OC01: 4/4 dòng llm_audit GRADING của worker ghi provider=QC fake (fake-chat không sinh JSON rubric → error BAD_RESPONSE, grading_results FAILED GRADING_OUTPUT_INVALID — đúng bản chất nhà giả); PUT GRADING→OpenCode Go rồi grade-all OC02: 4/4 dòng ghi OpenCode Go. Cả hai chiều đổi nhận trong ≤ 1,5 s, không dựng lại |
+| TC-OC-29 | STACK | P | TEACHER/TA/SV PUT /admin/llm/routes (CHAT) → 403 ×3; TEACHER GET routes 200; chuỗi CHAT và version (134) không đổi |
+| TC-OC-30 | STACK | P | model_id lạ → 422 MODEL_NOT_FOUND (chain[0]); chain rỗng → 422 ROUTE_INVALID chain_empty; version cũ → 409 VERSION_CONFLICT current_version=134; chat ngay sau vẫn 200 qua OpenCode Go |
+| TC-OC-31 | STACK | P | tuyến CHAT = [QC3-badkey, stub-ok]; DELETE QC3-badkey → 409 PROVIDER_IN_USE |
+| TC-OC-32 | LOCAL | P | Chat thật deepseek-v4.1-flash «một từ»: text=«Chào», tokens in=43 out=69 (estimated=false), 17,9 s (<30 s) |
+| TC-OC-33 | LOCAL | P | Stream thật: 3 delta chữ «1..5», usage cuối in=47 out=66, kênh đóng, 21,8 s |
+| TC-OC-34 | LOCAL | P | Structured thật ×3 (json_object): JSON hợp lệ, additionalProperties=false, score 10/9,5/9 trong 0–10, comment không rỗng; 13 s/lần |
+| TC-OC-35 | STACK | P | OC02 (rubric 3 tiêu chí, 2 bài nộp .md), GRADING=OpenCode Go: grade-all 202; grading_results DONE/DRAFT ×2 (total 6,00 và 0,75; criteria JSON đủ điểm + nhận xét tiếng Việt bám bài), published_at rỗng (không tự công bố); llm_audit GRADING/OpenCode Go/deepseek-v4.1-flash/ok ×4 (2 lượt/bài, 11–23 s); điểm do mã tính (decimal 6.00/0.75) |
+| TC-OC-36 | STACK | P | tuyến CHAT/CLASSIFY/UTILITY→QC3-stub-ok (máy chủ bắt thân); SV gửi «Em là <họ tên thật>, MSSV <mã thật>, …»: thân stub nhận KHÔNG chứa họ tên hay MSSV, có placeholder [[SV_n]]; llm_audit pii_masked_count=2 |
+| TC-OC-37 | LOCAL | P | khoá sai oc_sk_… tới OpenCode Go thật: Kind=AUTH HTTP 401 «Invalid credential» sau 276 ms; Detail không chứa khoá |
+| TC-OC-38 | STACK | P | API: test khoá sai AUTH 274 ms; POST khoá sai 422 PROVIDER_AUTH_FAILED không lưu. UI: «Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.» + «Chưa lưu gì. Các ô khác vẫn giữ nguyên.», DB 0 bản ghi |
+| TC-OC-39 | LOCAL | P | OpenCode host + máy chủ giả: 401/403→AUTH, 404→MODEL_NOT_FOUND, 400→BAD_REQUEST, 429→RATE_LIMIT(RetryAfter=2s), 500→SERVER; mỗi lần đúng 1 request, <1 s; next/breaker đúng bảng (429 không tính mạch — P-95-8b) |
+| TC-OC-40 | LOCAL | P | model lạ gọi thật: HTTP 400 «Model … isn't included in OpenCode Go» → Kind=BAD_REQUEST sau 272 ms, không treo. LƯU Ý: BAD_REQUEST không chuyển nhà tiếp (bảng AC5) — chuỗi [OpenCode, 9router] sẽ DỪNG ở lỗi này; nếu vùng chưa bật trả 403/404 thì chuyển nhà |
+| TC-OC-41 | STACK | P | tuyến CHAT=[QC3-badkey (OpenCode, khoá sai), stub-ok]: 6/6 lời gọi thành công qua stub-ok, fallback_index=1, 0,3–0,5 s mỗi lượt (AUTH 401 tức thì, không treo); sau 5 AUTH mạch badkey = open |
+| TC-OC-42 | STACK | P | 429 (Retry-After 1): mỗi lời gọi 2 request tới stub429 (thử lại 1 lần) rồi chuyển stub-ok (fallback_index=1, ≈1,0 s), circuit stub429 = closed (không tính mạch, P-95-8b). 500: mỗi lượt 2 request; lượt 5 mạch=open; lượt 6–8: 0 request tới stub500 (bỏ qua ngay); sau 32 s: nửa mở thử 2 request rồi mở lại. (SRS 4.2 bảng ghi 429 «tính vào mạch» lệch P-95-8b — đề nghị BA vá bảng) |
+| TC-OC-43 | LOCAL | P | máy chủ giữ kết nối, hạn 2 s: Kind=TIMEOUT sau 2,001 s |
+| TC-OC-44 | LOCAL | P | 302 sang máy chủ đích: không theo (Kind=BAD_RESPONSE), máy chủ đích nhận 0 request |
+| TC-OC-45 | LOCAL | P | @262679d8 (gồm 3600257a): go test -run OpenCode → PASS (TestOpenCodeGoHeadersAndEffort); cả gói provider -count=1 → 80 passed |
+| TC-OC-46 | LOCAL | P | host opencode.ai: Chat MaxTokens 256/1024/1 → thân max_tokens 4352/5120/4097; Stream 256 → 4352; Structured 512 → 4608 (local-mock-3600257a.log) |
+| TC-OC-47 | LOCAL | P | MaxTokens=0: Chat và Stream đều KHÔNG gửi max_tokens |
+| TC-OC-48 | LOCAL | P | 5 URL khác (9router 127.0.0.1:20128, opencode.ai.evil.example, api.opencode.ai, opencode.ai@evil.example, localhost) × Chat+Stream: max_tokens giữ 256 |
+| TC-OC-49 | LOCAL | P | Structured thật ×3, MaxTokens 1024, UTILITY: JSON đủ summary + 3 điểm, 4,2–7,4 s, không BAD_RESPONSE (local-real-3600257a.log) |
+| TC-OC-50 | LOCAL | P | Chat thật MaxTokens 16 và 256: cả hai có chữ («B-tree là cấu trúc cây cân bằng…»), 7,8 s. LƯU Ý: tokens_out=174 với trần gốc 16 — trần gốc không còn giữ chi phí (P-11-107, đúng thiết kế) |
+| TC-OC-51 | STACK | P | ep-qc rebuild 3600257a (gateway StartedAt 14:38:28Z, worker 14:38:41Z): docker inspect cả hai AI_SUMMARY_TIMEOUT=60s; mã: durRange("AI_SUMMARY_TIMEOUT", 20*time.Second, …) giữ 20 s; TEACHER POST ai-summary lớp QCOC1 ×5 → 200 (có «draft»), 11,4–20,7 s (lượt đầu 20,7 s > 20 s mặc định); llm_audit UTILITY OpenCode Go deepseek-v4.1-flash ok ×5; không BAD_RESPONSE/504/503. Nhánh lỗi: chưa có dữ liệu → 409 NOT_ENOUGH_DATA (không gọi LLM) |
+| TC-OC-52 | LOCAL | P | Embed thật base …/inference/go/openai/v1, text-embedding-3-small, dims 1536: 2 vectơ × 1536 chiều, 1536 ô khác 0, tokens=18, 750 ms |
+| TC-OC-53 | LOCAL | P | Embed tới …/inference/go/v1 → Kind=MODEL_NOT_FOUND HTTP 404 sau 298 ms (không treo) |
+
+## Quan sát cho PM / dev / BA (không đổi nhãn P)
+1. **Test kết nối / Lưu có kiểm tra (hạn 10 s, SRS 8.2) so với OpenCode Go 4–16 s**: có đợt 6/10 lượt `TIMEOUT` (cùng nhà lúc OK lúc TIMEOUT); ADMIN phải thử lại hoặc `skip_verify`. Đề xuất: hạn riêng cho host `opencode.ai` hoặc nới `probeTimeout`.
+2. **SRS 4.2 bảng lỗi ghi `RATE_LIMIT` «tính vào mạch: có»**, trái P-95-8b/TL-2j và mã (`CountsToBreaker()` = false). Chấm theo mã + quyết định PM; đề nghị BA vá bảng.
+3. **Model không nằm trong gói** trả HTTP 400 → `BAD_REQUEST` → KHÔNG chuyển nhà tiếp (bảng AC5). AC18 nói «chuyển nhà tiếp nếu chuỗi có» cho model chưa được phép ở vùng; chưa tái tạo được lỗi vùng thật (có thể 403/404 → chuyển được).
+4. **`llm_audit.provider` rỗng** khi mọi nhà trong chuỗi lỗi (dòng `degraded`, `SERVER`): khó biết nhà nào lỗi.
+5. **Độ trễ OpenCode Go** 7–23 s mỗi lượt chat/chấm (deepseek-v4.1-flash suy luận) so với hạn `LLM_REQUEST_TIMEOUT` 30 s và mục tiêu SSE ≤ 300 ms (D47): lượt chat INTERACTIVE gần sát hạn.
+6. **P-11-107**: trần `max_tokens` gốc không còn giữ chi phí (MaxTokens=16 vẫn sinh 174 token).
+7. **9router trên ep-qc** hỏng (Test `TIMEOUT`, chat `SERVER`): ca «về 9router» chỉ chứng minh được việc đổi tuyến, không chứng minh trả lời qua 9router.
