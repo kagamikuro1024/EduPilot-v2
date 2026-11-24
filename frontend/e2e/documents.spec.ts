@@ -22,6 +22,21 @@ test.beforeEach(async ({}, info) => {
   test.skip(info.project.name !== "desktop", "ca 375 không thuộc story này (≥ 720 px)");
 });
 
+test("tự cập nhật (DEF-R6-U11, TC-P8-01-17): hàng đang xử lý → Sẵn sàng sau ≤ 5 s; mọi hàng đã xong mà nơi khác tải lên → hàng mới hiện sau ≤ 35 s", async ({ page, context }) => {
+  await page.clock.install();
+  let phase = 0;
+  const rows = () => (phase === 0 ? [doc({ id: "n1", title: "bai-giang-moi", status: "PROCESSING" })] : phase === 1 ? [doc({ id: "n1", title: "bai-giang-moi" })] : [doc({ id: "n1", title: "bai-giang-moi" }), doc({ id: "n2", title: "tu-curl-ben-ngoai", status: "QUEUED" })]);
+  await open(page, context, { [`GET ${D}`]: (r) => r.fulfill(list(rows())) });
+  const row = (n: string) => page.getByRole("row", { name: new RegExp(n) });
+  await expect(row("bai-giang-moi")).toContainText("Đang xử lý");
+  phase = 1;
+  await page.clock.runFor(6000);
+  await expect(row("bai-giang-moi")).toContainText("Sẵn sàng");
+  phase = 2;
+  await page.clock.runFor(35000);
+  await expect(row("tu-curl-ben-ngoai")).toContainText("Đang xử lý");
+});
+
 test("table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải thống kê một dòng", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}`]: list([doc(), doc({ id: "d2", title: "Slide TLS", status: "FAILED", error: "Không đọc được", use_for_rag: false }), doc({ id: "d3", title: "Từ lớp khác", shared_from: "761988" })]), [`GET ${D}/stats`]: json(stats({ total: 3, by_status: { READY: 1, FAILED: 1, PROCESSING: 1 } })) });
   const rows = page.locator("[data-part=doc-row]");
@@ -94,6 +109,14 @@ test("course policy reminder: một dòng khi thiếu quy chế, nút mở chọ
   await expect(page.getByText("Lớp chưa có quy chế môn học.")).toHaveCount(0);
 });
 
+test("answer key row (DEF-R6-U7, US-P8-02 AC3): hàng ANSWER_KEY ghi đúng hai dòng «Không hiển thị cho sinh viên» và «Không dùng cho AI của sinh viên»", async ({ page, context }) => {
+  await open(page, context, { [`GET ${D}`]: list([doc({ id: "k1", title: "Đáp án tuần 1", type: "ANSWER_KEY", visible_to_students: false, use_for_rag: false }), doc()]) });
+  const key = page.locator("[data-part=doc-row]", { hasText: "Đáp án tuần 1" });
+  await expect(key.getByText("Không hiển thị cho sinh viên", { exact: true })).toBeVisible();
+  await expect(key.getByText("Không dùng cho AI của sinh viên", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-part=doc-row]", { hasText: "Quy chế học vụ" }).getByText("Không hiển thị cho sinh viên")).toHaveCount(0);
+});
+
 test("reject before upload: sai loại / quá 50 MB báo ngay, không gọi presign", async ({ page, context }) => {
   const calls = await open(page, context);
   const big = join(tmpdir(), "lon.pdf");
@@ -101,8 +124,8 @@ test("reject before upload: sai loại / quá 50 MB báo ngay, không gọi pres
   const txt = join(tmpdir(), "ghi-chu.txt");
   writeFileSync(txt, "x");
   await page.locator("[data-part=file-input]").setInputFiles([txt, big]);
-  await expect(page.getByText("ghi-chu.txt: chỉ nhận PDF, DOCX hoặc PPTX. Hãy chọn tệp khác.")).toBeVisible();
-  await expect(page.getByText("lon.pdf: quá 50 MB. Hãy nén hoặc tách tệp.")).toBeVisible();
+  await expect(page.getByText("ghi-chu.txt: Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB.")).toBeVisible(); // P-11-87: chữ theo SRS FEAT-docs-calendar 94
+  await expect(page.getByText("lon.pdf: Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB.")).toBeVisible();
   expect(calls.some((c) => c.path.includes("/uploads/"))).toBe(false);
 });
 

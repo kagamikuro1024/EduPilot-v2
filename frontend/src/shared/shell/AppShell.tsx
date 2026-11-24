@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
 
       <header className={s.topbar} data-part="topbar">
-        <Link href="/" className={s.mobileBrand} data-part="brand" aria-label="EduPilot — Hôm nay">
+        <Link href="/" prefetch={false} className={s.mobileBrand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-edupilot-mark.svg" alt="" width={28} height={28} />
         </Link>
@@ -168,12 +168,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 title={courseTitle}
               >
                 {role === "student" && !hasCourse ? (
-                  <span className={s.courseCode}>Chưa có lớp</span>
+                  <span className={s.courseCode} title="Chưa có lớp">Chưa có lớp</span>
                 ) : isAll ? (
-                  <span className={s.courseCode}>Tất cả lớp của tôi</span>
+                  <span className={s.courseCode} title="Tất cả lớp của tôi">Tất cả lớp của tôi</span>
                 ) : (
                   <>
-                    <span className={s.courseCode}>{realPicked?.class_code ?? course.code}</span>
+                    <span className={s.courseCode} title={realPicked?.class_code ?? course.code}>{realPicked?.class_code ?? course.code}</span>
+                    {" "}
                     <span className={s.courseName} title={courseTitle}>
                       · {realPicked?.name ?? course.name}
                     </span>
@@ -242,7 +243,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className={s.topEnd}>
-          <button type="button" className={s.search} onClick={openPalette} aria-label="Tìm nhanh hoặc đi đến">
+          <button type="button" className={s.search} onClick={openPalette}>
             <Search aria-hidden />
             <span className={s.searchText}>Tìm nhanh hoặc đi đến…</span>
             <span className={s.searchKey}>
@@ -263,14 +264,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             width={260}
             label="Tài khoản"
             trigger={(p) => (
-              <button type="button" className={s.profile} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={`Tài khoản: ${personName}`}>
+              <button type="button" className={s.profile} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
                 <span className={s.initials} aria-hidden>
                   {user.name
                     .split(" ")
                     .slice(-1)[0]
                     .slice(0, 1)}
                 </span>
-                <span className={s.profileRole}>{personName}</span>
+                <span className={s.profileRole}>
+                  <span className="ep-sr-only">Tài khoản: </span>
+                  {personName}
+                </span>
                 <ChevronDown aria-hidden />
               </button>
             )}
@@ -308,7 +312,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {!narrow && (
       <aside className={s.sidebar} data-part="sidebar" data-collapsed={collapsed || undefined}>
-        <Link href="/" className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
+        <Link href="/" prefetch={false} className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={32} className={collapsed ? s.logoMark : s.logo} />
         </Link>
@@ -390,7 +394,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ul className={s.moreList}>
               {mobileMore.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className={s.moreItem} onClick={() => setMore(false)} aria-current={isActive(item.href) ? "page" : undefined}>
+                  <Link href={item.href} prefetch={false} className={s.moreItem} onClick={() => setMore(false)} aria-current={isActive(item.href) ? "page" : undefined}>
                     <item.icon aria-hidden />
                     <span>{item.label}</span>
                     {item.badgeKey && badges[item.badgeKey] > 0 ? <span className={s.badge}>{badges[item.badgeKey]}</span> : null}
@@ -425,8 +429,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
 function NavLink({ item, active, collapsed, badge }: { item: NavItem; active: boolean; collapsed: boolean; badge: number }) {
   const Icon = item.icon;
+  const router = useRouter();
+  // U4: không prefetch cả thanh bên lúc tải (8–12 yêu cầu RSC, 40–80 KB tranh băng thông với dữ liệu đầu trang); nạp khi rê chuột / focus
   return (
-    <Link href={item.href} className={s.navItem} aria-current={active ? "page" : undefined} aria-label={collapsed ? item.label : undefined} title={collapsed ? item.label : undefined}>
+    <Link href={item.href} prefetch={false} onPointerEnter={() => router.prefetch(item.href)} onFocus={() => router.prefetch(item.href)} className={s.navItem} aria-current={active ? "page" : undefined} aria-label={collapsed ? item.label : undefined} title={collapsed ? item.label : undefined}>
       <Icon aria-hidden />
       <span className={s.navLabel}>{item.label}</span>
       {item.badgeKey && badge > 0 ? (
@@ -440,8 +446,9 @@ function NavLink({ item, active, collapsed, badge }: { item: NavItem; active: bo
 
 function BottomLink({ item, active, badge }: { item: NavItem; active: boolean; badge: number }) {
   const Icon = item.icon;
+  const router = useRouter();
   return (
-    <Link href={item.href} className={[s.bottomItem, active ? s.bottomActive : ""].join(" ")} aria-current={active ? "page" : undefined}>
+    <Link href={item.href} prefetch={false} onPointerEnter={() => router.prefetch(item.href)} onFocus={() => router.prefetch(item.href)} className={[s.bottomItem, active ? s.bottomActive : ""].join(" ")} aria-current={active ? "page" : undefined}>
       <span className={s.bottomIcon}>
         <Icon aria-hidden />
         {item.badgeKey && badge > 0 ? (

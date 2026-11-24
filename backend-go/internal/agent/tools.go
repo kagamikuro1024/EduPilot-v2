@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/shopspring/decimal"
 )
@@ -19,6 +20,9 @@ type Facts map[string]any
 
 // ErrNoScheme: lớp chưa có công thức điểm do giảng viên xác nhận. GradeSource trả lỗi này thì tool nói câu mẫu ReplyNoFormula, không phải "chưa có dữ liệu điểm" (US-P6-05 AC7).
 var ErrNoScheme = errors.New("agent: lớp chưa có công thức điểm đã xác nhận")
+
+// ErrUnknownLetter: `target_letter` không có trong thang của công thức (SRS FEAT-gradebook 4.8.3): lỗi đầu vào cho người hỏi, không phải «chưa có dữ liệu».
+var ErrUnknownLetter = errors.New("agent: điểm chữ ngoài thang")
 
 // Block là khối dữ liệu có cấu trúc cho giao diện (sự kiện SSE `block`).
 type Block struct {
@@ -286,6 +290,9 @@ func (t whatIfTool) Run(ctx context.Context, tc TrustedContext, raw json.RawMess
 		f, ok, err := ls.MinFinal(ctx, tc, a.TargetLetter)
 		if errors.Is(err, ErrNoScheme) {
 			return Result{NoData: true, Message: ReplyNoFormula}, nil
+		}
+		if errors.Is(err, ErrUnknownLetter) {
+			return Result{NoData: true, Message: fmt.Sprintf("Điểm chữ %q không có trong thang điểm của lớp này.", strings.TrimSpace(a.TargetLetter))}, nil
 		}
 		return result("what_if", f, ok, err)
 	}

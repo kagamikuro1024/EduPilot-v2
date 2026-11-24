@@ -1,0 +1,158 @@
+{
+ "meta": {
+  "commit": "468207a7",
+  "timestamp": "2026-11-15T18:58:16.992Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "e6-r1.json"
+  }
+ },
+ "tag": "r1",
+ "idle_ram": {
+  "gateway": {
+   "mem_mib": 22.7,
+   "cpu": "0.13%"
+  },
+  "frontend": {
+   "mem_mib": 82.1,
+   "cpu": "0.00%"
+  },
+  "worker": {
+   "mem_mib": 19.2,
+   "cpu": "1.62%"
+  },
+  "caddy": {
+   "mem_mib": 23.0,
+   "cpu": "0.00%"
+  },
+  "judge": {
+   "mem_mib": 13.0,
+   "cpu": "0.24%"
+  },
+  "pgbouncer": {
+   "mem_mib": 8.6,
+   "cpu": "0.27%"
+  },
+  "redis": {
+   "mem_mib": 9.7,
+   "cpu": "0.71%"
+  },
+  "postgres": {
+   "mem_mib": 248.0,
+   "cpu": "2.30%"
+  },
+  "docling": {
+   "mem_mib": 1077.2,
+   "cpu": "0.21%"
+  },
+  "minio": {
+   "mem_mib": 91.9,
+   "cpu": "0.00%"
+  }
+ },
+ "cold_start_ms": {
+  "gateway": [
+   314,
+   486,
+   376
+  ],
+  "worker": [
+   218,
+   795,
+   225
+  ]
+ },
+ "latency_ms": {
+  "GET /readyz": {
+   "n": 200,
+   "p50": 3.2,
+   "p95": 4.9,
+   "max": 7.5,
+   "mean": 3.4,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": null
+  },
+  "GET /me/courses (SV)": {
+   "n": 200,
+   "p50": 4.0,
+   "p95": 6.4,
+   "max": 11.5,
+   "mean": 4.3,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "sv.kha"
+  },
+  "GET threads lớp 1 (SV)": {
+   "n": 200,
+   "p50": 4.8,
+   "p95": 6.1,
+   "max": 12.1,
+   "mean": 5.0,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "sv.gioi"
+  },
+  "GET documents lớp 1 (GV)": {
+   "n": 200,
+   "p50": 4.0,
+   "p95": 5.3,
+   "max": 13.2,
+   "mean": 4.2,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "teacher"
+  },
+  "GET students lớp 1 (TA)": {
+   "n": 200,
+   "p50": 9.0,
+   "p95": 11.0,
+   "max": 16.8,
+   "mean": 9.3,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "ta"
+  },
+  "GET gradebook lớp 1 (GV)": {
+   "n": 200,
+   "p50": 8.8,
+   "p95": 15.8,
+   "max": 21.5,
+   "mean": 9.6,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "teacher"
+  },
+  "GET today lớp 1 (TA)": {
+   "n": 200,
+   "p50": 3.1,
+   "p95": 4.5,
+   "max": 8.6,
+   "mean": 3.3,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "ta"
+  }
+ },
+ "images": {
+  "gateway": {
+   "image": "edupilot-gateway-test",
+   "mib": 17.4
+  },
+  "worker": {
+   "image": "edupilot-worker-test",
+   "mib": 16.3
+  },
+  "gateway_production": {
+   "image": "ep-eval-gateway:468207a7",
+   "mib": 17.4
+  },
+  "worker_production": {
+   "image": "ep-eval-worker:468207a7",
+   "mib": 16.3
+  }
+ },
+ "colima": "{\"name\":\"default\",\"status\":\"Running\",\"arch\":\"aarch64\",\"cpus\":6,\"memory\":10737418240,\"disk\":107374182400,\"runtime\":\"docker\"}"
+}

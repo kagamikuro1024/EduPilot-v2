@@ -8,7 +8,9 @@
    "phase": "probe",
    "provider": "gemini free tier",
    "rpm_chat": 5,
-   "rpm_embed": 60
+   "rpm_embed": 60,
+   "model": "chuỗi qua kiểm: gemini-3.1-flash-lite (thử gemini-3.8-flash, gemini-3.5-flash: không qua)",
+   "config_source": "DEF-R9.5-09: model theo chain + results trong tệp"
   }
  },
  "day": "2026-11-14",

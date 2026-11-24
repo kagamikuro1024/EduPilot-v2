@@ -53,12 +53,17 @@ export const usage = (items: unknown[] = [
 export const err = (status: number, code: string, extra: Record<string, unknown> = {}) => ({ status, body: { code, message: "m", trace_id: "b".repeat(32), ...extra } });
 
 type Step = Record<string, unknown>;
-export const script = (page: Page, s: Record<string, Step[]>) => page.request.post(`${API}/__ctl/script`, { data: s });
+// P-11-45: mỗi trang mở bằng `openLlm` có nhãn chủ kịch bản; máy chủ giả chỉ đếm lượt cùng nhãn (không bị lượt của spec khác chạy song song làm lệch bước).
+const owners = new WeakMap<Page, string>();
+const ownerHeader = (page: Page): Record<string, string> => (owners.has(page) ? { "x-e2e-owner": owners.get(page)! } : {});
+export const script = (page: Page, s: Record<string, Step[]>) => page.request.post(`${API}/__ctl/script`, { data: s, headers: ownerHeader(page) });
 export const reset = (page: Page) => page.request.post(`${API}/__ctl/reset`);
 export type Entry = { t: number; method: string; path: string; search: string; headers: Record<string, string>; body: string };
 export const getLog = async (page: Page, path?: string): Promise<Entry[]> => {
   const j = (await (await page.request.get(`${API}/__ctl/log`)).json()) as { log: Entry[] };
-  return path ? j.log.filter((l) => l.path === path) : j.log;
+  const mine = owners.get(page);
+  const log = mine ? j.log.filter((l) => l.headers["x-e2e-owner"] === mine) : j.log;
+  return path ? log.filter((l) => l.path === path) : log;
 };
 
 // Decision model (SRS FEAT-decision-model 6): GET /admin/llm/decision và danh sách lớp theo cổng.
@@ -93,6 +98,8 @@ export const base = (over: Record<string, Step[]> = {}): Record<string, Step[]> 
 
 /** Mở /settings/llm bằng phiên đăng nhập thật giả lập (refresh → JWT của `role`). `scripts` ghi đè phản hồi mặc định. */
 export async function openLlm(page: Page, role: "ADMIN" | "TEACHER", scripts: Record<string, Step[]> = {}) {
+  owners.set(page, `llm-${Math.random().toString(36).slice(2)}-${Date.now()}`);
+  await page.setExtraHTTPHeaders({ "x-e2e-owner": owners.get(page)! });
   await reset(page);
   await script(page, base(scripts));
   const calls = await asJwt(page, role, { email: role === "ADMIN" ? "admin@ptit.edu.vn" : "gv@ptit.edu.vn" });

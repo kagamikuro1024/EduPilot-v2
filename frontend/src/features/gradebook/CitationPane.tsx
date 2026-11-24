@@ -7,8 +7,8 @@ import s from "./GradeScheme.module.css";
 
 const squash = (t: string) => t.replace(/\s+/g, " ").trim();
 
-/** Trang tài liệu nguồn với đoạn trích được nhấn mạnh. Không tìm thấy nguyên văn thì hiện đoạn trích riêng (trích dẫn do máy chủ đã kiểm theo trang). */
-export function CitationPane({ course, docId, title, cite }: { course: string; docId?: string; title?: string; cite: Citation | null }) {
+/** Trang tài liệu nguồn với đoạn trích được nhấn mạnh. Không tìm thấy nguyên văn thì hiện đoạn trích riêng (trích dẫn do máy chủ đã kiểm theo trang). `removed`: tài liệu đã bị xoá (còn tiêu đề, hết id) → «Tài liệu nguồn đã gỡ». */
+export function CitationPane({ course, docId, title, removed = false, cite }: { course: string; docId?: string; title?: string; removed?: boolean; cite: Citation | null }) {
   const pages = useDocPages(course, docId);
   const preview = useDocPreview(course, docId).data;
   const text = cite ? pages.data?.[cite.page] : undefined;
@@ -21,6 +21,7 @@ export function CitationPane({ course, docId, title, cite }: { course: string; d
         <>
           <p className={s.paneMeta}>
             <span data-part="citation-page">{`Trang ${cite.page}`}</span>
+            {removed && " · Tài liệu nguồn đã gỡ"}
             {preview && (
               <>
                 {" · "}

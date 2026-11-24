@@ -14,6 +14,7 @@ import (
 	"sync"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -217,6 +218,28 @@ func TestLibrarySearchByChunkText(t *testing.T) {
 	require.Equal(t, []string{"Slide 1"}, titles(got))
 	require.Contains(t, got[0].Snippet, "Dijkstra")
 	require.False(t, got[0].CanAskAI, "chưa nhúng đoạn nào")
+}
+
+// TestLibrarySnippetAroundKeyword — DEF-R6-P3 (TC-P8-02-24): đoạn trích chứa từ khoá (cửa sổ quanh chỗ khớp), không phải 160 ký tự đầu của đoạn.
+func TestLibrarySnippetAroundKeyword(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	long := strings.Repeat("Lời mở đầu của chương, chưa nói gì về quy định cụ thể. ", 8) + "Quy định về cảnh báo học vụ áp dụng cho mọi sinh viên. " + strings.Repeat("Phần kết nói thêm vài ý chung chung. ", 4)
+	f.doc(docOpt{title: "Quy chế", chunks: []string{long}, noEmbed: true})
+	got := f.list(library.Filter{Q: "cảnh báo học vụ"})
+	require.Len(t, got, 1)
+	require.Contains(t, got[0].Snippet, "cảnh báo học vụ")
+	require.LessOrEqual(t, utf8.RuneCountInString(got[0].Snippet), 165)
+}
+
+// TestLibrarySnippetPrefersFullPhrase — DEF-R6-P3 (TC-P8-02-24, vòng 2): hai đoạn khớp, đoạn đầu chỉ có các âm tiết rời; đoạn sau chứa nguyên cụm → trích đoạn sau.
+func TestLibrarySnippetPrefersFullPhrase(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	f.doc(docOpt{title: "Quy chế", chunks: []string{"Cảnh báo chung cho kỳ thi. Quy chế học vụ nói ở chương sau.", "Quy định về cảnh báo học vụ áp dụng cho mọi sinh viên."}, noEmbed: true})
+	got := f.list(library.Filter{Q: "cảnh báo học vụ"})
+	require.Len(t, got, 1)
+	require.Contains(t, got[0].Snippet, "cảnh báo học vụ")
 }
 
 // TestLibraryOnlyVisibleReady — AC9: chỉ READY + visible_to_students.

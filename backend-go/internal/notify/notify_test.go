@@ -332,6 +332,27 @@ func TestCoalesceZeroMarksRead(t *testing.T) {
 	require.Zero(t, r.count(`select count(*) from notifications where user_id = $1`, other))
 }
 
+// DEF-R7-02 (TC-P4-02-14): số về 0 rồi có ticket mới với số ≤ số cũ → vẫn là dòng chưa đọc + phát khung (số đếm bắt đầu lại từ 0, không so với số cũ).
+func TestCoalesceNewAfterZeroEvenIfNotAboveOld(t *testing.T) {
+	r := newRig(t)
+	gv := r.user("GV", "TEACHER")
+	var c counter
+	c.n.Store(1)
+	require.NoError(t, r.svc.Aggregate(t.Context(), r.agg(&c, gv)))
+	id, _, _ := r.row(gv)
+	r.exec(`update notifications set read_at = now() where id = $1`, id)
+	c.n.Store(0)
+	require.NoError(t, r.svc.Aggregate(t.Context(), r.agg(&c, gv)))
+	before := len(r.pub.all())
+	c.n.Store(1)
+	require.NoError(t, r.svc.Aggregate(t.Context(), r.agg(&c, gv)))
+	gotID, title, read := r.row(gv)
+	require.False(t, read, "ticket mới sau khi hàng chờ về 0 → chưa đọc")
+	require.Equal(t, id, gotID)
+	require.Equal(t, "1 câu hỏi đang chờ giảng viên", title)
+	require.Len(t, r.pub.all(), before+1, "phát khung SSE")
+}
+
 // TestCoalesceParallelHandlers — hai handler song song, 50 lượt: số cuối = số ticket OPEN thật (đếm dưới khoá advisory).
 func TestCoalesceParallelHandlers(t *testing.T) {
 	r := newRig(t)

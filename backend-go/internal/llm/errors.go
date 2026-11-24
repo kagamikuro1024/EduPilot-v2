@@ -34,6 +34,8 @@ type ErrUnavailable struct {
 	Reason string
 	// Outage: lý do là hạ tầng nhà cung cấp (mạch mở, mạng, quá hạn, 5xx, 429), không phải đầu ra sai schema / sai khoá. Việc nền hoãn rồi thử lại thay vì tính lượt (P-11-23).
 	Outage bool
+	// BadOutput: mọi nhà cung cấp đã thử đều trả đầu ra sai định dạng / sai schema (không lỗi hạ tầng, không mạch mở): thử lại không đổi được kết quả, người gọi KHÔNG thử lại (DEF-R8-A1).
+	BadOutput bool
 }
 
 func (e *ErrUnavailable) Error() string { return "llm: không khả dụng: " + e.Reason }
@@ -43,8 +45,8 @@ func (e *ErrUnavailable) Is(target error) bool {
 	return target == ErrAllProvidersFailed && e.Reason == ReasonAllFailed
 }
 
-// allFailed là ErrAllProvidersFailed kèm cờ outage; errors.Is(err, ErrAllProvidersFailed) vẫn đúng.
-type allFailed struct{ outage bool }
+// allFailed là ErrAllProvidersFailed kèm cờ outage / badOutput; errors.Is(err, ErrAllProvidersFailed) vẫn đúng.
+type allFailed struct{ outage, badOutput bool }
 
 func (e *allFailed) Error() string        { return ErrAllProvidersFailed.Error() }
 func (e *allFailed) Is(target error) bool { return target == ErrAllProvidersFailed }

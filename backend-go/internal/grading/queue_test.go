@@ -216,6 +216,24 @@ func TestGradeAllEnqueuesOnlyUngraded(t *testing.T) {
 	require.Zero(t, n, "chưa XADD trước khi handler sau COMMIT chạy")
 }
 
+// TestXAddOnlyAfterCommit — DEF-R9S-03 (TC-P7-07-M4): XADD (Queue.Signal) chỉ chạy từ handler việc `grading.batch` và máy quét — tức SAU khi giao dịch nạp đã COMMIT.
+// Đường nạp (queue_api.go: Batches.enqueue) không được tự XADD: Batches không giữ Redis, nên một lời gọi Signal / Redis chen vào trước tx.Commit sẽ làm test này đỏ.
+// (Rig không nối Redis vào Batches nên đột biến «XADD trước COMMIT» không thể bị bắt bằng XLen; kiểm cấu trúc thay thế.)
+func TestXAddOnlyAfterCommit(t *testing.T) {
+	src, err := os.ReadFile("queue_api.go")
+	require.NoError(t, err)
+	body := string(src)
+	for _, banned := range []string{".Signal(", "XAdd", "redis."} {
+		require.NotContains(t, body, banned, "đường nạp (enqueue) không được tự XADD / dùng Redis: XADD chỉ ở handler sau COMMIT")
+	}
+	require.Less(t, strings.Index(body, "EnqueueTx("), strings.Index(body, "tx.Commit("), "việc ghi vào giao dịch trước, COMMIT sau")
+	for _, f := range []string{"queue.go"} {
+		q, err := os.ReadFile(f)
+		require.NoError(t, err)
+		require.Contains(t, string(q), "jobs.ErrDeferred", "handler batch trả ErrDeferred sau khi XADD (việc xong khi chấm xong)")
+	}
+}
+
 // TestGradeAllOnlyLatestVersion — AC7: sinh viên nộp lại thì chỉ phiên bản mới nhất được xếp.
 func TestGradeAllOnlyLatestVersion(t *testing.T) {
 	r := newQRig(t)

@@ -2,11 +2,16 @@ package db_test
 
 import (
 	"context"
+	"database/sql"
 	"io"
+	"io/fs"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/db"
@@ -67,7 +72,7 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.Equal(t, gooseRows, gooseRows2, "up lần hai phải là no-op")
 	require.NoError(t, conn.QueryRow(ctx,
 		`select version_id from goose_db_version where is_applied order by id desc limit 1`).Scan(&version))
-	require.Equal(t, 24, version) // 24: 10.8 thêm 00024_attendance_checkin theo SRS FEAT-attendance-selfcheck 5 (22 / 23: 10.x khác, xem lịch sử migrations); 21: 10.6 thêm 00021_grading_guidance theo SRS FEAT-grading-guidance 5, nhánh sprint/10.6-guidance
+	require.Equal(t, 29, version) // 29: DEF-R4-04 thêm 00029_users_created_idx (chỉ mục danh sách người dùng); 28: DEF-R10S-09 thêm 00028_forms_blob_purge (bản này đã quên nâng số, nên test đỏ ở HEAD trước 00029); 27: P-11-44 thêm 00027_llm_audit_rollup (bảng cộng gộp theo giờ của llm_audit, TC-01-13); 26: DEF-R4-01 thêm 00026_courses_class_code_ci (mã lớp không phân biệt hoa/thường); 25: sprint 11 thêm 00025_audit_log_indexes (US-P10-14); 24: 10.8 thêm 00024_attendance_checkin (SRS FEAT-attendance-selfcheck 5); 22: sprint 11 thêm 00022_llm_request_payloads (quan sát AI, P-11-1a); 21: 10.6 thêm 00021_grading_guidance theo SRS FEAT-grading-guidance 5, nhánh sprint/10.6-guidance
 
 	// down lùi về version 0: 5 bảng nền + 5 bảng llm_* biến mất, extension vector GIỮ LẠI.
 	require.NoError(t, db.Migrate(ctx, url, "down", io.Discard))
@@ -106,4 +111,44 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.Contains(t, out.String(), "00002_llm.sql")
 	require.Contains(t, out.String(), "00003_course_foundation.sql")
 	require.Contains(t, out.String(), "00004_auth_hardening.sql")
+}
+
+// P-11-48: DB đã áp 00024 / 00025… mà THIẾU 00022 (nhánh sprint đánh số 22 merge sau) → `up` áp 22 không lỗi, không đổi tên tệp.
+func TestMigrations_UpAppliesMissingOlder(t *testing.T) {
+	t.Parallel()
+	url := testutil.PostgresURL(t)
+	ctx := t.Context()
+
+	// dựng DB như thiếu 00022: áp mọi bản trừ 00022 bằng một cây tệp đã lọc
+	filtered := fstest.MapFS{}
+	require.NoError(t, fs.WalkDir(db.FS(), ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || strings.HasPrefix(d.Name(), "00022_") {
+			return err
+		}
+		b, rerr := fs.ReadFile(db.FS(), p)
+		filtered[p] = &fstest.MapFile{Data: b}
+		return rerr
+	}))
+	sqlDB, err := sql.Open("pgx", url)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = sqlDB.Close() })
+	prov, err := goose.NewProvider(goose.DialectPostgres, sqlDB, filtered)
+	require.NoError(t, err)
+	_, err = prov.Up(ctx)
+	require.NoError(t, err)
+
+	conn, err := pgx.Connect(ctx, url)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = conn.Close(context.WithoutCancel(ctx)) })
+	var has bool
+	require.NoError(t, conn.QueryRow(ctx, `select to_regclass('public.llm_request_payloads') is not null`).Scan(&has))
+	require.False(t, has, "tiền điều kiện: 00022 chưa áp")
+
+	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard), "up phải áp 00022 dù đã có phiên bản cao hơn")
+	require.NoError(t, conn.QueryRow(ctx, `select to_regclass('public.llm_request_payloads') is not null`).Scan(&has))
+	require.True(t, has, "00022 đã áp")
+	var applied int
+	require.NoError(t, conn.QueryRow(ctx, `select count(*) from goose_db_version where version_id = 22 and is_applied`).Scan(&applied))
+	require.Equal(t, 1, applied)
+	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard), "up lần hai là no-op")
 }

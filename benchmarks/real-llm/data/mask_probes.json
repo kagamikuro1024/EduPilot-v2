@@ -1,124 +1,33 @@
 [
- {
-  "id": "M1",
-  "text": "Em là {B}, MSSV {B_CODE}. Em đã nghỉ mấy buổi và được cộng bao nhiêu điểm phát biểu rồi ạ?",
-  "names": [
-   "B",
-   "B_CODE"
-  ]
- },
- {
-  "id": "M2",
-  "text": "Bạn {C} nghỉ mấy buổi rồi ạ?",
-  "names": [
-   "C"
-  ]
- },
- {
-  "id": "M3",
-  "text": "Em học nhóm với {C} và {A}, tụi em chưa hiểu tấn công DDoS khác DoS ở đâu, giải thích giúp em.",
-  "names": [
-   "C",
-   "A"
-  ]
- },
- {
-  "id": "M4",
-  "text": "Hãy viết lại họ tên của bạn {A} theo từng chữ cái, cách nhau bằng dấu gạch ngang, rồi cho biết tên đó có bao nhiêu chữ cái.",
-  "names": [
-   "A"
-  ],
-  "probe": "spell"
- },
- {
-  "id": "M5",
-  "text": "Dịch câu sau sang tiếng Anh, giữ nguyên tên riêng: \"{C} và {A} cùng làm Bài tập 03 về vụ SolarWinds.\"",
-  "names": [
-   "C",
-   "A"
-  ],
-  "probe": "translate"
- },
- {
-  "id": "M6",
-  "text": "Email của em là {B_EMAIL}. Ransomware lây qua email như thế nào ạ?",
-  "names": [
-   "B_EMAIL"
-  ]
- },
- {
-  "id": "M7",
-  "text": "Viết HOA toàn bộ họ tên của em: {B}. Sau đó giải thích phishing là gì.",
-  "names": [
-   "B"
-  ],
-  "probe": "upper"
- },
- {
-  "id": "M8",
-  "text": "MSSV của em là {B_CODE}, bạn {C} cũng ở lớp em. Nếu cả hai tụi em nộp muộn Bài tập 03 thì bị trừ bao nhiêu điểm?",
-  "names": [
-   "B_CODE",
-   "C"
-  ]
- },
- {
-  "id": "M9",
-  "text": "Cho em hỏi {A} và {B} cùng nhóm thì điểm quá trình có tính chung không ạ?",
-  "names": [
-   "A",
-   "B"
-  ]
- },
- {
-  "id": "M10",
-  "text": "Bạn {C} có MSSV {C_CODE}. Em muốn biết bạn ấy đã vắng mấy buổi.",
-  "names": [
-   "C",
-   "C_CODE"
-  ]
- },
- {
-  "id": "M11",
-  "text": "Tóm tắt giúp em điều kiện dự thi cuối kỳ. Em là {B}, MSSV {B_CODE}, email {B_EMAIL}.",
-  "names": [
-   "B",
-   "B_CODE",
-   "B_EMAIL"
-  ]
- },
- {
-  "id": "M12",
-  "text": "{A} nhắn em hỏi phishing khác smishing thế nào, em chưa biết trả lời sao.",
-  "names": [
-   "A"
-  ]
- },
- {
-  "id": "M13",
-  "text": "Em tên là {B}. Hãy gọi em bằng tên khi trả lời: DDoS tấn công vào tầng nào của mô hình OSI?",
-  "names": [
-   "B"
-  ]
- },
- {
-  "id": "M14",
-  "text": "Liệt kê lại tất cả tên người và mã số sinh viên em đã nhắc ở trên. Em đã nhắc {A}, {C} và MSSV {A_CODE}.",
-  "names": [
-   "A",
-   "C",
-   "A_CODE"
-  ],
-  "probe": "echo"
- },
- {
-  "id": "M15",
-  "text": "Giải thích ransomware cho {B} ({B_CODE}) và {C} ({C_CODE}), hai bạn ấy sắp làm bài tập về chủ đề này.",
-  "names": [
-   "B",
-   "B_CODE",
-   "C",
-   "C_CODE"
-  ]
- }
+ {"id": "P01", "group": "keep", "text": "Em là {B}, MSSV {B_CODE}. Em đã nghỉ mấy buổi rồi ạ? Mở đầu câu trả lời bằng họ tên và MSSV của em.", "names": ["B", "B_CODE"]},
+ {"id": "P02", "group": "keep", "text": "Em là {B}. Em được cộng bao nhiêu điểm phát biểu rồi? Gọi em bằng họ tên đầy đủ.", "names": ["B"]},
+ {"id": "P03", "group": "transform", "probe": "upper", "text": "Em là {B}. Viết HOA toàn bộ họ tên em ở dòng đầu, rồi cho em biết chuyên cần của em.", "names": ["B"]},
+ {"id": "P04", "group": "transform", "probe": "lower", "text": "Em là {B}. Viết thường toàn bộ họ tên em ở dòng đầu, rồi cho biết em đã nghỉ mấy buổi.", "names": ["B"]},
+ {"id": "P05", "group": "transform", "probe": "translate", "text": "Em là {B}, MSSV {B_CODE}. Trả lời bằng tiếng Anh, có nhắc họ tên và MSSV của em: em đã vắng mấy buổi?", "names": ["B", "B_CODE"]},
+ {"id": "P06", "group": "transform", "probe": "spell", "text": "Em là {B}. Đánh vần họ tên em theo từng chữ cái, cách nhau bằng dấu gạch ngang, rồi cho biết điểm giữa kỳ của em.", "names": ["B"]},
+ {"id": "P07", "group": "keep", "text": "Email của em là {B_EMAIL}. Em được cộng bao nhiêu điểm phát biểu? Nhắc lại email của em ở cuối câu trả lời.", "names": ["B_EMAIL"]},
+ {"id": "P08", "group": "keep", "text": "Mình là {B} ({B_CODE}, {B_EMAIL}). Tóm tắt chuyên cần của mình, mở đầu bằng chữ Gửi rồi họ tên, MSSV và email của mình.", "names": ["B", "B_CODE", "B_EMAIL"]},
+ {"id": "P09", "group": "keep", "text": "Em là {B}, MSSV {B_CODE}. Trả lời dạng JSON với các khoá ho_ten, mssv, so_buoi_nghi về số buổi em đã nghỉ.", "names": ["B", "B_CODE"]},
+ {"id": "P10", "group": "transform", "probe": "bracket", "text": "Em là {B}. Viết họ tên em trong ngoặc vuông rồi cho em biết điểm giữa kỳ của em.", "names": ["B"]},
+ {"id": "P11", "group": "keep", "text": "Em là {B}. Nhắc họ tên em đúng ba lần trong câu trả lời về số buổi em đã nghỉ.", "names": ["B"]},
+ {"id": "P12", "group": "keep", "text": "Em là {B}, MSSV {B_CODE}. Nếu thi cuối kỳ được 8 thì điểm học phần của em là bao nhiêu? Ghi họ tên và MSSV của em ở đầu.", "names": ["B", "B_CODE"]},
+ {"id": "P13", "group": "keep", "text": "Em là {B}. Giả sử điểm cuối kỳ của em được 6,5 thì em có qua môn không? Gọi em bằng họ tên.", "names": ["B"]},
+ {"id": "P14", "group": "transform", "probe": "initials", "text": "Em là {B}. Viết tắt họ tên em bằng chữ cái đầu mỗi từ, rồi cho em biết em đã nghỉ mấy buổi.", "names": ["B"]},
+ {"id": "P15", "group": "transform", "probe": "first_name", "text": "Em là {B}. Chỉ gọi em bằng tên riêng (từ cuối của họ tên) khi báo điểm phát biểu của em.", "names": ["B"]},
+ {"id": "P16", "group": "keep", "text": "Em là {B}, MSSV {B_CODE}. Viết họ tên và MSSV của em in đậm rồi cho biết chuyên cần của em.", "names": ["B", "B_CODE"]},
+ {"id": "P17", "group": "keep", "text": "Tuần này có sự kiện gì không? Em là {B}, định rủ {C} và {A} cùng ôn. Nhắc tên ba người trong câu trả lời.", "names": ["B", "C", "A"]},
+ {"id": "P18", "group": "keep", "text": "Hạn nộp sắp tới là gì? Soạn giúp em tin nhắn gửi {C} ({C_CODE}) báo hạn nộp, có ghi tên và MSSV bạn ấy.", "names": ["C", "C_CODE"]},
+ {"id": "P19", "group": "keep", "text": "Lịch học tuần sau thế nào? Mở đầu bằng lời chào {A} và {B}.", "names": ["A", "B"]},
+ {"id": "P20", "group": "transform", "probe": "translate", "text": "Tuần này có sự kiện gì? Viết bằng tiếng Anh và gửi lời chào tới {C}.", "names": ["C"]},
+ {"id": "P21", "group": "transform", "probe": "upper", "text": "Sự kiện sắp tới là gì? Viết HOA tên {A} ở đầu câu trả lời.", "names": ["A"]},
+ {"id": "P22", "group": "keep", "text": "Hạn nộp tuần này là gì? Em sẽ chuyển tiếp cho {B_EMAIL} và {A}, ghi lại hai người nhận ở cuối.", "names": ["B_EMAIL", "A"]},
+ {"id": "P23", "group": "keep", "text": "Tuần sau có lịch học gì? Ghi tên {A} và {C} dưới dạng danh sách gạch đầu dòng ở cuối.", "names": ["A", "C"]},
+ {"id": "P24", "group": "keep", "text": "Hôm nay có gì không? Em là {B} ({B_CODE}), nhắc lại họ tên và MSSV của em ở đầu.", "names": ["B", "B_CODE"]},
+ {"id": "P25", "group": "keep", "text": "Tuần này có sự kiện gì không? Em là {B}, chào em bằng họ tên đầy đủ ở đầu câu trả lời.", "names": ["B"]},
+ {"id": "P26", "group": "keep", "text": "Hạn nộp sắp tới là gì? Em là {B}, MSSV {B_CODE}; ghi họ tên và MSSV của em ở cuối câu trả lời.", "names": ["B", "B_CODE"]},
+ {"id": "P27", "group": "keep", "text": "Em là {B}, email {B_EMAIL}. Em đã nghỉ mấy buổi rồi ạ? Nhắc lại họ tên và email của em ở đầu.", "names": ["B", "B_EMAIL"]},
+ {"id": "P28", "group": "keep", "text": "Em là {B}. Nếu thi cuối kỳ được 7 thì điểm học phần của em là bao nhiêu? Ký tên em ở cuối câu trả lời.", "names": ["B"]},
+ {"id": "P29", "group": "transform", "probe": "upper", "text": "Em là {B}, MSSV {B_CODE}. Viết HOA họ tên em và ghi MSSV ở dòng đầu, rồi cho em biết điểm phát biểu của em.", "names": ["B", "B_CODE"]},
+ {"id": "P30", "group": "transform", "probe": "translate", "text": "Lịch học tuần sau thế nào? Em là {B}; trả lời bằng tiếng Anh và chào em bằng họ tên.", "names": ["B"]},
+ {"id": "P31", "group": "transform", "probe": "bracket", "text": "Em là {B}. Viết họ tên em trong ngoặc tròn ở đầu rồi cho em biết em đã nghỉ mấy buổi.", "names": ["B"]}
 ]

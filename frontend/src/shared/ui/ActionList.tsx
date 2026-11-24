@@ -76,7 +76,7 @@ export function ActionRow({
   return (
     <li className={[s.row, selected ? s.selected : ""].join(" ")} {...data}>
       {href ? (
-        <Link href={href} className={s.main} onClick={(e) => redThread && markRedThread(e.currentTarget)}>
+        <Link href={href} prefetch={false} className={s.main} onClick={(e) => redThread && markRedThread(e.currentTarget)}>
           {body}
         </Link>
       ) : onSelect ? (

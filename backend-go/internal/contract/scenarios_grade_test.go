@@ -449,7 +449,8 @@ func (r *runner) gradeScenarios(x examRig) {
 		r.t.Fatalf("công bố cột: %v", err)
 	}
 	r.must(whatIf(x.sv, `{"final_exam_score":"8,0"}`), 200)
-	r.must(whatIf(x.sv, `{"target_letter":"B"}`), 200)
+	r.must(whatIf(x.sv, `{"target_letter":"A"}`), 200)
+	r.must(whatIf(x.sv, `{"target_letter":"B"}`), 422) // P-11-55: thang của công thức thử chỉ có A, F — «B» ngoài thang
 	r.must(whatIf(x.sv, `{"final_exam_score":"11"}`), 422)
 	r.must(whatIf(x.sv, `{"final_exam_score":"8.333"}`), 422)
 	r.must(whatIf(x.sv, `{}`), 422)

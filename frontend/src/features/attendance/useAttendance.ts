@@ -91,6 +91,9 @@ export function useAttendance({ course, userId, grid, blank = false }: { course:
         if (complete) {
           completeRef.current = false;
           setDoneAt(res.data.done_at);
+          const now = new Map(res.data.records.map((r) => [r.student_id, r.status]));
+          setCompleted({ total: grid.students.length, absent: grid.students.filter((x) => (now.get(x.id) ?? statusFor(x.id)) === "ABSENT").length });
+          setChangedSinceDone(false);
         }
         setFatal(null);
       } catch (e) {
@@ -136,7 +139,11 @@ export function useAttendance({ course, userId, grid, blank = false }: { course:
         () => Date.now(),
       ),
   );
-  useEffect(() => queue.setSender(sender)); // mỗi lần dựng lại: hàm gửi luôn đọc phiên bản / cờ mới nhất qua ref
+  const senderRef = useRef(sender);
+  useEffect(() => {
+    senderRef.current = sender;
+    queue.setSender(sender);
+  }); // mỗi lần dựng lại: hàm gửi luôn đọc phiên bản / cờ mới nhất qua ref
   const [qstate, setQState] = useState<QueueState>(queue.state);
   useEffect(
     () =>
@@ -151,7 +158,10 @@ export function useAttendance({ course, userId, grid, blank = false }: { course:
   // còn phần chưa gửi từ lần trước (tải lại / sập trình duyệt): gửi tiếp; rời màn / đổi buổi: gửi ngay phần đang chờ
   useEffect(() => {
     if (queue.state.pending > 0) queue.resume();
-    const on = () => queue.setOnline(true);
+    const on = () => {
+      queue.setOnline(true);
+      if (completeRef.current && queue.state.pending === 0) void senderRef.current([]); // «Lưu điểm danh» bấm lúc offline không còn gì trong hàng: gửi complete:true khi có mạng
+    };
     const off = () => queue.setOnline(false);
     const vis = () => document.visibilityState === "visible" && queue.resume();
     window.addEventListener("online", on);
@@ -259,20 +269,13 @@ export function useAttendance({ course, userId, grid, blank = false }: { course:
     [conflicts, queue, setBase],
   );
 
-  /** `Lưu điểm danh`: gửi ngay mọi thay đổi đang chờ cùng `complete:true`. */
+  /** `Lưu điểm danh`: gửi ngay mọi thay đổi đang chờ cùng `complete:true`; offline thì xếp hàng, có mạng tự gửi (AC13). */
   const complete = useCallback(async () => {
     completeRef.current = true;
     if (queue.state.pending > 0) await queue.flush();
-    if (completeRef.current && queue.state.pending === 0 && queue.state.status !== "stopped") {
-      const r = await sender([]);
-      if (!r.ok) return;
-    }
-    if (!completeRef.current) {
-      setCompleted({ total: grid.students.length, absent: grid.students.filter((s) => currentStatus(s.id) === "ABSENT").length });
-      setChangedSinceDone(false);
-    }
+    else if (queue.state.status !== "stopped") await sender([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queue, grid.students, currentStatus]);
+  }, [queue, grid.students]);
 
   /** Sau khi đánh vắng số còn lại: mở lại hàng đợi đã dừng ở 422 để `Lưu điểm danh` chạy tiếp. */
   const clearUnresolved = useCallback(() => {

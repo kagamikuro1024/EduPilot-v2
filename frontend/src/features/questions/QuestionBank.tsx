@@ -3,7 +3,8 @@
 import { Plus } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ApiErrorNotice, useCursorList } from "@/shared/data";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient, ApiErrorNotice, useCursorList } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
 import { Button, type Column, DataTable, Drawer, EmptyState, Field, InlineNotice, Input, MenuList, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
@@ -90,6 +91,9 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
   const list = useCursorList<QuestionRow>(qKey(courseId, "list", status, type, difficulty, origin, topic, q), qPath(courseId), {
     limit: 30,
     query: { review_status: status || undefined, type: type || undefined, difficulty: difficulty || undefined, origin: origin || undefined, topic: topic || undefined, q: q || undefined } });
+  // «N câu chờ duyệt» là của CẢ lớp, không theo trang đã tải: một lượt lấy tối đa 100 câu chờ duyệt (còn nữa thì «100+»).
+  const pend = useQuery({ queryKey: qKey(courseId, "pending"), queryFn: async ({ signal }) => (await apiClient.get<{ items: unknown[]; next_cursor: string | null }>(qPath(courseId), { signal, query: { review_status: "PENDING", limit: 100 } })).data });
+  const refreshAll = () => { void list.refetch(); void pend.refetch(); };
   const topics = useMemo(() => [...new Set(list.items.map((r) => r.topic))].sort((a, b) => a.localeCompare(b, "vi")), [list.items]);
   const filtered = Boolean(status || type || difficulty || origin || topic || q);
 
@@ -121,17 +125,18 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
     setOrigin("");
   };
   const rows = useMemo(() => list.items.filter((r) => !hidden.has(r.id)), [list.items, hidden]);
-  const pending = rows.filter((r) => r.review_status === "PENDING").length;
+  const pending = pend.data ? `${pend.data.items.length}${pend.data.next_cursor ? "+" : ""}` : null;
+  const hasPending = pend.data ? pend.data.items.length > 0 : false;
   return (
     <Page kind="work">
       <PageHeader
         title="Ngân hàng câu hỏi"
-        meta={[pending > 0 ? <span key="m0">{pending} câu chờ duyệt</span> : undefined]}
+        meta={[hasPending ? <span key="m0">{pending} câu chờ duyệt</span> : undefined]}
         primary={{ label: "Tạo câu hỏi", icon: <Plus aria-hidden />, menu: (close) => <CreateMenu close={close} pick={setCreating} /> }}
       />
       {undo.node}
-      {creating === "EXTRACT" && <ExtractPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { void list.refetch(); undo.push(n > 0 ? `Đã trích ${n} câu · đang chờ bạn duyệt` : "Chưa trích được câu nào. Xem lý do bên dưới."); }} />}
-      {creating === "GENERATE" && <GeneratePanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { void list.refetch(); undo.push(n > 0 ? `Đã sinh ${n} câu · đang chờ bạn duyệt` : "Chưa sinh được câu nào. Xem lý do bên dưới."); }} />}
+      {creating === "EXTRACT" && <ExtractPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { refreshAll(); undo.push(n > 0 ? `Đã trích ${n} câu · đang chờ bạn duyệt` : "Chưa trích được câu nào. Xem lý do bên dưới."); }} />}
+      {creating === "GENERATE" && <GeneratePanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { refreshAll(); undo.push(n > 0 ? `Đã sinh ${n} câu · đang chờ bạn duyệt` : "Chưa sinh được câu nào. Xem lý do bên dưới."); }} />}
       {creating === "AI" && <SuggestPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { setCreating(null); undo.push(n > 0 ? `AI đã soạn ${n} câu nháp · đang chờ bạn duyệt` : "AI chưa có câu nào hợp lệ — thử đổi chủ đề hoặc thêm văn bản nguồn"); }} />}
 
       {list.isError && list.items.length === 0 ? (
@@ -147,7 +152,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
         <Field label="Nguồn">{(id) => <Select id={id} value={origin} onChange={(e) => setOrigin(e.target.value)}><option value="">Tất cả</option><option value="MANUAL">Soạn tay</option><option value="AI_DRAFT">AI gợi ý</option><option value="EXTRACTED">Trích từ đề</option><option value="GENERATED">Sinh từ tài liệu</option></Select>}</Field>
       </Toolbar>
 
-      {sel.size > 0 && <BulkBar courseId={courseId} selected={sel} topics={topics} onSelected={setSel} onFailed={setFailed} onHide={setHidden} onChanged={() => void list.refetch()} undo={undo} />}
+      {sel.size > 0 && <BulkBar courseId={courseId} selected={sel} topics={topics} onSelected={setSel} onFailed={setFailed} onHide={setHidden} onChanged={refreshAll} undo={undo} />}
 
       <PageState
         query={list}
@@ -187,7 +192,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
             onCancel={() => setCreating(null)}
             onSaved={(d) => {
               setCreating(null);
-              void list.refetch();
+              refreshAll();
               setOpenId(d.id);
               undo.push(`Đã tạo câu hỏi "${d.title}" ở trạng thái Nháp`);
             }}
@@ -205,7 +210,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
           onClose={() => setOpenId(null)}
           onOpen={setOpenId}
           onChanged={(note) => {
-            void list.refetch();
+            refreshAll();
             if (note) undo.push(note);
           }}
         />

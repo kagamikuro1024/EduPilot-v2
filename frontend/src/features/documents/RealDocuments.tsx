@@ -39,6 +39,14 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
 
   const rows = useMemo(() => list.items.map((d) => ({ ...d, ...patched[d.id] })), [list.items, patched]);
 
+  // DEF-R6-U11: lấy lại khi tab đang hiện — 5 s khi còn hàng QUEUED / PROCESSING, 30 s khi rỗi (hàng do nơi khác tải lên).
+  // ponytail: poll 30 s khi rỗi; đổi sang SSE document.changed nếu nhiều người mở.
+  const busy = rows.some((d) => d.status === "QUEUED" || d.status === "PROCESSING");
+  useEffect(() => {
+    const t = setInterval(() => { if (document.visibilityState === "visible") refresh(); }, busy ? 5000 : 30000);
+    return () => clearInterval(t);
+  }, [busy, refresh]);
+
   // ---- tải lên: tối đa 3 tệp song song --------------------------------------------------------------------------------------------------------
   const set = (key: string, p: Partial<Upload>) => setUploads((u) => u.map((x) => (x.key === key ? { ...x, ...p } : x)));
   const run = useCallback(
@@ -109,6 +117,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
         <div>
           <button type="button" className={r.name} onClick={() => setOpen(d)}>{d.title}</button>
           {d.shared_from && <div className={r.meta}>Chia sẻ từ {d.shared_from}</div>}
+          {d.type === "ANSWER_KEY" && <><div className={r.meta}>Không hiển thị cho sinh viên</div><div className={r.meta}>Không dùng cho AI của sinh viên</div></>}
         </div>
       ),
     },

@@ -92,6 +92,28 @@ test("attendance checkin: cửa sổ đang mở — dòng «Đang mở · k/n ·
   await expect.poll(() => calls.clear.length).toBe(1);
 });
 
+// DEF-R10.8-03 (TC-AS08-20, luật 14): «Đóng» lỗi rồi tự thử lại là CÙNG một thao tác ⇒ cùng Idempotency-Key tới khi thành công.
+test("attendance checkin: «Đóng» lỗi 503 rồi thử lại — mọi lượt POST …/close dùng MỘT Idempotency-Key; xong thì «Đã ghi»", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const list = [mark(1, "PRESENT"), mark(2, "PRESENT"), ...students(30).slice(2).map((s, i) => student(i + 3))];
+  const keys: string[] = [];
+  await page.route(`${BASE}/checkin-windows/${WID}/close`, (r) => {
+    keys.push(r.request().headers()["idempotency-key"] ?? "");
+    if (keys.length < 3) return r.fulfill(err(503, "NOT_READY"));
+    return r.fulfill(json({ window: win({ closed_at: new Date(NOW).toISOString() }), written: { present: 2, late: 0 }, unchecked: 28, skipped_existing: 0 }));
+  });
+  await setup(page, context, { windows: [win()], rows: [crow(1)], grid: gridBody(2, list) });
+  await page.getByRole("button", { name: "Đóng", exact: true }).click();
+  await expect(page.locator("[data-part=close-queued]")).toContainText("Chưa đóng");
+  await page.evaluate(() => window.dispatchEvent(new Event("online"))); // lần tự thử lại thứ nhất (vẫn 503)
+  await expect.poll(() => keys.length).toBe(2);
+  await expect(page.locator("[data-part=close-queued]")).toContainText("Chưa đóng");
+  await page.evaluate(() => window.dispatchEvent(new Event("online"))); // lần thứ hai: 200
+  await expect.poll(() => keys.length).toBe(3);
+  expect(keys.every((k) => k.length >= 8)).toBe(true);
+  expect(new Set(keys).size, `khoá: ${keys.join(", ")}`).toBe(1);
+});
+
 test("attendance checkin: cửa sổ đã đóng — «Đã ghi a có mặt · b muộn · u chưa điểm danh», số đầu người, «Đánh vắng u SV» qua xác nhận", async ({ page, context }, info) => {
   desktopOnly(info);
   const list = [mark(1, "PRESENT"), mark(2, "LATE"), ...students(30).slice(2).map((s, i) => student(i + 3))];

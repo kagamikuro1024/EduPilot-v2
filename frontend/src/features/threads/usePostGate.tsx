@@ -63,7 +63,7 @@ export function usePostGate<T>(o: {
         },
         () => undefined,
       );
-    }, 800);
+    }, suggest ? 600 : 800); // gợi ý «đã xác nhận» đi sau precheck: debounce 600 ms (US-GD-08 AC1); không gợi ý thì giữ 800 ms (SRS 4.9)
     return () => {
       clearTimeout(t);
       c.abort();

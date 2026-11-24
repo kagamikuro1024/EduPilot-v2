@@ -1,7 +1,7 @@
 // Command regress: chạy lại ca hồi quy chấm bài (FEAT-grading-guidance M2) — CÔNG CỤ VẬN HÀNH ở môi trường đo, không phải service thường trực, không nằm trong image.
 //
-//	regress run    --course <id> [--limit N] [--baseline benchmarks/guidance/baseline.json] [--write-baseline path] [--e2]
-//	regress export --course <id> --out /duong/dan/ngoai/repo.jsonl      (mặc định TỪ CHỐI: REGRESSION_EXPORT_ALLOWED=false)
+//	regress run    --assignment <id> | --course <id> [--limit N] [--baseline benchmarks/guidance/baseline.json] [--write-baseline path] [--e2]
+//	regress export --course <id> --out /duong/dan/ngoai/repo.jsonl --actor <email ADMIN>      (mặc định TỪ CHỐI: REGRESSION_EXPORT_ALLOWED=false)
 //
 // `run` đọc ca + văn bản bài NGAY TRONG DB, chấm lại qua cổng LLM (9router ở môi trường đo) với lưu ý ở phiên bản HIỆN HÀNH của bài tập, in MAE / lệch / số ca xấu đi,
 // rồi so với baseline: «Có lùi» → thoát 1. CI không chạy lệnh này (cần stack test + LLM).
@@ -24,6 +24,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
@@ -71,6 +72,7 @@ func runExport(args []string, getenv func(string) string, stdout, stderr io.Writ
 	fs.SetOutput(stderr)
 	course := fs.String("course", "", "id lớp")
 	out := fs.String("out", "", "tệp JSONL đầu ra (đường dẫn tuyệt đối, NGOÀI repo)")
+	actor := fs.String("actor", "", "email quản trị viên (ADMIN) chịu trách nhiệm lần xuất; ghi vào audit_log")
 	if fs.Parse(args) != nil {
 		return 2
 	}
@@ -83,6 +85,10 @@ func runExport(args []string, getenv func(string) string, stdout, stderr io.Writ
 		say(stderr, "--out phải nằm NGOÀI thư mục repo đang chạy")
 		return 2
 	}
+	if strings.TrimSpace(*actor) == "" {
+		say(stderr, "cần --actor <email ADMIN> (ghi vào audit_log: ai xuất)")
+		return 2
+	}
 	ctx := context.Background()
 	d, err := connect(ctx, getenv, false)
 	if err != nil {
@@ -90,7 +96,12 @@ func runExport(args []string, getenv func(string) string, stdout, stderr io.Writ
 		return 1
 	}
 	defer d.close(ctx)
-	n, err := exportCases(ctx, d, cid, *out)
+	adminID, err := resolveAdmin(ctx, store.New(d.pool), *actor)
+	if err != nil {
+		say(stderr, err)
+		return 3
+	}
+	n, err := exportCases(ctx, d, cid, adminID, *out)
 	if err != nil {
 		say(stderr, err)
 		return 1
@@ -107,7 +118,19 @@ type exportLine struct {
 	Text      string         `json:"text"` // đã qua privacy.Detect + Redact
 }
 
-func exportCases(ctx context.Context, d *deps, course uuid.UUID, out string) (int, error) {
+// resolveAdmin tra email → user_id; chỉ ADMIN được xuất (CLI không có phiên: --actor là «ai» của audit_log).
+func resolveAdmin(ctx context.Context, q *store.Queries, email string) (uuid.UUID, error) {
+	u, err := q.GetUserByEmail(ctx, auth.NormalizeEmail(email))
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("--actor %q: không tìm thấy tài khoản", email)
+	}
+	if u.Role != store.UserRoleADMIN {
+		return uuid.Nil, fmt.Errorf("--actor %q: không phải ADMIN", email)
+	}
+	return u.ID, nil
+}
+
+func exportCases(ctx context.Context, d *deps, course, actor uuid.UUID, out string) (int, error) {
 	q := store.New(d.pool)
 	rows, err := q.RegressionRunCases(ctx, store.RegressionRunCasesParams{CourseID: course, PageLimit: 5000})
 	if err != nil {
@@ -140,7 +163,7 @@ func exportCases(ctx context.Context, d *deps, course uuid.UUID, out string) (in
 			return 0, fmt.Errorf("ghi: %w", err)
 		}
 	}
-	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &course, Entity: "grading_regression_cases", EntityID: course.String(), Action: "regress.export", After: mustJSON(map[string]any{"cases": len(rows)})}); err != nil {
+	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &course, ActorID: &actor, Entity: "grading_regression_cases", EntityID: course.String(), Action: "regress.export", After: mustJSON(map[string]any{"cases": len(rows)})}); err != nil {
 		return 0, fmt.Errorf("audit: %w", err)
 	}
 	return len(rows), nil
@@ -201,7 +224,9 @@ type Report struct {
 	MAE     string `json:"mae"`     // trung bình |điểm AI mới − điểm giảng viên|
 	Bias    string `json:"bias"`    // trung bình có dấu (AI mới − giảng viên)
 	OldMAE  string `json:"old_mae"` // trung bình |điểm AI lúc đó − điểm giảng viên|
-	Worse   int    `json:"worse"`   // số ca AI mới xa giảng viên hơn lúc đó
+	Worse   int    `json:"worse"`   // số ca (tiêu chí) AI mới xa giảng viên hơn lúc đó
+	Better  int    `json:"better"`  // số ca AI mới gần giảng viên hơn lúc đó
+	Flipped int    `json:"flipped"` // số ca vốn đúng (|Δ| ≤ 0,25) nay sai > 0,5 (US-GD-07 AC4)
 	Skipped int    `json:"skipped"` // ca bỏ qua (rubric đã đổi / chấm lỗi)
 }
 
@@ -214,12 +239,20 @@ func compare(ps []pair, skipped int) Report {
 		return r
 	}
 	var mae, bias, old decimal.Decimal
+	flipRight, flipWrong := decimal.RequireFromString("0.25"), decimal.RequireFromString("0.5") // «tiêu chí vốn đúng nay sai» (US-GD-07 AC4)
 	for _, p := range ps {
 		mae = mae.Add(p.now.Sub(p.teacher).Abs())
 		bias = bias.Add(p.now.Sub(p.teacher))
 		old = old.Add(p.old.Sub(p.teacher).Abs())
-		if p.now.Sub(p.teacher).Abs().GreaterThan(p.old.Sub(p.teacher).Abs()) {
+		dn, do := p.now.Sub(p.teacher).Abs(), p.old.Sub(p.teacher).Abs()
+		switch {
+		case dn.GreaterThan(do):
 			r.Worse++
+		case dn.LessThan(do):
+			r.Better++
+		}
+		if do.LessThanOrEqual(flipRight) && dn.GreaterThan(flipWrong) {
+			r.Flipped++
 		}
 	}
 	n := decimal.NewFromInt(int64(len(ps)))
@@ -227,8 +260,11 @@ func compare(ps []pair, skipped int) Report {
 	return r
 }
 
-// regressed: «Có lùi» khi MAE tăng quá maxRel so với baseline, hoặc |lệch TB| xấu thêm quá 0,20 (SRS §9).
+// regressed: «Có lùi» khi có tiêu chí vốn đúng nay sai (AC4), MAE tăng quá maxRel so với baseline, hoặc |lệch TB| xấu thêm quá 0,20 (SRS §9).
 func regressed(now, base Report, maxRel float64) (bool, string) {
+	if now.Flipped > 0 {
+		return true, fmt.Sprintf("%d tiêu chí vốn đúng (|Δ| ≤ 0,25) nay sai > 0,5", now.Flipped)
+	}
 	m, b := decimal.RequireFromString(now.MAE), decimal.RequireFromString(base.MAE)
 	limit := b.Mul(decimal.NewFromFloat(1 + maxRel))
 	if m.GreaterThan(limit) {
@@ -241,10 +277,20 @@ func regressed(now, base Report, maxRel float64) (bool, string) {
 	return false, ""
 }
 
+// runAllowed: `run` chỉ chạy ở môi trường đo — REGRESSION_RUN_ALLOWED phải là "true" tường minh (CLI không có phiên người dùng; người vận hành môi trường đo là ADMIN).
+func runAllowed(getenv func(string) string) bool {
+	return strings.EqualFold(strings.TrimSpace(getenv("REGRESSION_RUN_ALLOWED")), "true")
+}
+
 func runRun(args []string, getenv func(string) string, stdout, stderr io.Writer) int {
+	if !runAllowed(getenv) {
+		say(stderr, "run bị từ chối: REGRESSION_RUN_ALLOWED=false (chỉ chạy ở môi trường đo, do quản trị viên; lệnh đọc văn bản bài của sinh viên ngay trong DB)")
+		return 3
+	}
 	fs := flag.NewFlagSet("run", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	course := fs.String("course", "", "id lớp")
+	assignment := fs.String("assignment", "", "id bài tập")
+	course := fs.String("course", "", "id lớp (cả lớp; bắt buộc với --e2)")
 	limit := fs.Int("limit", 200, "số ca tối đa")
 	baseline := fs.String("baseline", "", "baseline.json để so (thoát 1 nếu «Có lùi»)")
 	write := fs.String("write-baseline", "", "ghi kết quả lần chạy này làm baseline")
@@ -252,9 +298,10 @@ func runRun(args []string, getenv func(string) string, stdout, stderr io.Writer)
 	if fs.Parse(args) != nil {
 		return 2
 	}
-	cid, err := uuid.Parse(*course)
-	if err != nil {
-		say(stderr, "cần --course <uuid>")
+	aid, aerr := uuid.Parse(*assignment)
+	cid, cerr := uuid.Parse(*course)
+	if (*e2 && cerr != nil) || (!*e2 && aerr != nil && cerr != nil) {
+		say(stderr, "cần --assignment <uuid> (hoặc --course <uuid>; --e2 chỉ nhận --course)")
 		return 2
 	}
 	ctx := context.Background()
@@ -267,7 +314,15 @@ func runRun(args []string, getenv func(string) string, stdout, stderr io.Writer)
 	if *e2 {
 		return runE2(ctx, d, cid, *limit, stdout, stderr)
 	}
-	rep, err := evaluate(ctx, d, cid, *limit)
+	var onlyAssignment *uuid.UUID
+	if aerr == nil {
+		onlyAssignment = &aid
+		if cid, err = store.New(d.pool).RegressionAssignmentCourse(ctx, aid); err != nil {
+			say(stderr, "không thấy bài tập:", err)
+			return 1
+		}
+	}
+	rep, err := evaluate(ctx, d, cid, onlyAssignment, *limit)
 	if err != nil {
 		say(stderr, err)
 		return 1
@@ -300,9 +355,9 @@ func runRun(args []string, getenv func(string) string, stdout, stderr io.Writer)
 	return 0
 }
 
-func evaluate(ctx context.Context, d *deps, course uuid.UUID, limit int) (Report, error) {
+func evaluate(ctx context.Context, d *deps, course uuid.UUID, assignment *uuid.UUID, limit int) (Report, error) {
 	q := store.New(d.pool)
-	rows, err := q.RegressionRunCases(ctx, store.RegressionRunCasesParams{CourseID: course, PageLimit: int32(limit)}) //nolint:gosec // ≤ 5000
+	rows, err := q.RegressionRunCases(ctx, store.RegressionRunCasesParams{CourseID: course, AssignmentID: assignment, PageLimit: int32(limit)}) //nolint:gosec // ≤ 5000
 	if err != nil {
 		return Report{}, fmt.Errorf("đọc ca: %w", err)
 	}

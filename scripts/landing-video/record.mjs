@@ -142,7 +142,7 @@ await scene("s1-chat", sv, async (page, a) => {
   await a.cap(CAPTIONS[0]);
   await sleep(2800);
   // mở một cuộc hỏi đáp đã có (dữ liệu seed), không gửi câu mới
-  const session = page.getByRole("button", { name: /Giải thích giúp em|Điều kiện để được dự thi/ }).first();
+  const session = page.locator("[data-part=chat-history] li button[aria-pressed]").first();
   await a.click(session);
   await sleep(1200);
   await a.cap(CAPTIONS[1]);
@@ -239,7 +239,7 @@ async function stills() {
   await p.goto(`${BASE}/chat`, { waitUntil: "load" });
   await p.getByRole("textbox").last().waitFor();
   await sleep(1000);
-  await p.getByRole("button", { name: /Giải thích giúp em|Điều kiện để được dự thi/ }).first().click();
+  await p.locator("[data-part=chat-history] li button[aria-pressed]").first().click();
   await p.mouse.move(SHOT.width - 4, SHOT.height - 4);
   await sleep(1500);
   await p.screenshot({ path: `${OUT}/story-chat.png` });

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" font-family="sans-serif" font-size="12">
+<text x="360.0" y="18" text-anchor="middle" font-size="14">E3 — độ ổn định của điểm AI (KHÔNG phải độ chính xác)</text>
+<text x="360.0" y="414" text-anchor="middle"></text>
+<text x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">hệ số</text>
+<line x1="60" y1="350.0" x2="700" y2="350.0" stroke="#ddd"/><text x="54" y="354.0" text-anchor="end">0.00</text>
+<line x1="60" y1="286.0" x2="700" y2="286.0" stroke="#ddd"/><text x="54" y="290.0" text-anchor="end">0.20</text>
+<line x1="60" y1="222.0" x2="700" y2="222.0" stroke="#ddd"/><text x="54" y="226.0" text-anchor="end">0.40</text>
+<line x1="60" y1="158.0" x2="700" y2="158.0" stroke="#ddd"/><text x="54" y="162.0" text-anchor="end">0.60</text>
+<line x1="60" y1="94.0" x2="700" y2="94.0" stroke="#ddd"/><text x="54" y="98.0" text-anchor="end">0.80</text>
+<line x1="60" y1="30.0" x2="700" y2="30.0" stroke="#ddd"/><text x="54" y="34.0" text-anchor="end">1.00</text>
+<rect x="72.8" y="66.8" width="49.2" height="283.2" fill="#b3261e"/><text x="98.4" y="63.8" text-anchor="middle" font-size="10">0.89</text>
+<rect x="124.0" y="56.8" width="49.2" height="293.2" fill="#1f5aa6"/><text x="149.6" y="53.8" text-anchor="middle" font-size="10">0.92</text>
+<text x="124.0" y="366" text-anchor="middle" font-size="12">test–retest P1r1–P1r2</text>
+<rect x="200.8" y="205.8" width="49.2" height="144.2" fill="#b3261e"/><text x="226.4" y="202.8" text-anchor="middle" font-size="10">0.45</text>
+<rect x="252.0" y="136.9" width="49.2" height="213.1" fill="#1f5aa6"/><text x="277.6" y="133.9" text-anchor="middle" font-size="10">0.67</text>
+<text x="252.0" y="366" text-anchor="middle" font-size="10">đồng thuận giữa hai model P1r1–P2r1</text>
+<text x="354.4" y="346" text-anchor="middle">–</text>
+<rect x="380.0" y="221.9" width="49.2" height="128.1" fill="#1f5aa6"/><text x="405.6" y="218.9" text-anchor="middle" font-size="10">0.40</text>
+<text x="380.0" y="366" text-anchor="middle" font-size="12">tầng thiết kế P1r1</text>
+<text x="482.4" y="346" text-anchor="middle">–</text>
+<rect x="508.0" y="204.2" width="49.2" height="145.8" fill="#1f5aa6"/><text x="533.6" y="201.2" text-anchor="middle" font-size="10">0.46</text>
+<text x="508.0" y="366" text-anchor="middle" font-size="12">tầng thiết kế P1r2</text>
+<text x="610.4" y="346" text-anchor="middle">–</text>
+<rect x="636.0" y="103.6" width="49.2" height="246.4" fill="#1f5aa6"/><text x="661.6" y="100.6" text-anchor="middle" font-size="10">0.77</text>
+<text x="636.0" y="366" text-anchor="middle" font-size="12">tầng thiết kế P2r1</text>
+<line x1="60" y1="350" x2="700" y2="350" stroke="#333"/>
+<rect x="60" y="394" width="12" height="10" fill="#b3261e"/><text x="76" y="403">QWK</text>
+<rect x="230" y="394" width="12" height="10" fill="#1f5aa6"/><text x="246" y="403">Pearson / Spearman</text>
+</svg>

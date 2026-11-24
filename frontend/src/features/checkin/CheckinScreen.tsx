@@ -8,7 +8,7 @@ import { useSession } from "@/shared/session/session";
 import { Button, Field, InlineNotice, Input, Page, PageHeader, Panel, Skeleton, StatusText, type HeaderAction } from "@/shared/ui";
 import { signWithDeviceKey } from "./deviceKey";
 import { hasAttestPlugin, nativeMockLocation, signNative } from "./nativeDevice";
-import { hasBarcodeDetector, Scanner } from "./Scanner";
+import { canScanQr, hasBarcodeDetector, Scanner } from "./Scanner";
 import { clearStash, readStash, stashExpired } from "./stash";
 import s from "./CheckinScreen.module.css";
 
@@ -58,7 +58,9 @@ function describe(e: unknown, viaCode: boolean): { message: string; offline?: bo
 export function CheckinScreen() {
   const { role, identity, realCourseId, realCourses } = useSession();
   const native = typeof window !== "undefined" && Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
-  const canScan = native && hasBarcodeDetector();
+  // Có API là chưa đủ: thăm dò `qr_code` bất đồng bộ; trong lúc chờ coi như có (máy hỗ trợ không đổi hình), không hỗ trợ thì chuyển sang ô nhập mã.
+  const [qrOk, setQrOk] = useState<boolean | null>(null);
+  const canScan = native && hasBarcodeDetector() && qrOk !== false;
   // token đã cất ở layout (QR): đọc MỘT lần lúc dựng; AuthGate chỉ dựng màn này ở client nên không lệch khi hydrate
   const [stash] = useState(() => (typeof window === "undefined" ? null : readStash()));
   const [view, setView] = useState<View>(() => {
@@ -69,6 +71,18 @@ export function CheckinScreen() {
   });
   const [geoLine, setGeoLine] = useState(false);
   const [codeMode, setCodeMode] = useState(!canScan);
+  useEffect(() => {
+    if (!native || !hasBarcodeDetector()) return;
+    let alive = true;
+    void canScanQr().then((ok) => {
+      if (!alive) return;
+      setQrOk(ok);
+      if (!ok) setCodeMode(true);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [native]);
   const [code, setCode] = useState("");
   const [left, setLeft] = useState(0);
   const sent = useRef(false);

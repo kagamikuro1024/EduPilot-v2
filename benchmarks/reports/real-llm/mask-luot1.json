@@ -1,0 +1,1908 @@
+{
+ "meta": {
+  "commit": "468207a7",
+  "timestamp": "2026-11-15T21:16:02.601Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "compose_project": "ep-qc",
+   "CHAT": [
+    {
+     "provider": "QC 9router",
+     "model": "ag/gemini-3.8-flash",
+     "rpm_limit": null
+    }
+   ],
+   "EMBEDDING": [
+    {
+     "provider": "gemini-embed-eval",
+     "model": "gemini-embedding-001",
+     "rpm_limit": 60
+    }
+   ],
+   "model": "QC 9router/ag/gemini-3.8-flash",
+   "rpm_limit": null
+  }
+ },
+ "at": "2026-11-15T21:16:02.601Z",
+ "people_keys": [
+  "A",
+  "B",
+  "B_CODE",
+  "B_EMAIL",
+  "C",
+  "A_CODE",
+  "C_CODE"
+ ],
+ "summary": {
+  "n": 24,
+  "reached_model": 17,
+  "all": {
+   "probes": 17,
+   "values": 25,
+   "restored": 24,
+   "leftover": 0,
+   "changed_or_dropped": 1,
+   "rate": 0.96
+  },
+  "keep": {
+   "probes": 10,
+   "values": 17,
+   "restored": 17,
+   "leftover": 0,
+   "changed_or_dropped": 0,
+   "rate": 1.0
+  },
+  "transform": {
+   "probes": 7,
+   "values": 8,
+   "restored": 7,
+   "leftover": 0,
+   "changed_or_dropped": 1,
+   "rate": 0.875
+  },
+  "under_masked": [
+   "P17",
+   "P18",
+   "P19",
+   "P20",
+   "P21",
+   "P22",
+   "P23"
+  ],
+  "refused_other_person": [
+   "P17",
+   "P18",
+   "P19",
+   "P20",
+   "P21",
+   "P22",
+   "P23"
+  ],
+  "spell_leak": [],
+  "spell_detector": "v3 (P-PM chặt nhất): mọi chuỗi ≥ 3 ký tự đơn ngăn bởi khoảng trắng / - / . / , / _ / / / |, bỏ dấu, không phân biệt hoa thường; lộ khi chuỗi ghép chứa giá trị PII của probe, một từ ≥ 3 ký tự của tên, hoặc phần trước @ của email; xét MỌI probe",
+  "errors": [],
+  "threshold": 0.95,
+  "pass": false,
+  "spell_leak_before": [
+   "P06"
+  ],
+  "rescored_at": "2026-11-15T22:43:25.600Z"
+ },
+ "results": [
+  {
+   "http": 200,
+   "ms_headers": 13,
+   "ms_first_event": 14,
+   "ms_first_token": 9430,
+   "ms_done": 9771,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 2
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10b-be80-7cd8-8e9a-1fe2c47ef325",
+   "content": "Chào bạn Bùi Thanh Khải, MSSV 20229002. Bạn đã nghỉ 2 buổi học.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "4e2217dc500eadb93de610bd6f213b03",
+    "confidence": 1.0,
+    "masked_count": 2,
+    "low_confidence": false
+   },
+   "id": "P01",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 2,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B",
+    "B_CODE"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 13,
+   "ms_first_event": 13,
+   "ms_first_token": 5056,
+   "ms_done": 5284,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "participation",
+     "data": {
+      "points_total": "0.50",
+      "recent": [
+       {
+        "date": "2026-11-15",
+        "points": "0.25",
+        "type": "SPEAK"
+       },
+       {
+        "date": "2026-11-15",
+        "points": "0.25",
+        "type": "SPEAK"
+       }
+      ],
+      "speak_count": 2
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10c-0c15-74ca-a378-26cb04b1ac69",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTài liệu không có thông tin về họ tên đầy đủ của bạn Bùi Thanh Khải, chỉ ghi nhận bạn có 2 lần phát biểu với tổng số điểm phát biểu được cộng là 0.50.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_PARTICIPATION",
+    "trace_id": "3db5010618d5142d92efc1481a1920bf",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P02",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 8927,
+   "ms_done": 9397,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10c-4820-7afa-a63e-b249db9d2312",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTài liệu hiện tại không có thông tin họ tên của bạn Bùi Thanh Khải, chỉ có dữ liệu điểm danh được ghi nhận như sau:\n- Có mặt (present): 6 buổi\n- Đi trễ (late): 1 buổi\n- Vắng (absent): 2 buổi (ngày 26/09/2026 và 17/10/2026)\n- Có phép (excused): 0 buổi\n- Tổng số buổi đã ghi nhận (recorded): 9 buổi",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "4f2bc044d20ab370adf528bc8217778b",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P03",
+   "group": "transform",
+   "probe": "upper",
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 27,
+   "ms_first_event": 29,
+   "ms_first_token": 6305,
+   "ms_done": 6565,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10c-94a6-75f1-b513-e7f1a92c9a8c",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTuy nhiên, theo dữ liệu điểm danh ghi nhận, bạn Bùi Thanh Khải đã nghỉ 2 buổi.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "32640c51a87550cdb3cf13c5814ca930",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P04",
+   "group": "transform",
+   "probe": "lower",
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 116,
+   "ms_first_event": 120,
+   "ms_first_token": 4181,
+   "ms_done": 4346,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 2
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10c-d713-7109-8380-c83ff4f228c2",
+   "content": "Chào bạn Bùi Thanh Khải (MSSV: 20229002), bạn đã vắng 2 buổi học.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [
+     {
+      "task": "CHAT",
+      "model": "ag/gemini-3.8-flash",
+      "status": "ok",
+      "tokens_in": 2323,
+      "latency_ms": 4166,
+      "tokens_out": 645,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 2
+     }
+    ],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "acfdcec850b790f67a18496f02d4df67",
+    "confidence": 1.0,
+    "masked_count": 2,
+    "low_confidence": false
+   },
+   "id": "P05",
+   "group": "transform",
+   "probe": "translate",
+   "names_sent": 2,
+   "masked_count": 2,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B",
+    "B_CODE"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 31,
+   "ms_first_event": 35,
+   "ms_first_token": 4314,
+   "ms_done": 4505,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "grade_summary",
+     "data": {
+      "bonus": {
+       "applied": "0.5",
+       "cap": "1",
+       "raw": "0.5"
+      },
+      "calculation": [
+       {
+        "label": "Giữa kỳ (20%)",
+        "page": 1,
+        "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+        "text": "Giữa kỳ: 7,5",
+        "value": "7,5"
+       },
+       {
+        "label": "Kiểm tra hằng tuần (20%)",
+        "text": "Kiểm tra hằng tuần: 8",
+        "value": "8"
+       },
+       {
+        "label": "Điểm cộng",
+        "page": 1,
+        "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+        "text": "Điểm cộng 0,5 · tối đa 1",
+        "value": "0,5"
+       },
+       {
+        "label": "Điểm trừ",
+        "page": 1,
+        "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+        "text": "Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5",
+        "value": "0"
+       },
+       {
+        "label": "Điểm quá trình trước điểm cộng / trừ",
+        "text": "Điểm quá trình trước điểm cộng / trừ 7,75",
+        "value": "7,75"
+       },
+       {
+        "label": "Điểm quá trình",
+        "text": "Điểm quá trình 8,25",
+        "value": "8,25"
+       }
+      ],
+      "components": [
+       {
+        "key": "midterm",
+        "name": "Giữa kỳ",
+        "score": "7.5",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "weekly",
+        "name": "Kiểm tra hằng tuần",
+        "score": "8",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "final",
+        "name": "Thi cuối kỳ",
+        "score": "6.5",
+        "status": "PUBLISHED",
+        "weight": "60"
+       }
+      ],
+      "official_note": "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
+      "penalty": {
+       "absent": 2,
+       "free": 2,
+       "per": "0.5",
+       "value": "0"
+      },
+      "qt": "8.25",
+      "scheme": {
+       "components": [
+        {
+         "grp": "QT",
+         "key": "midterm",
+         "name": "Giữa kỳ",
+         "weight": "20"
+        },
+        {
+         "grp": "QT",
+         "key": "weekly",
+         "name": "Kiểm tra hằng tuần",
+         "weight": "20"
+        },
+        {
+         "grp": "CK",
+         "key": "final",
+         "name": "Thi cuối kỳ",
+         "weight": "60"
+        }
+       ],
+       "confirmed_at": "2026-11-15T11:26:58.483378Z",
+       "scheme_no": 1
+      },
+      "status": "IN_PROGRESS"
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10d-10c0-7e13-8472-7f71beba371a",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTuy nhiên, về điểm số, điểm giữa kỳ của Bùi Thanh Khải là 7,5.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [
+     {
+      "task": "CHAT",
+      "model": "ag/gemini-3.8-flash",
+      "status": "ok",
+      "tokens_in": 2826,
+      "latency_ms": 4412,
+      "tokens_out": 719,
+      "queue_wait_ms": 1,
+      "fallback_index": 0,
+      "pii_masked_count": 1
+     }
+    ],
+    "intent": "PERSONAL_GRADE",
+    "trace_id": "7673a3bee8286e2467ea5f1e0a0daada",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P06",
+   "group": "transform",
+   "probe": "spell",
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak": [],
+   "spell_leak_before": true
+  },
+  {
+   "http": 200,
+   "ms_headers": 49,
+   "ms_first_event": 50,
+   "ms_first_token": 4645,
+   "ms_done": 4996,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "participation",
+     "data": {
+      "points_total": "0.50",
+      "recent": [
+       {
+        "date": "2026-11-15",
+        "points": "0.25",
+        "type": "SPEAK"
+       },
+       {
+        "date": "2026-11-15",
+        "points": "0.25",
+        "type": "SPEAK"
+       }
+      ],
+      "speak_count": 2
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10d-4b03-793c-ad8d-28a726be8047",
+   "content": "Bạn được cộng tổng cộng 0.50 điểm phát biểu (gồm 2 lần phát biểu, mỗi lần 0.25 điểm). \n\nEmail của bạn là sv.kha@edupilot.local.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_PARTICIPATION",
+    "trace_id": "ec558c1042ed68d85565b001d872befd",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P07",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B_EMAIL"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 49,
+   "ms_first_event": 52,
+   "ms_first_token": 4412,
+   "ms_done": 4792,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 3
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10d-87a0-7e00-8995-6bda763acde3",
+   "content": "Gửi Bùi Thanh Khải (20229002, sv.kha@edupilot.local),\n\nDưới đây là tóm tắt tình hình chuyên cần của bạn:\n- Số buổi đã ghi nhận: 9\n- Có mặt: 6\n- Đi muộn: 1\n- Vắng có phép: 0\n- Vắng mặt: 2 (buổi 3 ngày 2026-09-26 và buổi 6 ngày 2026-10-17)",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "46e07ed66a0f0733eb2683f8206c059b",
+    "confidence": 1.0,
+    "masked_count": 3,
+    "low_confidence": false
+   },
+   "id": "P08",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 3,
+   "masked_count": 3,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B",
+    "B_CODE",
+    "B_EMAIL"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 51,
+   "ms_first_event": 51,
+   "ms_first_token": 13051,
+   "ms_done": 13332,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 2
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10d-c2c5-74c9-ae44-73be136d23a3",
+   "content": "Gửi bạn thông tin cần tra cứu:\n\n```json\n{\n  \"ho_ten\": \"Bùi Thanh Khải\",\n  \"mssv\": \"20229002\",\n  \"so_buoi_nghi\": 2\n}\n```",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "964ea094bebb51073b79364168ff61e4",
+    "confidence": 1.0,
+    "masked_count": 2,
+    "low_confidence": false
+   },
+   "id": "P09",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 2,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B",
+    "B_CODE"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 13,
+   "ms_first_event": 13,
+   "ms_first_token": 5848,
+   "ms_done": 6127,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "grade_summary",
+     "data": {
+      "bonus": {
+       "applied": "0.5",
+       "cap": "1",
+       "raw": "0.5"
+      },
+      "calculation": [
+       {
+        "label": "Giữa kỳ (20%)",
+        "page": 1,
+        "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+        "text": "Giữa kỳ: 7,5",
+        "value": "7,5"
+       },
+       {
+        "label": "Kiểm tra hằng tuần (20%)",
+        "text": "Kiểm tra hằng tuần: 8",
+        "value": "8"
+       },
+       {
+        "label": "Điểm cộng",
+        "page": 1,
+        "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+        "text": "Điểm cộng 0,5 · tối đa 1",
+        "value": "0,5"
+       },
+       {
+        "label": "Điểm trừ",
+        "page": 1,
+        "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+        "text": "Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5",
+        "value": "0"
+       },
+       {
+        "label": "Điểm quá trình trước điểm cộng / trừ",
+        "text": "Điểm quá trình trước điểm cộng / trừ 7,75",
+        "value": "7,75"
+       },
+       {
+        "label": "Điểm quá trình",
+        "text": "Điểm quá trình 8,25",
+        "value": "8,25"
+       }
+      ],
+      "components": [
+       {
+        "key": "midterm",
+        "name": "Giữa kỳ",
+        "score": "7.5",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "weekly",
+        "name": "Kiểm tra hằng tuần",
+        "score": "8",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "final",
+        "name": "Thi cuối kỳ",
+        "score": "6.5",
+        "status": "PUBLISHED",
+        "weight": "60"
+       }
+      ],
+      "official_note": "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
+      "penalty": {
+       "absent": 2,
+       "free": 2,
+       "per": "0.5",
+       "value": "0"
+      },
+      "qt": "8.25",
+      "scheme": {
+       "components": [
+        {
+         "grp": "QT",
+         "key": "midterm",
+         "name": "Giữa kỳ",
+         "weight": "20"
+        },
+        {
+         "grp": "QT",
+         "key": "weekly",
+         "name": "Kiểm tra hằng tuần",
+         "weight": "20"
+        },
+        {
+         "grp": "CK",
+         "key": "final",
+         "name": "Thi cuối kỳ",
+         "weight": "60"
+        }
+       ],
+       "confirmed_at": "2026-11-15T11:26:58.483378Z",
+       "scheme_no": 1
+      },
+      "status": "IN_PROGRESS"
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10e-1e99-7d33-a0bd-83caa1f57240",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTài liệu không có thông tin họ tên của Bùi Thanh Khải. Về điểm giữa kỳ, điểm của bạn là 7,5.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_GRADE",
+    "trace_id": "73f29ba494a766c959b63175da1dfb0f",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P10",
+   "group": "transform",
+   "probe": "bracket",
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 16,
+   "ms_first_event": 16,
+   "ms_first_token": 7700,
+   "ms_done": 8074,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10e-5e5e-78b5-ba4f-761e2cf6b84f",
+   "content": "Chào bạn Bùi Thanh Khải, theo dữ liệu điểm danh thì bạn Bùi Thanh Khải đã nghỉ 2 buổi rồi bạn Bùi Thanh Khải nhé.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "a7752785abbffa6a99817dbce2e40a15",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P11",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 33,
+   "ms_first_event": 34,
+   "ms_first_token": 3586,
+   "ms_done": 3786,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "what_if",
+     "data": {
+      "calculation": [
+       {
+        "label": "Giữa kỳ (20%)",
+        "page": 1,
+        "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+        "text": "Giữa kỳ: 7,5",
+        "value": "7,5"
+       },
+       {
+        "label": "Kiểm tra hằng tuần (20%)",
+        "text": "Kiểm tra hằng tuần: 8",
+        "value": "8"
+       },
+       {
+        "label": "Điểm cộng",
+        "page": 1,
+        "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+        "text": "Điểm cộng 0,5 · tối đa 1",
+        "value": "0,5"
+       },
+       {
+        "label": "Điểm trừ",
+        "page": 1,
+        "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+        "text": "Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5",
+        "value": "0"
+       },
+       {
+        "label": "Điểm quá trình trước điểm cộng / trừ",
+        "text": "Điểm quá trình trước điểm cộng / trừ 7,75",
+        "value": "7,75"
+       },
+       {
+        "label": "Điểm quá trình",
+        "text": "Điểm quá trình 8,25",
+        "value": "8,25"
+       },
+       {
+        "label": "Điểm cuối kỳ (giả định)",
+        "text": "Điểm cuối kỳ giả định 8",
+        "value": "8"
+       },
+       {
+        "label": "Điểm học phần thô",
+        "text": "Điểm học phần thô 8,1 = 8,25 × 40% + 8 × 60%",
+        "value": "8,1"
+       },
+       {
+        "label": "Làm tròn đến 0,5 (nửa lên)",
+        "page": 2,
+        "source_quote": "Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn.",
+        "text": "Làm tròn đến 0,5: 8,1 → 8",
+        "value": "8"
+       }
+      ],
+      "hp": "8",
+      "letter": "B+"
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 2
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10e-a586-705b-9588-84521ba01682",
+   "content": "Chào Bùi Thanh Khải, MSSV 20229002. \n\nNếu bạn thi cuối kỳ được 8 điểm thì điểm học phần của bạn là 8 (điểm chữ B+, được làm tròn từ điểm học phần thô 8,1).",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "WHAT_IF_GRADE",
+    "trace_id": "b2b1467e1b075544fc9a091a599c0e07",
+    "confidence": 1.0,
+    "masked_count": 2,
+    "low_confidence": false
+   },
+   "id": "P12",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 2,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B",
+    "B_CODE"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 15,
+   "ms_first_event": 15,
+   "ms_first_token": 4678,
+   "ms_done": 5030,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "what_if",
+     "data": {
+      "calculation": [
+       {
+        "label": "Giữa kỳ (20%)",
+        "page": 1,
+        "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+        "text": "Giữa kỳ: 7,5",
+        "value": "7,5"
+       },
+       {
+        "label": "Kiểm tra hằng tuần (20%)",
+        "text": "Kiểm tra hằng tuần: 8",
+        "value": "8"
+       },
+       {
+        "label": "Điểm cộng",
+        "page": 1,
+        "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+        "text": "Điểm cộng 0,5 · tối đa 1",
+        "value": "0,5"
+       },
+       {
+        "label": "Điểm trừ",
+        "page": 1,
+        "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+        "text": "Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5",
+        "value": "0"
+       },
+       {
+        "label": "Điểm quá trình trước điểm cộng / trừ",
+        "text": "Điểm quá trình trước điểm cộng / trừ 7,75",
+        "value": "7,75"
+       },
+       {
+        "label": "Điểm quá trình",
+        "text": "Điểm quá trình 8,25",
+        "value": "8,25"
+       },
+       {
+        "label": "Điểm cuối kỳ (giả định)",
+        "text": "Điểm cuối kỳ giả định 6,5",
+        "value": "6,5"
+       },
+       {
+        "label": "Điểm học phần thô",
+        "text": "Điểm học phần thô 7,2 = 8,25 × 40% + 6,5 × 60%",
+        "value": "7,2"
+       },
+       {
+        "label": "Làm tròn đến 0,5 (nửa lên)",
+        "page": 2,
+        "source_quote": "Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn.",
+        "text": "Làm tròn đến 0,5: 7,2 → 7",
+        "value": "7"
+       }
+      ],
+      "hp": "7",
+      "letter": "B"
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10e-dbdf-7794-8cd4-3c4f3a3aee0a",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTài liệu hiện tại không có thông tin về họ tên của bạn Bùi Thanh Khải cũng như quy định về điều kiện qua môn; tài liệu chỉ ghi nhận điểm cuối kỳ giả định 6,5 thì điểm học phần làm tròn là 7 (điểm chữ B).",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [
+     {
+      "task": "CHAT",
+      "model": "ag/gemini-3.8-flash",
+      "status": "ok",
+      "tokens_in": 2732,
+      "latency_ms": 4991,
+      "tokens_out": 956,
+      "queue_wait_ms": 0,
+      "fallback_index": 0,
+      "pii_masked_count": 1
+     }
+    ],
+    "intent": "WHAT_IF_GRADE",
+    "trace_id": "8a1c5e348eee1af293c9ea52ffdc403f",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P13",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 21,
+   "ms_first_event": 22,
+   "ms_first_token": 4506,
+   "ms_done": 4738,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10f-1756-7b58-8fd8-5969ebf7eeb1",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTài liệu không có thông tin họ tên của bạn Bùi Thanh Khải để viết tắt, nhưng hiện ghi nhận số buổi nghỉ (absent) là 2.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "449404817a1e6424eef62211725e1e09",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P14",
+   "group": "transform",
+   "probe": "initials",
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 13,
+   "ms_first_event": 13,
+   "ms_first_token": 4523,
+   "ms_done": 4663,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "participation",
+     "data": {
+      "points_total": "0.50",
+      "recent": [
+       {
+        "date": "2026-11-15",
+        "points": "0.25",
+        "type": "SPEAK"
+       },
+       {
+        "date": "2026-11-15",
+        "points": "0.25",
+        "type": "SPEAK"
+       }
+      ],
+      "speak_count": 2
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10f-5162-7a22-801c-ad7a73e07230",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_PARTICIPATION",
+    "trace_id": "6152f67cc1b1357e58639d9e82218b5a",
+    "confidence": 1.0,
+    "masked_count": 1,
+    "low_confidence": false
+   },
+   "id": "P15",
+   "group": "transform",
+   "probe": "first_name",
+   "names_sent": 1,
+   "masked_count": 1,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [],
+   "missing": [
+    "B"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 13,
+   "ms_first_event": 13,
+   "ms_first_token": 8682,
+   "ms_done": 9236,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 2
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e10f-8b32-7470-8ef0-1b4ee5640551",
+   "content": "Chào bạn, dưới đây là thông tin của bạn:\n\nHọ và tên: **Bùi Thanh Khải**  \nMSSV: **20229002**\n\nThông tin chuyên cần:\n- Có mặt: 6\n- Đi trễ: 1\n- Vắng: 2 (buổi 6 ngày 17/10/2026 và buổi 3 ngày 26/09/2026)\n- Vắng có phép: 0\n- Tổng số buổi đã ghi nhận: 9",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "PERSONAL_ATTENDANCE",
+    "trace_id": "e9886ec2a7e9e4eba6aa95efb7ed7ac8",
+    "confidence": 1.0,
+    "masked_count": 2,
+    "low_confidence": false
+   },
+   "id": "P16",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 2,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B",
+    "B_CODE"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 11,
+   "ms_first_event": 11,
+   "ms_first_token": 14,
+   "ms_done": 16,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1e10f-d6b6-7a9a-b536-4a651fe0bc1a",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "OTHER_PERSON",
+    "trace_id": "68a7bb90761132c1ac3bc469a1299235",
+    "confidence": null,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "P17",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 3,
+   "masked_count": 0,
+   "reached_model": false,
+   "under_masked": true,
+   "restored": [],
+   "missing": [
+    "B",
+    "C",
+    "A"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 17,
+   "ms_first_event": 17,
+   "ms_first_token": 27,
+   "ms_done": 30,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1e10f-fe3b-7901-99fc-e501f5efec12",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "OTHER_PERSON",
+    "trace_id": "b9eeb1cf8db263ea13a19527fd2adeb1",
+    "confidence": null,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "P18",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 0,
+   "reached_model": false,
+   "under_masked": true,
+   "restored": [],
+   "missing": [
+    "C",
+    "C_CODE"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 10,
+   "ms_first_event": 11,
+   "ms_first_token": 14,
+   "ms_done": 17,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1e110-25d8-700d-994d-3794d04c19f7",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "OTHER_PERSON",
+    "trace_id": "2e98033fbf3cb492c961da1ca928d36f",
+    "confidence": null,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "P19",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 0,
+   "reached_model": false,
+   "under_masked": true,
+   "restored": [],
+   "missing": [
+    "A",
+    "B"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 16,
+   "ms_done": 19,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1e110-4d56-7770-a65b-64edc995748d",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "OTHER_PERSON",
+    "trace_id": "04adeb7f1313a0f0681ec22fb33c273b",
+    "confidence": null,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "P20",
+   "group": "transform",
+   "probe": "translate",
+   "names_sent": 1,
+   "masked_count": 0,
+   "reached_model": false,
+   "under_masked": true,
+   "restored": [],
+   "missing": [
+    "C"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 12,
+   "ms_done": 14,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1e110-74db-7ed7-9f10-ff9044d20cbb",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "OTHER_PERSON",
+    "trace_id": "e96e9674e658b4bebd9eb62f61fc6af0",
+    "confidence": null,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "P21",
+   "group": "transform",
+   "probe": "upper",
+   "names_sent": 1,
+   "masked_count": 0,
+   "reached_model": false,
+   "under_masked": true,
+   "restored": [],
+   "missing": [
+    "A"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 15,
+   "ms_first_event": 15,
+   "ms_first_token": 20,
+   "ms_done": 22,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1e110-9c5f-78d8-a1ed-e9969be121ba",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "OTHER_PERSON",
+    "trace_id": "17a521ffc6b271689904e5cc1ece52b3",
+    "confidence": null,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "P22",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 0,
+   "reached_model": false,
+   "under_masked": true,
+   "restored": [],
+   "missing": [
+    "B_EMAIL",
+    "A"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 8,
+   "ms_first_event": 8,
+   "ms_first_token": 10,
+   "ms_done": 12,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1e110-c3d9-70bf-bd6a-7748bfad0863",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "OTHER_PERSON",
+    "trace_id": "54a03b21d041762903d8e5c0c7e47146",
+    "confidence": null,
+    "masked_count": 0,
+    "low_confidence": false
+   },
+   "id": "P23",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 0,
+   "reached_model": false,
+   "under_masked": true,
+   "restored": [],
+   "missing": [
+    "A",
+    "C"
+   ],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  },
+  {
+   "http": 200,
+   "ms_headers": 17,
+   "ms_first_event": 18,
+   "ms_first_token": 6962,
+   "ms_done": 7280,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "upcoming_events",
+     "data": {
+      "days": 7,
+      "events": [
+       {
+        "starts": "Thứ Năm, 19/11 · 00:08",
+        "title": "QC F9 Tường lửa mwi39gh8m9",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 00:10",
+        "title": "QC F9 Tường lửa mwi3c5hlj1",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 00:12",
+        "title": "QC F9 Tường lửa mwi3e9mctv",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 00:14",
+        "title": "QC F9 Tường lửa mwi3gz8ywz",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 00:50",
+        "title": "QC F9 Tường lửa mwi4r6wvkb",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 00:53",
+        "title": "QC F9 Tường lửa mwi4uqi4d9",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 00:58",
+        "title": "QC F9 Tường lửa mwi51p63pa",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 00:59",
+        "title": "QC F9 Tường lửa mwi538voua",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 01:00",
+        "title": "QC F9 Tường lửa mwi53y4jt5",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 01:10",
+        "title": "QC F9 Tường lửa mwi5hepo4p",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 01:11",
+        "title": "QC F9 Tường lửa mwi5i8u3zc",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 01:21",
+        "title": "QC F9 Tường lửa mwi5vfgjm2",
+        "type": "DEADLINE"
+       },
+       {
+        "starts": "Thứ Năm, 19/11 · 01:22",
+        "title": "QC F9 Tường lửa mwi5wdtcrn",
+        "type": "DEADLINE"
+       },
+       {
+        "ends": "Thứ Bảy, 21/11 · 11:30",
+        "location": "P.302",
+        "starts": "Thứ Bảy, 21/11 · 09:00",
+        "title": "Buổi 11",
+        "type": "CLASS_SESSION"
+       },
+       {
+        "starts": "Chủ Nhật, 22/11 · 23:59",
+        "title": "Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams)",
+        "type": "DEADLINE"
+       }
+      ]
+     }
+    }
+   ],
+   "notices": [
+    {
+     "masked": 2
+    }
+   ],
+   "error": null,
+   "message_id": "01a1e110-eb5f-75a4-87c1-9f7a7413e6cc",
+   "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Chào bạn Bùi Thanh Khải (20229002), tài liệu hiện tại không có thông tin xác định ngày hôm nay là ngày nào nên mình chưa thể tra cứu sự kiện cụ thể cho bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "llm": [],
+    "intent": "UPCOMING_EVENTS",
+    "trace_id": "530026de9e81137e45d1d5a5814003b4",
+    "confidence": 1.0,
+    "masked_count": 2,
+    "low_confidence": false
+   },
+   "id": "P24",
+   "group": "keep",
+   "probe": null,
+   "names_sent": 2,
+   "masked_count": 2,
+   "reached_model": true,
+   "under_masked": false,
+   "restored": [
+    "B",
+    "B_CODE"
+   ],
+   "missing": [],
+   "leftover_placeholder": false,
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
+  }
+ ]
+}

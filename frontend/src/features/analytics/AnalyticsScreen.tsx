@@ -9,14 +9,17 @@ import { mergeTickets } from "@/mock/support";
 import { useSession } from "@/shared/session/session";
 import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import { BarList, DefinitionList, EmptyState, Page, PageHeader, PageState, Panel, Section, SegmentedControl, Skeleton, TrendChart } from "@/shared/ui";
+import { BarList, DefinitionList, EmptyState, Page, PageHeader, PageState, Panel, Section, SegmentedControl, Skeleton, Tabs, TrendChart } from "@/shared/ui";
+import { ExamStats } from "./ExamStats";
 import s from "./analytics.module.css";
 
 /** "1.424" — nhóm nghìn giống `fmtVnd` để server và trình duyệt cho ra cùng một chuỗi. */
 const fmtNum = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
 export function AnalyticsScreen() {
-  const { role, course, courses, isAll } = useSession();
+  const { role, course, courses, isAll, realCourses, realCourseId } = useSession();
+  const [tab, setTab] = useState<"activity" | "exams">("activity");
+  const realId = realCourses ? (realCourseId && realCourseId !== "all" ? realCourseId : (realCourses[0]?.id ?? null)) : null;
   const [stored] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
   const [range, setRange] = useState<AnalyticsRange>("7");
   const nowMs = useSimNow();
@@ -28,6 +31,11 @@ export function AnalyticsScreen() {
   return (
     <Page kind="read">
       <PageHeader title="Số liệu lớp học" meta={[<span key="m0">Tính tới hôm nay, {fmtTime(new Date(nowMs))}</span>]} />
+      <Tabs label="Số liệu" value={tab} onChange={setTab} options={[{ value: "activity", label: "Hoạt động" }, { value: "exams", label: "Điểm thi" }]} />
+      {tab === "exams" ? (
+        realId ? <ExamStats courseId={realId} teacher={role === "teacher"} /> : <Panel><EmptyState title="Chưa có lớp nào" /></Panel>
+      ) : (
+      <>
       <div className={s.range}>
         <SegmentedControl
           label="Khoảng thời gian"
@@ -114,6 +122,8 @@ export function AnalyticsScreen() {
           </Section>
         )}
       </PageState>
+      </>
+      )}
     </Page>
   );
 }

@@ -9,6 +9,10 @@ p { text-wrap: pretty; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 img, svg { display: block; }
 button { cursor: pointer; }
+/* Mục gập (<details>): vùng chạm ≥ 44 px ở màn hẹp / cảm ứng (WCAG 2.5.8, UX.md). Một chỗ cho cả app; giữ dấu ▸ (display: list-item), chữ căn giữa theo dòng. */
+@media (max-width: 640px), (pointer: coarse) {
+  summary { box-sizing: border-box; min-height: 44px; padding-block: max(0px, calc((44px - 1lh) / 2)); cursor: pointer; }
+}
 button:disabled, input:disabled, textarea:disabled, select:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 table { border-collapse: collapse; }
 

@@ -25,6 +25,10 @@ localhost {
 		format filter {
 			wrap json
 			request>uri regexp (token=|/invite/|/join/)[A-Za-z0-9_-]+ ${1}REDACTED
+			# Điều hướng RSC của Next.js lặp lại đường dẫn (kèm token) trong tiêu đề: bỏ hẳn khỏi log, Referer che như uri.
+			request>headers>Next-Url delete
+			request>headers>Next-Router-State-Tree delete
+			request>headers>Referer regexp (token=|/invite/|/join/)[A-Za-z0-9_-]+ ${1}REDACTED
 		}
 	}
 
@@ -67,6 +71,14 @@ localhost {
 					unhealthy_status 503
 				}
 			}
+		}
+	}
+
+	# URL ký sẵn của MinIO (BLOB_PUBLIC_ENDPOINT = localhost[:cổng HTTPS], kiểu path-style `/{bucket}/…`): trình duyệt PUT / GET thẳng vào kho tệp qua CÙNG origin với ứng dụng
+	# (CSP connect-src 'self' không cần nguồn ngoài), giống VPS (Caddyfile.vps). Host gốc được giữ nguyên nên chữ ký SigV4 vẫn đúng. Không nén, không giới hạn thân (tệp bài nộp tới 20 MiB).
+	handle /edupilot/* {
+		reverse_proxy minio:9000 {
+			flush_interval -1
 		}
 	}
 

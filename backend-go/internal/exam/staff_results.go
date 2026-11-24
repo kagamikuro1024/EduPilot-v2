@@ -243,6 +243,8 @@ type StaffSubmission struct {
 	CompileOK  *bool             `json:"compile_ok"`
 	CompileLog *string           `json:"compile_log"`
 	Tests      []StaffTestResult `json:"tests"`
+	// TestsStale: chấm theo bộ test cũ (giảng viên đã sửa test sau đó, chưa chấm lại); điểm chưa đổi tới khi regrade.
+	TestsStale bool `json:"tests_stale"`
 }
 
 // StaffAdjust là điều chỉnh tay (khi có).
@@ -308,7 +310,7 @@ func (s *Service) ResultDetail(ctx context.Context, courseID, examID, attemptID 
 	}
 	d.Submissions = make([]StaffSubmission, 0, len(subs))
 	for _, sb := range subs {
-		v := StaffSubmission{ID: sb.ID, ItemID: sb.ItemID, Status: string(sb.Status), Language: sb.Language, Source: sb.Source, CreatedAt: sb.CreatedAt, CompileOK: sb.CompileOk, CompileLog: sb.CompileLog, Tests: []StaffTestResult{}}
+		v := StaffSubmission{ID: sb.ID, ItemID: sb.ItemID, Status: string(sb.Status), Language: sb.Language, Source: sb.Source, CreatedAt: sb.CreatedAt, CompileOK: sb.CompileOk, CompileLog: sb.CompileLog, Tests: []StaffTestResult{}, TestsStale: sb.TestsVersion != nil && *sb.TestsVersion < sb.CurrentTestsVersion}
 		if sb.Verdict != nil {
 			v.Verdict = new(string(*sb.Verdict))
 		}

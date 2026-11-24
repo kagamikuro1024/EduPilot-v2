@@ -66,7 +66,7 @@ func TestExplainAnswer(t *testing.T) {
 	sv := r.student()
 	ctx := t.Context()
 	r.approved("Mạng", 5)
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 5}, uuid.Nil)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(5)}, uuid.Nil)
 	require.NoError(t, err)
 	it := v.Items[0]
 
@@ -103,7 +103,7 @@ func TestExplainMockAfterSubmit(t *testing.T) {
 	ctx := t.Context()
 	r.approved("Mạng", 20)
 	tab := uuid.New()
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: 20}, tab)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: new(20)}, tab)
 	require.NoError(t, err)
 	it := v.Items[0]
 	_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, tab, practice.AnswerIn{Answer: opt(r.wrongOption(it.ID)).Answer})
@@ -130,7 +130,7 @@ func TestEssayFeedback(t *testing.T) {
 	_, err = r.ex.Review(ctx, r.teacher, r.course, d.ID, "APPROVE", d.Version)
 	require.NoError(t, err)
 	r.approved("Luận", 4)
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Luận", Count: 5}, uuid.Nil)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Luận", Count: new(5)}, uuid.Nil)
 	require.NoError(t, err)
 	var essay uuid.UUID
 	for _, it := range v.Items {
@@ -184,7 +184,7 @@ func TestExplainRateLimit(t *testing.T) {
 	sv := r.student()
 	ctx := t.Context()
 	r.approved("Mạng", 5)
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 5}, uuid.Nil)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(5)}, uuid.Nil)
 	require.NoError(t, err)
 	it := v.Items[0]
 	_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, opt(r.wrongOption(it.ID)))

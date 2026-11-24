@@ -21,7 +21,6 @@ import (
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
-	"github.com/edupilot/backend-go/internal/quiz"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -53,7 +52,7 @@ type ExtractPayload struct {
 type Skipped struct {
 	Number int    `json:"number"`
 	Page   int    `json:"page"`
-	Reason string `json:"reason"` // NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID | CITATION_REQUIRED | TYPE_NOT_ALLOWED | PAGE_LIMIT
+	Reason string `json:"reason"` // NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID | CITATION_REQUIRED | TYPE_NOT_ALLOWED
 }
 
 // ExtractResult là `jobs.result` của `question.extract` / `question.generate`.
@@ -63,22 +62,22 @@ type ExtractResult struct {
 	Hints   []string    `json:"hints,omitempty"` // lý do «Tránh» đã đưa vào prompt (chỉ sinh câu, M6)
 }
 
-// checkDoc: tài liệu thuộc lớp (404 nếu không), loại đúng (422 WRONG_DOCUMENT_TYPE), đã READY (409 DOCUMENT_NOT_READY).
-func checkDoc(ctx context.Context, q *store.Queries, courseID, id uuid.UUID, want string) error {
+// checkDoc: tài liệu thuộc lớp (404 nếu không), loại đúng (422 WRONG_DOCUMENT_TYPE), đã READY (409 DOCUMENT_NOT_READY). Trả số trang (0 nếu chưa biết).
+func checkDoc(ctx context.Context, q *store.Queries, courseID, id uuid.UUID, want string) (int, error) {
 	d, err := q.PracticeDocBrief(ctx, store.PracticeDocBriefParams{CourseID: courseID, ID: id})
 	if errors.Is(err, pgx.ErrNoRows) {
-		return notFound()
+		return 0, notFound()
 	}
 	if err != nil {
-		return fmt.Errorf("practice: đọc tài liệu: %w", err)
+		return 0, fmt.Errorf("practice: đọc tài liệu: %w", err)
 	}
 	if d.Type != want {
-		return apierr.New(http.StatusUnprocessableEntity, apierr.WrongDocumentType)
+		return 0, apierr.New(http.StatusUnprocessableEntity, apierr.WrongDocumentType)
 	}
 	if d.Status != "READY" {
-		return apierr.New(http.StatusConflict, apierr.DocumentNotReady)
+		return 0, apierr.New(http.StatusConflict, apierr.DocumentNotReady)
 	}
-	return nil
+	return int(ptrOr(d.PageCount, 0)), nil
 }
 
 // EnqueueExtract xếp việc trích câu từ đề cũ (US-P9-02 AC1, AC6): 202 + job id.
@@ -87,13 +86,18 @@ func (s *Service) EnqueueExtract(ctx context.Context, owner, courseID uuid.UUID,
 	if err := writable(ctx, q, courseID); err != nil {
 		return uuid.Nil, err
 	}
-	if err := checkDoc(ctx, q, courseID, in.DocumentID, "EXAM_PAPER"); err != nil {
+	pages, err := checkDoc(ctx, q, courseID, in.DocumentID, "EXAM_PAPER")
+	if err != nil {
 		return uuid.Nil, err
 	}
 	if in.AnswerKeyDocumentID != nil {
-		if err := checkDoc(ctx, q, courseID, *in.AnswerKeyDocumentID, "ANSWER_KEY"); err != nil {
+		if _, err := checkDoc(ctx, q, courseID, *in.AnswerKeyDocumentID, "ANSWER_KEY"); err != nil {
 			return uuid.Nil, err
 		}
+	}
+	// Trần chi phí LLM (Q-P9-12, P-10-8 F3): đề > 60 trang → 429 {reason: pages}, KHÔNG tạo việc, không gọi LLM, không tính vào 5 việc / giờ.
+	if pages > MaxExtractPages {
+		return uuid.Nil, apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithDetails(map[string]string{"reason": "pages"})
 	}
 	if err := s.jobLimit(ctx, "extract", courseID); err != nil {
 		return uuid.Nil, err
@@ -122,12 +126,15 @@ func (w *Worker) Register(r *jobs.Runner) {
 	r.Register(KindGenerate, w.generate)
 }
 
+// defaultRetryWait: quá tải → thử lại sau 2 s rồi 5 s (3 lời gọi tất cả), hết thì «Chưa trích được. Thử lại.».
+func defaultRetryWait() []time.Duration { return []time.Duration{2 * time.Second, 5 * time.Second} }
+
 func (w *Worker) call(ctx context.Context, system, user string, schema string) (json.RawMessage, error) {
 	temp := 0.2
 	req := llm.Request{Task: llm.TaskQuestionGen, Messages: []llm.Message{{Role: "system", Content: system}, {Role: "user", Content: user}}, Params: llm.Params{Temperature: &temp, MaxTokens: 4096}}
 	backoff := w.RetryWait
 	if backoff == nil {
-		backoff = []time.Duration{2 * time.Second, 5 * time.Second}
+		backoff = defaultRetryWait()
 	}
 	outage := 0
 	for attempt := 0; ; attempt++ {
@@ -244,20 +251,6 @@ func (w *Worker) extract(ctx context.Context, j jobs.JobCtx) (any, error) {
 		return nil, &jobs.UserError{Code: "EMPTY_DOCUMENT", Message: "Không đọc được văn bản."}
 	}
 	res := ExtractResult{Created: []uuid.UUID{}, Skipped: []Skipped{}}
-	if kept := chunks[:0:0]; true { // trần 60 trang (Q-P9-12): chỉ trích phần đầu, báo rõ phần bị cắt
-		cut := false
-		for _, c := range chunks {
-			if ptrOr(c.PageNo, 0) > MaxExtractPages {
-				cut = true
-				continue
-			}
-			kept = append(kept, c)
-		}
-		if cut {
-			res.Skipped = append(res.Skipped, Skipped{Page: MaxExtractPages + 1, Reason: "PAGE_LIMIT"})
-		}
-		chunks = kept
-	}
 	var key map[int]int
 	if p.AnswerKeyDocumentID != nil {
 		ak, err := q.PracticeDocChunks(ctx, store.PracticeDocChunksParams{DocumentID: *p.AnswerKeyDocumentID, CourseID: p.CourseID})
@@ -277,7 +270,7 @@ func (w *Worker) extract(ctx context.Context, j jobs.JobCtx) (any, error) {
 	}
 	seen := map[string]bool{}
 	for _, s := range existing {
-		seen[quiz.NormalizeShort(s)] = true
+		seen[stemKey(s)] = true
 	}
 	wins := windows(chunks, 6000)
 	byNumber := map[int]bool{}
@@ -338,7 +331,7 @@ func (w *Worker) save(ctx context.Context, q *store.Queries, p ExtractPayload, q
 			skip("INVALID")
 			continue
 		}
-		norm := quiz.NormalizeShort(c.Stem)
+		norm := stemKey(c.Stem)
 		if seen[norm] {
 			skip("DUPLICATE")
 			continue

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
 	"github.com/edupilot/backend-go/internal/llm/cost"
@@ -129,7 +130,7 @@ func (g *Gateway) begin(ctx context.Context, task Task, want *Lane, pii int) (*c
 	c := &call{g: g, task: task, start: now}
 	id := IdentityFrom(ctx)
 	tid := TraceID(ctx)
-	c.row = AuditRow{Task: string(task), Lane: LaneBatch.String(), Attempts: 0, PIIMaskedCount: pii, UserID: id.UserID, CourseID: id.CourseID, TraceID: tid, At: now}
+	c.row = AuditRow{ID: uuid.Must(uuid.NewV7()), Task: string(task), Lane: LaneBatch.String(), Attempts: 0, PIIMaskedCount: pii, UserID: id.UserID, CourseID: id.CourseID, TraceID: tid, At: now}
 	lane, err := ResolveLane(task, want)
 	if err != nil {
 		return c.fail(ctx, "error", "BAD_LANE", err)
@@ -329,6 +330,8 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 	var zero chosen[T]
 	targets := c.route.Targets
 	lastKind := provider.Kind("")
+	badOutput := true // mọi nhà đã thử đều trả đầu ra sai; mạch mở / lỗi hạ tầng / chưa thử nhà nào → false
+	tried := false
 	outage := false // có nhà cung cấp lỗi do hạ tầng (mạch mở, mạng, quá hạn, 5xx, 429), khác đầu ra sai / sai khoá
 	for idx, t := range targets {
 		if err := c.ctx.Err(); err != nil {
@@ -338,6 +341,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 		if !c.g.gate.BreakerAllow(c.ctx, t.ProviderID) {
 			lastKind = "circuit_open"
 			outage = true
+			badOutput = false
 			c.row.ErrorKind = "circuit_open"
 			c.warnFallback(targets, idx, "circuit_open")
 			continue
@@ -356,6 +360,8 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 		permit.Done(-1)
 		lastKind = ar.kind
 		outage = outage || ar.kind.Retryable()
+		tried = true
+		badOutput = badOutput && ar.kind == provider.KindBadResponse
 		c.row.ErrorKind = string(ar.kind)
 		if ar.perr != nil && ar.perr.Detail != "" {
 			c.g.o.Log.DebugContext(c.ctx, "lỗi nhà cung cấp LLM", "provider", t.ProviderName, "kind", string(ar.kind), "detail", ar.perr.Detail)
@@ -377,7 +383,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 	if err := c.ctx.Err(); err != nil {
 		return zero, c.ctxErr(err)
 	}
-	return zero, &allFailed{outage: outage}
+	return zero, &allFailed{outage: outage, badOutput: tried && badOutput}
 }
 
 // dimsOf lấy số chiều thật đã gắn vào Detail của lỗi DIMS_MISMATCH ("n").
@@ -444,7 +450,10 @@ func (c *call) seal(resp *Response, err error) bool {
 	c.row.LatencyMS = int(c.g.o.Now().Sub(c.start) / time.Millisecond)
 	if resp != nil {
 		c.row.TokensIn, c.row.TokensOut, c.row.CostEst = resp.TokensIn, resp.TokensOut, resp.CostEst
-		c.row.Provider, c.row.Model, c.row.FallbackIndex, c.row.Degraded = resp.Provider, resp.Model, resp.FallbackIndex, resp.Degraded
+		c.row.Degraded = resp.Degraded
+		if !resp.Degraded { // câu suy giảm không do nhà nào trả lời: giữ nơi THỬ CUỐI mà runChain đã ghi (US-LG-02 AC8)
+			c.row.Provider, c.row.Model, c.row.FallbackIndex = resp.Provider, resp.Model, resp.FallbackIndex
+		}
 	}
 	switch {
 	case err == nil && resp != nil && resp.Degraded:
@@ -530,6 +539,7 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
+	c.recordPrompt(mk, rm)
 	resp, err := g.chat(c, rm, nil)
 	if errors.Is(err, ErrAllProvidersFailed) {
 		if c.lane == LaneInteractive { // suy giảm có kiểm soát: trích nguyên văn, không sinh (SRS 4.3)
@@ -537,7 +547,7 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 			c.finish(&resp, nil)
 			return resp, nil
 		}
-		err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
+		err = unavailable(err)
 	}
 	if err == nil {
 		resp.Text = mk.unmask(resp.Text)
@@ -559,13 +569,16 @@ func (g *Gateway) chat(c *call, r Request, schema json.RawMessage) (Response, er
 	ch, err := runChain(c,
 		func(t Target) int { return estTokens(c.opts(t, r, schema)) },
 		func(ctx context.Context, t Target) (chatVal, int, error) {
-			res, err := t.P.Chat(ctx, c.opts(t, r, schema))
+			o := c.opts(t, r, schema)
+			res, err := t.P.Chat(ctx, o)
 			if err != nil {
 				return res, 0, err
 			}
 			if len(schema) > 0 {
 				res.Text = stripFence(res.Text)
 				if verr := ValidateJSON(schema, json.RawMessage(res.Text)); verr != nil {
+					// Hàng audit của lần lỗi không ghi token; dòng này cho biết «cụt ở trần» (tokens_out ≈ cap) hay sai schema thật. Không ghi nội dung đầu ra.
+					g.o.Log.WarnContext(ctx, "structured_invalid", "task", string(c.task), "provider", t.ProviderName, "tokens_out", res.TokensOut, "cap", o.MaxTokens, "err", verr.Error())
 					return res, 0, &provider.Error{Kind: provider.KindBadResponse}
 				}
 			}
@@ -605,9 +618,10 @@ func (g *Gateway) Structured(ctx context.Context, r Request, schema json.RawMess
 	if err != nil {
 		return nil, err
 	}
+	c.recordPrompt(mk, rm)
 	resp, err := g.chat(c, rm, schema)
 	if errors.Is(err, ErrAllProvidersFailed) {
-		err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
+		err = unavailable(err)
 	}
 	var out json.RawMessage
 	if err == nil { // schema đã được kiểm trên đầu ra thô (trong g.chat); chỉ khi đó mới khôi phục chuỗi giá trị

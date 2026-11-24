@@ -8,9 +8,94 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 )
+
+const auditList = `-- name: AuditList :many
+select a.id, a.created_at, a.actor_id, u.full_name as actor_name, u.role as actor_role, a.entity, a.entity_id, a.action, a.course_id, a.trace_id,
+       coalesce(array(
+         select k from (
+           select jsonb_object_keys(case when jsonb_typeof(a.before) = 'object' then a.before else '{}'::jsonb end) as k
+           union
+           select jsonb_object_keys(case when jsonb_typeof(a.after) = 'object' then a.after else '{}'::jsonb end)
+         ) keys order by k limit 20
+       ), '{}')::text[] as changed_fields
+from audit_log a
+left join users u on u.id = a.actor_id
+where a.created_at >= $1 and a.created_at < $2
+  and ($3::text is null or a.entity = $3)
+  and ($4::uuid is null or a.actor_id = $4)
+  and ($5::timestamptz is null or (a.created_at, a.id) < ($5, $6::uuid))
+order by a.created_at desc, a.id desc
+limit $7
+`
+
+type AuditListParams struct {
+	FromTs   time.Time
+	ToTs     time.Time
+	Entity   *string
+	ActorID  *uuid.UUID
+	CursorAt *time.Time
+	CursorID *uuid.UUID
+	MaxRows  int32
+}
+
+type AuditListRow struct {
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	ActorID       *uuid.UUID
+	ActorName     *string
+	ActorRole     *UserRole
+	Entity        string
+	EntityID      string
+	Action        string
+	CourseID      *uuid.UUID
+	TraceID       *string
+	ChangedFields []string
+}
+
+// Trang nhật ký cho ADMIN (US-P10-14): lọc AND, (created_at, id) giảm dần, con trỏ khoá (created_at, id). Chỉ tên khoá cấp 1 của before ∪ after — KHÔNG trả giá trị.
+func (q *Queries) AuditList(ctx context.Context, arg AuditListParams) ([]AuditListRow, error) {
+	rows, err := q.db.Query(ctx, auditList,
+		arg.FromTs,
+		arg.ToTs,
+		arg.Entity,
+		arg.ActorID,
+		arg.CursorAt,
+		arg.CursorID,
+		arg.MaxRows,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AuditListRow{}
+	for rows.Next() {
+		var i AuditListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.ActorID,
+			&i.ActorName,
+			&i.ActorRole,
+			&i.Entity,
+			&i.EntityID,
+			&i.Action,
+			&i.CourseID,
+			&i.TraceID,
+			&i.ChangedFields,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const insertAuditLog = `-- name: InsertAuditLog :one
 

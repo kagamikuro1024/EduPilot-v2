@@ -3,7 +3,9 @@ package llm_test
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/edupilot/backend-go/internal/llm"
@@ -159,5 +161,65 @@ func TestEmbedEmptyInput(t *testing.T) {
 	}
 	if rows := cap.all(t, g); len(rows) != 4 || rows[0].ErrorKind != "BAD_REQUEST" {
 		t.Errorf("audit = %d dòng", len(rows))
+	}
+}
+
+// Đầu ra sai schema để lại MỘT dòng WARN structured_invalid (tác vụ, token ra, trần, lỗi schema) để phân biệt «bị cắt cụt ở trần» với «sai schema»;
+// tuyệt đối không có nội dung đầu ra.
+func TestStructuredInvalidLogsTokensNotContent(t *testing.T) {
+	t.Parallel()
+	var buf syncBuf
+	log := slog.New(slog.NewTextHandler(&buf, nil))
+	secret := "NỘI-DUNG-BÍ-MẬT-CỦA-MÔ-HÌNH"
+	wrong := &stub{name: "A", chat: func(int, provider.ChatOpts) (provider.Result, error) {
+		return provider.Result{Text: `{"label":"` + secret + `","confidence":0.5}`, TokensOut: 777}, nil
+	}}
+	g, _ := newGatewayLog(t, log, wrong)
+	_, _ = g.Structured(t.Context(), llm.Request{Task: llm.TaskClassify, Messages: userMsg("hỏi"), Params: llm.Params{MaxTokens: 123}}, json.RawMessage(classifySchema))
+	out := buf.String()
+	for _, want := range []string{"structured_invalid", "task=CLASSIFY", "tokens_out=777", "cap=123", "err="} {
+		if !strings.Contains(out, want) {
+			t.Errorf("thiếu %q trong log: %s", want, out)
+		}
+	}
+	if strings.Contains(out, secret) {
+		t.Errorf("log chứa nội dung đầu ra: %s", out)
+	}
+}
+
+type syncBuf struct {
+	mu sync.Mutex
+	b  strings.Builder
+}
+
+func (s *syncBuf) Write(p []byte) (int, error) { s.mu.Lock(); defer s.mu.Unlock(); return s.b.Write(p) }
+func (s *syncBuf) String() string              { s.mu.Lock(); defer s.mu.Unlock(); return s.b.String() }
+
+// DEF-OC-SI-01: dòng structured_invalid chỉ có LOẠI lỗi + đường dẫn lấy từ schema của ta; không chuỗi nào từ đầu ra LLM
+// (tên trường thừa, ký tự đầu của đầu ra không phải JSON, khoá của map additionalProperties).
+func TestStructuredInvalidLogHasNoModelStrings(t *testing.T) {
+	t.Parallel()
+	const secret = "BIMAT123"
+	mapSchema := `{"type":"object","properties":{"m":{"type":"object","additionalProperties":{"type":"string"}}},"required":["m"],"additionalProperties":false}`
+	for _, tc := range []struct{ name, schema, out string }{
+		{"trường thừa", classifySchema, `{"label":"hoi_dap","confidence":1,"` + secret + `":1}`},
+		{"không phải JSON", classifySchema, secret + ` không phải json`},
+		{"khoá của map", mapSchema, `{"m":{"` + secret + `":5}}`},
+		{"kiểu hợp nhất", `{"type":["string","null"]}`, `{"` + secret + `":1}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			var buf syncBuf
+			wrong := &stub{name: "A", chat: func(int, provider.ChatOpts) (provider.Result, error) { return provider.Result{Text: tc.out}, nil }}
+			g, _ := newGatewayLog(t, slog.New(slog.NewTextHandler(&buf, nil)), wrong)
+			_, _ = g.Structured(t.Context(), llm.Request{Task: llm.TaskClassify, Messages: userMsg("hỏi")}, json.RawMessage(tc.schema))
+			out := buf.String()
+			if !strings.Contains(out, "structured_invalid") {
+				t.Fatalf("không có dòng log: %s", out)
+			}
+			if strings.Contains(out, secret) || strings.Contains(out, "invalid character") {
+				t.Errorf("log chứa chuỗi từ đầu ra: %s", out)
+			}
+		})
 	}
 }

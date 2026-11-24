@@ -18,6 +18,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 )
 
 // TestChatLockedDuringExam / TestLockCheckBeforeAnything / TestLockedWritesChatBlockedEvent / TestLockerErrorDeniesChat / TestUnlockedAfterSubmit — AC9.
@@ -476,4 +477,26 @@ func TestFromDraftKeepsText(t *testing.T) {
 	require.Equal(t, 403, httpStatus(err))
 	_, err = r.svc.FromDraft(t.Context(), r.student, chat.FromDraftIn{CourseID: r.course, Body: "   "})
 	require.Equal(t, 422, httpStatus(err))
+}
+
+// DEF-R9.5-20 (TL-2d): Redis không đáp ⇒ tin thường nhận 503 OVERLOADED + Retry-After trong vài giây (không treo ~40 s); tin khủng hoảng vẫn đi tiếp.
+func TestSendRedisDownFailsFast(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	dead, err := appredis.New(t.Context(), "redis://127.0.0.1:1/0")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = dead.Close() })
+	r.svc.Redis = dead
+	start := time.Now()
+	_, err = r.svc.Send(t.Context(), r.student, r.sess, uuid.New(), "Điểm quá trình tính thế nào?")
+	require.Equal(t, 503, httpStatus(err), "%v", err)
+	var ae *apierr.Error
+	require.True(t, errors.As(err, &ae))
+	require.Equal(t, apierr.Overloaded, ae.Code)
+	require.GreaterOrEqual(t, ae.RetryAfter, 1)
+	require.Less(t, time.Since(start), 5*time.Second)
+	_, err = r.svc.Send(t.Context(), r.student, r.sess, uuid.New(), "Em không muốn sống nữa")
+	if errors.As(err, &ae) {
+		require.NotEqual(t, apierr.Overloaded, ae.Code, "đường hỗ trợ không bị chặn khi Redis tắt")
+	}
 }

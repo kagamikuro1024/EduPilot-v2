@@ -538,7 +538,7 @@ Chữ theo `CLAUDE.md` (luật chữ UI): **không** câu mô tả dưới tiêu
 - **Nháp:** `useAutosaveDraft('ticket:'+id)`.
 - **Điện thoại (< 720 px):** danh sách toàn màn hình → chi tiết toàn màn hình (`?ticket=`), ô trả lời dính đáy, vùng chạm ≥ 44 px, không tràn ngang; zoom 200 % vẫn thao tác được.
 - **Phím tắt** (cắt được): `J`/`K`, `R`, `⌘↵`; bản đồ trong `CommandPalette`.
-- **Trạng thái:** tải = khung xương 6 dòng; rỗng = "Không có câu hỏi nào đang chờ." + `Xem tất cả`; lỗi = `ApiErrorNotice` + `Thử lại`; PII trong trả lời: tô vùng, nút `Gửi trả lời` khoá tới khi sửa.
+- **Trạng thái:** tải = khung xương 6 dòng; rỗng = «Chưa có câu hỏi cần xử lý» (chỉ tiêu đề, không nút; bộ lọc rỗng: «Không có câu hỏi trong bộ lọc này»; §23.4; P-11-81); lỗi = `ApiErrorNotice` + `Thử lại`; PII trong trả lời: tô vùng, nút `Gửi trả lời` khoá tới khi sửa.
 
 ### 7.2 `/chat` (sinh viên)
 

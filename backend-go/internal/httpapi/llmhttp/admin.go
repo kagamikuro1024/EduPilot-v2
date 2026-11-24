@@ -176,6 +176,9 @@ func (a *Admin) createProvider(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		verified = true
+		var cancel context.CancelFunc
+		ctx, cancel = afterProbeCtx(ctx)
+		defer cancel()
 	}
 	p, err := a.RT.Config.CreateProvider(ctx, in)
 	if err != nil {
@@ -236,12 +239,7 @@ func (a *Admin) updateProvider(w http.ResponseWriter, r *http.Request) {
 	verified := false
 	changed := in.APIKey != nil || in.Type != cur.Type || !sameURL(in.BaseURL, cur.BaseURL)
 	if changed && !in.SkipVerify {
-		key := ""
-		if in.APIKey != nil {
-			key = in.APIKey.Reveal()
-		} else if k, kerr := a.RT.Resolver.DecryptKey(ctx, id); kerr == nil {
-			key = k
-		}
+		key := a.RT.Resolver.KeyForVerify(ctx, id, in.APIKey)
 		cand := pickInput(in.Models)
 		if in.Models == nil {
 			cand = pickStored(cur.Models)
@@ -250,6 +248,9 @@ func (a *Admin) updateProvider(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		verified = true
+		var cancel context.CancelFunc
+		ctx, cancel = afterProbeCtx(ctx)
+		defer cancel()
 	}
 	p, err := a.RT.Config.UpdateProvider(ctx, id, in)
 	var vc *llmconfig.ErrVersionConflict

@@ -27,7 +27,7 @@ var (
 type StartIn struct {
 	Mode            string      `json:"mode"`
 	Topic           string      `json:"topic"`
-	Count           int         `json:"count"`
+	Count           *int        `json:"count"` // con trỏ: thiếu ⇒ mặc định theo chế độ; có mặt (kể cả 0) thì phải trong 5–50 (US-P10-09, P-10-10)
 	DurationMinutes int         `json:"duration_minutes"`
 	Matrix          []quiz.Cell `json:"matrix"`
 }
@@ -78,6 +78,10 @@ func (s *Service) Overview(ctx context.Context, userID, courseID uuid.UUID) (Ove
 
 // checkStart kiểm thân `start` (US-P9-05 AC7) và điền mặc định.
 func checkStart(in *StartIn) error {
+	n := 0
+	if in.Count != nil {
+		n = *in.Count
+	}
 	var errs []apierr.FieldError
 	bad := func(f, c, m string) { errs = append(errs, apierr.FieldError{Field: f, Code: c, Message: m}) }
 	switch in.Mode {
@@ -86,12 +90,12 @@ func checkStart(in *StartIn) error {
 		if in.Topic == "" {
 			bad("topic", "VALUE_REQUIRED", "Chọn một chủ đề.")
 		}
-		if in.Count == 0 {
-			in.Count = DefaultTopicN
+		if in.Count == nil {
+			n = DefaultTopicN
 		}
 	case "MOCK":
-		if in.Count == 0 {
-			in.Count = DefaultMockN
+		if in.Count == nil {
+			n = DefaultMockN
 		}
 		if in.DurationMinutes == 0 {
 			in.DurationMinutes = DefaultDuration
@@ -102,7 +106,7 @@ func checkStart(in *StartIn) error {
 	default:
 		bad("mode", "INVALID_MODE", "Chế độ phải là TOPIC hoặc MOCK.")
 	}
-	if in.Count < MinCount || in.Count > MaxCount {
+	if n < MinCount || n > MaxCount {
 		bad("count", "LIMIT_OUT_OF_RANGE", "Số câu từ 5 đến 50.")
 	}
 	if in.Mode == "MOCK" && len(in.Matrix) > 0 {
@@ -116,11 +120,12 @@ func checkStart(in *StartIn) error {
 		if sum < MinCount || sum > MaxCount {
 			bad("matrix", "LIMIT_OUT_OF_RANGE", "Tổng số câu của ma trận từ 5 đến 50.")
 		}
-		in.Count = sum
+		n = sum
 	}
 	if len(errs) > 0 {
 		return apierr.Validation(errs...)
 	}
+	in.Count = &n
 	return nil
 }
 
@@ -211,7 +216,7 @@ func (s *Service) build(ctx context.Context, q *store.Queries, userID, courseID 
 	}
 	matrix := in.Matrix
 	if len(matrix) == 0 {
-		matrix = []quiz.Cell{{Topic: topic, Count: in.Count}}
+		matrix = []quiz.Cell{{Topic: topic, Count: *in.Count}}
 	}
 	// Seed tạm cho BuildMatrix chỉ để chọn câu; seed xáo dùng id lượt (ổn định khi tải lại). Dùng thời điểm + người: hai sinh viên không cùng đề.
 	seed := quiz.SeedOf(userID.String() + s.now().Format(time.RFC3339Nano))

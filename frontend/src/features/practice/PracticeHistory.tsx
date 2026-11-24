@@ -5,12 +5,13 @@ import { useCursorList } from "@/shared/data";
 import { fmtWhen } from "@/features/exam/examApi";
 import { ActionList, ActionRow, BarList, Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText } from "@/shared/ui";
 import { getWeakness, pKey, pPath, useStudentCourse, type PHistoryRow } from "./practiceApi";
+import { HistoryShell } from "./PracticeShell";
 import s from "./Practice.module.css";
 
 /** Lịch sử luyện tập: nhìn ra chủ đề cần luyện tiếp (DESIGN §14.20). */
 export function PracticeHistory() {
   const c = useStudentCourse();
-  if (c.state === "loading") return <Page kind="read"><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (c.state === "loading") return <HistoryShell />;
   if (c.state === "none") return <Page kind="read"><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;
   return <History courseId={c.id} />;
 }
@@ -26,10 +27,10 @@ function History({ courseId }: { courseId: string }) {
         query={list}
         isEmpty={() => list.items.length === 0}
         loading={<Panel><Skeleton lines={6} /></Panel>}
-        empty={<Panel><EmptyState title="Chưa có lượt luyện nào" /></Panel>}
+        empty={<Panel><EmptyState title="Chưa có lượt luyện nào" action={<ButtonLink href="/practice" variant="primary">Luyện ngay</ButtonLink>} /></Panel>}
       >
         {topics.length > 0 && (
-          <Section title="Chủ đề bạn hay sai">
+          <Section title="Chủ đề cần ôn">
             <div className={s.weak}>
               <BarList items={topics.map((w) => ({ label: w.topic, value: Math.round((w.wrong / w.answered) * 100), tone: w.wrong / w.answered >= 0.5 ? "red" : "ink" }))} max={100} format={(v) => `${v}% sai`} />
             </div>

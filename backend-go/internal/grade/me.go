@@ -58,11 +58,12 @@ type (
 		LockedAt     time.Time `json:"locked_at"`
 	}
 	MeLine struct {
-		Label       string `json:"label"`
-		Expr        string `json:"expr"`
-		Value       string `json:"value"`
-		SourceQuote string `json:"source_quote,omitempty"`
-		Page        int    `json:"page,omitempty"`
+		Label       string   `json:"label"`
+		Text        string   `json:"text"`
+		Detail      []string `json:"detail,omitempty"`
+		Value       string   `json:"value"`
+		SourceQuote string   `json:"source_quote,omitempty"`
+		Page        int      `json:"page,omitempty"`
 	}
 	MeGrades struct {
 		Status       string        `json:"status"`
@@ -233,8 +234,16 @@ func (s *Service) MeGrades(ctx context.Context, courseID, user uuid.UUID) (MeGra
 	return out, nil
 }
 
+// meText: câu cho sinh viên; bản chốt cũ (trước P-11-15) chưa lưu `text` thì dùng «nhãn: giá trị» — không bao giờ lộ `expr`.
+func meText(text, label, value string) string {
+	if text != "" {
+		return text
+	}
+	return label + ": " + value
+}
+
 func meLine(l Line) MeLine {
-	m := MeLine{Label: l.Label, Expr: l.Expr, Value: l.Value, Page: l.Page}
+	m := MeLine{Label: l.Label, Text: meText(l.Text, l.Label, l.Value), Detail: l.Detail, Value: l.Value, Page: l.Page}
 	if l.Quote != nil {
 		m.SourceQuote = *l.Quote
 	}
@@ -249,11 +258,12 @@ func meFinal(out MeGrades, sn store.GradeSnapshotsForStudentsRow, version int32,
 			Key, Name, Weight, Score string
 		} `json:"components"`
 		Lines []struct {
-			Label       string `json:"label"`
-			Expr        string `json:"expr"`
-			Value       string `json:"value"`
-			SourceQuote string `json:"source_quote"`
-			Page        int    `json:"page"`
+			Label       string   `json:"label"`
+			Text        string   `json:"text"`
+			Detail      []string `json:"detail"`
+			Value       string   `json:"value"`
+			SourceQuote string   `json:"source_quote"`
+			Page        int      `json:"page"`
 		} `json:"lines"`
 	}
 	if err := json.Unmarshal(sn.Breakdown, &bd); err != nil {
@@ -266,13 +276,13 @@ func meFinal(out MeGrades, sn store.GradeSnapshotsForStudentsRow, version int32,
 	out.Bonus = &MeBonus{Applied: bd.Bonus, Raw: bd.Bonus, Cap: capV}
 	out.Penalty = &MePenalty{Value: bd.Penalty, Absent: bd.Absent, Free: free, Per: per}
 	out.QT = bd.QT
-	f := &MeFinal{NumericGrade: sn.NumericGrade.String(), Letter: sn.Letter, Version: int(version)}
+	f := &MeFinal{NumericGrade: sn.NumericGrade.String(), Letter: sn.Letter, Version: int(version), LockedAt: sn.LockedAt}
 	if sn.FailedReason != nil {
 		t := lietText(*sn.FailedReason)
 		f.FailedReason = &t
 	}
 	for _, l := range bd.Lines {
-		out.Calculation = append(out.Calculation, MeLine{Label: l.Label, Expr: l.Expr, Value: l.Value, SourceQuote: l.SourceQuote, Page: l.Page})
+		out.Calculation = append(out.Calculation, MeLine{Label: l.Label, Text: meText(l.Text, l.Label, l.Value), Detail: l.Detail, Value: l.Value, SourceQuote: l.SourceQuote, Page: l.Page})
 	}
 	out.Final = f
 	return out, nil
@@ -317,6 +327,9 @@ func (s *Service) MeWhatIf(ctx context.Context, courseID, user uuid.UUID, in Wha
 	}
 	if !ok {
 		return WhatIfOut{}, apierr.New(http.StatusConflict, apierr.SchemeNotConfirmed)
+	}
+	if in.TargetLetter != nil && !conf.Scheme.hasLetter(strings.TrimSpace(*in.TargetLetter)) { // điểm chữ ngoài thang (Z, a+) = lỗi nhập, không phải «không đạt được» (TC-P6-09-49)
+		return WhatIfOut{}, apierr.Validation(apierr.FieldError{Field: "target_letter", Code: "enum", Message: "Điểm chữ không có trong thang của công thức."})
 	}
 	if gb, err := q.GradebookState(ctx, courseID); err == nil && gb.Status == store.GradebookStatusLOCKED {
 		if sn, err := q.GradeSnapshotsForStudents(ctx, store.GradeSnapshotsForStudentsParams{CourseID: courseID, Version: gb.SnapshotVersion, StudentIds: idStrings([]uuid.UUID{user})}); err == nil && len(sn) == 1 {

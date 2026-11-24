@@ -7,7 +7,7 @@ import { Button, ConfirmIrreversible, InlineNotice, OverflowMenu, StatusText, Sw
 import { ConflictNotice } from "./ConflictNotice";
 import dynamic from "next/dynamic";
 import type { FormMode } from "./ProviderForm";
-import { KEY, useSaver, type Provider, type TestResult } from "./api";
+import { KEY, PROBE_TIMEOUT_MS, useSaver, type Provider, type TestResult } from "./api";
 import { TYPE_LABEL, providerStatus, testMessage } from "./labels";
 import s from "./llm.module.css";
 
@@ -30,7 +30,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
   async function runTest(p: Provider) {
     setTests((t) => ({ ...t, [p.id]: { pending: true } }));
     try {
-      const r = await apiClient.post<TestResult>(`/admin/llm/providers/${p.id}/test`, {});
+      const r = await apiClient.post<TestResult>(`/admin/llm/providers/${p.id}/test`, {}, { timeoutMs: PROBE_TIMEOUT_MS });
       setTests((t) => ({ ...t, [p.id]: { pending: false, result: r.data } }));
       void qc.invalidateQueries({ queryKey: KEY.providers });
     } catch (e) {
@@ -65,7 +65,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
           tone="info"
           action={canEdit && form?.mode !== "add" ? <Button size="sm" onClick={() => setForm({ mode: "add" })}>Thêm nhà cung cấp</Button> : undefined}
         >
-          Đang dùng cấu hình mặc định của máy chủ. Thêm nhà cung cấp để thay đổi.
+          Chưa có nhà cung cấp
         </InlineNotice>
       )}
       <ul className={s.list}>
@@ -77,7 +77,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
               <div className={s.providerGrid}>
                 <div className={s.info}>
                   <p className="ep-item-title">{p.name}</p>
-                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
+                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && !(p.type === "openai_compatible" && p.base_url) && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
                   {p.type === "openai_compatible" && p.base_url && <p className={s.mono}>{p.base_url}</p>}
                 </div>
                 <div className={s.status} data-part="provider-status">

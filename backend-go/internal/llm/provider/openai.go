@@ -56,6 +56,7 @@ type oaClient struct {
 	typ  string
 	key  string
 	base string
+	ocgo bool // base là OpenCode Go: header tự xưng + phiên + reasoning_effort=low
 }
 
 // NewOpenAI dựng provider. WithMaxRetries(0) là BẮT BUỘC: SDK mặc định tự thử lại 2 lần và có thể chờ tới 2 phút theo Retry-After,
@@ -68,13 +69,37 @@ func NewOpenAI(c OpenAIConfig) Provider {
 	} else {
 		opts = append(opts, option.WithAPIKey("none")) // openai_compatible có thể không cần khoá; SDK đòi chuỗi khác rỗng
 	}
+	ocgo := isOpenCodeGo(base)
+	if ocgo {
+		opts = append(opts, option.WithHeader("User-Agent", openCodeUA)) // OpenCode Go đòi client tự xưng, không dùng UA chung của SDK (opencode.ai/docs/console/go)
+	}
 	hc := c.HTTP
 	if hc == nil {
 		// Không theo chuyển hướng: base_url do ADMIN đặt, chuyển hướng 3xx sang địa chỉ khác là đường SSRF (SRS 4.2, Q-QC-P102-1).
 		hc = &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	}
 	opts = append(opts, option.WithHTTPClient(hc))
-	return &oaClient{cl: openai.NewClient(opts...), typ: c.Type, key: c.APIKey, base: base}
+	return &oaClient{cl: openai.NewClient(opts...), typ: c.Type, key: c.APIKey, base: base, ocgo: ocgo}
+}
+
+const openCodeUA = "edupilot/2.0"
+
+// openCodeReasoningHeadroom: deepseek-v4.1-flash dùng ~600–1400 token suy luận NGAY CẢ ở effort=low và chúng tính vào max_tokens; với trần 1024 của gateway,
+// 2/5 lượt UTILITY bị cắt cụt giữa JSON (đo trên OpenCode Go thật) → BAD_RESPONSE. ponytail: cộng cố định; cấu hình theo mô hình khi cần.
+const openCodeReasoningHeadroom = 4096
+
+// isOpenCodeGo nhận ra OpenCode Go theo host của base_url (so khớp chính xác, `opencode.ai.evil.example` không khớp).
+func isOpenCodeGo(base string) bool {
+	u, err := url.Parse(base)
+	return err == nil && u.Hostname() == "opencode.ai"
+}
+
+// sessionOpts: header phiên OpenCode Go theo từng lời gọi (Chat và Stream). ponytail: phiên theo tác vụ, đổi sang theo hội thoại/bài nộp khi cần cache tốt hơn.
+func (p *oaClient) sessionOpts(o ChatOpts) []option.RequestOption {
+	if !p.ocgo {
+		return nil
+	}
+	return []option.RequestOption{option.WithHeader("x-opencode-session", strings.TrimSuffix("edupilot-"+strings.ToLower(o.Task), "-"))}
 }
 
 func (p *oaClient) fail(err error) error { return classify(err, p.key) }
@@ -113,6 +138,9 @@ func (p *oaClient) params(o ChatOpts) openai.ChatCompletionNewParams {
 		prm.Temperature = openai.Float(t)
 	}
 	if o.MaxTokens > 0 {
+		if p.ocgo {
+			o.MaxTokens += openCodeReasoningHeadroom
+		}
 		// OpenAI / Anthropic: max_completion_tokens; Gemini và máy chủ tương thích: max_tokens (research mục "Ảnh hưởng").
 		if p.typ == "openai" || p.typ == "anthropic" {
 			prm.MaxCompletionTokens = openai.Int(int64(o.MaxTokens))
@@ -120,8 +148,8 @@ func (p *oaClient) params(o ChatOpts) openai.ChatCompletionNewParams {
 			prm.MaxTokens = openai.Int(int64(o.MaxTokens))
 		}
 	}
-	if o.Fast && p.typ == "gemini" {
-		prm.ReasoningEffort = shared.ReasoningEffort("low")
+	if (o.Fast && p.typ == "gemini") || p.ocgo {
+		prm.ReasoningEffort = shared.ReasoningEffort("low") // ponytail: OpenCode Go cố định low; cấu hình theo mô hình khi cần mức khác
 	}
 	if len(o.Schema) > 0 {
 		p.applySchema(&prm, o.Schema)
@@ -182,7 +210,7 @@ func estimate(s string) int { return (len(s) + 3) / 4 }
 
 // Chat gọi sinh văn bản một lần.
 func (p *oaClient) Chat(ctx context.Context, o ChatOpts) (Result, error) {
-	var ro []option.RequestOption
+	ro := p.sessionOpts(o)
 	if p.typ == "openai_compatible" {
 		// Một số cổng tương thích OpenAI (9router, OPS-VPS) trả SSE khi thân không nêu `stream`: SDK không giải mã được → BAD_RESPONSE. Nêu rõ `stream:false`.
 		ro = append(ro, option.WithJSONSet("stream", false))
@@ -213,7 +241,7 @@ func (p *oaClient) Chat(ctx context.Context, o ChatOpts) (Result, error) {
 func (p *oaClient) Stream(ctx context.Context, o ChatOpts) (<-chan Delta, error) {
 	prm := p.params(o)
 	prm.StreamOptions = openai.ChatCompletionStreamOptionsParam{IncludeUsage: openai.Bool(true)}
-	st := p.cl.Chat.Completions.NewStreaming(ctx, prm)
+	st := p.cl.Chat.Completions.NewStreaming(ctx, prm, p.sessionOpts(o)...)
 	out := make(chan Delta, 16)
 	go func() {
 		defer close(out)

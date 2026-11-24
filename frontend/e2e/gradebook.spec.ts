@@ -199,6 +199,18 @@ test("scheme states: rỗng có Tải quy chế, đang tải có khung xương, 
   await expect(p2.getByRole("heading", { name: "Thành phần" })).toBeVisible();
 });
 
+// DEF-R8-A5 (TC-P6-05-42, US-P6-05 AC8): tài liệu nguồn đã bị xoá (source_document_id rỗng, source_title còn) → trích dẫn hiện «Tài liệu nguồn đã gỡ», không lỗi.
+test("scheme source removed: trích dẫn hiện «Tài liệu nguồn đã gỡ», còn đoạn trích, không có liên kết mở trang", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, context, { draft: null, confirmed: confirmedLop1({ source_document_id: undefined }) });
+  await block(page, "components").getByRole("button", { name: "Trang 1" }).click();
+  const pane = page.locator("[data-part=citation-pane]");
+  await expect(pane).toContainText("Tài liệu nguồn đã gỡ");
+  await expect(pane.locator("mark")).toContainText("Điểm quá trình gồm bài kiểm tra hằng tuần");
+  await expect(pane.getByRole("link")).toHaveCount(0);
+});
+
 test("scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px", async ({ page, context }, info) => {
   desktopOnly(info);
   await page.setViewportSize({ width: 375, height: 812 });
@@ -477,7 +489,7 @@ test("publish column: menu cột công bố / gỡ; cột bài thi không có me
 test("penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện", async ({ page, context }, info) => {
   desktopOnly(info);
   await sheet(page, context, { warnings: ["PENALTY_NOT_IN_SCHEME"] });
-  const note = page.getByText("Có điểm trừ ghi tay không được tính theo công thức");
+  const note = page.getByText("Điểm trừ ghi tay", { exact: true });
   await expect(note).toHaveCount(1);
   await page.getByRole("button", { name: "Xem", exact: true }).click();
   await expect(page.getByText("Sinh Viên 0001").first()).toBeVisible();
@@ -485,7 +497,7 @@ test("penalty not in scheme notice: một dòng cảnh báo không chặn, mở 
   const p2 = await context.newPage();
   await gradebookApi(p2, {});
   await p2.goto("/gradebook");
-  await expect(p2.getByText(/không được tính theo công thức/)).toHaveCount(0);
+  await expect(p2.getByText(/ghi tay/)).toHaveCount(0);
 });
 
 test("gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức", async ({ page, context }, info) => {

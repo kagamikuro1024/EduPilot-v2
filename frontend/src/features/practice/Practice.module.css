@@ -99,3 +99,9 @@
   .foot > * { min-height: 44px; }
 }
 .runBody { display: grid; gap: var(--ep-space-4); }
+.actionBar { position: sticky; bottom: 0; z-index: 5; padding: var(--ep-space-3) 0; background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+.topicNav { display: flex; flex-wrap: wrap; gap: var(--ep-space-2); margin: 0; padding: 0; list-style: none; }
+.topicNavBtn { display: grid; place-items: center; min-width: 44px; min-height: 44px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink); font: inherit; cursor: pointer; }
+.topicNavBtn:disabled { color: var(--ep-ink-3); cursor: default; }
+.topicNavBtn svg { width: 16px; height: 16px; }
+@media (max-width: 719px) { .actionBar { bottom: calc(56px + env(safe-area-inset-bottom)); } }

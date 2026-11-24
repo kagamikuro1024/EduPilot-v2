@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -172,4 +173,27 @@ func (m *masked) unmaskJSON(raw json.RawMessage) (json.RawMessage, error) {
 		return nil, fmt.Errorf("llm: mã hoá JSON sau khôi phục: %w", err)
 	}
 	return bytes.TrimSpace(buf.Bytes()), nil
+}
+
+// maxPromptBytes là trần bản prompt lưu cho quan sát AI.
+const maxPromptBytes = 32 << 10
+
+// recordPrompt gắn bản prompt ĐÃ CHE vào dòng audit để ghi vào llm_request_payloads (US-P10-02 AC10). Chỉ khi đã che thật (m.on):
+// che tắt (test / nomask) thì không lưu gì, để không bao giờ lưu bản gốc.
+func (c *call) recordPrompt(m *masked, r Request) {
+	if m == nil || !m.on || len(r.Messages) == 0 {
+		return
+	}
+	var b strings.Builder
+	for i, msg := range r.Messages {
+		if i > 0 {
+			b.WriteString("\n\n")
+		}
+		b.WriteString("[" + msg.Role + "]\n" + msg.Content)
+	}
+	p := b.String()
+	if len(p) > maxPromptBytes {
+		p = strings.ToValidUTF8(p[:maxPromptBytes], "") + "\n… (cắt)"
+	}
+	c.row.Prompt, c.row.Tools = p, r.Tools
 }

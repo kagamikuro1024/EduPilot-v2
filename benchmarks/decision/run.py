@@ -5,7 +5,8 @@
 Biến: API_URL (https://localhost/api/v1), SEED_DEFAULT_PASSWORD (bắt buộc), CHAT_ROUNDS (3), BENCH_COURSE (761987),
       GRADE_TIMEOUT (900 s), BENCH_OUT (benchmarks/reports).
 Mỗi kịch bản chạy HAI lần trên cùng stack: cổng TẮT («trước») rồi cổng BẬT («sau», qua API ADMIN, công tắc hệ thống + lớp).
-Không gọi nhà cung cấp thật: provider decision phải là bản giả (`provider.fake`); lượt thật chờ phép PM (AC6).
+Mặc định không gọi nhà cung cấp thật: provider decision phải là bản giả (`provider.fake`). Lượt THẬT (AC6) chỉ chạy khi PM cho phép bằng văn bản:
+`LLM_DECISION_ALLOW_REAL=true` VÀ cờ `--real` (xác nhận rõ), kế hoạch ≤ 300 lời gọi decision (trần ngày của gateway vẫn áp); báo cáo thêm cột «thật».
 Thoát mã 2 «Gateway chưa chạy» khi không nối được (không ghi báo cáo rỗng).
 """
 import hashlib, json, os, re, ssl, statistics, sys, time, urllib.error, urllib.request, uuid
@@ -29,6 +30,21 @@ def jwt_sub(tok):
     import base64
     seg = tok.split(".")[1]
     return json.loads(base64.urlsafe_b64decode(seg + "=" * (-len(seg) % 4)))["sub"]
+
+
+REAL_CAP = 300  # US-DM-08 AC6: tối đa 300 lời gọi decision cho cả lượt thật (đề xuất 100 chat + 100 Threads + 100 chèn lệnh)
+GRADING_ESSAYS = 12
+
+
+def real_error(fake, env, argv, planned):
+    """None nếu được chạy; ngược lại là lý do dừng. Provider giả luôn chạy; provider thật cần cả biến phép lẫn cờ xác nhận và kế hoạch ≤ REAL_CAP."""
+    if fake:
+        return None
+    if env.get("LLM_DECISION_ALLOW_REAL") != "true" or "--real" not in argv:
+        return "Provider decision không phải bản giả: lượt thật cần phép PM bằng văn bản, LLM_DECISION_ALLOW_REAL=true và cờ --real (AC6). Dừng."
+    if planned > REAL_CAP:
+        return f"Lượt thật dự kiến {planned} lời gọi decision > trần {REAL_CAP}: giảm CHAT_ROUNDS. Dừng."
+    return None
 
 
 def die(msg, code=1):
@@ -144,24 +160,33 @@ def ask(sv, c1, text):
     must(s, (200, 201), "tạo phiên chat")
     h = {"Accept": "text/event-stream", "Authorization": f"Bearer {sv}", "Content-Type": "application/json", "Origin": ORIGIN, "Idempotency-Key": str(uuid.uuid4())}
     req = urllib.request.Request(f"{API}/chat/sessions/{sess['id']}/messages", data=json.dumps({"content": text}).encode(), method="POST", headers=h)
-    t0 = time.perf_counter()
-    first = tok = None
-    stages, ev = set(), ""
-    try:
-        with urllib.request.urlopen(req, context=CTX, timeout=120) as r:
-            for line in r:
-                line = line.decode().rstrip("\n")
-                if line.startswith("event:"):
-                    ev = line[6:].strip()
-                elif line.startswith("data:"):
-                    now = (time.perf_counter() - t0) * 1000
-                    first = first if first is not None else now
-                    if ev == "token" and tok is None:
-                        tok = now
-                    if ev == "status":
-                        stages.add(json.loads(line[5:]).get("stage"))
-    except urllib.error.HTTPError as e:
-        return {"error": e.code}
+    # CHAT_RATE_PER_MIN = 20 / người / phút: một SV gửi 90 câu liên tục sẽ nhận 429 (P-11-25(1): 65/90 «lỗi» lần trước đều là 429 của bench).
+    # Chờ Retry-After rồi gửi lại; bộ đếm giờ chạy lại từ lần gửi thành công nên TTFT không dính thời gian chờ.
+    waits = 0
+    while True:
+        t0 = time.perf_counter()
+        first = tok = None
+        stages, ev = set(), ""
+        try:
+            with urllib.request.urlopen(req, context=CTX, timeout=120) as r:
+                for line in r:
+                    line = line.decode().rstrip("\n")
+                    if line.startswith("event:"):
+                        ev = line[6:].strip()
+                    elif line.startswith("data:"):
+                        now = (time.perf_counter() - t0) * 1000
+                        first = first if first is not None else now
+                        if ev == "token" and tok is None:
+                            tok = now
+                        if ev == "status":
+                            stages.add(json.loads(line[5:]).get("stage"))
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and waits < 6:
+                waits += 1
+                time.sleep(min(65, float(e.headers.get("Retry-After") or 5)) + 0.5)
+                continue
+            return {"error": e.code, "waits_429": waits}
     s, msgs = call("GET", f"/chat/sessions/{sess['id']}/messages?limit=20", sv)
     kinds = []
     for m in (msgs or {}).get("items", []):
@@ -170,7 +195,7 @@ def ask(sv, c1, text):
     call("DELETE", f"/chat/sessions/{sess['id']}", sv)
     # câu trả lời từ cache không có giai đoạn «searching» và không có block: không đại diện cho đường cần đo → loại khỏi TTFT
     cached = "searching" not in stages and not kinds
-    return {"first_ms": first, "ttft_ms": tok, "kinds": kinds, "cached": cached}
+    return {"first_ms": first, "ttft_ms": tok, "kinds": kinds, "cached": cached, "waits_429": waits}
 
 
 def scenario_chat(c1):
@@ -188,7 +213,7 @@ def scenario_chat(c1):
     for st in ("rules", "course_qa", "paraphrase"):
         xs = [r for r in ok if r["stratum"] == st]
         by[st] = {"n": len(xs), "accuracy": round(sum(map(correct, xs)) / len(xs), 3) if xs else None}
-    return {"requests": len(res), "errors": len(res) - len(ok), "cached_excluded": len(ok) - len(live),
+    return {"requests": len(res), "errors": len(res) - len(ok), "waits_429": sum(r.get("waits_429", 0) for r in res), "cached_excluded": len(ok) - len(live),
             "ttft": lat([r["ttft_ms"] for r in live]), "first_event": lat([r["first_ms"] for r in ok if r["first_ms"] is not None]),
             "accuracy": round(sum(map(correct, ok)) / len(ok), 3) if ok else None, "by_stratum": by}
 
@@ -320,14 +345,26 @@ def svg(off, on):
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 {h}" font-family="sans-serif">' + "".join(parts) + "</svg>\n"
 
 
+def provider_label(meta):
+    """Nhãn provider decision theo chế độ đo (DEF-R105S-07): thật → tên mô hình trả về; giả → p50 / p95 của bản giả."""
+    r = meta.get("real")
+    return f"provider decision THẬT ({r.get('model') or r.get('status')})" if r else f"provider decision GIẢ (p50 {meta['fake_p50']} / p95 {meta['fake_p95']} ms)"
+
+
+def latency_limit(meta):
+    if meta.get("real"):
+        return "- Độ trễ decision ở các bảng «tắt / bật» là của provider thật qua mạng từ máy chạy script (số chi tiết ở bảng «Lượt thật»); độ chính xác là của mô hình thật trên bộ nhãn này."
+    return "- Độ trễ decision là mẫu log-chuẩn của provider giả (p50 / p95 ở trên), không phải trễ mạng từ Việt Nam; nhãn trả theo bản phát lại `llm/testdata/decision-replay.json` dựng từ chính bộ nhãn này (mô phỏng, không phải độ chính xác của Gemini)."
+
+
 def markdown(off, on, v, paths, meta):
     L = ["# Decision model: đo trước / sau", "",
-         f"Cấu hình: MacBook Apple Silicon, Colima 6 CPU / 10 GB · provider decision GIẢ (p50 {meta['fake_p50']} / p95 {meta['fake_p95']} ms) · lượt chat {ROUNDS} · {meta['when']} · lớp {CLASS}.", "",
+         f"Cấu hình: MacBook Apple Silicon, Colima 6 CPU / 10 GB · {provider_label(meta)} · lượt chat {ROUNDS} · {meta['when']} · lớp {CLASS}.", "",
          "## Chat (30 câu × lượt)", "", "| | tắt | bật |", "|---|---|---|",
          f"| TTFT p50 / p95 (ms) | {off['chat']['ttft']['p50_ms']} / {off['chat']['ttft']['p95_ms']} | {on['chat']['ttft']['p50_ms']} / {on['chat']['ttft']['p95_ms']} |",
          f"| Sự kiện đầu p50 / p95 (ms) | {off['chat']['first_event']['p50_ms']} / {off['chat']['first_event']['p95_ms']} | {on['chat']['first_event']['p50_ms']} / {on['chat']['first_event']['p95_ms']} |",
          f"| Độ chính xác (rules / course_qa / paraphrase) | {off['chat']['accuracy']} ({' / '.join(str(off['chat']['by_stratum'][k]['accuracy']) for k in ('rules', 'course_qa', 'paraphrase'))}) | {on['chat']['accuracy']} ({' / '.join(str(on['chat']['by_stratum'][k]['accuracy']) for k in ('rules', 'course_qa', 'paraphrase'))}) |",
-         f"| Loại khỏi TTFT (trả từ cache) / lỗi | {off['chat']['cached_excluded']} / {off['chat']['errors']} | {on['chat']['cached_excluded']} / {on['chat']['errors']} |",
+         f"| Loại khỏi TTFT (trả từ cache) / lỗi / lần chờ 429 | {off['chat']['cached_excluded']} / {off['chat']['errors']} / {off['chat']['waits_429']} | {on['chat']['cached_excluded']} / {on['chat']['errors']} / {on['chat']['waits_429']} |",
          f"| FAST / FALLBACK / FAIL_CLOSED | — | {paths['CHAT_ROUTING']['fast']} / {paths['CHAT_ROUTING']['fallback']} / {paths['CHAT_ROUTING']['fail_closed']} |",
          "", "## Threads (40 bài)", "", "| | tắt | bật |", "|---|---|---|",
          f"| Đăng p50 / p95 (ms) | {off['threads']['latency']['p50_ms']} / {off['threads']['latency']['p95_ms']} | {on['threads']['latency']['p50_ms']} / {on['threads']['latency']['p95_ms']} |",
@@ -341,10 +378,14 @@ def markdown(off, on, v, paths, meta):
          "", "## Kết luận từng cổng", "", "| Cổng | Kết luận | Số liệu |", "|---|---|---|"]
     L += [f"| {g} | **{k}** | {why} |" for g, (k, why) in v.items()]
     L += ["", "## Giới hạn", "",
-          "- Độ trễ decision là mẫu log-chuẩn của provider giả (p50 / p95 ở trên), không phải trễ mạng từ Việt Nam; nhãn trả theo bản phát lại `llm/testdata/decision-replay.json` dựng từ chính bộ nhãn này (mô phỏng, không phải độ chính xác của Gemini).",
+          latency_limit(meta),
           "- Độ chính xác chat đo bằng block dữ liệu của trợ lý (điểm danh / điểm / cộng điểm) trong câu trả lời, không đọc nhãn ý định nội bộ.",
           "- Câu trả lời trả từ cache bị loại khỏi TTFT; cache là theo lớp nên lượt «bật» có thể có nhiều câu cache hơn lượt «tắt» (xem hàng «Loại khỏi TTFT»).",
-          "- Cột «thật» (AC6): chờ phép PM."]
+          "- Cột «thật» (AC6): " + ("xem bảng dưới." if meta.get("real") else "chờ phép PM.")]
+    if meta.get("real"):
+        r = meta["real"]
+        L += ["", f"## Lượt thật ({r['status']} · {r['model']} · {r['date']} · kế hoạch {r['planned_calls']}/{r['cap']} lời gọi)", "", "| Cổng | Lời gọi | p50 / p95 (ms, từ máy chạy) | Lỗi % | Chi phí (VND) |", "|---|---|---|---|---|"]
+        L += [f"| {g} | {x['calls']} | {x['p50_ms']} / {x['p95_ms']} | {x['error_pct']} | {x['cost_vnd']} |" for g, x in r["gates"].items()]
     return "\n".join(L) + "\n"
 
 
@@ -361,8 +402,11 @@ def main():
     s, ov = call("GET", "/admin/llm/decision", token("admin"))
     must(s, (200,), "GET /admin/llm/decision")
     prov = ov.get("provider") or {}
-    if not prov.get("fake"):
-        die("Provider decision không phải bản giả: lượt thật cần phép PM (AC6). Dừng.")
+    real = not prov.get("fake")
+    planned = ROUNDS * len(jsonl("chat.jsonl")) + len(jsonl("threads.jsonl")) + GRADING_ESSAYS  # chỉ lượt «bật» gọi decision
+    err = real_error(not real, os.environ, sys.argv, planned)
+    if err:
+        die(err)
     tag = time.strftime("%d%H%M")  # submission_code ≤ 12 ký tự: «DM» + chế độ + 6 chữ số
     results, paths = {}, {}
     for mode in ("off", "on"):
@@ -377,10 +421,20 @@ def main():
         results[mode] = {"chat": chat, "threads": threads, "grading": grading}
         if mode == "on":
             after = obs()
+            after_obs = after
             paths = {g: path_delta(before, after, g) for g in GATES}
     set_mode(c1, False)  # trả stack về trạng thái ban đầu của seed mặc định
     v = verdicts(results["off"], results["on"])
-    meta = {"when": time.strftime("%Y-%m-%d %H:%M"), "fake_p50": os.environ.get("LLM_DECISION_FAKE_P50_MS", "426"), "fake_p95": os.environ.get("LLM_DECISION_FAKE_P95_MS", "682")}
+    import subprocess
+    sh = lambda *c: subprocess.run(c, capture_output=True, text=True, cwd=ROOT).stdout.strip()
+    meta = {"when": time.strftime("%Y-%m-%d %H:%M"), "fake_p50": os.environ.get("LLM_DECISION_FAKE_P50_MS", "426"), "fake_p95": os.environ.get("LLM_DECISION_FAKE_P95_MS", "682"),
+            # khối chung của mọi tệp đo (US-NFR-01 AC3, benchmarks/check-meta.mjs)
+            "commit": sh("git", "rev-parse", "--short", "HEAD") or "unknown", "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU", "runs": ROUNDS,
+            "config": {"chat_rounds": ROUNDS, "course": CLASS, "decision_provider": "real" if real else "fake"}}
+    if real:  # cột «thật» (AC6): số đọc từ quan sát 24 h của chính các cổng vừa đo (độ trễ từ máy chạy script, chi phí = token × giá niêm yết do gateway tính)
+        meta["real"] = {"status": prov.get("status"), "model": prov.get("model"), "date": time.strftime("%Y-%m-%d"), "planned_calls": planned, "cap": REAL_CAP,
+                        "gates": {g: {k: after_obs.get(g, {}).get(k) for k in ("calls", "p50_ms", "p95_ms", "error_pct", "cost_vnd")} for g in GATES}}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "decision-before-after.json").write_text(json.dumps({"meta": meta, **results, "paths_on": paths, "verdict": {g: {"result": k, "why": why} for g, (k, why) in v.items()}}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (OUT / "decision-before-after.md").write_text(markdown(results["off"], results["on"], v, paths, meta), encoding="utf-8")

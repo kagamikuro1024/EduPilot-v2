@@ -1246,7 +1246,7 @@ Thêm job `judge-attacks` (runner amd64): dựng `deploy/judge` với seccomp b�
 3. `ARCHITECTURE.md` §2 (cấu trúc `backend-go`): thêm `internal/exam`, `internal/exam/similarity`, `internal/judge`; §4: đổi dòng "(kế tiếp sau P2) exams" thành `weekly_exam` (13 bảng — thêm `code_drafts`, `exam_appeals`), số kế tiếp sau `00005_vn_fold`; các dòng sau lùi tương ứng (hoặc ghi ánh xạ ở `PROGRESS.md` theo D45); §8: thêm biến `JUDGE_*`, `EXAM_*`, `SIMILARITY_MIN`; §9: seed thêm dữ liệu PE; §10: dòng "Sandbox" ở bảng kiểm thử.
 4. `SYSTEM_DESIGN.md` §3.4: thêm Stream `judge.submit`, `judge.run` (+ `.dead`); S1 thêm container `judge` (D58).
 5. `FEAT-course-foundation` 4.7: bảng bậc "Hôm nay" thêm 10 `Kind` mới (4.10); 4.9: thêm topic outbox của PE; `notifications.type` thêm 5 giá trị.
-6. `FEAT-course-foundation` US-P2-12 AC7: ngân sách seed "≤ 3 phút" → "≤ 5 phút" khi gồm dữ liệu PE (US-PE-09 AC5).
+6. `FEAT-course-foundation` US-P2-12 AC7: ngân sách seed "≤ 3 phút" → "≤ 6 phút" (máy không chạy stack khác; đo 314 s ngày 13/11, P-11-76) khi gồm dữ liệu PE (US-PE-09 AC5).
 7. `FEAT-pg-foundation` 07-AC10 (ngưỡng image) — xem 8.2: nếu worker vượt 40 MB vì `internal/llm`, chạy `question.suggest` ở gateway.
 8. `DESIGN.md` §10 / §13 / §14: thêm hợp đồng bố cục `/exams`, `/exams/[id]`, `/exams/[id]/results`, `/exams/[id]/take`; thành phần mới ở 7.4; bảng dịch nhãn kết quả (7.2).
 9. Phúc khảo bài thi dùng bảng `exam_appeals` riêng ở PE; khi P4 có `escalation_tickets` (`GRADE_APPEAL`), PM quyết gộp.

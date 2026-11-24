@@ -82,6 +82,24 @@ test("attendance optimistic undo: đổi ngay, dòng 'Đã đánh Vắng · … 
   await expect(radio(page, 3, "Có mặt")).toBeChecked();
 });
 
+// DEF-R9.1-06 (TC-UX12-2): chấm đã chọn Muộn / Vắng phép / Vắng giữ đỏ khi chuột rê lên ô (luật rê chỉ cho ô chưa chọn).
+test("attendance hover: chấm đã chọn giữ màu khi rê chuột, ô chưa chọn đổi sang mực", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await open(page, context);
+  const color = (loc: ReturnType<typeof radio>) => loc.evaluate((el) => getComputedStyle(el).borderTopColor);
+  for (const label of ["Muộn", "Vắng phép", "Vắng"]) {
+    await radio(page, 3, label).check();
+    await page.mouse.move(0, 0);
+    const away = await color(radio(page, 3, label));
+    await radio(page, 3, label).hover();
+    expect(await color(radio(page, 3, label)), label).toBe(away);
+  }
+  await page.mouse.move(0, 0);
+  const idle = await color(radio(page, 3, "Có mặt"));
+  await radio(page, 3, "Có mặt").hover({ force: true });
+  expect(await color(radio(page, 3, "Có mặt"))).not.toBe(idle);
+});
+
 test("attendance save indicator: Đang lưu… rồi Đã lưu HH:MM sau 2 s yên lặng, một PUT complete:false với version đúng", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await open(page, context);
@@ -210,6 +228,34 @@ test("attendance offline reload keeps queue: tải lại giữa chừng vẫn th
   down = false;
   await expect.poll(() => api.puts().length, { timeout: 15000 }).toBeGreaterThanOrEqual(1);
   expect(bodyOf(api.puts().at(-1)!).records).toEqual([{ student_id: sid(6), status: "ABSENT" }]);
+});
+
+test("attendance offline complete (AC13, TC-P5-02-33): Lưu điểm danh lúc mất mạng xếp hàng cùng complete:true, có mạng thì gửi và đặt done_at — có hoặc không còn thay đổi chờ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let down = true; // gateway giả chạy trong route của Playwright nên vẫn trả lời khi context.setOffline: «mất mạng» phải ngắt cả lời gọi PUT (như ca «offline reload keeps queue»)
+  const api = await open(page, context, { h: { "PUT attendance": (r, dflt) => (down ? r.abort("internetdisconnected") : dflt(r)) } });
+  await context.setOffline(true);
+  await radio(page, 3, "Vắng").check();
+  await expect(page.locator("[data-part=att-save-state]")).toHaveText("Chờ mạng · 1 thay đổi");
+  await expect(page.getByRole("button", { name: "Lưu điểm danh" }).first()).toBeEnabled({ timeout: 500 });
+  await page.getByRole("button", { name: "Lưu điểm danh" }).first().click();
+  await expect(page.getByText(/^Đã lưu điểm danh/)).toHaveCount(0); // chưa lên máy chủ thì không báo đã lưu
+  down = false;
+  await context.setOffline(false);
+  await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 1")).toBeVisible({ timeout: 15000 });
+  expect(api.puts().some((c) => bodyOf(c).complete)).toBe(true);
+});
+
+test("attendance offline complete không còn thay đổi chờ: bấm Lưu điểm danh khi offline vẫn gửi complete:true lúc có mạng", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let down = true;
+  await open(page, context, { h: { "PUT attendance": (r, dflt) => (down ? r.abort("internetdisconnected") : dflt(r)) } });
+  await context.setOffline(true);
+  await page.getByRole("button", { name: "Lưu điểm danh" }).first().click();
+  await expect(page.getByText(/^Đã lưu điểm danh/)).toHaveCount(0);
+  down = false;
+  await context.setOffline(false);
+  await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 0")).toBeVisible({ timeout: 15000 });
 });
 
 test("attendance logout asks first: còn thay đổi chưa lưu thì hỏi; Ở lại giữ nguyên, Đăng xuất xoá khoá attendance của người đó ở máy", async ({ page, context }, info) => {

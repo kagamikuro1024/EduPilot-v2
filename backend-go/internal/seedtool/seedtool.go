@@ -127,7 +127,7 @@ func studyRows(student uuid.UUID, email string, p StudyProfile, weeks int, now t
 	return out
 }
 
-// SeedStudyTime ghi `study_time_daily` của mọi sinh viên ACTIVE của lớp (`ON CONFLICT … GREATEST`, chạy lại không nhân đôi) và trả số dòng đã ĐỔI (thêm mới hoặc tăng).
+// SeedStudyTime ghi `study_time_daily` của mọi sinh viên ACTIVE của lớp (xoá hàng không còn trong tập, ghi đè giây của hàng trùng khoá; chạy lại không nhân đôi) và trả số dòng đã ĐỔI (thêm mới hoặc tăng).
 func SeedStudyTime(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, weeks int, p StudyProfile, now time.Time) (int64, error) {
 	if weeks < 1 || weeks > 52 {
 		return 0, errors.New("--weeks phải từ 1 đến 52")
@@ -165,11 +165,18 @@ func SeedStudyTime(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, 
 	if len(ids) == 0 {
 		return 0, nil
 	}
+	// Lịch seed dịch ngày (lùi 7 / 30 ngày): hàng của lần seed trước nằm ở ngày khác khoá tự nhiên mới nên không bị ghi đè và làm lệch tín hiệu STUDY (+2.580 hàng, WATCH 2 thay vì 3).
+	// Lịch sử thời gian học của lớp seed THUỘC seed (lệnh chỉ chạy ở dev / test): xoá hàng KHÔNG còn trong tập của lần này rồi upsert phần còn lại — chạy lại ở độ lệch nào cũng ra đúng bấy nhiêu hàng,
+	// cùng ngày thì không đổi dòng nào.
+	if _, err := pool.Exec(ctx, `delete from study_time_daily d where d.course_id = $1 and not exists (
+		select 1 from unnest($2::uuid[], $3::date[], $4::text[]) as x(s, dt, a) where x.s = d.student_id and x.dt = d.date and x.a = d.area)`, courseID, ids, days, ar); err != nil {
+		return 0, fmt.Errorf("xoá thời gian học cũ của seed: %w", err)
+	}
 	tag, err := pool.Exec(ctx, `
 insert into study_time_daily (course_id, student_id, date, area, active_seconds)
 select $1, x.s, x.d, x.a, x.n from unnest($2::uuid[], $3::date[], $4::text[], $5::int[]) as x(s, d, a, n)
-on conflict (course_id, student_id, date, area) do update set active_seconds = greatest(study_time_daily.active_seconds, excluded.active_seconds)
-where study_time_daily.active_seconds < excluded.active_seconds`, courseID, ids, days, ar, secs)
+on conflict (course_id, student_id, date, area) do update set active_seconds = excluded.active_seconds
+where study_time_daily.active_seconds <> excluded.active_seconds`, courseID, ids, days, ar, secs)
 	if err != nil {
 		return 0, fmt.Errorf("ghi study_time_daily: %w", err)
 	}
@@ -213,21 +220,27 @@ func AgeAssignment(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, 
 		return 0, fmt.Errorf("lùi bài tập: %w", err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
+	// P-11-13: hạn sau khi lùi PHẢI là 23:59 giờ Việt Nam (+07) cho khớp mô tả «Hạn nộp 23:59»: lùi ≥ `hours` giờ về 23:59 gần nhất. Mọi mốc cùng lùi một khoảng nên
+	// khoảng cách tương đối (muộn / đúng hạn, kể cả «trễ 2 giây») giữ nguyên.
 	var id uuid.UUID
-	err = tx.QueryRow(ctx, `update assignments set due_at = due_at - make_interval(hours => $3), published_at = published_at - make_interval(hours => $3), created_at = created_at - make_interval(hours => $3)
-where course_id = $1 and submission_code = $2 and due_at > now() - make_interval(hours => $3::int / 2) returning id`, courseID, code, hours).Scan(&id)
+	var due time.Time
+	err = tx.QueryRow(ctx, `select id, due_at from assignments where course_id = $1 and submission_code = $2 and due_at > now() - make_interval(hours => $3::int / 2) for update`, courseID, code, hours).Scan(&id, &due)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return 0, nil // đã lùi rồi (hoặc không có bài)
 	}
 	if err != nil {
 		return 0, fmt.Errorf("lùi bài tập: %w", err)
 	}
+	secs := due.Sub(DueTarget(due, hours)).Seconds()
+	if _, err = tx.Exec(ctx, `update assignments set due_at = due_at - make_interval(secs => $2), published_at = published_at - make_interval(secs => $2), created_at = created_at - make_interval(secs => $2) where id = $1`, id, secs); err != nil {
+		return 0, fmt.Errorf("lùi bài tập: %w", err)
+	}
 	n := int64(1)
 	for _, q := range []string{
-		`update submissions set received_at = received_at - make_interval(hours => $2), submitted_at = submitted_at - make_interval(hours => $2) where course_id = $1 and (assignment_id = $3 or assignment_id is null)`,
-		`update mail_inbound set received_at = received_at - make_interval(hours => $2) where course_id = $1 and $3::uuid is not null`,
+		`update submissions set received_at = received_at - make_interval(secs => $2), submitted_at = submitted_at - make_interval(secs => $2) where course_id = $1 and (assignment_id = $3 or assignment_id is null)`,
+		`update mail_inbound set received_at = received_at - make_interval(secs => $2) where course_id = $1 and $3::uuid is not null`,
 	} {
-		tag, err := tx.Exec(ctx, q, courseID, hours, id)
+		tag, err := tx.Exec(ctx, q, courseID, secs, id)
 		if err != nil {
 			return 0, fmt.Errorf("lùi bài nộp: %w", err)
 		}
@@ -237,6 +250,16 @@ where course_id = $1 and submission_code = $2 and due_at > now() - make_interval
 		return 0, fmt.Errorf("lùi bài tập: %w", err)
 	}
 	return n, nil
+}
+
+// DueTarget: mốc 23:59:00 giờ Việt Nam (+07) muộn nhất không sau `due − hours` giờ.
+func DueTarget(due time.Time, hours int) time.Time {
+	t := due.Add(-time.Duration(hours) * time.Hour).In(ict)
+	target := time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 0, 0, ict)
+	if target.After(t) {
+		target = target.AddDate(0, 0, -1)
+	}
+	return target
 }
 
 // AgeActivity đưa `created_at` của tin chat (USER), thread và bình luận của lớp nằm trong tuần hiện tại về một mốc ngẫu nhiên-nhưng-ổn-định (băm của `id`) trong `weeks` tuần TRƯỚC tuần hiện tại.

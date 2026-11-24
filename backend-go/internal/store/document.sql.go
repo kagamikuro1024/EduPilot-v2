@@ -175,7 +175,7 @@ func (q *Queries) DocDelete(ctx context.Context, arg DocDeleteParams) (int64, er
 
 const docDeleteImpact = `-- name: DocDeleteImpact :one
 select (select count(*) from content_chunks c where c.document_id = $1::uuid and c.course_ids @> array[$2::uuid])::bigint as chunks,
-       (select count(*) from document_courses dc where dc.document_id = $1::uuid)::bigint as courses
+       (1 + (select count(*) from document_courses dc where dc.document_id = $1::uuid))::bigint as courses
 `
 
 type DocDeleteImpactParams struct {
@@ -188,7 +188,7 @@ type DocDeleteImpactRow struct {
 	Courses int64
 }
 
-// Số đoạn và số lớp khác đang dùng tài liệu (chia sẻ) — cho câu xác nhận xoá.
+// Số đoạn và số lớp đang dùng tài liệu — GỒM lớp gốc (1 + số lớp được chia sẻ tới) — cho câu xác nhận xoá.
 func (q *Queries) DocDeleteImpact(ctx context.Context, arg DocDeleteImpactParams) (DocDeleteImpactRow, error) {
 	row := q.db.QueryRow(ctx, docDeleteImpact, arg.ID, arg.CourseID)
 	var i DocDeleteImpactRow

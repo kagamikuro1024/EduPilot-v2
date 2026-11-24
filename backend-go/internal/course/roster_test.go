@@ -19,10 +19,16 @@ import (
 // upload gửi multipart `file` tới POST /courses/{id}/roster/import. key rỗng = tự sinh; "-" = không gửi Idempotency-Key.
 func (r *rig) upload(s session, courseID, query string, data []byte, key string, fields map[string]string) resp {
 	r.t.Helper()
+	return r.uploadAs("roster.csv", s, courseID, query, data, key, fields)
+}
+
+// uploadAs: như upload nhưng tên tệp do test chọn (DEF-R4-02: đuôi và nội dung phải khớp).
+func (r *rig) uploadAs(filename string, s session, courseID, query string, data []byte, key string, fields map[string]string) resp {
+	r.t.Helper()
 	var body bytes.Buffer
 	mw := multipart.NewWriter(&body)
 	h := textproto.MIMEHeader{}
-	h.Set("Content-Disposition", `form-data; name="file"; filename="roster.csv"`)
+	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename=%q`, filename))
 	h.Set("Content-Type", "application/octet-stream")
 	p, err := mw.CreatePart(h)
 	require.NoError(r.t, err)
@@ -447,4 +453,20 @@ func TestRosterLongNameTruncated(t *testing.T) {
 	k := r.klass(nil)
 	r.importOK(k, csvOf("long@example.test|"+strings.Repeat("Ư", 150)+"|B20DC00055"), "")
 	require.Equal(t, 100, r.count(`select char_length(full_name) from users where email = 'long@example.test'`))
+}
+
+// DEF-R4-02 (TC-P210-03 AC1/AC13): đuôi .xlsx mà nội dung là CSV / văn bản → 422 UNSUPPORTED_FILE, không ghi gì; .xlsx thật (ZIP) và .csv vẫn nhận.
+func TestRosterXlsxExtensionNeedsZip(t *testing.T) {
+	r := newRig(t)
+	k := r.klass(nil)
+	before := r.tableCounts()
+	for _, name := range []string{"text.xlsx", "TEXT.XLSX"} {
+		res := r.uploadAs(name, k.a.G, k.id, "", roster30(), "", nil)
+		require.Equal(t, http.StatusUnprocessableEntity, res.code, "%s: %s", name, res.body)
+		require.Contains(t, string(res.body), "UNSUPPORTED_FILE", name)
+	}
+	require.Equal(t, before, r.tableCounts(), "tệp bị từ chối không ghi gì")
+	require.Equal(t, http.StatusOK, r.uploadAs("roster.csv", k.a.G, k.id, "dry_run=true", roster30(), "", nil).code)
+	zip := xlsxOf(t, [][]any{{"Email", "Họ và tên", "MSSV"}, {"a.zip@example.test", "Nguyễn A", "B20DC10001"}})
+	require.Equal(t, http.StatusOK, r.uploadAs("roster.xlsx", k.a.G, k.id, "dry_run=true", zip, "", nil).code, "xlsx thật đi qua")
 }

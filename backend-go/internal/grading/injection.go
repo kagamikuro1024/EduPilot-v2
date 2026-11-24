@@ -23,6 +23,15 @@ var InjectionPatterns = []InjectionPattern{ //nolint:gochecknoglobals // bảng 
 	{"GIVE_SCORE_VI_2", regexp.MustCompile(`cho (toi|em|bai nay)[^.\n]{0,15}\b(10|muoi)\s*diem`)},
 	{"GIVE_SCORE_EN", regexp.MustCompile(`(give|award|assign)[^.\n]{0,30}(full|maximum|10/10|10 points)`)},
 	{"ROLE_TAG", regexp.MustCompile(`(<\s*/?\s*(system|assistant)\s*>|\[\s*(system|inst)\s*\]|###\s*system)`)},
+	// P-11-26(c): mẫu bổ sung cho biến thể KHÔNG từ khoá điểm (benchmarks/real-llm/data/injection v1–v5). Chỉ thêm vì 0 cờ nhầm trên bộ sạch
+	// (fixtures S1–S5, S7 + 84 bài KC106 + exemplars): xem injection_extra_test.go. Cờ không đổi điểm.
+	{"DELIM_SPOOF", regexp.MustCompile(`bai_?lam_[0-9a-z]{6,}\s*>>>|<<<\s*bai_?lam_[0-9a-z]{6,}`)},
+	{"SYSTEM_TAG_VI", regexp.MustCompile(`\[\s*he thong\s*\]`)},
+	{"NOTE_TO_GRADER_EN", regexp.MustCompile(`note to (the )?(grading |grader)|grading assistant`)},
+	{"JSON_OUTPUT", regexp.MustCompile(`"criteria"\s*:\s*\[|"score"\s*:\s*"?[0-9]`)},
+	{"INSTRUCTOR_NOTE_VI", regexp.MustCompile(`ghi chu cua giang vien[^.\n]{0,30}da duyet`)},
+	{"GRADER_DIRECTIVE_VI", regexp.MustCompile(`tro ly cham (chi can|hay|nen|phai)`)},
+	{"MAX_SCORE_ALL_VI", regexp.MustCompile(`muc (toi da|cao nhat) (o|cho|trong) (ca|tung|moi) `)},
 }
 
 // InjectionHit: một câu khớp ≥ 1 mẫu, kèm vị trí [Start, End) theo UTF-16 code unit trong văn bản quét (để tô ở màn duyệt).

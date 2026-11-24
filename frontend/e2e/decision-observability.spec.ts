@@ -24,9 +24,12 @@ const body = (over: Record<string, unknown>[] = []) => ({
   ],
 });
 
+const SUMMARY = { window: "24h", grading: { jobs_total: { QUEUED: 0, RUNNING: 0, DONE: 0, FAILED: 0 }, queue_depth: 0, dead_total: 0, duration_p50_s: 0, duration_p95_s: 0 }, totals: { requests: 10, p50_ms: 900, p95_ms: 2000, errors: 0, error_rate: 0, fallbacks: 0, fallback_rate: 0, cost: "100", pii_masked: 0, window_seconds: 86400 }, days: [], tasks: [] };
+
 async function openObs(page: Page, scripts: Record<string, unknown[]>, role: "ADMIN" | "TEACHER" = "ADMIN") {
   await reset(page);
-  await script(page, scripts as never);
+  // dải «24 giờ qua» của màn thật cần số tổng hợp để hiện (AC2 kiểm bảng này không lặp ở dải đó)
+  await script(page, { "GET /api/v1/admin/observability/summary": [{ body: SUMMARY }], "GET /api/v1/admin/observability/requests": [{ body: { items: [], next_cursor: null } }], ...scripts } as never);
   await asJwt(page, role, { email: "admin@ptit.edu.vn" });
   await page.goto("/observability");
 }
@@ -74,4 +77,14 @@ test("TEACHER không thấy bảng và không gọi API decision (AC6)", async (
   await expect(page.getByRole("heading", { name: "Quan sát AI" })).toBeVisible();
   await expect(page.locator("[data-part=decision-observability]")).toHaveCount(0);
   expect((await getLog(page, OBS)).length).toBe(0);
+});
+
+test("vị trí: «Quyết định nhanh» nằm dưới «7 ngày qua» (US-DM-07 AC1, DEF-R10.5-01)", async ({ page }) => {
+  await openObs(page, { [`GET ${OBS}`]: [{ body: body() }] });
+  await expect(page.getByRole("heading", { name: "7 ngày qua" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Quyết định nhanh" })).toBeVisible();
+  const day = await page.getByRole("heading", { name: "7 ngày qua" }).boundingBox();
+  const dm = await page.getByRole("heading", { name: "Quyết định nhanh" }).boundingBox();
+  expect({ day: day?.y, dm: dm?.y }).toEqual({ day: expect.any(Number), dm: expect.any(Number) });
+  expect(dm!.y).toBeGreaterThan(day!.y);
 });

@@ -70,6 +70,16 @@ const MINE = (aid) => ({
   state: "NOT_SUBMITTED",
 });
 
+const PRACTICE_ATTEMPT = "00000000-0000-7000-8000-00000000d001";
+const PRACTICE_RUN = () => ({
+  id: PRACTICE_ATTEMPT, mode: "TOPIC", topic: "Mạng máy tính", status: "IN_PROGRESS", started_at: new Date().toISOString(), deadline_at: null, server_now: new Date().toISOString(), item_count: 10, current_index: 0, notes: [], version: 1, result: null,
+  items: Array.from({ length: 10 }, (_, i) => ({
+    id: `00000000-0000-7000-8000-00000000e0${String(i).padStart(2, "0")}`, position: i,
+    question: { type: "MCQ_SINGLE", topic: "Mạng máy tính", stem: `Thiết bị nào chuyển khung theo địa chỉ MAC? (${i + 1})`, options: ["Bộ chuyển mạch", "Bộ định tuyến", "Bộ lặp", "Bộ tập trung"].map((body, k) => ({ id: `o${k}`, body })) },
+    answer: null, feedback: null,
+  })),
+});
+
 function roleOf(req) {
   const m = /(?:^|; )lh_role=([a-z]+)/.exec(req.headers.cookie || "");
   return m && EMAIL[m[1]] ? m[1] : null;
@@ -77,7 +87,7 @@ function roleOf(req) {
 
 http
   .createServer((req, res) => {
-    const cors = { "Access-Control-Allow-Origin": ORIGIN, "Access-Control-Allow-Credentials": "true", "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS", "Access-Control-Allow-Headers": "authorization,content-type,idempotency-key,x-request-id,if-none-match", Vary: "Origin" };
+    const cors = { "Access-Control-Allow-Origin": ORIGIN, "Access-Control-Allow-Credentials": "true", "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS", "Access-Control-Allow-Headers": "authorization,content-type,idempotency-key,x-request-id,if-none-match,x-practice-tab", Vary: "Origin" };
     const send = (status, body) => {
       res.writeHead(status, { ...cors, "Content-Type": "application/json" });
       res.end(body === undefined ? "" : JSON.stringify(body));
@@ -109,6 +119,10 @@ http
       if (path === "/admin/llm/budget") return send(200, { scope: "global", daily_limit: "10.00", monthly_limit: "200.00", spent_today: "1.20", spent_month: "40.00", pct_today: 12, pct_month: 20, state: "ok", version: 1 });
       if (path === "/admin/llm/usage") return send(200, { from: "2026-10-01T00:00:00Z", to: "2026-10-30T00:00:00Z", group: "task", items: [] });
     }
+    // /practice thật: tổng quan, lịch sử và một lượt THEO CHỦ ĐỀ đang làm (cùng hợp đồng `practiceApi.ts`) để đo màn dựng đủ dữ liệu.
+    if (/^\/courses\/[^/]+\/practice\/overview$/.test(path)) return send(200, { recommended: { topic: "Mạng máy tính", count: 10 }, topics: [{ topic: "Mạng máy tính", available: 40 }, { topic: "Mật mã", available: 30 }], in_progress: [{ id: PRACTICE_ATTEMPT, mode: "TOPIC", topic: "Mạng máy tính", deadline_at: null, item_count: 10, current_index: 0 }] });
+    if (/^\/courses\/[^/]+\/practice\/history$/.test(path)) return send(200, { items: [], next_cursor: null });
+    if (/^\/courses\/[^/]+\/practice\/attempts\/[^/]+$/.test(path)) return send(200, PRACTICE_RUN());
     if (path === "/notifications") return send(200, { items: [], next_cursor: null, unread_count: 0 });
     return send(404, { code: "NOT_FOUND", message: "x", trace_id: "0".repeat(32) });
   })

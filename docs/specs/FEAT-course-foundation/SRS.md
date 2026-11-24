@@ -236,7 +236,7 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 
 **Cache:** `ep:today:{user_id}:{scope}` (`scope` = `all` | id lớp), JSON, TTL `TODAY_CACHE_TTL` 60 s. Vô hiệu: handler `today.invalidate` chạy cho mọi topic bảng 4.9 và xoá `ep:today:{uid}:all` + `ep:today:{uid}:{course_id}` của từng người bị ảnh hưởng (payload nêu `user_ids` hoặc handler suy ra từ `enrollments` của lớp: giảng viên + TA + người liên quan); `user.verified` xoá `all` và mọi lớp của người đó. TTL là lưới an toàn.
 
-**Ngân sách truy vấn:** ≤ 5 truy vấn SQL mỗi yêu cầu không cache (một truy vấn dựng `Viewer`/enrollments; mỗi Provider dùng tổng hợp một truy vấn; Provider P2 dùng chung ảnh chụp `enrollments` đã nạp).
+**Ngân sách truy vấn:** nền P2 ≤ 5 truy vấn SQL mỗi yêu cầu không cache (một truy vấn dựng `Viewer`/enrollments; mỗi Provider dùng tổng hợp một truy vấn; Provider P2 dùng chung ảnh chụp `enrollments` đã nạp). Các nguồn việc thêm sau P2 mỗi nguồn cộng đúng **một** truy vấn gộp cố định, không đổi theo số lớp (bài tập: +1 mỗi vai, `FEAT-assignments` SRS 4.12; luyện đề của sinh viên: +1, P-10-8 F1) → trần **≤ 7** mỗi yêu cầu `today` không cache, tính cả guard (giảng viên gọi theo một lớp: ≤ 8); `TestTodayQueryBudget` (`internal/today`). (P-11-104)
 
 ### 4.8 Seed (US-P2-12)
 
@@ -618,7 +618,7 @@ Tính theo **ngày lịch** (`Asia/Ho_Chi_Minh`) từ đồng hồ thật: cùng
 | `roster/import` 500 dòng | ≤ 5 s (không bcrypt; thư xếp hàng) |
 | Thông báo phân công tới chuông | ≤ 60 s (thực tế ≤ 2 s; chuông làm mới ≤ 30 s) |
 | Việc "Hôm nay" xử lý xong biến | ≤ 60 s (≤ 2 s với sự kiện) |
-| Số truy vấn SQL / request `today` | ≤ 5 |
+| Số truy vấn SQL / request `today` | ≤ 7 (nền P2 ≤ 5; P-11-104) |
 
 ### 8.3 Bảo mật và cách ly
 

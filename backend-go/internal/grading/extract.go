@@ -268,6 +268,9 @@ func (s *Service) callLLM(ctx context.Context, pages []Page) (json.RawMessage, e
 			i--
 			continue
 		}
+		if llm.IsBadOutput(err) { // mọi nhà cung cấp trả đầu ra sai schema: thử lại không đổi kết quả (DEF-R8-A1)
+			return nil, userErr(CodeExtractionBad, "Không đọc được công thức từ quy chế.")
+		}
 		var over *llm.ErrOverloaded
 		var unav *llm.ErrUnavailable
 		transient := attemptExpired || errors.As(err, &over) || (errors.As(err, &unav) && unav.Reason != llm.ReasonBudgetExhausted) || errors.Is(err, llm.ErrAllProvidersFailed)
@@ -338,13 +341,13 @@ func buildDraft(ex Extraction) (built, error) {
 			return built{}, errors.New("thành phần sai dạng")
 		}
 		if seen[c.Key] {
-			b.static = append(b.static, grade.Unclear{Source: grade.SourceCode, Code: grade.CodeParamInvalid, Target: "components." + c.Key, Message: "Thành phần bị khai hai lần."})
+			b.static = append(b.static, grade.NewStatic("components."+c.Key, "Thành phần bị khai hai lần."))
 			continue
 		}
 		seen[c.Key] = true
 		w, err := decimal.NewFromString(c.Weight)
 		if err != nil || w.Sign() < 0 || w.GreaterThan(grade.TotalWeight) || w.Exponent() < -2 {
-			b.static = append(b.static, grade.Unclear{Source: grade.SourceCode, Code: grade.CodeParamInvalid, Target: "components." + c.Key, Message: "Trọng số không phải số hợp lệ."})
+			b.static = append(b.static, grade.NewStatic("components."+c.Key, "Trọng số phải là số trong [0; 100]."))
 			w = decimal.Zero
 		}
 		cs := refs(c.CitationIDs)
@@ -358,7 +361,7 @@ func buildDraft(ex Extraction) (built, error) {
 		}
 		if r.Kind != "FAIL_CONDITION" {
 			if kinds[r.Kind] {
-				b.static = append(b.static, grade.Unclear{Source: grade.SourceCode, Code: grade.CodeParamInvalid, Target: "rules." + r.Kind, Message: "Luật bị khai hai lần."})
+				b.static = append(b.static, grade.NewStatic("rules."+r.Kind, "Luật bị khai hai lần."))
 				continue
 			}
 			kinds[r.Kind] = true

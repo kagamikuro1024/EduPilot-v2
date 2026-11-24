@@ -36,6 +36,7 @@ test("topic run: chấm ngay, khoá câu đã trả lời, giải thích thêm, 
   await page.getByRole("button", { name: "Kiểm tra" }).click();
   await expect(page.getByText("Chưa đúng")).toBeVisible();
   await expect(page.getByText("Đáp án đúng: Phương án B của câu 1")).toBeVisible();
+  await expect(page.getByText("Nguồn trong tài liệu · trang 1", { exact: true })).toBeVisible(); // Q-P9-9 (DEF-R10S-17)
   await expect(page.getByRole("button", { name: /^Phương án A của câu 1/ })).toBeDisabled();
   await page.getByRole("button", { name: "Giải thích thêm" }).click();
   await expect(page.getByText("Giải thích thêm: B đúng vì khoá đối xứng.")).toBeVisible();
@@ -85,8 +86,7 @@ test("mock run: không lộ đúng / sai trước khi nộp, mất mạng giữ 
 
   await page.reload();
   await expect(page.locator("[data-part=practice-mock]")).toBeVisible();
-  await page.getByRole("button", { name: "Câu sau" }).click();
-  await expect(page.getByRole("button", { name: /^Phương án B của câu 2/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Phương án B của câu 2/ })).toHaveAttribute("aria-pressed", "true"); // quay đúng câu 2 (P-11-66)
 
   await page.getByRole("button", { name: "Nộp bài" }).first().click();
   await expect(page.getByRole("dialog")).toContainText("Bạn đã trả lời 2/5 câu");

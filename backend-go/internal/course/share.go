@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/edupilot/backend-go/internal/ingest"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -122,6 +124,11 @@ func (s Service) ShareFrom(ctx context.Context, targetID, teacherID, sourceID uu
 	}
 	if err := emitChanged(ctx, tx, targetID); err != nil {
 		return ShareResult{}, err
+	}
+	if res.Documents > 0 {
+		if _, err := outbox.Write(ctx, tx, ingest.TopicDocumentChanged, map[string]string{"course_id": targetID.String()}); err != nil {
+			return ShareResult{}, fmt.Errorf("course: outbox document.changed: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return ShareResult{}, fmt.Errorf("course: commit chia sẻ: %w", err)

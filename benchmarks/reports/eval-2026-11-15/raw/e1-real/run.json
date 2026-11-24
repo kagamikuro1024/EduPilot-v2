@@ -1,0 +1,19 @@
+{
+ "meta": {
+  "commit": "4c919bf5",
+  "timestamp": "2026-11-15T11:16:11.457Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "e1-real/run.json"
+  }
+ },
+ "tag": "real",
+ "embedding": "thật: gemini-embedding-001 (1536 chiều, Gemini trực tiếp — PM cho phép, trần 1.000 lời gọi)",
+ "window": [
+  "2026-11-15T09:53:33.682Z",
+  "2026-11-15T09:57:48.792Z"
+ ],
+ "exit": 0
+}

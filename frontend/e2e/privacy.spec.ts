@@ -7,6 +7,22 @@ test.beforeEach(async ({}, info) => {
   test.skip(info.project.name !== "desktop", "một bề rộng là đủ");
 });
 
+test("SRS wording (DEF-R6-U1): «Tìm hiểu» mở đúng câu giải thích của SRS", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  await chatApi(page, {
+    "POST /chat/sessions": json(session(), 201),
+    [`POST /chat/sessions/${SID}/messages`]: (r) => r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("token", { off: 0, t: "Chào." }, "1:2-0"), frame("notice", { masked: 2 }, "1:3-0"), frame("done", { message_id: MID, citations: [], low_confidence: false, degraded: false }, "1:4-0"))),
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: [msg({ content: "Chào.", masked_count: 2, citations: [] }), msg({ id: "u1", role: "USER", content: "Em là Vũ Hoàng Giang", citations: [] })], next_cursor: null })),
+    [`PUT /chat/messages/${MID}/feedback`]: noContent,
+  });
+  await page.goto("/chat");
+  const box = page.getByRole("textbox", { name: "Câu hỏi của bạn" });
+  await box.fill("Em là Vũ Hoàng Giang");
+  await box.press("Enter");
+  await page.getByRole("button", { name: "Tìm hiểu" }).click();
+  await expect(page.getByText("Tên, mã số sinh viên, email và số điện thoại được thay bằng ký hiệu trước khi gửi cho AI, rồi hiện lại cho bạn.", { exact: true })).toBeVisible();
+});
+
 for (const [masked, text] of [[2, "Em là Vũ Hoàng Giang, MSSV 20229001, điểm giữa kỳ của em thế nào?"], [0, "Quy chế thi nói gì?"]] as const) {
   test(`no placeholder visible (masked=${masked})`, async ({ page, context }) => {
     await asDemo(context, "student", { person: "sv-2" });

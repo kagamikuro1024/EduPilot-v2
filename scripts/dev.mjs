@@ -1,7 +1,7 @@
 // `pnpm dev`: tạo .env.local nếu chưa có, kiểm Docker, dựng stack edupilot và chờ mọi service healthy.
 // `pnpm dev:down|dev:status|dev:logs` = `node scripts/dev.mjs down|status|logs [tham số compose]` (cùng tên project và cổng với `pnpm dev`).
 // Chạy HAI stack trên một máy (ví dụ QC cạnh dev): đặt EP_PORT_OFFSET=N (N ≠ 0) — project thành `edupilot<N>`, mọi cổng host cộng N
-// (HTTPS 443+N, Mailpit 8025+N, Postgres 5433+N…), URL công khai thành https://localhost:<443+N>. Tên project đặt tay bằng COMPOSE_PROJECT_NAME.
+// (HTTPS 443+N, Mailpit 8025+N, Postgres 5433+N, mock-graph 8090+N, mock-imap 8091+N…), URL công khai thành https://localhost:<443+N>. Tên project đặt tay bằng COMPOSE_PROJECT_NAME.
 import { copyFileSync, existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -45,12 +45,15 @@ if (!Number.isInteger(offset) || offset < 0 || offset > 20000) {
   console.error("[dev] EP_PORT_OFFSET phải là số nguyên từ 0 đến 20000.");
   process.exit(1);
 }
-const basePorts = { POSTGRES: 5433, REDIS: 6380, MINIO: 9000, MINIO_CONSOLE: 9001, SMTP: 1025, MAILPIT: 8025, HTTP: 80, HTTPS: 443, FRONTEND: 3000 };
+const basePorts = { POSTGRES: 5433, REDIS: 6380, MINIO: 9000, MINIO_CONSOLE: 9001, SMTP: 1025, MAILPIT: 8025, HTTP: 80, HTTPS: 443, FRONTEND: 3000, MOCK_GRAPH: 8090, MOCK_IMAP: 8091 };
 for (const [k, v] of Object.entries(basePorts)) env[`EP_PORT_${k}`] ||= String(v + offset);
-if (offset) env.BLOB_PUBLIC_ENDPOINT ||= `localhost:${env.EP_PORT_MINIO}`; // URL ký sẵn phải trỏ MinIO của CHÍNH stack này, không phải MinIO cổng 9000 của stack khác
 const project = process.env.COMPOSE_PROJECT_NAME || (offset ? `edupilot${offset}` : "edupilot");
 const httpsPort = Number(env.EP_PORT_HTTPS);
 const origin = httpsPort === 443 ? "https://localhost" : `https://localhost:${httpsPort}`;
+// URL ký sẵn của kho tệp đi qua Caddy cùng origin với ứng dụng (handle /edupilot/* → minio, như VPS): CSP connect-src 'self' cho phép, không cần NEXT_PUBLIC_BLOB_ORIGIN lúc dựng,
+// và đúng MinIO của CHÍNH stack này kể cả khi lệch cổng. Host của URL ký = host trình duyệt gửi (có cổng khi ≠ 443).
+env.BLOB_PUBLIC_ENDPOINT ||= origin.replace(/^https:\/\//, "");
+env.BLOB_PUBLIC_USE_SSL ||= "true";
 if (httpsPort !== 443) {
   // URL công khai phải mang cổng: frontend nướng NEXT_PUBLIC_API_URL lúc dựng, gateway dùng APP_PUBLIC_URL cho liên kết trong thư và CORS_ORIGINS cho trình duyệt.
   env.NEXT_PUBLIC_API_URL ||= origin;
@@ -78,7 +81,7 @@ const seedOn = (process.env.SEED_ON_EMPTY_DB ?? readEnvLocal("SEED_ON_EMPTY_DB")
 if (seedOn) {
   console.log("[dev] SEED_ON_EMPTY_DB=true — chạy scripts/seed.mjs --if-empty sau khi gateway sẵn sàng...");
   const t0 = Date.now();
-  const seed = spawnSync("node", ["scripts/seed.mjs", "--if-empty"], { cwd: root, stdio: "inherit", env: { ...process.env, COMPOSE_PROJECT_NAME: project, API_URL: process.env.API_URL ?? `${origin}/api/v1`, MAILPIT_URL: process.env.MAILPIT_URL ?? `http://localhost:${env.EP_PORT_MAILPIT}` } });
+  const seed = spawnSync("node", ["scripts/seed.mjs", "--if-empty"], { cwd: root, stdio: "inherit", env: { ...process.env, COMPOSE_PROJECT_NAME: project, API_URL: process.env.API_URL ?? `${origin}/api/v1`, MAILPIT_URL: process.env.MAILPIT_URL ?? `http://localhost:${env.EP_PORT_MAILPIT}`, EP_PORT_MOCK_IMAP: env.EP_PORT_MOCK_IMAP, EP_PORT_MOCK_GRAPH: env.EP_PORT_MOCK_GRAPH } }); // seed bước 19 / 20 đọc mock theo cổng host đã cộng EP_PORT_OFFSET (DEF-Q2-DEV-01)
   console.log(`[dev] seed mất ${Math.round((Date.now() - t0) / 1000)} s`);
   if (seed.status !== 0) console.warn("[dev] CẢNH BÁO: seed chưa xong (mã thoát " + (seed.status ?? "?") + "). Stack vẫn chạy; chạy lại bằng `pnpm seed`.");
 }

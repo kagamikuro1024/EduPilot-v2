@@ -2,10 +2,11 @@ package contract
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -39,9 +40,24 @@ var (
 	rigErr  error
 )
 
+// rigLog đưa nhật ký của gateway thử vào t.Log của test ĐANG chạy (có trace_id khi một ca đỏ); ngoài test nào thì bỏ.
+var rigT atomic.Pointer[testing.T]
+
+type rigLog struct{}
+
+func (rigLog) Write(p []byte) (n int, err error) {
+	defer func() { _ = recover() }() // goroutine nền ghi sau khi test kết thúc: t.Log panic
+	if t := rigT.Load(); t != nil {
+		t.Log(strings.TrimRight(string(p), "\n"))
+	}
+	return len(p), nil
+}
+
 func getRig(t *testing.T) *rig {
 	t.Helper()
 	testutil.RequireContainers(t)
+	rigT.Store(t)
+	t.Cleanup(func() { rigT.CompareAndSwap(t, nil) })
 	rigOnce.Do(func() { rigVal, rigErr = buildRig(t) })
 	if rigErr != nil {
 		t.Fatalf("dựng gateway thử: %v", rigErr)
@@ -87,7 +103,7 @@ func buildRig(t *testing.T) (*rig, error) {
 	if _, err := appotel.Setup(ctx, cfg); err != nil {
 		return nil, err
 	}
-	log := applog.NewTo(io.Discard, cfg, "gateway")
+	log := applog.NewTo(rigLog{}, cfg, "gateway")
 	pool, err := appdb.NewPool(ctx, cfg, log)
 	if err != nil {
 		return nil, err

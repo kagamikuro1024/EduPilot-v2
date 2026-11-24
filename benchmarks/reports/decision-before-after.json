@@ -1,40 +1,46 @@
 {
   "meta": {
-    "commit": "dd8054dc",
-    "timestamp": "2026-11-15T12:43:28+07:00",
+    "when": "2026-11-15 15:47",
+    "fake_p50": "426",
+    "fake_p95": "682",
+    "commit": "9185eb40",
+    "timestamp": "2026-11-15T15:47:00+0700",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
-    "runs": 1,
+    "runs": 3,
     "config": {
-      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+      "chat_rounds": 3,
+      "course": "761987",
+      "decision_provider": "fake"
     }
   },
   "off": {
     "chat": {
       "requests": 90,
-      "errors": 65,
+      "errors": 0,
+      "waits_429": 3,
       "cached_excluded": 0,
       "ttft": {
-        "n": 25,
-        "p50_ms": 9.9,
-        "p95_ms": 5439.7
+        "n": 90,
+        "p50_ms": 9.4,
+        "p95_ms": 4772.9
       },
       "first_event": {
-        "n": 25,
-        "p50_ms": 6.4,
-        "p95_ms": 11.6
+        "n": 90,
+        "p50_ms": 5.5,
+        "p95_ms": 10.6
       },
-      "accuracy": 0.8,
+      "accuracy": 0.667,
       "by_stratum": {
         "rules": {
-          "n": 10,
+          "n": 30,
           "accuracy": 1.0
         },
         "course_qa": {
-          "n": 10,
+          "n": 30,
           "accuracy": 1.0
         },
         "paraphrase": {
-          "n": 5,
+          "n": 30,
           "accuracy": 0.0
         }
       }
@@ -43,8 +49,8 @@
       "posts": 40,
       "latency": {
         "n": 40,
-        "p50_ms": 7.3,
-        "p95_ms": 11.8
+        "p50_ms": 6.8,
+        "p95_ms": 10.6
       },
       "false_block": 0,
       "false_block_rate": 0.0,
@@ -62,38 +68,39 @@
       "flag_expected": 6,
       "flag_false": 0,
       "controls": 6,
-      "wall_s": 88.2,
-      "avg_s_per_essay": 7.3
+      "wall_s": 85.2,
+      "avg_s_per_essay": 7.1
     }
   },
   "on": {
     "chat": {
       "requests": 90,
-      "errors": 67,
+      "errors": 0,
+      "waits_429": 4,
       "cached_excluded": 0,
       "ttft": {
-        "n": 23,
-        "p50_ms": 2010.6,
-        "p95_ms": 3968.8
+        "n": 90,
+        "p50_ms": 2360.9,
+        "p95_ms": 7311.4
       },
       "first_event": {
-        "n": 23,
-        "p50_ms": 6.9,
-        "p95_ms": 11.5
+        "n": 90,
+        "p50_ms": 10.6,
+        "p95_ms": 50.6
       },
-      "accuracy": 1.0,
+      "accuracy": 0.933,
       "by_stratum": {
         "rules": {
-          "n": 10,
+          "n": 30,
           "accuracy": 1.0
         },
         "course_qa": {
-          "n": 10,
+          "n": 30,
           "accuracy": 1.0
         },
         "paraphrase": {
-          "n": 3,
-          "accuracy": 1.0
+          "n": 30,
+          "accuracy": 0.8
         }
       }
     },
@@ -101,11 +108,11 @@
       "posts": 40,
       "latency": {
         "n": 40,
-        "p50_ms": 3867.1,
-        "p95_ms": 6348.1
+        "p50_ms": 3586.5,
+        "p95_ms": 4923.5
       },
-      "false_block": 1,
-      "false_block_rate": 0.05,
+      "false_block": 0,
+      "false_block_rate": 0.0,
       "caught": 20,
       "missed": 0,
       "caught_by_stratum": {
@@ -120,16 +127,16 @@
       "flag_expected": 6,
       "flag_false": 0,
       "controls": 6,
-      "wall_s": 84.9,
-      "avg_s_per_essay": 7.1
+      "wall_s": 85.9,
+      "avg_s_per_essay": 7.2
     }
   },
   "paths_on": {
     "THREADS_PRECHECK": {
       "calls": 29,
       "fast": 0,
-      "fallback": 27,
-      "fail_closed": 2
+      "fallback": 29,
+      "fail_closed": 0
     },
     "INJECTION_FLAG": {
       "calls": 11,
@@ -138,20 +145,20 @@
       "fail_closed": 0
     },
     "CHAT_ROUTING": {
-      "calls": 13,
-      "fast": 13,
+      "calls": 54,
+      "fast": 54,
       "fallback": 0,
       "fail_closed": 0
     }
   },
   "verdict": {
     "CHAT_ROUTING": {
-      "result": "Bật được",
-      "why": "TTFT p95 ×0.73 (≤ 1,20), độ chính xác 0.8 → 1.0"
+      "result": "Giữ tắt",
+      "why": "TTFT p95 ×1.53 (≤ 1,20), độ chính xác 0.667 → 0.933"
     },
     "THREADS_PRECHECK": {
       "result": "Bật được",
-      "why": "chặn nhầm 0.05 (≤ 0,05), lọt 9 → 0"
+      "why": "chặn nhầm 0.0 (≤ 0,05), lọt 9 → 0"
     },
     "INJECTION_FLAG": {
       "result": "Bật được",

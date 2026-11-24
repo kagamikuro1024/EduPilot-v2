@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { asDemo, asJwt } from "./support/session";
@@ -296,17 +297,103 @@ test("inbox shortcuts: J / K đổi ticket, R vào ô soạn, không kích hoạ
   await expect(page).toHaveURL(/ticket=(?!.*f8)/);
 });
 
+/** Hai phiếu OPEN; danh sách lọc theo `status=` như máy chủ thật, Nhận / Trả lời đổi trạng thái. */
+async function twoTickets(page: Page) {
+  const ids = [TID, "00000000-0000-7000-8000-0000000000f8"];
+  const st: Record<string, ReturnType<typeof ticket>> = {
+    [ids[0]]: ticket({ id: ids[0] }),
+    [ids[1]]: ticket({ id: ids[1], student: { id: "s2", full_name: "Sinh Viên Hai" } }),
+  };
+  await page.route("**/api/v1/courses/*/tickets**", (r) => {
+    const req = r.request();
+    if (req.method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    const u = new URL(req.url());
+    const path = u.pathname.replace("/api/v1", "");
+    if (req.method() === "GET") {
+      if (path.endsWith("/tickets")) {
+        const want = u.searchParams.get("status");
+        return r.fulfill(json({ items: ids.map((i) => st[i]).filter((t) => !want || t.status === want).map(row), next_cursor: null }));
+      }
+      return r.fulfill(json(detail(st[ids.find((i) => path.includes(i))!])));
+    }
+    const id = ids.find((i) => path.includes(i))!;
+    const mine = { id: SUB, full_name: "Giảng Viên Thử" };
+    st[id] = path.endsWith("/claim") ? ticket({ ...st[id], status: "CLAIMED", claimed_by: mine, version: 2 }) : ticket({ ...st[id], status: "ANSWERED", answered_by: mine, version: 3 });
+    return r.fulfill(json({ ticket: st[id], message: { id: "m1", content: "x", created_at: st[id].created_at } }));
+  });
+  return ids;
+}
+
+test("inbox Ctrl+↵ (DEF-R7-04, AC11): bộ lọc «Đang chờ», phiếu đã Nhận rời danh sách — gửi xong vẫn sang phiếu kế", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  await asDemo(context, "teacher");
+  const ids = await twoTickets(page);
+  await page.goto("/inbox");
+  const detailPane = page.locator("[data-part=inbox-detail]");
+  await page.locator("[data-part=inbox-list]").getByText("Sinh Viên Thử").click(); // chọn phiếu: ?ticket= của phiếu này
+  await detailPane.getByRole("button", { name: "Nhận", exact: true }).click();
+  const box = detailPane.getByRole("textbox", { name: "Câu trả lời gửi sinh viên" });
+  await box.fill("Em xem lại bài 3 nhé.");
+  await box.press("Control+Enter");
+  await expect(page).toHaveURL(new RegExp(`ticket=${ids[1]}`));
+  await expect(detailPane.getByRole("heading", { name: "Sinh Viên Hai" })).toBeVisible();
+});
+
+test("inbox 375 (DEF-R7-05, AC10): ô trả lời dính đáy, nằm ngay trên thanh điều hướng dưới", async ({ page, context }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await asDemo(context, "teacher");
+  await twoTickets(page);
+  await page.goto(`/inbox?ticket=${TID}`);
+  await page.getByRole("button", { name: "Nhận", exact: true }).click();
+  const box = page.locator("[data-part=inbox-reply]");
+  await expect(box.getByRole("textbox")).toBeVisible();
+  const vh = page.viewportSize()!.height;
+  const bottom = await box.evaluate((e) => e.getBoundingClientRect().bottom);
+  const pane = await page.locator("[data-part=inbox-detail]").evaluate((e) => e.parentElement!.getBoundingClientRect().bottom);
+  expect(bottom).toBeGreaterThan(pane - 24); // sát đáy ngăn chi tiết, không lơ lửng giữa trang
+  expect(bottom).toBeLessThanOrEqual(Math.min(pane, vh - 56) + 1);
+});
+
+for (const [w, h] of [[1440, 900], [375, 812]] as const) {
+  test(`inbox empty filter @${w} (DEF-R7-11, P-11-81): bộ lọc «Đã nhận» rỗng khi lớp còn phiếu khác → «Không có câu hỏi trong bộ lọc này»; lớp không có phiếu → «Chưa có câu hỏi cần xử lý»`, async ({ page, context }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await asDemo(context, "teacher");
+    let classHasTickets = true;
+    await page.route("**/api/v1/courses/*/tickets**", (r) => {
+      if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+      const want = new URL(r.request().url()).searchParams.get("status");
+      return r.fulfill(json({ items: classHasTickets && want === "ALL" ? [row(ticket({ status: "ANSWERED" }))] : [], next_cursor: null }));
+    });
+    await page.goto("/inbox");
+    await expect(page.getByText("Không có câu hỏi trong bộ lọc này", { exact: true })).toBeVisible(); // «Đang chờ» rỗng, lớp còn phiếu đã trả lời
+    await page.getByRole("radio", { name: "Đã nhận" }).click();
+    await expect(page.getByText("Không có câu hỏi trong bộ lọc này", { exact: true })).toBeVisible();
+    await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toHaveCount(0);
+    classHasTickets = false;
+    await page.reload();
+    await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toBeVisible();
+  });
+}
+
 test("bell count: số chưa đọc trên chuông, tối đa 9+", async ({ page }) => {
   await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 15 }) });
   await page.goto("/");
   await expect(page.locator("[data-part=bell-dot]")).toHaveText("9+");
-  await expect(bell(page)).toHaveAttribute("aria-label", "Thông báo, 15 chưa đọc");
+  await expect(bell(page)).toHaveAttribute("aria-label", "Thông báo, 9+ chưa đọc"); // P-11-39: nhãn chứa chữ nhìn thấy «9+»
 });
 
 test("bell count small: 3 chưa đọc hiện đúng số 3", async ({ page }) => {
   await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 3 }) });
   await page.goto("/");
   await expect(page.locator("[data-part=bell-dot]")).toHaveText("3");
+});
+
+test("axe: nút đầu trang (tìm nhanh, chuông 9+, tài khoản) có tên chứa chữ nhìn thấy (WCAG 2.5.3; DEF-R5-01)", async ({ page }) => {
+  await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 58 }) });
+  await page.goto("/");
+  await expect(page.locator("[data-part=bell-dot]")).toHaveText("9+");
+  const r = await new AxeBuilder({ page }).withRules(["label-content-name-mismatch"]).analyze();
+  expect(r.violations.flatMap((v) => v.nodes.map((n) => n.html.slice(0, 80)))).toEqual([]);
 });
 
 test("bell no jump: thông báo mới chèn lên đầu lúc đang mở không làm nhảy mục đang đọc", async ({ page }) => {

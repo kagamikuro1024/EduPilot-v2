@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/edupilot/backend-go/internal/calendar"
+	"time"
 
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/assignment"
@@ -15,6 +16,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/ingest"
+	"github.com/edupilot/backend-go/internal/insight"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/knowledge"
@@ -46,7 +48,9 @@ func newRegistry(d Deps) *outbox.Registry {
 		(&submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}).RegisterZip(runner) // submission.zip (US-P7-04)
 	}
 	if d.LLM != nil {
-		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM, Hints: questionHints(d)}).Register(runner) // question.extract, question.generate (US-P9-02, US-P9-03)
+		det := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: d.DB}, Redis: d.Redis, Log: d.Log}}
+		(&insight.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, LLM: d.LLM, Det: det, Notify: nt, EmbedPause: 400 * time.Millisecond}).Register(runner) // insight.knowledge_gap (US-P10-04)
+		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM, Hints: questionHints(d)}).Register(runner)                                  // question.extract, question.generate (US-P9-02, US-P9-03)
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
@@ -78,7 +82,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(grading.TopicGuidanceChanged, inv.Handle) // lưu ý chấm đổi (10.6): xoá cache «Hôm nay» của giảng viên + TA
 	reg.Register(course.TopicAssigned, outbox.Chain(cn.HandleAssigned, inv.Handle))
 	reg.Register(course.TopicJoinRequested, outbox.Chain(cn.HandleJoinRequested, inv.Handle))
-	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
+	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
+	reg.Register(course.TopicJoinDecided, outbox.Chain(roster.Invalidate, cn.HandleJoinDecided, inv.Handle)) // duyệt ⇒ SV mới vào từ điển PII ngay (DEF-R6-02); xoá cache đứng đầu để thông báo lỗi không làm trễ
 	en := &exam.Notifier{Pool: d.DB, Log: d.Log, Notify: nt}
 	reg.Register(exam.TopicExamScheduled, outbox.Chain(en.HandleScheduled, inv.Handle)) // US-PE-04: thông báo lịch + xoá cache "Hôm nay"
 	reg.Register(exam.TopicExamUnscheduled, outbox.Chain(en.HandleUnscheduled, inv.Handle))
@@ -122,7 +127,6 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(escalation.TopicSLAEscalated, outbox.Chain(esc.HandleSLAEscalated, inv.Handle))
 	reg.Register(escalation.TopicCourseStall, outbox.Chain(esc.HandleCourseStalled, inv.Handle))
 	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.
-	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
 	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {
 		reg.Register(t, outbox.Chain(inv.Handle, roster.Invalidate))
 	}

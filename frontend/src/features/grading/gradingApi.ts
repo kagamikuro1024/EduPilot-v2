@@ -18,7 +18,7 @@ export type QueueRow = {
   received_at: string;
   late_days: number;
   match_status: string;
-  result: { id: string; status: ResultStatus; run_state: RunState; total?: string; flags: string[]; needs_review: boolean; error_code?: string; version: number } | null;
+  result: { id: string; status: ResultStatus; run_state: RunState; total?: string; flags: string[]; needs_review: boolean; error_code?: string; version: number; stale_review?: "EDITED" | "ACCEPTED_AS_IS" } | null;
 };
 
 export type Criterion = {
@@ -59,7 +59,7 @@ export type ResultView = {
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
   appeal?: Appeal | null;
   /** chỉ khi lớp bật «Lưu ý chấm»: bản lưu ý ĐÃ GHIM cho kết quả này (10.6) */
-  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]> };
+  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]>; support_by_criterion?: Record<string, number> };
 };
 
 /** Lý do cờ bằng chữ (AC1). Màn của nhân viên: dùng đúng cụm của AC. */
@@ -74,6 +74,15 @@ export const FLAG_TEXT: Record<string, string> = {
   LATE_AFTER_CUTOFF: "Thư nộp quá hạn tối đa",
   TOTAL_MISMATCH: "Tổng điểm chưa khớp",
   SCORE_ADJUSTED: "Điểm đã chỉnh tay",
+};
+
+/** Nguyên nhân bài «Chấm lỗi» bằng chữ (US-P7-06 AC10, US-P7-07 AC4), theo `error_code` của kết quả FAILED. */
+export const FAILED_TEXT: Record<string, string> = {
+  LLM_BUDGET_EXHAUSTED: "Hết ngân sách AI hôm nay — chấm lại ngày mai hoặc chấm tay",
+  LLM_UNAVAILABLE: "AI tạm thời không phản hồi",
+  GRADING_OUTPUT_INVALID: "AI trả kết quả không dùng được",
+  EXTRACT_FAILED: "Không đọc được nội dung tệp",
+  TEXT_TOO_LONG: "Bài quá dài để chấm",
 };
 
 /** Việc cần làm cho từng cờ ở màn duyệt (không từ kỹ thuật). */

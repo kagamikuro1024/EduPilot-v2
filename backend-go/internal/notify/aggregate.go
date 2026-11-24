@@ -38,7 +38,7 @@ func leadingInt(title string) int {
 }
 
 // Aggregate cập nhật dòng gộp cho từng người nhận trong MỘT giao dịch:
-// chưa có dòng và n > 0 → tạo; n tăng → nổi lên + chưa đọc + phát SSE; n bằng → không đổi, không phát; n giảm → đổi chữ, GIỮ read_at, không phát; n = 0 → đánh dấu đã đọc.
+// chưa có dòng và n > 0 → tạo; n tăng → nổi lên + chưa đọc + phát SSE; n bằng → không đổi, không phát; n giảm → đổi chữ, GIỮ read_at, không phát; n = 0 → đánh dấu đã đọc và đặt số trong tiêu đề về 0 (mốc đếm mới).
 func (s *Service) Aggregate(ctx context.Context, a Agg) error {
 	if len(a.Recipients) == 0 {
 		return nil
@@ -77,6 +77,11 @@ func (s *Service) Aggregate(ctx context.Context, a Agg) error {
 			if !missing && cur.ReadAt == nil {
 				if err := q.NotifyAggMarkRead(ctx, cur.ID); err != nil {
 					return fmt.Errorf("notify: đánh dấu đã đọc: %w", err)
+				}
+			}
+			if !missing && leadingInt(cur.Title) != 0 { // đặt lại mốc đếm: lần sau n ≥ 1 là "tăng" dù ≤ số cũ (DEF-R7-02)
+				if err := q.NotifyAggRetitle(ctx, store.NotifyAggRetitleParams{ID: cur.ID, Title: a.Title(0)}); err != nil {
+					return fmt.Errorf("notify: đặt lại số đếm: %w", err)
 				}
 			}
 		case missing:

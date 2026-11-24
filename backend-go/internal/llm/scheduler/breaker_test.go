@@ -3,6 +3,7 @@ package scheduler_test
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -148,5 +149,55 @@ func TestBreakerOpenSkipsProvider(t *testing.T) {
 	rows := r.cap.all(r.g)
 	if last := rows[len(rows)-1]; last.FallbackIndex != 1 || last.Status != "ok" {
 		t.Errorf("audit = %+v", last)
+	}
+}
+
+// DEF-R3-05 (TC-P102-14, TC-P103-19/20): một nhà lỗi 503 qua Gateway + Scheduler thật, làn BATCH (GRADING):
+// (1) một lời gọi = 3 request (1 + 2 thử lại); (2) mạch mở → lời gọi kế KHÔNG gọi nhà và trả lỗi ngay; (3) hết 30 s, 3 lời gọi đồng thời = đúng MỘT thăm dò (3 request), không hơn.
+func TestBatchOutageEndToEnd(t *testing.T) {
+	t.Parallel()
+	clk := clock.NewFake(time.Date(2026, 10, 3, 9, 0, 0, 0, time.UTC))
+	down := &stubProv{name: "S4", chat: func(context.Context, int) (resultT, error) {
+		return resultT{}, &provider.Error{Kind: provider.KindServer, Status: 503}
+	}}
+	reg := llm.NewStaticRegistry(map[llm.Task]llm.Route{})
+	reg.SetRoute(llm.TaskGrading, llm.Route{Targets: []llm.Target{{ProviderID: "S4", ProviderName: "S4", Type: "fake", Model: "m-503", RPM: 1_000_000, TPM: 1_000_000_000, P: down}}})
+	r := finish(t, reg, scheduler.New(baseCfg(), nil, discard(), scheduler.WithClock(clk)), func(o *llm.Options) {
+		o.Sleep = func(ctx context.Context, _ time.Duration) error { return ctx.Err() } // không ngủ thật giữa các lần thử lại
+	})
+	lane := llm.LaneBatch
+	call := func() error {
+		_, err := r.g.Chat(t.Context(), llm.Request{Task: llm.TaskGrading, Lane: &lane, Messages: msg("x")})
+		return err
+	}
+	if err := call(); err == nil {
+		t.Fatal("nhà 503 phải lỗi")
+	}
+	if n := down.calls.Load(); n != 3 {
+		t.Fatalf("BATCH gọi nhà %d lần, muốn 3 (1 + 2 thử lại)", n)
+	}
+	for range 4 { // tới 5 lỗi liên tiếp
+		_ = call()
+	}
+	if st := r.s.CircuitState(t.Context(), "S4"); st != "open" {
+		t.Fatalf("sau 5 lỗi: %s", st)
+	}
+	before, t0 := down.calls.Load(), time.Now()
+	if err := call(); err == nil {
+		t.Fatal("mạch mở phải lỗi")
+	}
+	if down.calls.Load() != before || time.Since(t0) > 500*time.Millisecond {
+		t.Fatalf("mạch mở: gọi nhà %d lần, mất %v (muốn 0 và < 500 ms)", down.calls.Load()-before, time.Since(t0))
+	}
+	clk.Advance(30 * time.Second)
+	before = down.calls.Load()
+	var wg sync.WaitGroup
+	for range 3 {
+		wg.Add(1)
+		go func() { defer wg.Done(); _ = call() }()
+	}
+	wg.Wait()
+	if n := down.calls.Load() - before; n != 3 {
+		t.Fatalf("bán mở: 3 lời gọi đồng thời gọi nhà %d lần, muốn đúng 1 thăm dò = 3 request", n)
 	}
 }

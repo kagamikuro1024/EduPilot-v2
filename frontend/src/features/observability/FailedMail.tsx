@@ -2,6 +2,7 @@
 
 import { useCursorList } from "@/shared/data";
 import { timeAgo } from "@/shared/lib/timeAgo";
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, type Column, DataTable, EmptyState, PageState, Section, Skeleton } from "@/shared/ui";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`GET /admin/observability/failed-mail`). Không thân thư, không payload; người nhận đã che.
@@ -25,7 +26,7 @@ const columns: Column<FailedMailRow>[] = [
 export function FailedMail() {
   const list = useCursorList<FailedMailRow>(["admin", "failed-mail"], "/admin/observability/failed-mail", { limit: 30 });
   return (
-    <Section title="Thư chưa gửi được">
+    <Section title="Thư chưa gửi được" fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} /> : null}>
       <PageState query={list} isEmpty={() => list.items.length === 0} loading={<Skeleton lines={3} />} empty={<EmptyState title="Không có thư lỗi" />}>
         <DataTable caption="Thư chưa gửi được, mới nhất trước" columns={columns} rows={list.items} rowKey={(r) => r.id} dense />
         {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}

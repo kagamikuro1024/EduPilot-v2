@@ -11,7 +11,7 @@ Sprint đo, không thêm tính năng. Trả lời bốn câu mà báo cáo sprin
 3. Mất worker, Redis hoặc `docling-serve` thì có mất việc không?
 4. Các việc LLM (trích công thức, chấm bài, che danh tính, chat, phân loại) hoạt động thế nào với mô hình thật?
 
-**Trong phạm vi:** môi trường đo trên Mac; `seed.mjs` sạch + `seed-t1.mjs`; k6 (a)–(d); `EXPLAIN` + `00018_indexes_tuning`; chaos nhỏ; số đo nền (`docker stats`, image, khởi động, p95, Lighthouse); đo LLM thật bằng `real_llm.py`; báo cáo tổng; sửa lỗi do phép đo tìm ra (US-NFR-10).
+**Trong phạm vi:** môi trường đo trên Mac; `seed.mjs` sạch + `seed-t1.mjs`; k6 (a)–(d); `EXPLAIN` (chỉ thêm chỉ mục khi có bằng chứng; kết quả: không cần, P-95-8); chaos nhỏ; số đo nền (`docker stats`, image, khởi động, p95, Lighthouse); đo LLM thật bằng `real_llm.py`; báo cáo tổng; sửa lỗi do phép đo tìm ra (US-NFR-10).
 **Ngoài phạm vi:** tính năng mới; observability UI, `/insights`, thống kê điểm thi, `make eval` E1–E6 đầy đủ, chấm tay E3, ≥ 2 provider cho E4, visual QA, chạy trọn `DEMO_SCRIPT.md` (đều thuộc P10, sprint 11); judge amd64 có seccomp (chỉ chạy được trên amd64 — chuyển PR); `docker-compose.prod.yml` (P10 L4).
 
 ## 2. Người dùng và quyền
@@ -30,7 +30,7 @@ Ma trận quyền **của sản phẩm** không đổi. Kiểm bắt buộc khi 
 flowchart LR
   A[01 Môi trường đo Mac] --> B[02 Seed T0]
   B --> C[03 Seed T1]
-  C --> E[05 EXPLAIN + 00018]
+  C --> E[05 EXPLAIN]
   E --> D[04 k6 a-d ×1 và ×2]
   D --> F[06 Chaos]
   B --> G[07 Số đo nền + Lighthouse]
@@ -65,7 +65,7 @@ flowchart LR
 | FR-6 | Bốn kịch bản k6 (a)–(d) có ngưỡng = SLO §5; chạy ở ×1 và ×2; ghi p50/p95/p99, 5xx | US-NFR-04 AC1–AC3, AC5 |
 | FR-7 | Kịch bản (c) có hai pha (`baseline`, `grading`) và so TTFT ≤ +20% | US-NFR-04 AC2 |
 | FR-8 | Kịch bản k6 có bước kiểm `403` cho STUDENT gọi API giảng viên (≥ 100 lần) | US-NFR-04 AC4 |
-| FR-9 | Có `00018_indexes_tuning.sql` (chỉ mục phức hợp bắt đầu bằng `course_id`; HNSW nếu cần), `down` được, `sqlc diff` sạch | US-NFR-05 |
+| FR-9 | Chỉ khi `EXPLAIN` cho thấy truy vấn cần chỉ mục: một migration chỉ mục (phức hợp bắt đầu bằng `course_id`; HNSW nếu cần), `down` được, `sqlc diff` sạch; không thì không tạo migration và báo cáo ghi «không cần chỉ mục» (P-95-8: kết quả T1 là không cần) | US-NFR-05 |
 | FR-10 | Báo cáo `EXPLAIN ANALYZE` 10 truy vấn trước / sau + kích thước chỉ mục | US-NFR-05 AC1–AC3, AC6 |
 | FR-11 | Chaos: giết worker, dừng Redis 70 s, dừng `docling-serve` 2 phút; đối chiếu việc vào = xong + dead-letter | US-NFR-06 |
 | FR-12 | `benchmarks/reports/baseline.{json,md}`: `docker stats`, image, khởi động, p95 ≥ 12 endpoint | US-NFR-07 AC1–AC3 |
@@ -76,7 +76,7 @@ flowchart LR
 | FR-17 | Lỗi tìm được có dòng TL / proposal; sửa theo mức; test hồi quy; đo lại | US-NFR-10 |
 
 ## 5. Dữ liệu
-- **Migration mới (duy nhất):** `00018_indexes_tuning.sql` — chỉ `CREATE INDEX` (có thể `CONCURRENTLY`; goose cần `-- +goose NO TRANSACTION` cho phần đó) và, nếu cần, `CREATE EXTENSION IF NOT EXISTS pg_stat_statements` **chỉ ở stack đo** (qua cấu hình compose đo, không qua migration sản phẩm). Không đổi cột, không đổi bảng. Số `00018` đang trống (`PROGRESS.md`: "số `00018` không dùng"); `00019` giữ cho P9 theo `ARCHITECTURE.md` §4.
+- **Migration mới:** không có (P-95-8: `EXPLAIN` 10 truy vấn ở T1 đều ≤ 14 ms, không chỉ mục nào có bằng chứng lợi ích). Nếu sau này cần: một migration chỉ `CREATE INDEX` (có thể `CONCURRENTLY`; goose cần `-- +goose NO TRANSACTION` cho phần đó) và, nếu cần, `CREATE EXTENSION IF NOT EXISTS pg_stat_statements` **chỉ ở stack đo** (qua cấu hình compose đo, không qua migration sản phẩm). Không đổi cột, không đổi bảng. Số `00018` không dùng (`PROGRESS.md`); `00019` giữ cho P9 theo `ARCHITECTURE.md` §4.
 - **DB `edupilot_t1`:** tạo / xoá bởi `seed-t1.mjs`; không có trong compose sản phẩm. Quy mô mục tiêu (từ `SYSTEM_DESIGN.md` §1.2): 1.000 SV · 20 lớp · 5 TA · 3 GV · `chat_messages` ≈ 90.000 · `study_time_daily` ≈ 525.000 · bài nộp ≈ 4 bài/SV.
 - **Kết quả đo:** `benchmarks/reports/{load-a,load-b,load-c,load-d,chaos,baseline,explain}.json` + `.md`; `benchmarks/reports/real-llm/*.json`. Không vào DB.
 - Dữ liệu đo LLM thật tạo ra: lớp `EVALLLM`, bài `EVAL03`, kết quả chấm nháp `BT03` (README harness). Chỉ ở stack `-p ep-research`, mất khi `down -v`.
@@ -116,7 +116,7 @@ Không có màn hình mới. Ngoại lệ duy nhất: chủ dự án cấu hình
 | --- | --- |
 | Script | `node scripts/check-*-seed.mjs` (có sẵn); thêm `check-t1-seed.mjs` (đếm dòng ≈ bảng §1.2, tất định, FK) |
 | Tự kiểm harness | `real_llm.py` có tự kiểm offline với fixtures (đã có theo README); thêm kiểm `--resume` |
-| Migration | `goose up/down/up` trên T1; `sqlc diff`; `go test` gói đụng truy vấn |
+| Migration | Chỉ khi có migration chỉ mục: `goose up/down/up` trên T1; `sqlc diff`; `go test` gói đụng truy vấn (sprint này không có, P-95-8) |
 | Đo | k6 (a)–(d), chaos, baseline, Lighthouse, real-llm; QC chạy lại ≥ 1 kịch bản k6 và đối chiếu số `meta` |
 | Regression sản phẩm | `go test -race ./...` + `playwright test` một lần trước handoff (CONTEXT mục 4: cả bộ một lần) |
 | Dữ liệu seed cần | `seed.mjs` (T0) + `seed-t1.mjs`; bài `BT03` 22 bài; 2 quy chế PDF; `data/injection/*` của harness |
@@ -126,8 +126,8 @@ Xem `QUESTIONS.md` (Q-NFR-1…10, đã chốt). **Quyết định đã chốt d�
 
 **Đề xuất đổi tài liệu nền (PM đã chấp nhận P-95-1…3 ngày 2026-11-12; PM / dev vá tệp nền):**
 1. `ROADMAP.md`: thêm dòng sprint 9.5; chuyển khỏi P10 L3: `seed-t1`, k6 (a)–(d), chaos, EXPLAIN + chỉ mục; P10 giữ `make eval` E1–E6 (gồm E3 chấm tay, E4 ≥ 2 provider), `make load-t1` / `make chaos` chỉ còn là lệnh bọc gọi lại script của 9.5.
-2. `P10.md` L3: sửa số migration `00015 indexes_tuning` → `00018` (số `00015` đã là `observation`).
-3. `ARCHITECTURE.md` §4 bảng migration: thêm `00018 indexes_tuning | 9.5`.
+2. `P10.md` L3: bỏ dòng chỉ mục `indexes_tuning` (P-95-8: không cần chỉ mục; số `00015` đã là `observation`, số `00018` không dùng).
+3. `ARCHITECTURE.md` §4 bảng migration: **không** thêm `00018` (P-95-8); số `00018` giữ «không dùng».
 4. `docs/team/CONTEXT.md` mục 2 và `benchmarks/real-llm/README.md`: bỏ VPS (đã có trong US-NFR-01).
 
 ## 11. Truy vết

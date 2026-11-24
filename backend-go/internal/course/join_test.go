@@ -319,3 +319,17 @@ func TestJoinNoJWT401(t *testing.T) {
 		require.Equal(t, http.StatusUnauthorized, res.code, p)
 	}
 }
+
+// DEF-R6-02: vào lớp ngay (ACTIVE) phải phát course.member_changed để worker xoá ep:roster; chờ duyệt (PENDING) thì chưa.
+func TestJoinActiveEmitsMemberChanged(t *testing.T) {
+	r := newRig(t)
+	k := r.klass(nil)
+	q := `select count(*) from outbox where topic = 'course.member_changed' and payload->>'course_id' = $1`
+	_, sv := r.student("")
+	require.Equal(t, http.StatusOK, r.join(sv, k.code).code)
+	require.Equal(t, 1, r.count(q, k.id))
+	require.Equal(t, http.StatusOK, r.setJoin(k, map[string]any{"require_approval": true}).code)
+	_, sp := r.student("")
+	require.Equal(t, "PENDING", r.join(sp, k.code).json()["status"])
+	require.Equal(t, 1, r.count(q, k.id), "PENDING chưa vào từ điển PII")
+}

@@ -14,7 +14,7 @@ import (
 )
 
 // Resolver đọc cấu hình cho cổng `internal/llm` (không kiểm vai: người gọi là mã hệ thống, không phải người dùng).
-// DecryptKey là HÀM DUY NHẤT trả khoá API ở dạng rõ; chỉ `internal/llm` (và gói này) được gọi — kiểm bằng grep ở US-P1-01 AC8.
+// DecryptKey là HÀM DUY NHẤT trả khoá API ở dạng rõ; chỉ `internal/llm` (và gói này) được gọi — TestDecryptKeyOnlyInLLMPackages (US-P1-01 AC8). Lớp HTTP dùng KeyForVerify.
 type Resolver struct {
 	q      *store.Queries
 	cipher *crypto.Cipher
@@ -42,6 +42,18 @@ func (r *Resolver) DecryptKey(ctx context.Context, providerID uuid.UUID) (string
 		return "", ErrKeyUnreadable
 	}
 	return string(plain), nil
+}
+
+// KeyForVerify trả khoá để thử kết nối trước khi lưu / khi bấm «Kiểm tra»: khoá người dùng vừa nhập (override) nếu có, không thì khoá đã lưu.
+// Thiếu hoặc không giải mã được → "" (nhà cung cấp tự báo AUTH). Lớp HTTP gọi hàm này thay vì DecryptKey (DEF-R3-04, US-P1-01 AC8: khoá rõ chỉ ở llm / llmconfig).
+func (r *Resolver) KeyForVerify(ctx context.Context, providerID uuid.UUID, override *Secret) string {
+	if override != nil {
+		return override.Reveal()
+	}
+	if k, err := r.DecryptKey(ctx, providerID); err == nil {
+		return k
+	}
+	return ""
 }
 
 // RouteEntry là một mô hình trong chuỗi của tác vụ, kèm đủ thông tin cho cổng llm (giá, nhà cung cấp).

@@ -138,7 +138,7 @@ export function SessionProvider({
 
 /**
  * Liên kết sâu `?course=<id>` (SRS 4.9): lớp đó thành lớp đang chọn rồi BỎ tham số khỏi URL
- * (giữ các tham số khác, ví dụ `?tab=pending`). Id lạ hoặc ngoài quyền của vai: chỉ bỏ tham số.
+ * (giữ các tham số khác, ví dụ `?tab=pending`). Id lạ hoặc ngoài quyền của vai: chỉ bỏ tham số. Ngoại lệ: `/practice/<id>` giữ tham số.
  */
 function useCourseDeepLink(courseIds: string[] | null, setCourse: (id: string) => void) {
   const router = useRouter();
@@ -152,6 +152,7 @@ function useCourseDeepLink(courseIds: string[] | null, setCourse: (id: string) =
     if (!wanted || !ready) return;
     if (pathname.startsWith("/attendance/display")) return; // màn chiếu đọc `?course=` từ URL, không đổi lớp đang chọn của tab và không bị bỏ tham số
     if (allowed) setCourse(wanted);
+    if (pathname.startsWith("/practice/")) return; // lượt luyện: `?course=` ở lại URL — tải lại / quay lại vẫn biết lớp, khỏi hỏi máy chủ (DEF-R10S-20); lớp đang chọn vẫn đổi theo
     const rest = new URLSearchParams(params.toString());
     rest.delete("course");
     const query = rest.toString();

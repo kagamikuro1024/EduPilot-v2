@@ -3508,6 +3508,16 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "503":
+          description: "Redis không trả lời: `Idempotency-Key` fail-closed (SRS 6.6, P-11-70) — không xếp hàng, không tạo dòng QUEUED; gửi lại cùng khoá sau `Retry-After` giây (`SERVICE_UNAVAILABLE`)"
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/v1/courses/{id}/guidance-flags:
     get:
       operationId: listGuidanceFlags
@@ -5130,7 +5140,7 @@ paths:
     post:
       operationId: whatIfMyGrade
       tags: [gradebook]
-      summary: "Tính thử \"nếu cuối kỳ được X\" (hoặc điểm cuối kỳ tối thiểu để đạt điểm chữ mục tiêu) bằng engine; chỉ đọc, không ghi gì, không cần Idempotency-Key. Đúng một trong hai trường; điểm ngoài 0–10 hoặc quá 2 chữ số thập phân 422; thiếu thành phần quá trình đã công bố 409 NOT_ENOUGH_GRADES; đã chốt 409 FINAL_ALREADY_LOCKED"
+      summary: "Tính thử \"nếu cuối kỳ được X\" (hoặc điểm cuối kỳ tối thiểu để đạt điểm chữ mục tiêu) bằng engine; chỉ đọc, không ghi gì, không cần Idempotency-Key. Đúng một trong hai trường; điểm ngoài 0–10, quá 2 chữ số thập phân hoặc điểm chữ mục tiêu không thuộc thang của công thức (khớp chính xác sau TrimSpace, phân biệt hoa thường, rỗng = ngoài thang; details[].field = target_letter) 422; thiếu thành phần quá trình đã công bố 409 NOT_ENOUGH_GRADES; đã chốt 409 FINAL_ALREADY_LOCKED"
       parameters:
         - $ref: "#/components/parameters/CourseId"
       requestBody:
@@ -9954,6 +9964,430 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/summary:
+    get:
+      operationId: getObservabilitySummary
+      tags: [observability]
+      summary: "Quan sát AI toàn hệ thống (ADMIN): dải 24 giờ / 7 ngày, bảng 7 ngày theo ngày VN, chi phí theo tác vụ; không nội dung. Số đếm / lỗi / dự phòng / chi phí / che PII chính xác; p50 / p95 xấp xỉ (sai số tương đối ≤ 5 %)"
+      parameters:
+        - name: window
+          in: query
+          schema:
+            type: string
+            enum: ["24h", "7d"]
+      responses:
+        "200":
+          description: Tổng hợp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsAdminSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/requests:
+    get:
+      operationId: listObservabilityRequests
+      tags: [observability]
+      summary: "Bảng yêu cầu LLM (ADMIN), phân trang con trỏ (created_at, id) giảm dần; KHÔNG cột nội dung; Cache-Control no-store"
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [all, problem, privacy]
+        - name: course_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: task
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang yêu cầu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsRequestPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/audit:
+    get:
+      operationId: listAuditLog
+      tags: [observability]
+      summary: "Nhật ký kiểm toán (ADMIN): lọc entity / actor_id / from–to (không có cả hai: 7 ngày gần nhất; chỉ from: to = now; chỉ to: from = to − 7 ngày; tối đa 90 ngày; tham số rỗng = bỏ qua), phân trang con trỏ (created_at, id) giảm dần, limit 1–100 (mặc định 30). Cursor gắn với bộ lọc: dùng lại với bộ lọc khác → 422 INVALID_CURSOR. KHÔNG BAO GIỜ trả before / after: chỉ tên khoá thay đổi. Mỗi lần gọi thành công ghi một dòng audit_log (entity audit_log, action VIEW_LIST) cùng giao dịch trước khi trả; không ghi được thì 500 và không trả dữ liệu; Cache-Control no-store"
+      parameters:
+        - name: entity
+          in: query
+          schema:
+            type: string
+            pattern: "^[a-z][a-z0-9_]{0,63}$"
+        - name: actor_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Trang nhật ký
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/requests/{id}/open:
+    post:
+      operationId: openObservabilityRequest
+      tags: [observability]
+      summary: "Mở nội dung một yêu cầu (ADMIN): lý do 10–200 ký tự, ghi audit_log VIEW_DETAIL cùng giao dịch trước khi trả prompt ĐÃ CHE; mỗi lần mở một dòng; no-store"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObsOpenInput"
+      responses:
+        "200":
+          description: Prompt đã che, công cụ, độ tự tin, trace_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/observability/summary:
+    get:
+      operationId: getCourseObservabilitySummary
+      tags: [observability]
+      summary: "Tổng hợp 7 ngày của MỘT lớp (TEACHER của lớp; ADMIN mọi lớp): không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. Giảng viên lớp khác, người ngoài lớp, TA / STUDENT → 403 (reason course hoặc role; không 404)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Tổng hợp lớp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsCourseSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/insights/knowledge-gap/generate:
+    post:
+      operationId: generateKnowledgeGap
+      tags: [insights]
+      summary: "Tạo báo cáo lỗ hổng kiến thức (Giảng viên / TA của lớp; ADMIN 403; Idempotency-Key bắt buộc). `period_days` ∈ {7, 14, 30, 120 = toàn kỳ}; vắng → 14; có mặt mà ngoài tập đó (kể cả 0, âm) → 422. Không có dữ liệu mới từ báo cáo gần nhất cùng kỳ → 200 `reused` (0 lời gọi LLM); dưới 20 câu hỏi → 409 NOT_ENOUGH_DATA; quá 3 việc / giờ / lớp → 429 RATE_LIMITED + Retry-After. Việc nền BATCH `insight.knowledge_gap`, tiến độ SSE job.progress với detail.stage ∈ COLLECT | CLUSTER | NAME | DONE; kết quả GET /jobs/{id} → result {report_id}"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeGapRequest"
+      responses:
+        "200":
+          description: Chưa có dữ liệu mới, dùng lại báo cáo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeGapReused"
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/insights/knowledge-gap/latest:
+    get:
+      operationId: getLatestKnowledgeGap
+      tags: [insights]
+      summary: "Báo cáo lỗ hổng kiến thức mới nhất của lớp (Giảng viên / TA) kèm so với bản trước (chủ đề mới, đổi hạng) và has_new_data. Chưa có, hoặc chỉ có báo cáo cũ (payload.schema < 2) → 404. Cache-Control: no-store"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Báo cáo mới nhất
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeGapLatest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/insights/knowledge-gap/{rid}/export:
+    get:
+      operationId: exportKnowledgeGap
+      tags: [insights]
+      summary: "Xuất báo cáo dạng Markdown (Giảng viên / TA); `format` chỉ nhận md. Không có / lớp khác / báo cáo cũ (payload.schema < 2) → 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [md]
+      responses:
+        "200":
+          description: Markdown
+          content:
+            text/markdown:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/analytics/exams/overview:
+    get:
+      operationId: getExamAnalyticsOverview
+      tags: [exam]
+      summary: "Tổng quan điểm thi của một bài PUBLISHED (mặc định mới nhất) hoặc gộp theo tuần `week` (YYYY-Www hoặc một ngày YYYY-MM-DD; thứ Hai → Chủ nhật giờ +07). Có cả exam_id và week → 422. Chỉ bài PUBLISHED, điểm chính thức; ngưỡng đạt 50 % điểm tối đa. Giảng viên / TA: đủ số liệu; ADMIN: chỉ số bài nộp + tỉ lệ đạt (mean / median / distribution = null). Không có bài → exams rỗng. Cache-Control: private, no-cache"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: exam_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: week
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsOverview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/analytics/exams/trend:
+    get:
+      operationId: getExamAnalyticsTrend
+      tags: [exam]
+      summary: "Xu hướng qua các bài PUBLISHED (cũ → mới): số bài nộp, tỉ lệ đạt, trung bình, trung vị. ADMIN: chỉ số bài nộp + tỉ lệ đạt"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsTrend"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/analytics/exams/hard-items:
+    get:
+      operationId: listExamAnalyticsHardItems
+      tags: [exam]
+      summary: "Câu sai nhiều nhất của một bài PUBLISHED (mặc định mới nhất), sai nhiều → ít; trắc nghiệm (MCQ) và bài code (CODE, kèm ce_rate); phân trang con trỏ. Giảng viên / TA; ADMIN 403"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: exam_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsHardItems"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/analytics/exams/declining:
+    get:
+      operationId: listExamAnalyticsDeclining
+      tags: [exam]
+      summary: "Sinh viên có điểm giảm nghiêm ngặt ở 3 bài PUBLISHED liên tiếp (bộ ba mới nhất); phân trang con trỏ theo tên. Giảng viên / TA; ADMIN 403. Không đổi điểm rủi ro"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsDeclining"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/analytics/exams/compare:
+    get:
+      operationId: compareExamAnalytics
+      tags: [exam]
+      summary: "So sánh các lớp giảng viên đang dạy: số bài, bài nộp, trung bình, trung vị, tỉ lệ đạt; lớp dưới 5 bài nộp enough=false và không có số. Chỉ TEACHER; TA / STUDENT / ADMIN 403"
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsCompare"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
   /api/v1/chat/tickets/{id}/followup:
     post:
       operationId: followupTicket
@@ -10607,6 +11041,35 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/practice/attempts/{aid}:
+    get:
+      operationId: getMyPracticeAttemptCourse
+      tags: [practice]
+      summary: "Lớp của một lượt luyện của CHÍNH mình (chỉ STUDENT): trang /practice/[id] hỏi một lần thay vì dò từng lớp. Lượt của người khác / không có / id sai → 404; vai khác → 403"
+      parameters:
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lớp của lượt
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [course_id]
+                additionalProperties: false
+                properties:
+                  course_id: {type: string, format: uuid}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/courses/{id}/practice/attempts/{aid}:
     get:
       operationId: getPracticeAttempt
@@ -10908,7 +11371,7 @@ paths:
     post:
       operationId: extractQuestions
       tags: [practice]
-      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`. Kết quả đọc ở GET /jobs/{id} → result {created: [uuid], skipped: [{number, page, reason}]}, reason ∈ NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID (cũng có ở SSE job.progress cuối). Đề / đáp án sai loại 422 WRONG_DOCUMENT_TYPE (`document_id` phải là EXAM_PAPER, `answer_key_document_id` phải là ANSWER_KEY); thuộc lớp khác hoặc không tồn tại 404; chưa READY 409 DOCUMENT_NOT_READY. AI trả sai schema: việc FAILED, error.code LLM_UNAVAILABLE, không lưu câu nào. Trần chi phí: ≤ 5 việc extract / lớp / giờ → 429 RATE_LIMITED + Retry-After (việc thứ 6 không được xếp); chỉ 60 trang đầu của đề được trích, phần cắt báo bằng skipped[].reason = PAGE_LIMIT"
+      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`. Kết quả đọc ở GET /jobs/{id} → result {created: [uuid], skipped: [{number, page, reason}]}, reason ∈ NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID (cũng có ở SSE job.progress cuối). Đề / đáp án sai loại 422 WRONG_DOCUMENT_TYPE (`document_id` phải là EXAM_PAPER, `answer_key_document_id` phải là ANSWER_KEY); thuộc lớp khác hoặc không tồn tại 404; chưa READY 409 DOCUMENT_NOT_READY. AI trả sai schema: việc FAILED, error.code LLM_UNAVAILABLE, không lưu câu nào. Trần chi phí: ≤ 5 việc extract / lớp / giờ → 429 RATE_LIMITED + Retry-After (việc thứ 6 không được xếp); đề > 60 trang → 429 RATE_LIMITED, details.reason = pages (không tạo việc, không gọi LLM, không tính vào 5 việc / giờ); chạm trần việc → details.reason = jobs"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: Idempotency-Key
@@ -13867,6 +14330,8 @@ components:
             - RUBRIC_REQUIRED
             - REFERENCE_ANSWER_REQUIRED
             - RUBRIC_SUGGEST_INVALID
+            - PAYLOAD_EXPIRED
+            - REASON_REQUIRED
             - HAS_SUBMISSIONS
             - LINKED_TO_GRADEBOOK
             - ASSIGNMENT_NOT_FOUND
@@ -14642,6 +15107,7 @@ components:
                   needs_review: {type: boolean}
                   error_code: {type: string}
                   version: {type: integer}
+                  stale_review: {type: string, enum: [EDITED, ACCEPTED_AS_IS], description: "Chỉ khi bài đã duyệt chấm theo bản lưu ý cũ: có tiêu chí sửa tay (EDITED) hay duyệt nguyên nháp (ACCEPTED_AS_IS)"}
         next_cursor: {type: [string, "null"]}
     GradingResultEdit:
       type: object
@@ -14679,6 +15145,10 @@ components:
               additionalProperties:
                 type: array
                 items: {type: string}
+            support_by_criterion:
+              type: object
+              description: "Tổng số lần sửa (support) của các lưu ý áp dụng, theo tiêu chí; vắng khi không có lưu ý"
+              additionalProperties: {type: integer}
         appeal:
           type: object
           description: "Phúc khảo của bài (cùng dạng AssignmentAppeal); chỉ có ở GET chi tiết khi sinh viên đã gửi"
@@ -15229,6 +15699,293 @@ components:
           format: uuid
         document:
           $ref: "#/components/schemas/Document"
+    KnowledgeGapRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        period_days:
+          type: integer
+          enum: [7, 14, 30, 120]
+    KnowledgeGapReused:
+      type: object
+      required: [report_id, reused]
+      additionalProperties: false
+      properties:
+        report_id:
+          type: string
+          format: uuid
+        reused:
+          type: boolean
+    KnowledgeGapTopicSignals:
+      type: object
+      required: [students, questions, low_confidence_rate, not_helpful_rate, practice_wrong_rate]
+      additionalProperties: false
+      properties:
+        students:
+          type: integer
+        questions:
+          type: integer
+        low_confidence_rate:
+          type: number
+        not_helpful_rate:
+          type: number
+        practice_wrong_rate:
+          type: [number, "null"]
+    KnowledgeGapTopic:
+      type: object
+      required: [rank, name, why, score, signals, recommendation, examples, named_by, chapter, week, keywords]
+      additionalProperties: false
+      properties:
+        rank:
+          type: integer
+        name:
+          type: string
+        why:
+          type: string
+        score:
+          type: number
+        signals:
+          $ref: "#/components/schemas/KnowledgeGapTopicSignals"
+        recommendation:
+          type: string
+        examples:
+          type: array
+          items:
+            type: string
+        few_asked:
+          type: boolean
+        named_by:
+          type: string
+          enum: [llm, fallback]
+        chapter:
+          type: [string, "null"]
+        week:
+          type: [integer, "null"]
+        keywords:
+          type: array
+          items:
+            type: string
+    KnowledgeGapPayload:
+      type: object
+      required: [schema, topics, uncovered, counts, period_days]
+      additionalProperties: false
+      properties:
+        schema:
+          type: integer
+          enum: [2]
+          description: Phiên bản payload; báo cáo cũ (không có schema) bị coi như không tồn tại (404 ở latest / export, không dùng lại)
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/KnowledgeGapTopic"
+        uncovered:
+          type: array
+          items:
+            type: object
+            required: [text, count]
+            additionalProperties: false
+            properties:
+              text:
+                type: string
+              count:
+                type: integer
+        counts:
+          type: object
+          required: [questions, students, clusters]
+          additionalProperties: false
+          properties:
+            questions:
+              type: integer
+            students:
+              type: integer
+            clusters:
+              type: integer
+        period_days:
+          type: integer
+    KnowledgeGapReport:
+      type: object
+      required: [id, period_from, period_to, data_watermark, created_at, payload]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        period_from:
+          type: [string, "null"]
+          format: date
+        period_to:
+          type: [string, "null"]
+          format: date
+        data_watermark:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        payload:
+          $ref: "#/components/schemas/KnowledgeGapPayload"
+    KnowledgeGapLatest:
+      type: object
+      required: [report, has_new_data]
+      additionalProperties: false
+      properties:
+        report:
+          $ref: "#/components/schemas/KnowledgeGapReport"
+        has_new_data:
+          type: boolean
+        previous:
+          type: object
+          required: [id, created_at, new_topics]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            created_at:
+              type: string
+              format: date-time
+            new_topics:
+              type: array
+              items:
+                type: string
+            moved:
+              type: array
+              items:
+                type: object
+                required: [name, from, to]
+                additionalProperties: false
+                properties:
+                  name:
+                    type: string
+                  from:
+                    type: integer
+                  to:
+                    type: integer
+    ExamAnalyticsOverview:
+      type: object
+      required: [scope, exams, submissions, pass_rate, mean, median, distribution]
+      additionalProperties: false
+      properties:
+        scope:
+          type: string
+          enum: [exam, week]
+        exams:
+          type: array
+          items:
+            type: object
+            required: [id, title, opens_at, max_score]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              title: {type: string}
+              opens_at: {type: string, format: date-time}
+              max_score: {type: string}
+        submissions: {type: integer}
+        pass_rate: {type: [string, "null"]}
+        mean: {type: [string, "null"]}
+        median: {type: [string, "null"]}
+        distribution:
+          type: [array, "null"]
+          items:
+            type: object
+            required: [from, to, count]
+            additionalProperties: false
+            properties:
+              from: {type: string}
+              to: {type: string}
+              count: {type: integer}
+    ExamAnalyticsTrend:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [exam_id, title, opens_at, submissions, pass_rate, mean, median]
+            additionalProperties: false
+            properties:
+              exam_id: {type: string, format: uuid}
+              title: {type: string}
+              opens_at: {type: string, format: date-time}
+              submissions: {type: integer}
+              pass_rate: {type: [string, "null"]}
+              mean: {type: [string, "null"]}
+              median: {type: [string, "null"]}
+    ExamAnalyticsHardItems:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [item_id, exam_id, position, type, title, topic, attempts, wrong_rate, ce_rate]
+            additionalProperties: false
+            properties:
+              item_id: {type: string, format: uuid}
+              exam_id: {type: string, format: uuid}
+              position: {type: integer}
+              type: {type: string, enum: [MCQ, CODE]}
+              title: {type: string}
+              topic: {type: string}
+              attempts: {type: integer}
+              wrong_rate: {type: string}
+              ce_rate: {type: [string, "null"]}
+        next_cursor: {type: [string, "null"]}
+    ExamAnalyticsDeclining:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [student_id, name, student_code, scores]
+            additionalProperties: false
+            properties:
+              student_id: {type: string, format: uuid}
+              name: {type: string}
+              student_code: {type: [string, "null"]}
+              scores:
+                type: array
+                minItems: 3
+                maxItems: 3
+                items:
+                  type: object
+                  required: [exam_id, title, score]
+                  additionalProperties: false
+                  properties:
+                    exam_id: {type: string, format: uuid}
+                    title: {type: string}
+                    score: {type: string}
+        next_cursor: {type: [string, "null"]}
+    ExamAnalyticsCompare:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [course_id, class_code, name, exams, submissions, enough, mean, median, pass_rate]
+            additionalProperties: false
+            properties:
+              course_id: {type: string, format: uuid}
+              class_code: {type: string}
+              name: {type: string}
+              exams: {type: integer}
+              submissions: {type: integer}
+              enough: {type: boolean}
+              mean: {type: [string, "null"]}
+              median: {type: [string, "null"]}
+              pass_rate: {type: [string, "null"]}
     JobAccepted:
       type: object
       required: [job_id]
@@ -16861,7 +17618,7 @@ components:
           type: integer
     StaffSubmission:
       type: object
-      required: [id, item_id, status, verdict, language, source, created_at, compile_ok, compile_log, tests]
+      required: [id, item_id, status, verdict, language, source, created_at, compile_ok, compile_log, tests, tests_stale]
       additionalProperties: false
       properties:
         id:
@@ -16889,6 +17646,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StaffTestResult"
+        tests_stale:
+          type: boolean
+          description: Chấm theo bộ test cũ (test đã sửa sau đó, chưa chấm lại).
     StaffResultDetail:
       type: object
       required: [attempt_id, student, status, version, auto_score, score, adjust, submitted_at, submit_reason, items, submissions, appeal]
@@ -17466,6 +18226,188 @@ components:
             $ref: "#/components/schemas/FailedMail"
         next_cursor:
           type: [string, "null"]
+    ObsTotals:
+      type: object
+      required: [requests, p50_ms, p95_ms, errors, error_rate, fallbacks, fallback_rate, cost, pii_masked, window_seconds]
+      additionalProperties: false
+      properties:
+        requests: {type: integer}
+        p50_ms: {type: number, description: "Xấp xỉ từ histogram theo giờ, sai số tương đối ≤ 5 % (P-11-44)"}
+        p95_ms: {type: number, description: "Xấp xỉ từ histogram theo giờ, sai số tương đối ≤ 5 % (P-11-44)"}
+        errors: {type: integer}
+        error_rate: {type: number}
+        fallbacks: {type: integer}
+        fallback_rate: {type: number}
+        cost: {type: string}
+        pii_masked: {type: integer}
+        window_seconds: {type: integer}
+    ObsDayRow:
+      type: object
+      required: [day, requests, p95_ms, errors, escalations, pii_masked, cost]
+      additionalProperties: false
+      properties:
+        day: {type: string, format: date}
+        requests: {type: integer}
+        p95_ms: {type: number, description: "Xấp xỉ từ histogram theo giờ, sai số tương đối ≤ 5 % (P-11-44)"}
+        errors: {type: integer}
+        escalations: {type: integer}
+        pii_masked: {type: integer}
+        cost: {type: string}
+    ObsTaskCost:
+      type: object
+      required: [task, requests, cost, tokens_in, tokens_out]
+      additionalProperties: false
+      properties:
+        task: {type: string}
+        requests: {type: integer}
+        cost: {type: string}
+        tokens_in: {type: integer}
+        tokens_out: {type: integer}
+    ObsGrading:
+      type: object
+      description: "Hàng chờ chấm bài (US-P7-07 AC10): tính từ grading_results lúc đọc; không PII. `duration_*` = giây từ xếp hàng tới xong (gồm chờ hàng) của bài AI chấm xong chưa ai sửa, tạo trong cửa sổ"
+      required: [jobs_total, queue_depth, dead_total, duration_p50_s, duration_p95_s]
+      additionalProperties: false
+      properties:
+        jobs_total:
+          type: object
+          required: [QUEUED, RUNNING, DONE, FAILED]
+          additionalProperties: false
+          properties:
+            QUEUED: {type: integer, format: int64}
+            RUNNING: {type: integer, format: int64}
+            DONE: {type: integer, format: int64}
+            FAILED: {type: integer, format: int64}
+        queue_depth: {type: integer, format: int64}
+        dead_total: {type: integer, format: int64, description: "Bài đã hết lượt thử (FAILED), cùng tập với dead-letter ep:grading.dead"}
+        duration_p50_s: {type: number}
+        duration_p95_s: {type: number}
+    ObsAdminSummary:
+      type: object
+      required: [window, totals, days, tasks, grading]
+      additionalProperties: false
+      properties:
+        window: {type: string}
+        grading:
+          $ref: "#/components/schemas/ObsGrading"
+        totals:
+          $ref: "#/components/schemas/ObsTotals"
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsDayRow"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsTaskCost"
+    ObsRequestRow:
+      type: object
+      required: [id, at, task, lane, provider, model, latency_ms, status, error_kind, degraded, fallback_index, pii_masked_count, course_id, course_code]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        at: {type: string, format: date-time}
+        task: {type: string}
+        lane: {type: string}
+        provider: {type: [string, "null"]}
+        model: {type: [string, "null"]}
+        latency_ms: {type: integer}
+        status: {type: string}
+        error_kind: {type: [string, "null"]}
+        degraded: {type: boolean}
+        fallback_index: {type: integer}
+        pii_masked_count: {type: integer}
+        course_id: {type: [string, "null"], format: uuid}
+        course_code: {type: [string, "null"]}
+    ObsRequestPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsRequestRow"
+        next_cursor:
+          type: [string, "null"]
+    AuditPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/AuditRow"
+        next_cursor:
+          type: [string, "null"]
+    AuditRow:
+      type: object
+      required: [id, at, actor_id, actor_name, actor_role, entity, entity_id, action, course_id, trace_id, changed_fields]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        at: {type: string, format: date-time}
+        actor_id: {type: [string, "null"], format: uuid}
+        actor_name: {type: [string, "null"]}
+        actor_role: {type: [string, "null"], enum: [ADMIN, TEACHER, TA, STUDENT, null]}
+        entity: {type: string}
+        entity_id: {type: string}
+        action: {type: string}
+        course_id: {type: [string, "null"], format: uuid}
+        trace_id: {type: [string, "null"]}
+        changed_fields:
+          type: array
+          maxItems: 20
+          items: {type: string}
+    ObsOpenInput:
+      type: object
+      required: [reason]
+      additionalProperties: false
+      properties:
+        reason: {type: string, minLength: 10, maxLength: 200}
+    ObsDetail:
+      type: object
+      required: [id, at, task, provider, model, status, trace_id, trace_url, masked_prompt, tools, confidence]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        at: {type: string, format: date-time}
+        task: {type: string}
+        provider: {type: [string, "null"]}
+        model: {type: [string, "null"]}
+        status: {type: string}
+        trace_id: {type: string}
+        trace_url: {type: [string, "null"]}
+        masked_prompt: {type: string}
+        tools:
+          type: array
+          items: {type: string}
+        confidence: {type: [string, "null"]}
+    ObsCourseSummary:
+      type: object
+      required: [course_id, window, requests, error_rate, escalations, pii_masked, helpful, not_helpful, thread_correct, thread_reject, graded_changed, graded_total, change_rate, mean_abs_deviation, days]
+      additionalProperties: false
+      properties:
+        course_id: {type: string, format: uuid}
+        window: {type: string}
+        requests: {type: integer}
+        error_rate: {type: number}
+        escalations: {type: integer}
+        pii_masked: {type: integer}
+        helpful: {type: integer}
+        not_helpful: {type: integer}
+        thread_correct: {type: integer}
+        thread_reject: {type: integer}
+        graded_changed: {type: integer}
+        graded_total: {type: integer}
+        change_rate: {type: number}
+        mean_abs_deviation: {type: string}
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsDayRow"
     StudentList:
       type: object
       required: [items, next_cursor, total]
@@ -18449,6 +19391,7 @@ components:
           type: [string, "null"]
         version:
           type: [integer, "null"]
+          description: "Vắng ≡ null: ô mới; ô đã có mà null / vắng → 409 VERSION_CONFLICT; sai kiểu → 422 (P-11-54)"
     PutGradeEntryOutput:
       type: object
       required: [entry, row_result, bonus, penalty]
@@ -18696,13 +19639,18 @@ components:
           type: [string, "null"]
     MeLine:
       type: object
-      required: [label, expr, value]
+      description: "Một dòng giải trình điểm cho SINH VIÊN (P-11-15): text là một câu tiếng Việt do máy chủ dựng, không có hàm / ÷ / ngoặc; chuỗi kiểm máy expr chỉ cho nhân viên (…/gradebook/students/{uid}/explain)"
+      required: [label, text, value]
       additionalProperties: false
       properties:
         label:
           type: string
-        expr:
+        text:
           type: string
+        detail:
+          type: array
+          items:
+            type: string
         value:
           type: string
         source_quote:

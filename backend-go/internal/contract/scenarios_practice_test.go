@@ -82,6 +82,7 @@ func (r *runner) practiceScenarios(x examRig) {
 	r.must(call{method: "POST", path: bad + "/start", token: x.sv, headers: x.idem(), body: start}, 404)
 	r.must(call{method: "POST", path: p + "/start", token: x.sv, body: start}, 422)                                                                   // thiếu Idempotency-Key
 	r.must(call{method: "POST", path: p + "/start", token: x.sv, headers: x.idem(), body: `{"mode":"TOPIC","topic":"` + topic + `","count":3}`}, 422) // count ngoài [5, 50]
+	r.must(call{method: "POST", path: p + "/start", token: x.sv, headers: x.idem(), body: `{"mode":"TOPIC","topic":"` + topic + `","count":0}`}, 422) // count=0 có mặt ⇒ 422, không coi như thiếu (P-10-10)
 	r.must(call{method: "POST", path: p + "/start", token: x.sv, headers: x.idem(), body: `{"mode":"TOPIC","topic":"` + few + `","count":5}`}, 409)   // NOT_ENOUGH_QUESTIONS
 	r.must(call{method: "POST", path: "/api/v1/courses/" + x.arch + "/practice/start", token: x.sv, headers: x.idem(), body: start}, 409)             // COURSE_ARCHIVED
 
@@ -92,6 +93,14 @@ func (r *runner) practiceScenarios(x examRig) {
 	r.must(call{method: "GET", path: A, token: x.gv}, 403)
 	r.must(call{method: "GET", path: A, token: sv2}, 404) // lượt của người khác
 	r.must(call{method: "GET", path: p + "/attempts/" + uuid.NewString(), token: x.sv}, 404)
+	// lớp của lượt (DEF-R10S-20): chỉ chủ lượt; người khác / không có / id sai → 404; vai khác → 403; chưa đăng nhập → 401
+	my := "/api/v1/me/practice/attempts/"
+	r.must(call{method: "GET", path: my + att.ID, token: x.sv}, 200)
+	r.must(call{method: "GET", path: my + att.ID}, 401)
+	r.must(call{method: "GET", path: my + att.ID, token: x.gv}, 403)
+	r.must(call{method: "GET", path: my + att.ID, token: sv2}, 404)
+	r.must(call{method: "GET", path: my + uuid.NewString(), token: x.sv}, 404)
+	r.must(call{method: "GET", path: my + "khong-phai-uuid", token: x.sv}, 404)
 
 	// 8: ghi câu (TOPIC: phản hồi ngay, khoá đáp án).
 	it := att.Items[0]

@@ -62,7 +62,7 @@ function BudgetLine({ b, canEdit }: { b: Budget; canEdit: boolean }) {
           </form>
         ) : (
           <div>
-            <Button variant="text" onClick={() => setEdit(true)}>Đổi hạn mức</Button>
+            <Button variant="ghost" onClick={() => setEdit(true)}>Đổi hạn mức</Button>
           </div>
         ))}
     </div>

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ApiErrorNotice, apiClient, useIdempotentMutation } from "@/shared/data";
 import { Button, Field, InlineNotice, PanelSection, Skeleton, Textarea } from "@/shared/ui";
 import { fmtWhen } from "../examApi";
-import { ResultItems } from "./ResultItems";
+import { ResultItems, resultSummary } from "./ResultItems";
 import { resPath, vnum, type StudentResult } from "./resultsApi";
 import s from "./Results.module.css";
 
@@ -24,11 +24,12 @@ export function StudentResultView({ course, exam, attempt }: { course: string; e
       <PanelSection tone="strong">
         <section aria-label="Điểm">
           <p className={s.big} data-part="final-score">{vnum(res.score)} / {vnum(e.max_score)}</p>
+          {res.items.length > 0 && <p className={s.muted} data-part="result-summary">{resultSummary(res.items)}</p>}
           {res.score_adjusted && <p className={s.muted}>Điểm đã được giảng viên điều chỉnh.</p>}
         </section>
       </PanelSection>
       {!asking && <Appeal res={res} canAppeal={canAppeal} onAsk={() => setAsking(true)} />}
-      <ResultItems items={res.items} />
+      <ResultItems items={res.items} collapsible />
       {asking && <AppealForm course={course} exam={exam} attempt={attempt} onClose={() => setAsking(false)} onSent={() => { setAsking(false); void q.refetch(); }} />}
     </div>
   );

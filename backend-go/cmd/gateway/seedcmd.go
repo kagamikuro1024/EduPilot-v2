@@ -27,7 +27,7 @@ var seedEnvs = []string{"dev", "test"} //nolint:gochecknoglobals // danh sách c
 
 // isSeedCmd: tên lệnh con thuộc nhóm seed.
 func isSeedCmd(name string) bool {
-	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity" || name == "seed-guidance" || name == "seed-checkin-demo" || name == "purge-checkins"
+	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity" || name == "seed-guidance" || name == "seed-llm-audit" || name == "seed-exam-history" || name == "seed-checkin-demo" || name == "purge-checkins" || name == "seed-identity"
 }
 
 // runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity|seed-guidance`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
@@ -83,6 +83,8 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, "không đọc được hồ sơ: "+err.Error())
 		}
 		body = raw
+	case "seed-llm-audit", "seed-exam-history":
+		// không có đầu vào ngoài --course
 	case "seed-chat", "seed-activity":
 		if *chatPlan != "-" {
 			return fail(2, name+" chỉ nhận --plan - (JSON qua stdin).")
@@ -165,6 +167,18 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, err.Error())
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-activity: %d dòng\n", n)
+	case "seed-llm-audit":
+		n, err := seedtool.SeedLLMAudit(ctx, pool, cid, clk)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-llm-audit: %d dòng\n", n)
+	case "seed-exam-history":
+		n, err := seedtool.SeedExamHistory(ctx, pool, cid, clk)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-exam-history: %d lượt\n", n)
 	case "seed-age":
 		var n int64
 		switch {
@@ -208,6 +222,8 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			_, _ = fmt.Fprintln(stderr, "admin seed-guidance: không có REDIS_URL — gateway thấy cờ sau ≤ 60 s")
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-guidance: %d kết quả\n", n)
+	case "seed-identity": // dấu nhận DB cho scripts/seed.mjs: id lớp (uuid v7, khác nhau giữa mọi DB) để so với id qua API_URL
+		_, _ = fmt.Fprintf(stdout, "seed-identity: %s\n", cid)
 	case "crm-risk-run":
 		svc := &crm.Service{Pool: pool, Clock: clock.Real{}, Log: slog.New(slog.NewTextHandler(io.Discard, nil))}
 		if err := svc.RunCourse(ctx, cid, clk); err != nil {

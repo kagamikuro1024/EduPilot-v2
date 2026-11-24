@@ -273,6 +273,16 @@ func TestGenerateCitations(t *testing.T) {
 	st, err := r.svc.GenStatsOf(ctx, r.course, jobID)
 	require.NoError(t, err)
 	require.Equal(t, practice.GenStats{Unchanged: 1, Edited: 1}, st, "a: nguyên; b: có sửa nhãn trước khi duyệt")
+	// DEF-R106S-17: lý do «Tránh» lưu ở jobs.result.hints lúc chạy phải ra được ở gen-stats (jobs không có cột payload)
+	r.exec(`update jobs set result = coalesce(result, '{}'::jsonb) || '{"hints":["MO_HO","LAC_DE"]}'::jsonb where id = $1`, jobID)
+	st, err = r.svc.GenStatsOf(ctx, r.course, jobID)
+	require.NoError(t, err)
+	require.Equal(t, []string{"MO_HO", "LAC_DE"}, st.Hints)
+	// DEF-R106S-19: lô có câu hỏi nhưng không còn dòng jobs → vẫn 200, không có hints
+	r.exec(`delete from jobs where id = $1`, jobID)
+	st, err = r.svc.GenStatsOf(ctx, r.course, jobID)
+	require.NoError(t, err)
+	require.Equal(t, practice.GenStats{Unchanged: 1, Edited: 1}, st)
 	_, err = r.svc.GenStatsOf(ctx, r.course, uuid.New())
 	require.Equal(t, "NOT_FOUND", code(t, err))
 }
@@ -318,35 +328,66 @@ func TestJobLimitsPerCourse(t *testing.T) {
 	require.Equal(t, 2*practice.MaxJobsPerHr, n, "việc thứ 6 không được xếp")
 }
 
-// P-10-8 F3: đề > 60 trang chỉ được trích 60 trang đầu; phần cắt được báo bằng PAGE_LIMIT.
+// P-10-8 F3 / FR-28 / DEF-R10S-15: đề > 60 trang → 429 RATE_LIMITED {reason: pages} TRƯỚC khi tạo việc (không việc, không lời gọi LLM, không tính vào 5 việc / giờ); đúng 60 trang → được xếp.
 func TestExtractPageCap(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	r.staff()
-	pages := make([]string, 62)
-	for i := range pages {
-		pages[i] = fmt.Sprintf("Câu %d. Nội dung câu số %d?\nA. một\nB. hai\n", i+1, i+1)
+	ctx := t.Context()
+	paper := func(pages int) uuid.UUID {
+		id := r.doc("EXAM_PAPER", fmt.Sprintf("Đề %d trang", pages), "Câu 1. a?\nA. x\nB. y\n")
+		r.exec(`update documents set page_count = $2 where id = $1`, id, pages)
+		return id
 	}
-	paperID := r.doc("EXAM_PAPER", "Đề dài", pages...)
-	keyID := r.doc("ANSWER_KEY", "Đáp án", func() string {
-		var b strings.Builder
-		for i := 1; i <= 62; i++ {
-			fmt.Fprintf(&b, "%d. A\n", i)
-		}
-		return b.String()
-	}())
-	w := &practice.Worker{Pool: r.pool, Exam: r.ex, LLM: &fakeStructured{reply: paperReply}}
-	status, raw, ec := r.runJob(w, r.teacher, practice.KindExtract, practice.ExtractPayload{CourseID: r.course, ExtractIn: practice.ExtractIn{DocumentID: paperID, AnswerKeyDocumentID: &keyID}})
+	var ae *apierr.Error
+	_, err := r.svc.EnqueueExtract(ctx, r.teacher, r.course, practice.ExtractIn{DocumentID: paper(practice.MaxExtractPages + 1)})
+	require.ErrorAs(t, err, &ae)
+	require.Equal(t, 429, ae.Status)
+	require.Equal(t, "RATE_LIMITED", ae.Code)
+	require.Equal(t, map[string]string{"reason": "pages"}, ae.Details)
+	var n int
+	require.NoError(t, r.pool.QueryRow(ctx, `select count(*) from jobs where kind = 'question.extract'`).Scan(&n))
+	require.Zero(t, n, "không tạo việc")
+	_, err = r.svc.EnqueueExtract(ctx, r.teacher, r.course, practice.ExtractIn{DocumentID: paper(practice.MaxExtractPages)})
+	require.NoError(t, err)
+}
+
+// DEF-R10S-16 (TC-03-09): tập câu có sẵn và ứng viên dùng CÙNG khoá — số thứ tự đầu, chữ hoa, dấu cách đôi, thiếu «?» vẫn trùng, bất kể trạng thái câu có sẵn.
+func TestGenerateDuplicateKeyMatchesExisting(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.staff()
+	ctx := t.Context()
+	for stem, status := range map[string]string{
+		"Thủ đô của Việt Nam là gì?":      "REJECTED",
+		"Giao thức TCP hoạt động ra sao?": "APPROVED",
+		"7. Tầng mạng làm nhiệm vụ gì?":   "PENDING",
+	} {
+		d, err := r.ex.Create(ctx, r.teacher, r.course, exam.QuestionIn{Type: "TRUE_FALSE", Title: "có sẵn", Topic: "Mạng", Stem: stem, Value: new(true)})
+		require.NoError(t, err)
+		r.exec(`update question_bank set review_status = $2::question_review_status, reviewed_by = case when $2 in ('APPROVED','REJECTED') then created_by end where id = $1`, d.ID, status)
+	}
+	q := func(stem string) map[string]any {
+		return map[string]any{"type": "MCQ_SINGLE", "stem": stem, "value": nil, "explanation": "Theo đoạn nguồn.", "sources": []string{"C1"},
+			"options": []map[string]any{{"body": "Đúng", "correct": true}, {"body": "Sai một", "correct": false}, {"body": "Sai hai", "correct": false}, {"body": "Sai ba", "correct": false}}}
+	}
+	stub := &fakeStructured{reply: func(_, _ string) string {
+		b, _ := json.Marshal(map[string]any{"questions": []any{
+			q("12. Thủ đô của  Việt Nam là gì"), q("GIAO THỨC TCP HOẠT ĐỘNG RA SAO"), q("Tầng  mạng làm nhiệm vụ gì"), q("Câu hoàn toàn mới về DNS?")}})
+		return string(b)
+	}}
+	w := &practice.Worker{Pool: r.pool, Exam: r.ex, LLM: stub}
+	lecture := r.doc("LECTURE", "Bài giảng", "Đoạn một về mạng máy tính.")
+	in := practice.GenerateIn{DocumentIDs: []uuid.UUID{lecture}, Topic: "Mạng", Difficulty: "MEDIUM", Count: 4}
+	status, raw, ec := r.runJob(w, r.teacher, practice.KindGenerate, practice.GeneratePayload{CourseID: r.course, GenerateIn: in})
 	require.Equal(t, "SUCCEEDED", status, ec)
 	var res practice.ExtractResult
 	require.NoError(t, json.Unmarshal(raw, &res))
-	require.Len(t, res.Created, practice.MaxExtractPages)
-	require.Equal(t, []int{practice.MaxExtractPages + 1}, func() (p []int) {
-		for _, s := range res.Skipped {
-			if s.Reason == "PAGE_LIMIT" {
-				p = append(p, s.Page)
-			}
-		}
-		return
-	}())
+	require.Len(t, res.Created, 1, "%v", res.Skipped)
+	dups := []int{}
+	for _, s := range res.Skipped {
+		require.Equal(t, "DUPLICATE", s.Reason)
+		dups = append(dups, s.Number)
+	}
+	require.ElementsMatch(t, []int{1, 2, 3}, dups)
 }

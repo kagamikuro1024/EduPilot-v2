@@ -6,7 +6,10 @@
     "runs": 1,
     "config": {
       "compose_project": "ep-research",
-      "source": "llm_audit (read-only, không payload)"
+      "source": "llm_audit (read-only, không payload)",
+      "model": "gemini-chat/gemini-3.1-flash-lite, gemini-embed/gemini-embedding-001, chat-gia/fake-chat",
+      "rpm_limit": {"gemini-chat": 12, "gemini-embed": 60},
+      "config_source": "DEF-R9.5-09: model theo rows; rpm_limit lượt hợp lệ theo docs/research/2026-11-14-nfr-real-llm.md mục LLM thật (gemini-chat đã thử 60 trước đó cùng ngày) — lượt Gemini trực tiếp, phụ lục"
     }
   },
   "generation_calls_per_day": {

@@ -6,7 +6,7 @@ import { ApiError, ApiErrorNotice, apiClient, fieldErrors, useIdempotentMutation
 import { Button, Field, Input, Select } from "@/shared/ui";
 import { ConflictNotice } from "./ConflictNotice";
 import { DEFAULT_MODELS, TYPES, TYPE_LABEL, testMessage } from "./labels";
-import { KEY, useSaver, type Provider } from "./api";
+import { KEY, PROBE_TIMEOUT_MS, useSaver, type Provider } from "./api";
 import s from "./llm.module.css";
 
 type ModelDraft = { key: number; model: string; kind: "chat" | "embedding"; priceIn: string; priceOut: string };
@@ -32,7 +32,7 @@ export function ProviderForm({ mode, provider, onClose }: { mode: FormMode; prov
   const [advanced, setAdvanced] = useState(false);
   const [local, setLocal] = useState<Record<string, string>>({});
   const edit = useSaver(qc, [KEY.providers, KEY.routes]);
-  const create = useIdempotentMutation((body: object, idemKey) => apiClient.post<Provider>("/admin/llm/providers", body, { idempotencyKey: idemKey }));
+  const create = useIdempotentMutation((body: object, idemKey) => apiClient.post<Provider>("/admin/llm/providers", body, { idempotencyKey: idemKey, timeoutMs: PROBE_TIMEOUT_MS }));
 
   const needsUrl = type === "openai_compatible";
   const err = (mode === "add" ? create.error : edit.error) ?? null;
@@ -92,7 +92,7 @@ export function ProviderForm({ mode, provider, onClose }: { mode: FormMode; prov
       }
       return;
     }
-    const ok = await edit.run((v) => apiClient.put(`/admin/llm/providers/${provider!.id}`, { ...body(skipVerify), version: v ?? provider!.version }));
+    const ok = await edit.run((v) => apiClient.put(`/admin/llm/providers/${provider!.id}`, { ...body(skipVerify), version: v ?? provider!.version }, { timeoutMs: PROBE_TIMEOUT_MS }));
     setApiKey("");
     if (ok) onClose();
   }
@@ -149,7 +149,7 @@ export function ProviderForm({ mode, provider, onClose }: { mode: FormMode; prov
 
       {mode !== "key" && (
         <div>
-          <Button variant="text" size="sm" aria-expanded={advanced} aria-controls="provider-advanced" onClick={() => setAdvanced((a) => !a)}>
+          <Button variant="ghost" size="sm" aria-expanded={advanced} aria-controls="provider-advanced" onClick={() => setAdvanced((a) => !a)}>
             Cài đặt nâng cao
           </Button>
           <div id="provider-advanced" hidden={!advanced} className={s.advanced}>

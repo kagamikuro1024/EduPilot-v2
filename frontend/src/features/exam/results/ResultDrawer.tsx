@@ -99,15 +99,15 @@ function Submissions({ d }: { d: Detail }) {
           {d.submissions.filter((x) => x.item_id === it.item_id).map((x, i) => (
             <details key={x.id}>
               <summary>
-                Lần {i + 1} · {fmtClock(x.created_at)} · {x.verdict ? VERDICT_VI[x.verdict] ?? x.verdict : x.status}
+                Lần {i + 1} · {fmtClock(x.created_at)} · {x.verdict ? VERDICT_VI[x.verdict] ?? x.verdict : x.status}{x.tests_stale && " · Chấm theo bộ test cũ"}
               </summary>
               {x.tests.length > 0 && (
                 <p className={s.muted}>
                   {x.tests.map((t) => `${t.is_sample ? "mẫu" : "ẩn"} ${t.position}: ${VERDICT_VI[t.verdict] ?? t.verdict}`).join(" · ")}
                 </p>
               )}
-              {x.compile_ok === false && x.compile_log && <pre className={s.pre}>{x.compile_log}</pre>}
-              <pre className={s.pre}>{x.source}</pre>
+              {x.compile_ok === false && x.compile_log && <pre className={s.pre} tabIndex={0} aria-label="Thông báo biên dịch">{x.compile_log}</pre>}
+              <pre className={s.pre} tabIndex={0} aria-label="Mã đã nộp">{x.source}</pre>
             </details>
           ))}
         </div>

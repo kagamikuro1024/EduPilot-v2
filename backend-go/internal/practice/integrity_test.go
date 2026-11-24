@@ -93,7 +93,7 @@ func TestPracticeNoAnswerLeak(t *testing.T) {
 	always := func(int) bool { return true }
 
 	// TOPIC: chưa trả lời → không; trả lời câu 0 → chỉ câu 0; nộp → tất cả
-	tv, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 5}, uuid.Nil)
+	tv, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(5)}, uuid.Nil)
 	require.NoError(t, err)
 	assertNoLeak(t, tv, never, "TOPIC chưa trả lời")
 	_, err = r.svc.SaveAnswer(ctx, sv, r.course, tv.ID, tv.Items[0].ID, uuid.Nil, opt(r.correctOption(tv.Items[0].ID)))
@@ -107,7 +107,7 @@ func TestPracticeNoAnswerLeak(t *testing.T) {
 
 	// MOCK: đang làm (kể cả sau khi lưu đáp án và tải lại) → không câu nào; đã nộp → tất cả
 	tab := uuid.New()
-	mv, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: 5}, tab)
+	mv, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: new(5)}, tab)
 	require.NoError(t, err)
 	assertNoLeak(t, mv, never, "MOCK vừa bắt đầu")
 	save, err := r.svc.SaveAnswer(ctx, sv, r.course, mv.ID, mv.Items[0].ID, tab, opt(r.correctOption(mv.Items[0].ID)))
@@ -138,7 +138,7 @@ func TestPracticeNoExamLeak(t *testing.T) {
 
 	appears := func() bool {
 		sv := r.student() //nolint:contextcheck // helper của rig dùng t.Context()
-		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Thi", Count: 6}, uuid.Nil)
+		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Thi", Count: new(6)}, uuid.Nil)
 		if err != nil { // còn 5 câu: vẫn dựng được 5 (không phải lỗi)
 			require.NoError(t, err)
 		}
@@ -177,7 +177,7 @@ func TestWrongAnswerSignalsNoIdentity(t *testing.T) {
 	r.approved("B", 5)
 	var students []uuid.UUID
 	wrong := func(sv uuid.UUID, topic string) {
-		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: topic, Count: 5}, uuid.Nil)
+		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: topic, Count: new(5)}, uuid.Nil)
 		require.NoError(t, err)
 		_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[0].ID, uuid.Nil, opt(r.wrongOption(v.Items[0].ID))) //nolint:contextcheck // helper của rig dùng t.Context()
 		require.NoError(t, err)
@@ -220,7 +220,7 @@ func TestPracticeIsolation(t *testing.T) {
 	c2 := r.student(course2)
 	r.approved("Mạng", 6, course2)
 
-	va, _, err := r.svc.Start(ctx, a, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 5}, uuid.Nil)
+	va, _, err := r.svc.Start(ctx, a, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(5)}, uuid.Nil)
 	require.NoError(t, err)
 	_, err = r.svc.Get(ctx, b, r.course, va.ID, uuid.Nil)
 	require.Equal(t, 404, status(t, err))
@@ -233,7 +233,7 @@ func TestPracticeIsolation(t *testing.T) {
 	_, err = r.svc.Get(ctx, c2, course2, va.ID, uuid.Nil) // lớp khác: id của lớp 1 không tồn tại ở lớp 2
 	require.Equal(t, 404, status(t, err))
 	// mục của lượt A không ghi được qua lượt của chính B
-	vb, _, err := r.svc.Start(ctx, b, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 5}, uuid.Nil)
+	vb, _, err := r.svc.Start(ctx, b, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(5)}, uuid.Nil)
 	require.NoError(t, err)
 	_, err = r.svc.SaveAnswer(ctx, b, r.course, vb.ID, va.Items[0].ID, uuid.Nil, opt(r.correctOption(va.Items[0].ID)))
 	require.Equal(t, 404, status(t, err))

@@ -169,3 +169,27 @@ func TestAuditFlushOnShutdown(t *testing.T) {
 	}
 	a.Close(context.Background()) // gọi lần hai an toàn
 }
+
+// DEF-OCG-AUDIT / US-LG-02 AC8: cả chuỗi lỗi → trả câu suy giảm nhưng dòng audit vẫn ghi nơi THỬ CUỐI (provider / model / fallback_index), không rỗng.
+func TestAuditDegradedKeepsLastTried(t *testing.T) {
+	t.Parallel()
+	fail := func(string) *stub {
+		return &stub{name: "", chat: func(int, provider.ChatOpts) (provider.Result, error) {
+			return provider.Result{}, perr(provider.KindServer, 500)
+		}}
+	}
+	a, b := fail(""), fail("")
+	a.name, b.name = "A", "B"
+	g, cap := newGateway(t, a, b)
+	resp, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskChat, Messages: userMsg("x"), Passages: []llm.Passage{{Text: "đoạn", Score: 1}}})
+	if err != nil || !resp.Degraded {
+		t.Fatalf("muốn câu suy giảm, được %+v, %v", resp, err)
+	}
+	rows := cap.all(t, g)
+	if len(rows) != 1 {
+		t.Fatalf("số dòng = %d, muốn 1", len(rows))
+	}
+	if r := rows[0]; r.Status != "degraded" || !r.Degraded || r.Provider != "B" || r.Model != "m-B" || r.FallbackIndex != 1 || r.ErrorKind != "SERVER" {
+		t.Errorf("audit suy giảm = %+v", r)
+	}
+}

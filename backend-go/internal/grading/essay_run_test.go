@@ -385,6 +385,17 @@ func TestInvalidOutputFailedNotZero(t *testing.T) {
 	require.Nil(t, total)
 }
 
+// DEF-R8-A1: gateway báo mọi nhà trả sai schema → GRADING_OUTPUT_INVALID vĩnh viễn (SRS assignments 4.6.9), không phải lỗi tạm.
+func TestGatewayBadOutputIsPermanent(t *testing.T) {
+	g := newGradeEnv(t, func(*gradeEnv, llm.Request) (json.RawMessage, error) {
+		return nil, &llm.ErrUnavailable{Reason: llm.ReasonAllFailed, BadOutput: true}
+	})
+	res := g.submit("A", "bai.md", strings.Repeat("Nội dung bài làm đủ dài để chấm. ", 5), nil)
+	out, err := g.grader.Run(t.Context(), g.course, res)
+	require.NoError(t, err)
+	require.Equal(t, grading.ErrOutputInvalid, out.Code)
+}
+
 func TestFailedResultManualGradable(t *testing.T) {
 	g := newGradeEnv(t, func(*gradeEnv, llm.Request) (json.RawMessage, error) {
 		return nil, &llm.ErrUnavailable{Reason: llm.ReasonBudgetExhausted}

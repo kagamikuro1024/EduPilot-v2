@@ -38,7 +38,8 @@ func Migrate(ctx context.Context, databaseURL string, cmd string, out io.Writer)
 		return fmt.Errorf("kết nối Postgres: %w", err)
 	}
 
-	provider, err := goose.NewProvider(goose.DialectPostgres, sqlDB, FS())
+	// AllowOutofOrder: nhánh sprint đánh số trước khi nhánh khác merge (00022 vào sau 00024 / 00025 ở DB đã áp) — `up` vẫn áp phần thiếu, không đổi tên tệp (P-11-48).
+	provider, err := goose.NewProvider(goose.DialectPostgres, sqlDB, FS(), goose.WithAllowOutofOrder(true))
 	if err != nil {
 		return fmt.Errorf("khởi tạo goose: %w", err)
 	}

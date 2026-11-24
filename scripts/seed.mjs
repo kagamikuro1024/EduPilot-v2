@@ -11,14 +11,17 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
+import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, OUTSIDE_PLAN, chatQuestions, chatQuestionsLop2, isTopicD, miniPdf } from "./chat-seed-data.mjs";
 import { createHash } from "node:crypto";
 import { XLSX_MIME, lop1Column, lop1Faulty, zip } from "./grade-seed-data.mjs";
 import { FOREIGN_MAIL, PERSONAL_MAIL, TEAMS_TITLE_04, createBody, loadPlan, sampleText, teamsMeta } from "./assignment-seed-data.mjs";
 import { ROSTER1, crmPlan } from "./crm-plan.mjs";
+import { findCourse } from "./seed-courses.mjs";
 import { meta } from "../benchmarks/lib/meta.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 import { APPROVED as P9_APPROVED, C2_APPROVED as P9_C2, ESSAYS as P9_ESSAYS, PENDING as P9_PENDING } from "./practice-seed-data.mjs";
+import { anchorNowIso } from "./seed-clock.mjs";
+import { stackMismatch } from "./seed-stack.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -53,7 +56,8 @@ for (const [name, value] of [["NODE_ENV", process.env.NODE_ENV], ["APP_ENV", set
 
 const API = setting("API_URL", "https://localhost/api/v1").replace(/\/$/, "");
 const MAILPIT = setting("MAILPIT_URL", "http://localhost:8025").replace(/\/$/, "");
-const PASSWORD = setting("SEED_DEFAULT_PASSWORD", "");
+// DEF-R9.5-19: đặt RỖNG rõ ràng (biến môi trường có mặt nhưng trống) = từ chối, không rơi về .env.local; KHÔNG đặt = đọc .env.local / .env.example (tiện local); giá trị cuối cùng trống / trắng = từ chối.
+const PASSWORD = ("SEED_DEFAULT_PASSWORD" in process.env ? process.env.SEED_DEFAULT_PASSWORD : setting("SEED_DEFAULT_PASSWORD", "")).trim();
 const RNG_SEED = Number(setting("SEED_RNG", "20261029"));
 if (!PASSWORD) {
   console.error("Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).");
@@ -76,7 +80,7 @@ const step = (n, text) => { marks.push([n, Date.now()]); console.log(`[${n}/${ST
 // US-NFR-02 AC1 (P-95-7 Q2): thời gian chạy ghi ở benchmarks/reports/seed-t0.json (`seconds_total`, `seconds_by_step`); bỏ qua khi seed vào stack demo (cổng 80/443/3000).
 process.on("exit", (code) => {
   const port = new URL(API).port;
-  if (code !== 0 || ["", "80", "443", "3000"].includes(port)) return;
+  if (code !== 0 || marks.length === 0 || ["", "80", "443", "3000"].includes(port)) return; // marks rỗng = `--if-empty` không seed: không ghi đè số đo lần chạy thật
   const by = {};
   marks.forEach(([n, at], i) => { by[n] = Math.round(((marks[i + 1]?.[1] ?? Date.now()) - at) / 1000); });
   const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "benchmarks", "reports");
@@ -96,12 +100,16 @@ class ApiFail extends Error {
 
 /** Gọi API thật. Trả { status, body }. `ok` liệt kê các mã chấp nhận; mã khác ném ApiFail. 429 thử lại theo Retry-After (≤ 3 lần). */
 async function call(method, route, { token, json, form, key, ok = [200, 201, 202, 204] } = {}) {
+  let renewedOnce = false;
   for (let attempt = 0; ; attempt++) {
+    token = current(token);
     const headers = { Accept: "application/json", Origin: ORIGIN };
     if (token) headers.Authorization = `Bearer ${token}`;
     if (key) headers["Idempotency-Key"] = key.replace(/[^A-Za-z0-9._:-]/g, "-"); // khoá chỉ nhận [A-Za-z0-9._:-]
     if (json !== undefined) headers["Content-Type"] = "application/json";
-    const res = await fetch(API + route, { method, headers, body: form ?? (json === undefined ? undefined : JSON.stringify(json)), tls: { rejectUnauthorized: false } });
+    const res = await fetch(API + route, { method, headers, body: form ?? (json === undefined ? undefined : JSON.stringify(json)), tls: { rejectUnauthorized: false } }).catch((e) => {
+      throw new Error(`Gateway ${API} chưa sẵn sàng (${e.cause?.code ?? e.message}). Bật stack (pnpm dev) hoặc đặt API_URL, rồi chạy lại.`);
+    });
     let body = null;
     if (res.status !== 204) body = await res.json().catch(() => null);
     vlog(method, route, "→", res.status);
@@ -109,14 +117,30 @@ async function call(method, route, { token, json, form, key, ok = [200, 201, 202
       await sleep(Math.min(10, Number(body?.retry_after ?? res.headers.get("Retry-After") ?? 2)) * 1000);
       continue;
     }
+    if (res.status === 401 && body?.code === "TOKEN_EXPIRED" && !renewedOnce && (token = await renew(token))) { renewedOnce = true; continue; }
     if (!ok.includes(res.status)) throw new ApiFail(method, route, res.status, body);
-    return { status: res.status, body };
+    return { status: res.status, body, replayed: res.headers.get("Idempotent-Replayed") === "true" };
   }
 }
 
 async function login(email) {
   const r = await call("POST", "/auth/login", { json: { email, password: PASSWORD }, ok: [200, 401, 403, 423, 429] });
-  return r.status === 200 ? r.body : null;
+  if (r.status !== 200) return null;
+  owners.set(r.body.access_token, email);
+  return r.body;
+}
+
+// Token truy cập sống 15 phút mà một bước seed có thể dài hơn (docling lúc máy tải 938 s): hết hạn thì đăng nhập lại đúng tài khoản đó, thử lại một lần (DEF-Q2-S8-05).
+const owners = new Map(); // access token → email
+const renewed = new Map(); // token cũ → token mới
+const current = (t) => { while (renewed.has(t)) t = renewed.get(t); return t; };
+async function renew(old) {
+  const email = owners.get(old);
+  const s = email ? await login(email) : null;
+  if (!s) return null;
+  renewed.set(old, s.access_token);
+  for (const [k, v] of Object.entries(ctx.tokens)) if (v === old) ctx.tokens[k] = s.access_token;
+  return s.access_token;
 }
 
 // ---- Mailpit (chỉ để lấy liên kết từ thư) ----------------------------------------------------------------------------
@@ -231,9 +255,8 @@ async function adminLogin() {
 async function isSeeded() {
   const a = await adminLogin();
   if (!a) return false;
-  const r = await call("GET", "/admin/courses?limit=100", { token: a.access_token });
-  const codes = new Set(r.body.items.map((c) => c.class_code));
-  return codes.has("761987") && codes.has("761988");
+  for (const code of ["761987", "761988"]) if (!(await findCourse(call, a.access_token, code))) return false;
+  return true;
 }
 
 async function step1Admin() {
@@ -299,16 +322,15 @@ const COURSES = [
 async function step3Courses() {
   step(3, "Mở hai lớp 761987 / 761988, gán giảng viên và TA…");
   for (const c of COURSES) {
-    const list = await call("GET", "/admin/courses?limit=100", { token: ctx.tokens.admin });
-    let row = list.body.items.find((x) => x.class_code === c.code);
+    let row = await findCourse(call, ctx.tokens.admin, c.code);
     if (!row) {
       const body = { subject_code: "INT1006", class_code: c.code, name: "An ninh mạng", semester: SEMESTER, join_code: c.join };
       if (c.capacity) body.capacity = c.capacity;
       const r = await call("POST", "/admin/courses", { token: ctx.tokens.admin, key: `seed-course-${c.code}`, json: body, ok: [201, 409] });
-      row = r.status === 201 ? r.body : (await call("GET", "/admin/courses?limit=100", { token: ctx.tokens.admin })).body.items.find((x) => x.class_code === c.code);
+      row = r.status === 201 ? r.body : await findCourse(call, ctx.tokens.admin, c.code);
     }
     ctx.ids[c.code] = row.id;
-    const full = (await call("GET", "/admin/courses?limit=100", { token: ctx.tokens.admin })).body.items.find((x) => x.id === row.id);
+    const full = await findCourse(call, ctx.tokens.admin, c.code);
     const wantTA = c.code === "761987";
     const hasTeacher = full.teacher?.id === ctx.ids.teacher;
     const hasTA = !wantTA || full.assistants_count >= 1;
@@ -585,7 +607,9 @@ async function takeAttempt(course, exam, who, plan) {
 
 /** như `call` nhưng có thêm header tuỳ ý (X-Exam-Tab). */
 async function callH(method, route, { token, json, key, headers = {}, ok = [200, 201, 202, 204] }) {
+  let renewedOnce = false;
   for (let attempt = 0; ; attempt++) {
+    token = current(token);
     const h = { Accept: "application/json", Origin: ORIGIN, Authorization: `Bearer ${token}`, ...headers };
     if (key) h["Idempotency-Key"] = key.replace(/[^A-Za-z0-9._:-]/g, "-");
     if (json !== undefined) h["Content-Type"] = "application/json";
@@ -595,6 +619,7 @@ async function callH(method, route, { token, json, key, headers = {}, ok = [200,
       await sleep(Math.min(20, Number(body?.retry_after ?? res.headers.get("Retry-After") ?? 2)) * 1000 + 200);
       continue;
     }
+    if (res.status === 401 && body?.code === "TOKEN_EXPIRED" && !renewedOnce && (token = await renew(token))) { renewedOnce = true; continue; }
     if (!ok.includes(res.status)) throw new ApiFail(method, route, res.status, body);
     return { status: res.status, body };
   }
@@ -692,6 +717,63 @@ async function ensureDoc(course, token, docs, d) {
   return row.id;
 }
 
+/**
+ * Quiz 01 của Luyện đề (US-P9-12, P-10-2): tạo + lên lịch + 3 sinh viên làm, chạy NỀN ngay sau bước 10. Quiz mở sau ~14 s, đóng sau ~2 phút rồi bộ lập lịch công bố
+ * trong lúc các bước 11–19 chạy; bước Luyện đề chỉ `await` kết quả (DEF-Q2-S4-01: trước đây bước cuối đứng chờ ~140 s cho Quiz).
+ */
+async function setupQuiz() {
+  const course = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  const base = `/courses/${course}/questions`;
+  const have = new Map((await listAll(base, t)).map((x) => [x.title, x]));
+  const bank = new Map();
+  for (const q of P9_APPROVED.filter((x) => x.topic === "Hàm băm và chữ ký" && x.type === "MCQ_SINGLE").slice(0, 5)) { // chỉ 5 câu của Quiz; phần còn lại của ngân hàng ở bước Luyện đề
+    const row = have.get(q.title) ?? (await call("POST", base, { token: t, key: `seed-p9-${q.title}`, json: p9Body(q) })).body;
+    await approveQuestion(base, row.id, t);
+    bank.set(q.title, row);
+  }
+  // QUIZ: bài thi tính điểm của PE (P-10-2): 5 câu chọn một của chủ đề Hàm băm và chữ ký. Mở sau ~14 s, đóng sau ~2 phút, 3 sinh viên làm; bộ lập lịch công bố (AC1: PUBLISHED).
+  const exams = await listAll(`/courses/${course}/exams`, t);
+  let quizTake = null;
+  const oldQuiz = exams.find((x) => x.title === P9_QUIZ_TITLE);
+  if (oldQuiz && ["SCHEDULED", "DRAFT"].includes(oldQuiz.status) && new Date(oldQuiz.opens_at) - Date.now() > 3_600_000) { // bản seed cũ (mở sau 7 ngày): dời lại để đi trọn tới PUBLISHED
+    const now = Date.now();
+    if (oldQuiz.status === "SCHEDULED") await call("POST", `/courses/${course}/exams/${oldQuiz.id}/unschedule`, { token: t, json: {}, ok: [200] });
+    const cur = (await call("GET", `/courses/${course}/exams/${oldQuiz.id}`, { token: t })).body;
+    await call("PUT", `/courses/${course}/exams/${oldQuiz.id}`, { token: t, json: { title: cur.title, instructions: cur.instructions ?? "", duration_minutes: 2, opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString(), version: cur.version } });
+    await call("POST", `/courses/${course}/exams/${oldQuiz.id}/schedule`, { token: t, json: {}, ok: [200] });
+    quizTake = { id: oldQuiz.id, at: now + 15_500 };
+  }
+  if (!oldQuiz) {
+    const ids = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5).map((q) => bank.get(q.title).id);
+    const now = Date.now();
+    const quiz = (await call("POST", `/courses/${course}/exams`, { token: t, key: `seed-p9-${P9_QUIZ_TITLE}`, json: { title: P9_QUIZ_TITLE, instructions: "Quiz tính điểm: 5 câu trắc nghiệm.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString() } })).body;
+    await call("PUT", `/courses/${course}/exams/${quiz.id}/items`, { token: t, json: { items: ids.map((id) => ({ question_id: id, points: "2" })), version: quiz.version } });
+    await call("POST", `/courses/${course}/exams/${quiz.id}/schedule`, { token: t, json: {}, ok: [200] });
+    quizTake = { id: quiz.id, at: now + 15_500 };
+  }
+
+  if (quizTake) { // ba sinh viên làm Quiz (gioi đúng hết, kha sai câu 5, nguyco sai 3 câu), rồi bộ lập lịch đóng + công bố
+    const wait = quizTake.at - Date.now();
+    if (wait > 0) await sleep(wait);
+    const quizQs = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5);
+    for (const [who, wrong] of [["sv.gioi", 0], ["sv.kha", 1], ["sv.nguyco", 3]]) {
+      await takeAttempt(course, quizTake.id, who, async (start, { token, base: ab, hdr }) => {
+        const answers = [];
+        for (const [n, q] of quizQs.entries()) {
+          const item = start.items.find((x) => x.stem === q.stem);
+          if (!item) continue;
+          const good = new Set(q.correct.map((i) => q.options[i]));
+          const pickOpts = n >= quizQs.length - wrong ? item.options.filter((o) => !good.has(o.body)).slice(0, 1) : item.options.filter((o) => good.has(o.body));
+          answers.push({ item_id: item.item_id, answer: { option_ids: pickOpts.map((o) => o.id) } });
+        }
+        await callH("PUT", `${ab}/answers`, { token, headers: hdr, json: { items: answers } });
+      });
+    }
+    ctx.changed = true;
+  }
+}
+
 async function step19Practice() {
   step(20, "Luyện đề: ngân hàng, hàng chờ duyệt, Quiz và lượt luyện của 13 sinh viên (lớp 761987)…");
   const course = ctx.ids["761987"];
@@ -733,29 +815,6 @@ async function step19Practice() {
     await waitJob(job, t, "trích đề mẫu", 300_000);
     ctx.changed = true;
   }
-  const bank = new Map((await listAll(base, t)).map((x) => [x.title, x]));
-
-  // QUIZ: bài thi tính điểm của PE (P-10-2): 5 câu chọn một của chủ đề Hàm băm và chữ ký. Mở sau ~14 s, đóng sau ~2 phút, 3 sinh viên làm; bộ lập lịch công bố (AC1: PUBLISHED).
-  const exams = await listAll(`/courses/${course}/exams`, t);
-  let quizTake = null;
-  const oldQuiz = exams.find((x) => x.title === P9_QUIZ_TITLE);
-  if (oldQuiz && ["SCHEDULED", "DRAFT"].includes(oldQuiz.status) && new Date(oldQuiz.opens_at) - Date.now() > 3_600_000) { // bản seed cũ (mở sau 7 ngày): dời lại để đi trọn tới PUBLISHED
-    const now = Date.now();
-    if (oldQuiz.status === "SCHEDULED") await call("POST", `/courses/${course}/exams/${oldQuiz.id}/unschedule`, { token: t, json: {}, ok: [200] });
-    const cur = (await call("GET", `/courses/${course}/exams/${oldQuiz.id}`, { token: t })).body;
-    await call("PUT", `/courses/${course}/exams/${oldQuiz.id}`, { token: t, json: { title: cur.title, instructions: cur.instructions ?? "", duration_minutes: 2, opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString(), version: cur.version } });
-    await call("POST", `/courses/${course}/exams/${oldQuiz.id}/schedule`, { token: t, json: {}, ok: [200] });
-    quizTake = { id: oldQuiz.id, at: now + 15_500 };
-  }
-  if (!oldQuiz) {
-    const ids = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5).map((q) => bank.get(q.title).id);
-    const now = Date.now();
-    const quiz = (await call("POST", `/courses/${course}/exams`, { token: t, key: `seed-p9-${P9_QUIZ_TITLE}`, json: { title: P9_QUIZ_TITLE, instructions: "Quiz tính điểm: 5 câu trắc nghiệm.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString() } })).body;
-    await call("PUT", `/courses/${course}/exams/${quiz.id}/items`, { token: t, json: { items: ids.map((id) => ({ question_id: id, points: "2" })), version: quiz.version } });
-    await call("POST", `/courses/${course}/exams/${quiz.id}/schedule`, { token: t, json: {}, ok: [200] });
-    quizTake = { id: quiz.id, at: now + 15_500 };
-  }
-
   // câu → đáp án đúng, theo chữ (PE + Luyện đề), để chọn đúng / sai có chủ đích
   const truth = new Map();
   for (const q of [...QUESTIONS, ...P9_APPROVED, ...P9_ESSAYS]) truth.set(q.stem, q);
@@ -795,26 +854,6 @@ async function step19Practice() {
     if (leave === 0) await callH("POST", `/courses/${course}/practice/attempts/${att.id}/submit`, { token, key: `seed-p9-${who}-${n}-submit` });
   }
 
-  if (quizTake) { // ba sinh viên làm Quiz (gioi đúng hết, kha sai câu 5, nguyco sai 3 câu), rồi bộ lập lịch đóng + công bố
-    const wait = quizTake.at - Date.now();
-    if (wait > 0) await sleep(wait);
-    const quizQs = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5);
-    for (const [who, wrong] of [["sv.gioi", 0], ["sv.kha", 1], ["sv.nguyco", 3]]) {
-      await takeAttempt(course, quizTake.id, who, async (start, { token, base: ab, hdr }) => {
-        const answers = [];
-        for (const [n, q] of quizQs.entries()) {
-          const item = start.items.find((x) => x.stem === q.stem);
-          if (!item) continue;
-          const good = new Set(q.correct.map((i) => q.options[i]));
-          const pickOpts = n >= quizQs.length - wrong ? item.options.filter((o) => !good.has(o.body)).slice(0, 1) : item.options.filter((o) => good.has(o.body));
-          answers.push({ item_id: item.item_id, answer: { option_ids: pickOpts.map((o) => o.id) } });
-        }
-        await callH("PUT", `${ab}/answers`, { token, headers: hdr, json: { items: answers } });
-      });
-    }
-    ctx.changed = true;
-  }
-
   const hist = (who) => call("GET", `/courses/${course}/practice/history?limit=1`, { token: ctx.tokens[who] }).then((r) => r.body.items.length);
   let attempts = 0;
   await pool(P9_STUDENTS, 4, async (who) => {
@@ -833,8 +872,9 @@ async function step19Practice() {
   // một lượt đang dở (sv.nguyco dừng giữa chừng) để màn Luyện đề có "Lượt đang dở"
   if (!(await call("GET", `/courses/${course}/practice/overview`, { token: ctx.tokens["sv.nguyco"] })).body.in_progress.length) {
     await runAttempt("sv.nguyco", 20, { mode: "TOPIC", topic: "Xác thực và phân quyền", count: 8 }, { leave: 5 });
+    attempts++;
   }
-  ctx.changed = true;
+  if (attempts > 0) ctx.changed = true; // lần hai không tạo lượt nào ⇒ «Seed xong (không đổi)» (DEF-R5-20)
   console.log(`   Đã tạo ${attempts} lượt luyện mới (còn lại giữ nguyên nếu đã có).`);
   const until = Date.now() + 360_000; // Quiz phải PUBLISHED (câu của nó mới vào ngân hàng luyện đề)
   for (;;) {
@@ -916,14 +956,20 @@ const CHAT_ANSWER_OUTSIDE = "Mình chưa tìm thấy nội dung này trong tài 
 async function step12Chat() {
   step(12, "Lịch sử chat riêng của sinh viên lớp 761987 (≈ 150 câu, ghi thẳng, không tự mở ticket)…");
   const questions = chatQuestions(mulberry32(RNG_SEED ^ 0x5eed));
-  // kế hoạch: sv.gioi 4 phiên (2+1+1+1 tin), mỗi người còn lại 1 phiên × 5 tin → 5 + 145 = 150
+  // kế hoạch: sv.gioi 4 phiên (2+1+1+1 tin), mỗi người còn lại 1 phiên × 5 tin → 5 + 145 = 150.
+  // Chủ đề D (10 câu) chỉ do ĐÚNG hai sinh viên hỏi (sv.nguyco, sv04: mỗi người 5 câu) — US-P10-07 AC2 «Ít người hỏi»; A, B do ≥ 3 sinh viên.
+  const dOnly = questions.filter(isTopicD);
+  const rest = questions.filter((x) => !isTopicD(x));
+  const dAsk = new Set([roster1[2], roster1[3]]);
   const sessions = [];
   let q = 0;
+  let d = 0;
   for (const k of roster1) {
+    const mine = OUTSIDE_PLAN.flatMap((g) => g.who.filter((i) => roster1[i] === k).map(() => g.text)); // tin ngoài tài liệu của sinh viên này (P-11-31)
     (k === "sv.gioi" ? [2, 1, 1, 1] : [5]).forEach((quota, si) => {
       const turns = [];
-      for (let m = 0; m < quota; m++, q++) {
-        const text = questions[q % questions.length];
+      for (let m = 0; m < quota; m++) {
+        const text = mine.length > 0 ? mine.shift() : dAsk.has(k) ? dOnly[d++] : rest[q++];
         const outside = OUTSIDE.some((o) => text.endsWith(o));
         turns.push({ key: `seed-chat-${k}-${si}-${m}`, q: text, a: outside ? CHAT_ANSWER_OUTSIDE : CHAT_ANSWER, outside });
       }
@@ -932,6 +978,21 @@ async function step12Chat() {
   }
   const out = gatewayAdmin("seed-chat", ["--course", "761987", "--weeks", "10", "--plan", "-"], JSON.stringify({ sessions }));
   if (!/seed-chat: 0 tin/.test(out)) ctx.changed = true;
+  // Quan sát AI (US-P10-07): ≥ 300 yêu cầu LLM mô phỏng / 7 ngày mỗi lớp (kèm bản prompt đã che); idempotent theo lớp.
+  for (const code of ["761987", "761988"]) {
+    if (!/seed-llm-audit: 0 dòng/.test(gatewayAdmin("seed-llm-audit", ["--course", code], ""))) ctx.changed = true;
+  }
+  // Lớp 761988 (US-P10-07 AC2): 40 câu hỏi lệch hẳn về chủ đề C (mạng máy tính), 20 sinh viên × 2 câu.
+  const q2 = chatQuestionsLop2();
+  const sessions2 = only2.slice(0, 20).map((k, i) => ({
+    email: accounts.get(k).email,
+    key: `seed-chat2-session-${k}`,
+    turns: [0, 1].map((m) => ({ key: `seed-chat2-${k}-${m}`, q: q2[i * 2 + m], a: CHAT_ANSWER, outside: false })),
+  }));
+  const out2 = gatewayAdmin("seed-chat", ["--course", "761988", "--weeks", "3", "--plan", "-"], JSON.stringify({ sessions: sessions2 }));
+  if (!/seed-chat: 0 tin/.test(out2)) ctx.changed = true;
+  // Điểm thi hằng tuần (US-P10-06/07): 4 bài PUBLISHED quá khứ của lớp 761987, có sinh viên giảm điểm 3 bài liên tiếp; ghi thẳng DB, idempotent theo tiêu đề bài.
+  if (!/seed-exam-history: 0 lượt/.test(gatewayAdmin("seed-exam-history", ["--course", "761987"], ""))) ctx.changed = true;
 }
 
 // ---- bước 13: thread lớp (12 + 3) với đủ trạng thái bài AI (US-P3-08 AC2) ---------------------------------------------------
@@ -979,8 +1040,9 @@ async function seedThreads(course, plan, token) {
       // Tường lửa PII là luật, không phải lỗi của seed: kiểm trước và báo ĐÚNG thread nào, vì sao (chữ chung, không định danh, không "em … của em").
       const pre = await call("POST", `/courses/${course}/threads/precheck`, { token: author, json: { title: th.title, body: th.body }, ok: [200, 422] });
       if (pre.status !== 200 || !pre.body.allowed) throw new Error(`Thread mẫu "${th.title}" (${th.k}) bị tường lửa PII chặn: ${JSON.stringify(pre.body?.reasons ?? pre.body)} — đổi nội dung trong scripts/chat-seed-data.mjs thành câu hỏi chung`);
-      row = (await call("POST", `/courses/${course}/threads`, { token: author, json: { title: th.title, body: th.body, week_no: th.week ?? null, tags: [] }, key: `seed-thread-${course}-${createHash("sha1").update(th.title + th.body).digest("hex").slice(0, 16)}` })).body.thread;
-      ctx.changed = true;
+      const made = await call("POST", `/courses/${course}/threads`, { token: author, json: { title: th.title, body: th.body, week_no: th.week ?? null, tags: [] }, key: `seed-thread-${course}-${createHash("sha1").update(th.title + th.body).digest("hex").slice(0, 16)}` });
+      row = made.body.thread;
+      if (!made.replayed) ctx.changed = true; // thread ẩn / đã có nhưng không thấy trong danh sách: khoá Idempotency phát lại bản cũ, không phải thay đổi (DEF-R5-15)
     }
     out.push({ th, id: row.id });
   }
@@ -1072,7 +1134,7 @@ async function importColumn(course, t, itemId, label, bytes) {
   const prev = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "preview" } });
   if (prev.body.errors.length > 0) throw new Error(`Tệp ${label}: ${prev.body.errors.length} dòng lỗi (MSSV khớp theo dòng ROSTER, #20)`);
   if (prev.body.rows_ok > 0 && prev.body.unchanged === prev.body.rows_ok) return; // chạy lại: không còn gì đổi → không ghi (khoá ghi nhập gắn với upload_id nên không phát lại được)
-  const done = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "commit" }, key: `seed-import-${label}-${sha.slice(0, 12)}` });
+  const done = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "commit" }, key: `seed-import-${label}-${pre.body.upload_id}` }); // khoá theo upload_id: chạy lại sau khi dữ liệu bị sửa là tệp mới, thân khác → không đụng IDEMPOTENCY_KEY_REUSED
   vlog("nhập", label, `ghi ${done.body.written}`);
   if (done.body.written > 0) ctx.changed = true;
 }
@@ -1128,16 +1190,23 @@ async function step15Gradebook() {
 
 async function step15StudyTimeRisk() {
   step(16, "Thời gian học 10 tuần (lớp 761988: 3 tuần), rải hoạt động, tính at-risk…");
+  // `--now` theo buổi neo của từng lớp (buổi 10 / buổi 4 = «hôm nay» lúc seed đầu): chạy lại sang ngày khác không làm lệch tuần (P-11-48, scripts/seed-clock.mjs)
+  const nowFor = async (code, anchorNo) => {
+    const items = await listAll(`/courses/${ctx.ids[code]}/sessions`, ctx.tokens.teacher);
+    const s = items.find((x) => x.session_no === anchorNo);
+    return s ? ["--now", anchorNowIso(s.starts_at, Date.now())] : [];
+  };
+  const n1 = await nowFor("761987", 10), n2 = await nowFor("761988", 4);
   const profile = readFileSync(path.join(root, "seed", "study_profile.json"), "utf8");
-  vlog(gatewayAdmin("seed-study-time", ["--course", "761987", "--weeks", "10", "--profile", "-"], profile));
-  vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-"], profile));
-  vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10"]));
+  vlog(gatewayAdmin("seed-study-time", ["--course", "761987", "--weeks", "10", "--profile", "-", ...n1], profile));
+  vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-", ...n2], profile));
+  vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10", ...n1]));
   // hoạt động tuần 8 / 9 của sinh viên có điểm quá trình thấp, đúng cột `activity_week9` / `activity_week8` của seed/expected_risk.csv (US-P6-09 AC8)
   const want = readFileSync(path.join(root, "seed", "expected_risk.csv"), "utf8").trim().split("\n").slice(1).map((l) => l.split(",")).filter((c) => c[4] !== "").map((c) => ({ student_code: accounts.get(c[0]).code, week9: c[4], week8: c[5] }));
-  vlog(gatewayAdmin("seed-activity", ["--course", "761987", "--plan", "-"], JSON.stringify(want)));
-  const out = gatewayAdmin("crm-risk-run", ["--course", "761987"]);
-  if (!/AT_RISK 1, WATCH 3/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": ${out} — buổi 10 phải là HÔM NAY (seed chạy trên DB trống; DB cũ giữ lịch buổi của ngày seed trước nên tuần của buổi 8 / 9 lệch)`);
-  if (!/AT_RISK 0/.test(gatewayAdmin("crm-risk-run", ["--course", "761988"]))) throw new Error("Lớp 761988 không được có AT_RISK");
+  vlog(gatewayAdmin("seed-activity", ["--course", "761987", "--plan", "-", ...n1], JSON.stringify(want)));
+  const out = gatewayAdmin("crm-risk-run", ["--course", "761987", ...n1]);
+  if (!/AT_RISK 1, WATCH 3/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": ${out}`);
+  if (!/AT_RISK 0/.test(gatewayAdmin("crm-risk-run", ["--course", "761988", ...n2]))) throw new Error("Lớp 761988 không được có AT_RISK");
 }
 
 const TICKET_STUDENTS = [["sv14", "open"], ["sv15", "overdue"], ["sv16", "claimed"], ["sv17", "answered"], ["sv18", "closed"]];
@@ -1188,9 +1257,11 @@ async function step17Moderation() {
 // ---- bước 18: Bài tập 03 / 04, thư IMAP thử, thẻ Teams (US-S9-SEED) ------------------------------------------------------
 // Chỉ HTTP API thật + cmd/mock-imap (`POST /__mock/append`). Hạn BT03 = bây giờ + DUE_AHEAD_S: sinh viên "đúng hạn" nộp trước hạn, thư IMAP mang INTERNALDATE = hạn + giờ so với hạn trong seed-plan.csv,
 // riêng Sinh viên B nộp SAU hạn (chờ tới hạn rồi nộp: muộn 1 ngày theo luật làm tròn lên). Không chạy chấm (để demo `Chấm tất cả`).
-const MOCK_IMAP = setting("MOCK_IMAP_URL", "http://localhost:8091").replace(/\/$/, "");
-const MOCK_GRAPH = setting("MOCK_GRAPH_URL", "http://localhost:8090").replace(/\/$/, "");
+const MOCK_IMAP = setting("MOCK_IMAP_URL", `http://localhost:${process.env.EP_PORT_MOCK_IMAP || 8091}`).replace(/\/$/, "");
+const MOCK_GRAPH = setting("MOCK_GRAPH_URL", `http://localhost:${process.env.EP_PORT_MOCK_GRAPH || 8090}`).replace(/\/$/, "");
 const DUE_AHEAD_S = 75;
+// P-11-13: mô tả bài tập ghi «Hạn nộp 23:59» ⇒ hạn BT04 đặt đúng 23:59:00 giờ Việt Nam (+07) của ngày đó. BT03 cần hạn ngắn lúc nộp bài thử rồi được `seed-age` lùi về 23:59 (+07).
+const at2359 = (d) => new Date(`${new Date(d.getTime() + 7 * 3600_000).toISOString().slice(0, 10)}T23:59:00+07:00`);
 const BT03 = "BT03", BT04 = "BT04";
 const IMAP_USER = "nop@edupilot.test";
 
@@ -1272,7 +1343,7 @@ async function step18Assignments() {
   const existing = (await listAll(`/courses/${c1}/assignments`, t)).find((a) => a.submission_code === BT03);
   const dueAt = existing ? new Date(existing.due_at) : new Date(Date.now() + DUE_AHEAD_S * 1000);
   const asg = await ensureAssignment(c1, t, { ...base, due_at: dueAt.toISOString(), channels: ["IN_APP", "UPLOAD", "IMAP"] }, `seed-create-${BT03}`);
-  await ensureAssignment(c1, t, { ...base, title: TEAMS_TITLE_04, submission_code: BT04, channels: ["IN_APP", "TEAMS"], teams_class_id: meta.class_id, teams_assignment_id: meta.assignment_id, due_at: new Date(dueAt.getTime() + 7 * 86400_000).toISOString() }, `seed-create-${BT04}`);
+  await ensureAssignment(c1, t, { ...base, title: TEAMS_TITLE_04, submission_code: BT04, channels: ["IN_APP", "TEAMS"], teams_class_id: meta.class_id, teams_assignment_id: meta.assignment_id, due_at: at2359(new Date(dueAt.getTime() + 7 * 86400_000)).toISOString() }, `seed-create-${BT04}`);
   const due = new Date(asg.due_at);
 
   // 1) trong app, đúng hạn (trừ Sinh viên B, nộp sau hạn)
@@ -1365,6 +1436,32 @@ async function stepCheckinDemo() {
 }
 
 // ---- chạy ------------------------------------------------------------------------------------------------------------
+/** Chạy `fn` nền; lỗi của nó chỉ nổ ở lúc `await` kết quả (không làm sập tiến trình giữa chừng). */
+function inBackground(fn) {
+  const p = fn().then(() => null, (e) => e);
+  return async () => {
+    const e = await p;
+    if (e) throw e;
+  };
+}
+
+/** Trước lệnh admin đầu tiên ghi dữ liệu (bước 12): id lớp 761987 qua API phải bằng id qua lệnh admin; lệch → thoát 2 (DEF-R105S-05). */
+function assertSameStack() {
+  let adminOut = null;
+  try {
+    adminOut = gatewayAdmin("seed-identity", ["--course", "761987"]);
+  } catch {
+    /* lệnh lỗi (DB khác không có lớp): xử như lệch */
+  }
+  const cmd = process.env.SEED_ADMIN_CMD;
+  const target = cmd ? cmd.replace(/\s+create\s*$/, "") : `docker compose exec gateway (project ${process.env.COMPOSE_PROJECT_NAME || "edupilot"})`;
+  const bad = stackMismatch({ apiId: ctx.ids["761987"], adminOut, adminTarget: target, api: API });
+  if (bad) {
+    console.error("Seed dừng:", mask(bad));
+    process.exit(2);
+  }
+}
+
 async function main() {
   const started = Date.now();
   if (IF_EMPTY && (await isSeeded())) {
@@ -1374,6 +1471,7 @@ async function main() {
   await step1Admin();
   await step2Staff();
   await step3Courses();
+  assertSameStack();
   await step4Sessions();
   await step5Roster();
   await step6Register();
@@ -1382,7 +1480,11 @@ async function main() {
   await step8Mismatch();
   await step9Dismiss();
   await step10Exams();
+  // DEF-Q2-S4-01: hai việc phần lớn là chờ (Quiz đóng + công bố ~140 s; BT03 chờ tới hạn 75 s) chạy NỀN song song với bước 11 (docling ~150 s, tuần tự có chủ đích).
+  const quizDone = inBackground(setupQuiz);
+  const assignmentsDone = inBackground(step18Assignments);
   await step11DocsEvents();
+  await assignmentsDone();
   await step12Chat();
   await step13Threads();
   await step14Attendance();
@@ -1390,7 +1492,7 @@ async function main() {
   await step15StudyTimeRisk();
   await step16Tickets();
   await step17Moderation();
-  await step18Assignments();
+  await quizDone();
   await step19Practice();
   await stepDecisionDemo();
   await stepGuidanceDemo();

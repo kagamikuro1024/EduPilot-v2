@@ -7,3 +7,13 @@
 .subhead { margin-top: var(--ep-space-4); font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink-2); }
 
 .range { margin-bottom: var(--ep-space-6); }
+
+.blocks { display: grid; }
+.pick { display: flex; flex-wrap: wrap; align-items: end; gap: var(--ep-space-4); margin-bottom: var(--ep-space-6); }
+
+/* Phân bố điểm: 10 cột đều, số ở đầu cột, mốc dưới; co theo bề rộng (AC10). */
+.hist { margin: var(--ep-space-4) 0 0; }
+.histBars { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: var(--ep-space-2); align-items: end; height: 160px; }
+.histCol { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; justify-items: center; align-items: end; height: 100%; min-width: 0; }
+.histBar { width: 100%; min-height: 2px; background: var(--ep-ink-3); border-radius: var(--ep-radius-sm) var(--ep-radius-sm) 0 0; align-self: end; }
+.histValue, .histLabel { font-size: var(--ep-text-meta); color: var(--ep-ink-2); font-variant-numeric: tabular-nums; }

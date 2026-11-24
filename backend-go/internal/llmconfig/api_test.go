@@ -1066,3 +1066,31 @@ func TestNoNPlusOne(t *testing.T) {
 	defer cnt.mu.Unlock()
 	require.LessOrEqual(t, cnt.n, 3, "GET providers: số truy vấn với 20 nhà × 10 mô hình")
 }
+
+// P-11-108: nhà cung cấp trả lời SAU hạn của request (hạn request đã hết lúc probe xong) → Lưu vẫn thành công, không 504 ở bước ghi DB.
+func TestSaveSlowProbeOutlivesRequestDeadline(t *testing.T) {
+	r := getAPI(t)
+	adm := r.token(t, auth.RoleAdmin)
+	r.rt.Registry.Fake().Set(fake.Settings{ValidKey: goodKey, LatencyMin: 600 * time.Millisecond, LatencyMax: 600 * time.Millisecond})
+	t.Cleanup(func() { r.rt.Registry.Fake().Set(fake.Settings{ValidKey: goodKey}) })
+	send := func(method, path string, body any) resp {
+		raw, err := json.Marshal(body)
+		require.NoError(t, err)
+		ctx, cancel := context.WithTimeout(t.Context(), 300*time.Millisecond)
+		defer cancel()
+		req := httptest.NewRequestWithContext(ctx, method, "/api/v1"+path, bytes.NewReader(raw))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+adm)
+		req.Header.Set("Idempotency-Key", idem())
+		rec := httptest.NewRecorder()
+		r.h.ServeHTTP(rec, req)
+		return resp{status: rec.Code, hdr: rec.Header(), body: rec.Body.Bytes()}
+	}
+	x := send("POST", "/admin/llm/providers", map[string]any{"type": "fake", "name": "Chậm", "api_key": goodKey, "models": fakeModels()})
+	require.Equal(t, http.StatusCreated, x.status, string(x.body))
+	p := x.obj(t)
+	require.Equal(t, true, p["last_test"].(map[string]any)["ok"])
+
+	x = send("PUT", "/admin/llm/providers/"+p["id"].(string), map[string]any{"type": "fake", "name": "Chậm", "api_key": goodKey, "models": fakeModels(), "version": p["version"]})
+	require.Equal(t, http.StatusOK, x.status, string(x.body))
+}

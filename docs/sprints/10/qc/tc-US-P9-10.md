@@ -18,7 +18,7 @@ Nguồn: US-P9-10 + SRS FR-21–24, Q-P9-2, 3, 4. Bài thi PE: GV tạo qua `POS
 | TC-10-13 | AC5 | `sv.kha` chỉ có lượt luyện `TOPIC` / `MOCK` | `GET /me/exam-lock`; hỏi chat nội dung môn học | `exam-lock` không khoá; chat trả lời bình thường, cả khi MOCK đang làm; thi thử đang làm **không** đổi `exam-lock` (so JSON trước/sau) | API |
 | TC-10-14 | AC6 | MOCK hết giờ (ép `deadline_at`) và đóng bởi worker | `SELECT count(*) FROM exam_events WHERE …` (SV, thời điểm lượt) trước/sau | Không có dòng nào mới (kể cả rời tab / dán) | DB |
 | TC-10-15 | AC7 | MOCK chưa nộp | `explain` mọi `itemId` | `409 NOT_SUBMITTED`; không đường nào khác trả `explanation` (xem TC-10-04) | API |
-| TC-10-16 | AC8 | `sv.kha` (lớp 1 có lượt) | Lấy `question_id` lớp 2 (GV lớp 2 `GET …/questions`); `PUT …/answers/{itemId}` với `question_id` đó; `GET` câu / trích dẫn lớp 2 | `422 INVALID_QUESTION`; không đọc được câu / trích dẫn lớp 2 (`403`/`404`) | API |
+| TC-10-16 | AC8 | `sv.kha` (lớp 1 có lượt); GV lớp 2 lấy `question_id` + `option id` của câu lớp 2 | `PUT …/answers/{itemId}` bốn lần (P-11-63): (a) thân có trường lạ `question_id` (lớp 2); (b) `option_ids` của câu lớp 2 vào item lớp 1; (c) dạng đáp án sai loại câu (vd `text` cho câu MCQ); (d) `itemId` ngoài lượt (id câu lớp 2). Rồi `GET` câu / danh sách câu lớp 2 | (a) `422 VALIDATION_FAILED`; (b) `422 INVALID_OPTION_ID`; (c) `422 INVALID_QUESTION`; (d) `404`; không đọc được câu / trích dẫn lớp 2 (`403`/`404`) (P-11-63) | API |
 | TC-10-17 | AC1 | Bài thi PE `OPEN` | Trong đó, SV tạo lượt luyện cùng chủ đề **ngay lúc đang thi** | Vẫn không có câu của bài thi OPEN | API |
 
 ## Nhánh lỗi

@@ -14,7 +14,7 @@ export const DECISION_KEY = ["llm", "decision"] as const;
 export const useDecision = () => useQuery({ queryKey: DECISION_KEY, queryFn: async ({ signal }) => (await apiClient.get<DecisionOverview>("/admin/llm/decision", { signal })).data });
 
 export const GATES: Array<{ gate: GateId; label: string; range: string; unit: string }> = [
-  { gate: "THREADS_PRECHECK", label: "Kiểm duyệt Threads", range: "0,01–0,20", unit: "ε" },
+  { gate: "THREADS_PRECHECK", label: "Kiểm duyệt Hỏi đáp công khai", range: "0,01–0,20", unit: "ε" },
   { gate: "INJECTION_FLAG", label: "Cờ chèn lệnh khi chấm", range: "0,30–0,90", unit: "τ" },
   { gate: "CHAT_ROUTING", label: "Định tuyến câu hỏi chat", range: "0,70–0,99", unit: "τ" },
 ];

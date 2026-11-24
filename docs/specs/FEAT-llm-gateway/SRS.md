@@ -71,7 +71,7 @@ flowchart TD
 ```mermaid
 stateDiagram-v2
   [*] --> closed
-  closed --> open: 5 lỗi liên tiếp (AUTH, 429, 5xx, timeout, network)
+  closed --> open: 5 lỗi liên tiếp (AUTH, 5xx, timeout, network, BAD_RESPONSE; 429 và BAD_REQUEST không tính)
   open --> half_open: sau 30 s
   half_open --> closed: 1 lời gọi thử thành công
   half_open --> open: thử thất bại (mở lại 30 s)
@@ -158,7 +158,7 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 | `openai` | `https://api.openai.com/v1` | |
 | `anthropic` | `https://api.anthropic.com/v1/` | lớp tương thích OpenAI; **bỏ qua `response_format`** (kể cả `json_object`) nên `Structured` = tool bắt buộc (bên dưới); không có endpoint nhúng |
 | `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai/` | lớp tương thích OpenAI (beta) |
-| `openai_compatible` | bắt buộc ở bản ghi (vLLM, LM Studio, máy chủ trường) | khoá có thể rỗng |
+| `openai_compatible` | bắt buộc ở bản ghi (vLLM, LM Studio, máy chủ trường, 9router, OpenCode Go) | khoá có thể rỗng |
 | `fake` | — | provider giả (8.3); có thể tạo ở DB cho dev / test |
 
 **`Structured` — chọn CỐ ĐỊNH theo `type`, một lời gọi (D47; không thử `json_schema` rồi lùi):**
@@ -171,7 +171,7 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 | `openai_compatible` | `response_format: json_object` + schema nhúng trong lời nhắc hệ thống | `choices[0].message.content` |
 | `fake` | sinh theo schema (8.3) | — |
 
-**Mọi** nhánh đều kiểm kết quả bằng schema phía Go (bộ kiểm **tự viết, tối giản** cho tập con JSON Schema mà schema của dự án dùng: `type`, `properties`, `required`, `enum`, `items`, `additionalProperties`, `minimum` / `maximum`, `minLength` / `maxLength`; **không thêm thư viện** — bảng `ARCHITECTURE.md` §3 không có thư viện JSON Schema và `kin-openapi` chỉ cho test, D52; cần đầy đủ hơn thì xin PM duyệt thư viện: `QUESTIONS.md` Q16); kết quả không phải JSON hoặc sai schema → coi là lỗi nhà cung cấp (`BAD_RESPONSE`, tính vào mạch, chuyển fallback theo chuỗi); **không bao giờ** thử lại cùng nhà bằng cách đổi `response_format`. Tên test `TestStructuredDowngrade` nay kiểm **hành vi theo loại** (mỗi `type` đúng một lời gọi, đúng dạng yêu cầu).
+**Mọi** nhánh đều kiểm kết quả bằng schema phía Go (bộ kiểm **tự viết, tối giản** cho tập con JSON Schema mà schema của dự án dùng: `type`, `properties`, `required`, `enum`, `items`, `additionalProperties`, `minimum` / `maximum`, `minLength` / `maxLength`; **không thêm thư viện** — bảng `ARCHITECTURE.md` §3 không có thư viện JSON Schema và `kin-openapi` chỉ cho test, D52; cần đầy đủ hơn thì xin PM duyệt thư viện: `QUESTIONS.md` Q16); kết quả không phải JSON hoặc sai schema → coi là lỗi nhà cung cấp (`BAD_RESPONSE`, tính vào mạch, chuyển fallback theo chuỗi); **không bao giờ** thử lại cùng nhà bằng cách đổi `response_format`. Mỗi lần đầu ra sai schema ghi một dòng `slog` mức WARN `structured_invalid` với `task`, `provider`, `tokens_out`, `cap` (trần `max_tokens` đã gửi) và `err` (lý do kiểm schema: đường dẫn + loại sai), **không** nội dung đầu ra — để phân biệt «cụt ở trần» (`tokens_out` ≈ `cap`) với sai schema thật (P-11-110). Tên test `TestStructuredDowngrade` nay kiểm **hành vi theo loại** (mỗi `type` đúng một lời gọi, đúng dạng yêu cầu).
 
 **Ánh xạ lỗi (`error_kind`):**
 
@@ -179,15 +179,18 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 | --- | --- | --- | --- | --- |
 | `AUTH` | HTTP 401, 403 | không | có | có |
 | `MODEL_NOT_FOUND` | **HTTP 404** (không dựa vào mã `model_not_found`: Anthropic / Gemini để `code` rỗng) | không | có | không |
-| `RATE_LIMIT` | 429 | có (tôn trọng `Retry-After` ≤ 5 s) | có | có |
+| `RATE_LIMIT` | 429 | có (tôn trọng `Retry-After` ≤ 5 s) | có | **không** (áp lực ngược, không phải nhà hỏng; P-95-8b / TL-2j; P-11-108) |
 | `SERVER` | 500, 502, 503, 504; **lỗi giữa stream** (`*ssestream.StreamError`, không có status) | có (stream: chỉ khi **chưa phát token nào** cho client) | có (như vậy) | có |
 | `TIMEOUT` | quá hạn, `DeadlineExceeded` của lời gọi (không phải huỷ của client) | có | có | có |
 | `NETWORK` | đứt kết nối, DNS, từ chối | có | có | có |
 | `BAD_REQUEST` | 400, 422, nội dung bị lọc | không | **không** | không |
+| `BAD_RESPONSE` | nhà trả 200 nhưng đầu ra không phải JSON hoặc sai schema (`Structured`, kiểm ở Go) | không | có | có (giữ theo mã; P-11-109) |
 | `DIMS_MISMATCH` | vectơ ≠ 1536 | không | không (không có dự phòng cho embedding) | không |
 | `CANCELLED` | `ctx` huỷ bởi client | không | không | không |
 
-**Quy tắc `base_url` (Q-QC-P102-1, Q-QC-P104-1):** scheme `http` | `https`; có host; không userinfo; không fragment; ≤ 300 ký tự; sai → 422 `INVALID_BASE_URL`. **Không** chặn loopback / link-local / mạng nội bộ / tên dịch vụ compose (máy chủ trong trường là trường hợp dùng thật; chỉ ADMIN đặt; Q15 **[CHỦ DỰ ÁN]**). Giảm thiểu: client không theo chuyển hướng; hạn Test 10 s; thân phản hồi nhà cung cấp không bao giờ trả ra (Test chỉ trả câu theo `error_kind`); `audit_log` ghi host.
+**OpenCode Go (24/11, P-11-106):** nhà cung cấp thật thứ hai, **không** thêm `type` (không migration, không đổi enum): bản ghi `type = openai_compatible`, `base_url = https://opencode.ai/inference/go/v1`, model chat `deepseek-v4.1-flash`; 9router **giữ nguyên**, đổi tuyến giữa hai bên chỉ bằng `/settings/llm` (không dựng lại). Nhận ra theo **`Hostname()` của `base_url` bằng đúng `opencode.ai`** (so chính xác; `opencode.ai.evil.example`, host 9router, host khác **không** khớp). Khi khớp: mọi lời gọi qua client này gửi `User-Agent: edupilot/2.0`; mỗi lời gọi `Chat` / `Stream` (kể cả `Structured`, đi qua `Chat`) thêm header `x-opencode-session: edupilot-<task chữ thường>` (task rỗng → `edupilot`) và tham số `reasoning_effort=low`; ngoài ra **cộng 4096 vào `max_tokens` gửi đi** khi bản gốc > 0 (token suy luận của `deepseek-v4.1-flash` 600–1400 ngay ở effort thấp và tính vào `max_tokens`; không cộng thì JSON bị cắt cụt → `BAD_RESPONSE`; đo thật 2/5 lượt `UTILITY` ở trần 1024; hằng cố định, không cấu hình; P-11-107). Host khác: **không** gửi cả ba và **không** cộng. **Vận hành:** nhà cung cấp thật chậm hơn `fake` — `AI_SUMMARY_TIMEOUT` (mặc định `20s`, khoảng 5–120 s, `FEAT-crm-360` SRS) cần đặt `60s` bằng biến môi trường khi tuyến qua OpenCode Go; **không đổi mặc định**. `Structured` giữ cách của `openai_compatible` (`json_object` + schema trong lời nhắc hệ thống). Khoá chỉ nhập ở `/settings/llm` (mã hoá, FR-4), không nằm trong repo, `.env` mẫu hay log. Nhánh lỗi dùng bảng ánh xạ ở trên, **không** thêm loại mới: model chưa được phép ở vùng (Global) → lỗi nhà cung cấp **không treo**: 401 / 403 → `AUTH` và 404 → `MODEL_NOT_FOUND` chuyển nhà tiếp nếu chuỗi có; **400 → `BAD_REQUEST` (OpenCode Go trả 400 cho model không nằm trong gói / lạ) = lỗi cấu hình: trả ngay, KHÔNG chuyển nhà tiếp, không tính mạch** (đúng bảng: nội dung bị từ chối vì yêu cầu, không đẩy sang nhà khác; P-11-108); hết hạn mức gói → 429 → `RATE_LIMIT` → thử lại, chuyển nhà tiếp, **không** tính mạch.
+
+**Quy tắc `base_url` (Q-QC-P102-1, Q-QC-P104-1):** scheme `http` | `https`; có host; không userinfo; không fragment; ≤ 300 ký tự; sai → 422 `INVALID_BASE_URL`. **Không** chặn loopback / link-local / mạng nội bộ / tên dịch vụ compose (máy chủ trong trường là trường hợp dùng thật; chỉ ADMIN đặt; Q15 **[CHỦ DỰ ÁN]**). Giảm thiểu: client không theo chuyển hướng; hạn Test 30 s; thân phản hồi nhà cung cấp không bao giờ trả ra (Test chỉ trả câu theo `error_kind`); `audit_log` ghi host.
 
 **Thử lại (chỉ Scheduler / `internal/llm`; SDK đã tắt thử lại):** `Retry-After` đọc từ `ae.Response.Header`, ưu tiên `Retry-After-Ms` rồi `Retry-After` (giây hoặc ngày giờ HTTP). Test hợp đồng: máy chủ giả trả 429 → **đúng một** lần gọi tới nhà cung cấp ở tầng SDK. INTERACTIVE tối đa 1 lần, làn khác 2 lần (`params.retries` của tuyến, 0–5, chỉ **thu hẹp** mặc định theo làn); trễ cơ sở 500 ms × 2^(n−1), jitter đầy đủ (đều trong `[0, trễ]`), trần 4 s; không thử khi còn < 1 s tới hạn.
 
@@ -287,6 +290,7 @@ Nâng làn của `GRADING`, `QUESTION_GEN`, `INSIGHT` lên INTERACTIVE → `ErrB
 | FR-30 | Màn `/settings/llm` 4 phần; khoá chỉ ghi; Test phụ; nâng cao mở dần; mức dùng | 05-AC1…AC8 |
 | FR-31 | Màn xử lý lỗi, vai, mobile, bàn phím, thay mock | 05-AC9…AC14 |
 | FR-32 | Kịch bản "Bạn tự kiểm" (API và giao diện) | 04-AC12, 05-AC15 |
+| FR-33 | OpenCode Go: nhận theo `Hostname() == opencode.ai`; chỉ khi khớp mới gửi `User-Agent`, `x-opencode-session`, `reasoning_effort=low` và cộng 4096 vào `max_tokens`; 9router giữ, đổi tuyến bằng `/settings/llm` | 02-AC18 |
 
 ## 5. Dữ liệu
 
@@ -473,11 +477,11 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
   "models":[{"id":"…","model":"gpt-4o-mini","kind":"chat","dims":null,"price_in":"4000.0000","price_out":"16000.0000","enabled":true}],
   "version":3 }
 ```
-`GET providers` → `{"items":[…],"env_fallback":{"active":false,"providers":[]}}`. **`env_fallback` (góp ý #9):** `active = true` khi **DB không có tuyến nào dùng được** — tức `Registry` đang chạy hoàn toàn bằng cấu hình env dự phòng (4.2); `providers` = các loại nhà cung cấp mà env đang chạy (`"fake"`, `"openai"`, `"anthropic"`, `"gemini"`). DB có nhà cung cấp nhưng **chưa gán tuyến nào** (hoặc mọi tuyến trỏ tới nhà tắt / khoá không đọc được) → vẫn `active = true`. Có ít nhất một tuyến dùng được → `false` và `providers = []`. Màn `/settings/llm` dùng cờ này để hiện "Đang dùng cấu hình mặc định của máy chủ. Thêm nhà cung cấp để thay đổi." (`Registry.EnvActive()`). `key_status` ∈ `ok`, `missing`, `unreadable`. **Không có trường khoá, đuôi khoá, hay `api_key`** trong bất kỳ phản hồi nào. Tiền là chuỗi thập phân.
+`GET providers` → `{"items":[…],"env_fallback":{"active":false,"providers":[]}}`. **`env_fallback` (góp ý #9):** `active = true` khi **DB không có tuyến nào dùng được** — tức `Registry` đang chạy hoàn toàn bằng cấu hình env dự phòng (4.2); `providers` = các loại nhà cung cấp mà env đang chạy (`"fake"`, `"openai"`, `"anthropic"`, `"gemini"`). DB có nhà cung cấp nhưng **chưa gán tuyến nào** (hoặc mọi tuyến trỏ tới nhà tắt / khoá không đọc được) → vẫn `active = true`. Có ít nhất một tuyến dùng được → `false` và `providers = []`. Màn `/settings/llm` dùng cờ này để hiện «Chưa có nhà cung cấp» + nút `Thêm nhà cung cấp` (P-11-6a; `Registry.EnvActive()`). `key_status` ∈ `ok`, `missing`, `unreadable`. **Không có trường khoá, đuôi khoá, hay `api_key`** trong bất kỳ phản hồi nào. Tiền là chuỗi thập phân.
 
 **`POST/PUT` yêu cầu:** `{type, name, base_url?, api_key?, enabled?, rpm_limit?, tpm_limit?, models:[{model, kind, dims?, price_in, price_out, enabled?}], skip_verify?, version?}` — `PUT` không gửi `api_key` = giữ khoá; gửi chuỗi rỗng → 422; `models` thay thế toàn bộ danh sách (mô hình đang được tuyến dùng không được bỏ → 409 `PROVIDER_IN_USE`).
 
-**Test:** `{"ok":true,"latency_ms":420}` hoặc `{"ok":false,"error_kind":"AUTH","message":"Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.","latency_ms":180}`; `message` theo `error_kind`: `AUTH` "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá."; `NETWORK` "Không kết nối được tới nhà cung cấp. Kiểm tra địa chỉ và mạng."; `TIMEOUT` "Nhà cung cấp phản hồi quá chậm."; `RATE_LIMIT` "Nhà cung cấp đang giới hạn tốc độ. Thử lại sau."; `MODEL_NOT_FOUND` "Nhà cung cấp không có mô hình này."; `BAD_RESPONSE` "Nhà cung cấp trả về dữ liệu không đúng định dạng."; `DIMS_MISMATCH` "Mô hình nhúng không trả về 1536 chiều." Test dùng **một** lời gọi nhỏ trực tiếp qua `internal/llm` (bỏ qua hàng đợi và fallback, `max_tokens=1`, hoặc `Embed("ping")` cho mô hình nhúng), hạn 10 s, ghi `audit_log` (`llm.provider.test`, kết quả, không khoá).
+**Test:** `{"ok":true,"latency_ms":420}` hoặc `{"ok":false,"error_kind":"AUTH","message":"Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.","latency_ms":180}`; `message` theo `error_kind`: `AUTH` "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá."; `NETWORK` "Không kết nối được tới nhà cung cấp. Kiểm tra địa chỉ và mạng."; `TIMEOUT` "Nhà cung cấp phản hồi quá chậm."; `RATE_LIMIT` "Nhà cung cấp đang giới hạn tốc độ. Thử lại sau."; `MODEL_NOT_FOUND` "Nhà cung cấp không có mô hình này."; `BAD_RESPONSE` "Nhà cung cấp trả về dữ liệu không đúng định dạng."; `DIMS_MISMATCH` "Mô hình nhúng không trả về 1536 chiều." Test dùng **một** lời gọi nhỏ trực tiếp qua `internal/llm` (bỏ qua hàng đợi và fallback, `max_tokens=1`, hoặc `Embed("ping")` cho mô hình nhúng), hạn 30 s (nới từ 10 s: OpenCode Go phản hồi 4–16 s, có đợt 6/10 lượt hết hạn ở 10 s; P-11-108), ghi `audit_log` (`llm.provider.test`, kết quả, không khoá).
 
 **Routes** (GET): `{"items":[{"task":"CHAT","lane":"INTERACTIVE","chain":[{"model_id":"…","provider_id":"…","provider_name":"OpenAI","model":"gpt-4o-mini"}],"params":{},"version":2}, …],"embedding":{"model_id":"…","provider_name":"OpenAI","model":"text-embedding-3-small","dims":1536,"reindex_required":false,"indexed_chunks":null}}`. `PUT` thành công trả cùng dạng một phần tử + `reindex_required` khi đổi mô hình nhúng; `ETag: W/"v<n>"`.
 
@@ -576,7 +580,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 | Huỷ → dừng nhà cung cấp | ≤ **1 s** | `TestClientCancelStopsProvider` |
 | Nạp lại nóng | ≤ **1 s** | `TestRoutesHotReload` |
 | Mạch mở → bỏ qua nhà | thêm < **5 ms** | `TestBreakerOpensAfter5` |
-| `GET` cấu hình | p95 ≤ 300 ms (SLO đọc); ghi p95 ≤ 500 ms (kể cả verify ≤ 10 s thì **không** tính vào SLO ghi: ghi có verify được ghi nhận là ngoại lệ vì phụ thuộc nhà cung cấp, hạn tuyệt đối 10 s) | k6 nhẹ ở handoff |
+| `GET` cấu hình | p95 ≤ 300 ms (SLO đọc); ghi p95 ≤ 500 ms (kể cả verify ≤ 30 s thì **không** tính vào SLO ghi: ghi có verify được ghi nhận là ngoại lệ vì phụ thuộc nhà cung cấp, hạn tuyệt đối 30 s) | k6 nhẹ ở handoff |
 | Chi phí của Scheduler / lời gọi | thêm ≤ 2 ms (Redis round-trip, không tính chờ) khi không có hàng đợi | benchmark `BenchmarkSchedulerAcquire` ghi số |
 | Thông lượng cấu hình T1 | LLM đồng thời ≈ 10 (đỉnh 50) | `LLM_MAX_CONCURRENCY` điều chỉnh được; ghi nhận ở P10 |
 

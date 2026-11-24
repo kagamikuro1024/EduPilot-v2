@@ -10,8 +10,8 @@ export type LibDetail = LibItem & { size_bytes: number | null; page_count: numbe
 export const TYPE_LABEL: Record<string, string> = { LECTURE: "Bài giảng", COURSE_POLICY: "Quy chế môn học", EXAM_PAPER: "Đề tham khảo", OTHER: "Tài liệu khác" };
 export const libKey = (course: string) => ["library", course] as const;
 
-export const useLibrary = (course: string, f: { q: string; type: string; week: string }) =>
-  useCursorList<LibItem>([...libKey(course), "list", f], `/courses/${course}/library`, { limit: 30, query: { q: f.q.trim().length >= 2 ? f.q.trim() : undefined, type: f.type || undefined, week: f.week || undefined } });
+export const useLibrary = (course: string, f: { q: string; type: string; week: string; category: string }) =>
+  useCursorList<LibItem>([...libKey(course), "list", f], `/courses/${course}/library`, { limit: 30, query: { q: f.q.trim().length >= 2 ? f.q.trim() : undefined, type: f.type || undefined, week: f.week || undefined, category: f.category || undefined } });
 
 export const useLibDoc = (course: string, id: string) =>
   useQuery({ queryKey: [...libKey(course), "one", id], queryFn: async ({ signal }) => (await apiClient.get<LibDetail>(`/courses/${course}/library/${id}`, { signal })).data });

@@ -227,6 +227,9 @@ func TestSeedAgeAssignment(t *testing.T) {
 	after, age := gap()
 	require.Equal(t, before, after, "khoảng cách tương đối giữ nguyên")
 	require.Greater(t, age, 95*time.Hour)
+	var dueLocal string
+	require.NoError(t, w.pool.QueryRow(ctx, `select to_char(due_at at time zone 'Asia/Ho_Chi_Minh', 'HH24:MI:SS') from assignments where id = $1`, a3).Scan(&dueLocal))
+	require.Equal(t, "23:59:00", dueLocal, "P-11-13: hạn seed = 23:59 giờ Việt Nam, khớp mô tả")
 	var other2 time.Time
 	require.NoError(t, w.pool.QueryRow(ctx, `select received_at from submissions where id = $1`, s4).Scan(&other2))
 	require.True(t, other.Equal(other2), "bài nộp của bài khác không bị chạm")
@@ -259,4 +262,14 @@ func TestSeedGuidancePublishesFlag(t *testing.T) {
 	msg, err := sub.ReceiveTimeout(t.Context(), 3*time.Second)
 	require.NoError(t, err, "cờ đã đổi phải được PUBLISH ngay")
 	require.Equal(t, grading.FlagsChannel, msg.(*goredis.Message).Channel)
+}
+
+// scripts/seed.mjs so id lớp qua API với id này để từ chối khi lệnh admin chạy trên DB khác (DEF-R105S-05).
+func TestSeedIdentityPrintsCourseID(t *testing.T) {
+	w := newSeedWorld(t)
+	code, out, errOut := runSeed(t, seedEnv(w.url, "test"), "seed-identity", "--course", "761987")
+	require.Zero(t, code, errOut)
+	require.Equal(t, "seed-identity: "+w.course.String()+"\n", out)
+	code, _, _ = runSeed(t, seedEnv(w.url, "test"), "seed-identity", "--course", "000000")
+	require.NotZero(t, code, "DB khác không có lớp này")
 }

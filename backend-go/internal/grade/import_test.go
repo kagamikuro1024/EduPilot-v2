@@ -174,6 +174,25 @@ func TestImportMappingSuggest(t *testing.T) {
 	require.Zero(t, out.RowsTotal)
 }
 
+// TC-P6-07-11 (US-P6-07 AC3, mã SCORE_OUT_OF_RANGE): điểm ÂM là số nằm ngoài thang 0–10, không phải «không phải số». Chữ vẫn NOT_NUMBER, ≥ 3 chữ số thập phân vẫn PRECISION.
+func TestImportNegativeScoreIsOutOfRange(t *testing.T) {
+	r := newImpRig(t, nil)
+	for i, name := range []string{"An", "Bình", "Cúc", "Dũng", "Em"} {
+		r.coded(name, fmt.Sprintf("2022900%d", i+1))
+	}
+	up := r.upload(r.gv, r.course, xlsx(t, [][]any{
+		{"MSSV", "Họ tên", "Điểm"},
+		{"20229001", "An", "-1"},       // 2: âm
+		{"20229002", "Bình", "-0,5"},   // 3: âm, dấu phẩy
+		{"20229003", "Cúc", "-abc"},    // 4: chữ
+		{"20229004", "Dũng", "-1.234"}, // 5: âm + quá 2 chữ số: độ chính xác trước
+		{"20229005", "Em", "7"},        // 6: hợp lệ
+	}))
+	out, err := r.imp("preview", up, "weekly", false)
+	require.NoError(t, err)
+	require.Equal(t, map[int]string{2: "SCORE_OUT_OF_RANGE", 3: "SCORE_OUT_OF_RANGE", 4: "SCORE_NOT_NUMBER", 5: "SCORE_PRECISION"}, errCodes(out))
+}
+
 // TestImportParseErrors: mỗi lỗi đúng dòng, đúng mã; dòng trống bỏ qua; MSSV chỉ có ở sinh viên `CODE` báo UNVERIFIED.
 func TestImportParseErrors(t *testing.T) {
 	r := newImpRig(t, nil)

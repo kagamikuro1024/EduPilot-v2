@@ -149,7 +149,7 @@ func InspectDrafts(ctx context.Context, q *store.Queries, refs []draftRef) (map[
 			return nil, err
 		}
 		un, warn := Check(d, cited)
-		un = append(un, activeLLM(sc.Extraction, int(sc.Version), cBy[sc.ID], rBy[sc.ID])...)
+		un = mergeUnclear(un, activeExtracted(sc.Extraction, int(sc.Version), cBy[sc.ID], rBy[sc.ID]))
 		out[sc.ID] = Inspection{Unclear: un, Warnings: warn}
 	}
 	return out, nil
@@ -217,8 +217,8 @@ func VerifyCitations(ctx context.Context, q *store.Queries, textOf map[int]strin
 	return func(c Citation) bool { return found[key{c.Page, c.Quote}] }, nil
 }
 
-// activeLLM trả các mục chưa rõ do LLM đưa vào mà còn hiệu lực: bản nháp chưa ai sửa (version 1), hoặc mục đích danh còn tồn tại và chưa được giảng viên tự điền.
-func activeLLM(extraction json.RawMessage, version int, comps []store.GradeComponentsOfRow, rules []store.GradeRulesOfRow) []Unclear {
+// activeExtracted trả các mục chưa rõ do bước trích đưa vào (LLM, hoặc CODE loại Static) mà còn hiệu lực: bản nháp chưa ai sửa (version 1), hoặc mục đích danh còn tồn tại và chưa được giảng viên tự điền.
+func activeExtracted(extraction json.RawMessage, version int, comps []store.GradeComponentsOfRow, rules []store.GradeRulesOfRow) []Unclear {
 	var x struct {
 		Items []Unclear `json:"unclear_items"`
 	}
@@ -234,7 +234,7 @@ func activeLLM(extraction json.RawMessage, version int, comps []store.GradeCompo
 	}
 	var out []Unclear
 	for _, u := range x.Items {
-		if u.Source != SourceLLM {
+		if u.Source != SourceLLM && !u.isStatic() {
 			continue
 		}
 		if f, known := filled[u.Target]; version == 1 || (known && !f) {
@@ -242,6 +242,22 @@ func activeLLM(extraction json.RawMessage, version int, comps []store.GradeCompo
 		}
 	}
 	return out
+}
+
+// mergeUnclear nối mục từ bước trích vào kết quả bộ kiểm, bỏ mục trùng (mã, đích).
+func mergeUnclear(un, extra []Unclear) []Unclear {
+	type k struct{ code, target string }
+	have := make(map[k]bool, len(un))
+	for _, u := range un {
+		have[k{u.Code, u.Target}] = true
+	}
+	for _, u := range extra {
+		if u.Source == SourceCode && have[k{u.Code, u.Target}] {
+			continue
+		}
+		un = append(un, u)
+	}
+	return un
 }
 
 // StatusBatch trả trạng thái công thức của một lô lớp (SRS 4.5.1): MỘT truy vấn dữ kiện (số mục chưa rõ của bản nháp đọc từ cột `unclear_count`, không chạy bộ kiểm khi đọc: hằng số truy vấn, không đọc toàn văn quy chế).

@@ -822,6 +822,8 @@ func TestSubmitIdempotentReplay(t *testing.T) {
 	_, _, sc2, _ := r.attemptRow(v.Attempt.ID)
 	require.Equal(t, *sc1, *sc2)
 	require.Equal(t, 1, r.count(`select count(*) from outbox where topic='exam.attempt_submitted'`))
+	// R5-11 (TC-PE08-04): bài chỉ trắc nghiệm chấm xong ngay → phát đúng một exam.attempt_graded (chủ lượt nhận SSE exam.attempt)
+	require.Equal(t, 1, r.count(`select count(*) from outbox where topic='exam.attempt_graded' and payload->>'attempt_id'=$1`, v.Attempt.ID.String()))
 }
 
 // TestSubmitTwiceDifferentKey409 — AC8: nộp lần hai (khoá khác) → 409 ATTEMPT_ALREADY_SUBMITTED kèm submitted_at; nộp đồng thời → đúng một thành công.

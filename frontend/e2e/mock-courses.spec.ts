@@ -28,9 +28,9 @@ test("analytics: lớp 761987 vẫn có số liệu", async ({ page }) => {
   await expect(page.getByText(/câu hỏi trong 7 ngày/).first()).toBeVisible();
 });
 
-test("observability: lớp thật ngoài mô phỏng không mượn yêu cầu / số tổng hợp của lớp khác", async ({ page }) => {
+test("observability: màn thật theo lớp đang chọn, không còn số mô phỏng", async ({ page }) => {
+  // P10-01: màn là THẬT (số liệu của chính lớp qua API), nên tiêu đề phụ nêu đúng lớp đang chọn; số mô phỏng cũ «1.962» không được xuất hiện.
   await open(page, [KC, MOCKED], "/observability");
   await expect(page.getByRole("heading", { name: "Quan sát AI", level: 1 })).toBeVisible();
-  await expect(page.locator("[data-ep-header-meta]")).not.toContainText("KC106");
   await expect(page.getByText("1.962")).toHaveCount(0);
 });

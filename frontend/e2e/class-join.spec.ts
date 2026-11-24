@@ -413,6 +413,28 @@ test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm 
   await expect(page.getByRole("button", { name: /^Thông báo, 1 chưa đọc/ })).toBeVisible();
 });
 
+// DEF-R4-10 (TC-P208-34, US-P2-08 AC11): trang đã mở, Admin gán thêm lớp → thông báo «Phân công lớp» tới thì danh sách lớp được làm mới ngay, bộ chọn lớp thấy lớp mới (không chờ staleTime 60 s).
+test("bell real: thông báo Phân công lớp làm mới danh sách lớp ngay, bộ chọn có lớp mới", async ({ page }) => {
+  const noon = new Date("2026-10-29T10:00:00+07:00");
+  await page.clock.install({ time: noon });
+  await asJwt(page, "TEACHER");
+  await page.route("**/api/v1/events", (r) => r.fulfill({ status: 429, contentType: "application/json", body: "{}" }));
+  let courses = [item(C1, "761987", "TEACHER")];
+  let courseCalls = 0;
+  await page.route("**/api/v1/me/courses**", (r) => { courseCalls++; return fulfill(r, 200, { items: courses, next_cursor: null }); });
+  let state: unknown[] = [];
+  await page.route("**/api/v1/notifications**", (r) => fulfill(r, 200, { items: state, next_cursor: null, unread_count: state.length }));
+  await page.goto("/class/settings");
+  await expect(picker(page)).toContainText("761987");
+  const before = courseCalls;
+  courses = [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")];
+  state = [{ id: "n9", type: "COURSE_ASSIGNED", title: "Bạn được phân công lớp 761988", body: "b", link: `/class/settings?course=${C2}`, course_id: C2, read_at: null, created_at: noon.toISOString() }];
+  await page.clock.runFor(31_000);
+  await expect.poll(() => courseCalls).toBeGreaterThan(before);
+  await picker(page).click();
+  await expect(page.getByRole("option", { name: /761988/ }).or(page.getByRole("menuitem", { name: /761988/ })).first()).toBeVisible();
+});
+
 // SSE MỞ (luồng không kết thúc): chuông chỉ làm mới lưới an toàn 120 s, không thăm dò 30 s (`useRealNotifications`, #17).
 test("bell real sse open: không làm mới ở 30 s, làm mới ở 120 s", async ({ page }) => {
   const noon = new Date("2026-10-29T10:00:00+07:00");
@@ -661,6 +683,27 @@ test("class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng
   await page.unrouteAll({ behavior: "ignoreErrors" });
   await openSettings(page, "TA");
   await expect(page.locator("[data-part=guidance-flags]")).toHaveCount(0);
+});
+
+test("class settings guidance flags: 409 do người khác vừa sửa → hàng tải lại đúng giá trị máy chủ + báo tại chỗ (DEF-R106S-01, TC-G01-17)", async ({ page }) => {
+  const server = { enabled: true, version: 4 }; // tab khác đã bật
+  const flags = () => ["GRADING_GUIDANCE", "THREAD_SUGGEST", "QUESTION_HINTS", "REGRESSION_CAPTURE"].map((feature) => ({ feature, enabled: feature === "GRADING_GUIDANCE" ? server.enabled : false, version: feature === "GRADING_GUIDANCE" ? server.version : 1, can_edit: true }));
+  let first = true; // lần tải đầu trả bản CŨ (tab này mở trước khi tab kia sửa)
+  await openSettings(page, "TEACHER", {
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags`, (r) => {
+        const items = flags();
+        if (first) { first = false; items[0] = { ...items[0], enabled: false, version: 3 }; }
+        return fulfill(r, 200, { items });
+      });
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags/*`, (r) => fulfill(r, 409, { code: "VERSION_CONFLICT", message: "m", trace_id: "t", details: { version: 4 } }));
+    },
+  });
+  const row = page.locator("[data-part=guidance-flags] [data-feature=GRADING_GUIDANCE]");
+  await expect(row).toContainText("Tắt");
+  await row.getByRole("switch", { name: "Lưu ý chấm" }).click();
+  await expect(row.getByText("Thử lại")).toBeVisible(); // báo tại chỗ
+  await expect(row).toContainText("Bật"); // hàng đã tải lại: công tắc theo máy chủ (bật), không nói dối «Tắt»
 });
 
 test("class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính", async ({ page, context }) => {

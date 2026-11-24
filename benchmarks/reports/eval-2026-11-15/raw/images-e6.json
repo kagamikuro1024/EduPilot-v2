@@ -1,0 +1,28 @@
+{
+ "meta": {
+  "commit": "419241e4",
+  "timestamp": "2026-11-15T21:36:36.198Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "images-e6.json"
+  }
+ },
+ "gateway": {
+  "image": "edupilot-gateway-test",
+  "mib": 17.4
+ },
+ "worker": {
+  "image": "edupilot-worker-test",
+  "mib": 16.3
+ },
+ "gateway_production": {
+  "image": "ep-eval-gateway:419241e4",
+  "mib": 17.4
+ },
+ "worker_production": {
+  "image": "ep-eval-worker:419241e4",
+  "mib": 16.3
+ }
+}

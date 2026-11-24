@@ -11,7 +11,7 @@ import { useAutosaveDraft } from "@/shared/data";
 import { useSession } from "@/shared/session/session";
 import { Button, DataTable, Drawer, EmptyState, Field, Input, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Tabs, Textarea } from "@/shared/ui";
 import { useMinWidth } from "@/shared/lib/useMinWidth";
-import { ANSWER_LABEL, REASON_NAME, cleanExcerpt, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
+import { ANSWER_LABEL, REASON_NAME, THREAD_LOCK_TEXT, cleanExcerpt, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
 import { usePostGate } from "./usePostGate";
 import r from "./RealThreads.module.css";
 import { formatTime, formatWhen } from "@/shared/lib/datetime";
@@ -85,7 +85,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
             </Drawer>
           </>
         )}
-        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
+        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical={role !== "student"} onRetry={() => void list.refetch()} /> : null}>
           <PageState
             query={list}
             isEmpty={() => list.items.length === 0 && pinned.length === 0}
@@ -112,7 +112,7 @@ function Row({ t, hideLabel }: { t: ThreadRow; hideLabel: boolean }) {
   const preview = cleanExcerpt(t.preview);
   return (
     <div className={r.row}>
-      <Link href={`/threads/${t.id}`} className={r.rowLink}>
+      <Link href={`/threads/${t.id}`} prefetch={false} className={r.rowLink}>
         <span className={r.rowTitle}>{t.pinned && <Pin className={r.pin} aria-label="Đã ghim" />}{t.title}</span>
         {preview && <p className={r.preview}>{preview}</p>}
       </Link>
@@ -164,7 +164,9 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       {gate.similar.length > 0 && (
         <ul className={r.similar} data-part="similar-confirmed" aria-label="Đã có câu trả lời xác nhận">
           {gate.similar.map((x) => (
-            <li key={x.thread_id}><Link href={`/threads/${x.thread_id}`}>{x.title}</Link></li>
+            <li key={x.thread_id}>
+              <Link href={`/threads/${x.thread_id}`} prefetch={false}>{x.title}</Link> <StatusText tone="green">Đã xác nhận</StatusText>
+            </li>
           ))}
         </ul>
       )}
@@ -183,9 +185,9 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       {gate.check && !gate.check.allowed && (
         <p className={r.noticeLine} role="status" data-part="pii-notice">Phát hiện {describeReasons(gate.check.reasons)}</p>
       )}
-      {locked && <p className={r.noticeLine} role="status">Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}</p>}
+      {locked && <p className={r.noticeLine} role="status">{THREAD_LOCK_TEXT}{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}</p>}
       {gate.error && (
-        <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Gửi lại</Button>}>{gate.error.userMessage}</InlineNotice>
+        <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Đăng lại</Button>}>{gate.error.code === "EXAM_IN_PROGRESS" ? THREAD_LOCK_TEXT : gate.error.userMessage}</InlineNotice>
       )}
       <div className={r.actions}>
         <Button type="submit" variant="primary" disabled={empty || locked || gate.pending}>Đăng</Button>

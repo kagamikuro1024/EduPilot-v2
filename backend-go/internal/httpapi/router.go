@@ -190,9 +190,9 @@ func newRouterWith(d Deps, mount func(chi.Router)) http.Handler {
 		r.Get("/readyz", readyzHandler(d))
 
 		// SSE nằm NGOÀI nhóm nghiệp vụ: stream sống lâu hơn REQUEST_TIMEOUT nên không qua
-		// timeout/body limit; handler tự xác thực bằng Verifier (SRS 6.8).
+		// timeout/body limit; handler tự xác thực bằng Verifier + authOptions (thu hồi phiên, RequireSession ở production; SRS 6.8, P-11-31 F-2).
 		r.Method(http.MethodGet, "/events", sse.NewHandler(sse.HandlerDeps{
-			Cfg: d.Cfg, Log: d.Log, Redis: d.Redis, Verifier: d.Verifier, Clock: d.Clock, Drain: drainC(d),
+			Cfg: d.Cfg, Log: d.Log, Redis: d.Redis, Verifier: d.Verifier, Clock: d.Clock, Drain: drainC(d), MW: authOptions(d),
 		}))
 
 		// Chat SSE (#6, #7, #9): cũng NGOÀI nhóm nghiệp vụ — không timeout chung, không RequireIdempotencyKey (đệm cả phản hồi), tự có auth (SRS 4.7.0).
