@@ -81,8 +81,8 @@ test("TC-12-15 F12 một mạch", async ({ browser, request }) => {
   note(`4 thi thử UI: tải lại ở câu 8 → câu ${idxAfter}; offline câu 12–14; kết quả «Bạn đúng ${expected}/20 câu» khớp tính tay`); expect(idxAfter).toBe(8);
   // ---- 5. SV: lịch sử + «Chủ đề cần ôn» ------------------------------------------------------------------------------------------
   await s.goto("/practice/history"); await s.waitForTimeout(2500); const hist = await s.locator("main").innerText(); await s.screenshot({ path: `${OUT}/f12-5-lichsu.png` });
-  note(`5 lịch sử UI: ${/Đúng 3\/10/.test(hist) ? "có «Đúng 3/10»" : "THIẾU Đúng 3/10"}, ${new RegExp(`Đúng ${expected}/20`).test(hist) ? `«Đúng ${expected}/20»` : "THIẾU kết quả thi thử"}, khối chủ đề yếu ${/Chủ đề bạn hay sai/.test(hist) ? "«Chủ đề bạn hay sai» HIỆN (US/SRS ghi «Chủ đề cần ôn»)" : /Chủ đề cần ôn/.test(hist) ? "«Chủ đề cần ôn» HIỆN" : "ẩn"}`);
-  expect(hist).toMatch(/Đúng 3\/10/); expect(hist).toMatch(/Chủ đề (bạn hay sai|cần ôn)/);
+  note(`5 lịch sử UI: ${/Đúng 3\/10/.test(hist) ? "có «Đúng 3/10»" : "THIẾU Đúng 3/10"}, ${new RegExp(`Đúng ${expected}/20`).test(hist) ? `«Đúng ${expected}/20»` : "THIẾU kết quả thi thử"}, khối chủ đề yếu ${/Chủ đề cần ôn/.test(hist) ? "«Chủ đề cần ôn» HIỆN (đúng chữ spec)" : "THIẾU «Chủ đề cần ôn»"}${/bạn hay sai/.test(hist) ? "; còn chữ cũ «bạn hay sai» (sai)" : ""}`);
+  expect(hist).toMatch(/Đúng 3\/10/); expect(hist).toMatch(/Chủ đề cần ôn/); expect(hist).not.toMatch(/bạn hay sai/);
   // ---- 6. SV: Hôm nay «Ôn chủ đề» ---------------------------------------------------------------------------------------------------
   // quy tắc FR-19: chủ đề vừa luyện trong 3 ngày thì Hôm nay không nhắc ôn lại → lùi đồng hồ các lượt của sv36 4 ngày (QC ghi rõ, ca TC-12-22 cũng làm vậy)
   sql(`update practice_attempts set started_at = started_at - interval '4 days' where student_id=(select id from users where email='sv36@edupilot.local') and course_id=(select id from courses where class_code='${CLS}')`);
