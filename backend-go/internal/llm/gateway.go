@@ -450,7 +450,10 @@ func (c *call) seal(resp *Response, err error) bool {
 	c.row.LatencyMS = int(c.g.o.Now().Sub(c.start) / time.Millisecond)
 	if resp != nil {
 		c.row.TokensIn, c.row.TokensOut, c.row.CostEst = resp.TokensIn, resp.TokensOut, resp.CostEst
-		c.row.Provider, c.row.Model, c.row.FallbackIndex, c.row.Degraded = resp.Provider, resp.Model, resp.FallbackIndex, resp.Degraded
+		c.row.Degraded = resp.Degraded
+		if !resp.Degraded { // câu suy giảm không do nhà nào trả lời: giữ nơi THỬ CUỐI mà runChain đã ghi (US-LG-02 AC8)
+			c.row.Provider, c.row.Model, c.row.FallbackIndex = resp.Provider, resp.Model, resp.FallbackIndex
+		}
 	}
 	switch {
 	case err == nil && resp != nil && resp.Degraded:
