@@ -71,7 +71,7 @@ flowchart TD
 ```mermaid
 stateDiagram-v2
   [*] --> closed
-  closed --> open: 5 lỗi liên tiếp (AUTH, 5xx, timeout, network; 429 và BAD_REQUEST không tính)
+  closed --> open: 5 lỗi liên tiếp (AUTH, 5xx, timeout, network, BAD_RESPONSE; 429 và BAD_REQUEST không tính)
   open --> half_open: sau 30 s
   half_open --> closed: 1 lời gọi thử thành công
   half_open --> open: thử thất bại (mở lại 30 s)
@@ -184,6 +184,7 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 | `TIMEOUT` | quá hạn, `DeadlineExceeded` của lời gọi (không phải huỷ của client) | có | có | có |
 | `NETWORK` | đứt kết nối, DNS, từ chối | có | có | có |
 | `BAD_REQUEST` | 400, 422, nội dung bị lọc | không | **không** | không |
+| `BAD_RESPONSE` | nhà trả 200 nhưng đầu ra không phải JSON hoặc sai schema (`Structured`, kiểm ở Go) | không | có | có (giữ theo mã; P-11-109) |
 | `DIMS_MISMATCH` | vectơ ≠ 1536 | không | không (không có dự phòng cho embedding) | không |
 | `CANCELLED` | `ctx` huỷ bởi client | không | không | không |
 
