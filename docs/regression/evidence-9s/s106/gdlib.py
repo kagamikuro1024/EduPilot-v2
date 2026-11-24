@@ -34,7 +34,7 @@ def set_route(task, name, model):
     return api("admin", "PUT", "/admin/llm/routes", {"task": task, "chain": [mid], "params": r["params"], "version": r["version"]})[0]
 @contextlib.contextmanager
 def window(wait=600):
-    """Giữ /tmp/qc-global.lock, bật stub GD (cổng 9763) + route GRADING → Q106-stub; trả lại 9router khi thoát."""
+    """Giữ /tmp/qc-global.lock, bật stub GD (cổng 9763) + route GRADING → Q106-stub; trả lại OpenCode Go khi thoát."""
     t0 = time.time()
     while True:
         try: os.mkdir("/tmp/qc-global.lock"); break
@@ -50,7 +50,7 @@ def window(wait=600):
         stub("allow"); print("GRADING → stub", set_route("GRADING", "Q106-stub", "stub-chat")); redis_del("ep:llm:cb:*"); redis_del("ep:guidance:reflect:*")
         yield
     finally:
-        stub("allow"); print("GRADING → 9router", set_route("GRADING", "QC 9router", "ag/gemini-3.8-flash"))
+        stub("allow"); print("GRADING → OpenCode Go", set_route("GRADING", "OpenCode Go", "deepseek-v4.1-flash"))
         if p: p.terminate()
         import shutil; shutil.rmtree("/tmp/qc-global.lock", ignore_errors=True)
 
