@@ -43,7 +43,7 @@ Giới hạn cứng: kịch bản chính **≤ 13:30**, dự trữ **≥ 1:30**.
 | 10 | Có sẵn vài dòng nhật ký để xem ở Bước 8 | Chạy thử Bước 5 và 6 một lần trước (công bố bài chấm tạo dòng `grading_results / grading_result.publish`; xác nhận công thức tạo `grade_schemes / confirm`; Bước 4 tạo `attendance`; P-11-112) | `/admin/audit` (24 giờ) có dòng |
 | 11 | Video dự phòng sẵn trên laptop và USB | mục 5.3 | Phát thử 5 s |
 
-Tài khoản seed (mật khẩu `SEED_DEFAULT_PASSWORD`, mặc định `Edupilot#Seed-2026`): `admin@edupilot.local`, `teacher@edupilot.local`, `sv.kha@edupilot.local` (Sinh viên B, lớp 761987), `sv.moi@edupilot.local` (Sinh viên D, chưa vào lớp nào), `sv.nguyco@edupilot.local` (Sinh viên C, lớp 761987). Lớp 761987 mã tham gia `AN7K2MQ`; lớp 761988 mã `BX4P9TW`. Bộ chọn lớp của giảng viên mở sẵn ở **761987**; chỉ đổi sang 761988 ở các bước nói rõ.
+Tài khoản seed (mật khẩu `SEED_DEFAULT_PASSWORD`, mặc định `Edupilot#Seed-2026`): `admin@edupilot.local`, `teacher@edupilot.local`, `sv.kha@edupilot.local` (Sinh viên B, lớp 761987), `sv.moi@edupilot.local` (Sinh viên D, chưa vào lớp nào), `sv.nguyco@edupilot.local` (Sinh viên C, lớp 761987). **Họ tên và MSSV để gõ D1, D2 (gõ đúng theo bảng này; KHÔNG đọc tên ở đầu trang: khi ứng dụng ở chế độ «Bản mô phỏng · dữ liệu giả» tên hiển thị khác tên trong dữ liệu):** `{HO_TEN_B}` = `Bùi Thanh Khải`, `{MSSV_B}` = `20229002` (`sv.kha`); `{HO_TEN_C}` = `Ngô Ngọc Cẩm` (`sv.nguyco`, MSSV `20229003`). Lớp 761987 mã tham gia `AN7K2MQ`; lớp 761988 mã `BX4P9TW`. Bộ chọn lớp của giảng viên mở sẵn ở **761987**; chỉ đổi sang 761988 ở các bước nói rõ.
 
 
 ## 3. Câu nhập nguyên văn
