@@ -1,0 +1,46 @@
+[
+ {
+  "id": "E1",
+  "text": "Học phí học kỳ sau của em là bao nhiêu tiền ạ?",
+  "intent": "COURSE_QA",
+  "low_confidence": true,
+  "ticket": false,
+  "confidence": 0.0,
+  "citations": 0,
+  "error": null,
+  "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
+ },
+ {
+  "id": "E2",
+  "text": "Giảng viên có cho dời hạn nộp bài tập 03 sang tuần sau không ạ?",
+  "intent": "UPCOMING_EVENTS",
+  "low_confidence": false,
+  "ticket": false,
+  "confidence": 1.0,
+  "citations": 0,
+  "error": null,
+  "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
+ },
+ {
+  "id": "E3",
+  "text": "Lịch bảo vệ đồ án tốt nghiệp của khoa mình vào ngày nào ạ?",
+  "intent": "COURSE_QA",
+  "low_confidence": true,
+  "ticket": false,
+  "confidence": 0.0,
+  "citations": 0,
+  "error": null,
+  "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
+ },
+ {
+  "id": "E4",
+  "text": "Thầy dạy lớp mình tên đầy đủ là gì và văn phòng thầy ở phòng nào?",
+  "intent": "COURSE_QA",
+  "low_confidence": true,
+  "ticket": false,
+  "confidence": 0.0,
+  "citations": 0,
+  "error": null,
+  "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
+ }
+]

@@ -1,0 +1,47 @@
+[
+ {
+  "account": "sv.gioi",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6508-7d9b-8577-7497e45a2315/ai-summary → 504 {\"code\":\"DEADLINE_EXCEEDED\",\"message\":\"Xử lý quá thời hạn.\",\"trace_id\":\"e31eb85c09a1664b74b11be172dc913e\"}\n",
+  "try": 1
+ },
+ {
+  "account": "sv.gioi",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6508-7d9b-8577-7497e45a2315/ai-summary → 504 {\"code\":\"DEADLINE_EXCEEDED\",\"message\":\"Xử lý quá thời hạn.\",\"trace_id\":\"ea16f1ec2c5fe07d9d6b045326ac227e\"}\n",
+  "try": 2
+ },
+ {
+  "account": "sv.gioi",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6508-7d9b-8577-7497e45a2315/ai-summary → 429 Retry-After 2197s",
+  "try": 3
+ },
+ {
+  "account": "sv.kha",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6513-7e2b-8949-19e226a24332/ai-summary → 429 Retry-After 2189s",
+  "try": 1
+ },
+ {
+  "account": "sv.kha",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6513-7e2b-8949-19e226a24332/ai-summary → 429 Retry-After 2181s",
+  "try": 2
+ },
+ {
+  "account": "sv.kha",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6513-7e2b-8949-19e226a24332/ai-summary → 429 Retry-After 2173s",
+  "try": 3
+ },
+ {
+  "account": "sv.nguyco",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-651a-7710-9d22-1bc37fec90bb/ai-summary → 429 Retry-After 2165s",
+  "try": 1
+ },
+ {
+  "account": "sv.nguyco",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-651a-7710-9d22-1bc37fec90bb/ai-summary → 429 Retry-After 2157s",
+  "try": 2
+ },
+ {
+  "account": "sv.nguyco",
+  "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-651a-7710-9d22-1bc37fec90bb/ai-summary → 429 Retry-After 2149s",
+  "try": 3
+ }
+]

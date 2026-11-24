@@ -1,0 +1,120 @@
+{
+ "at": "2026-11-24T14:10:47.405Z",
+ "suggest_rubric": [
+  {
+   "s": 15.9,
+   "n": 4,
+   "sum": "10.0",
+   "criteria": [
+    {
+     "name": "Tác nhân và bề mặt tấn công",
+     "guidance": "Nêu đúng tác nhân được quy cho nhóm APT29 (Cozy Bear), có tài trợ nhà nước, ưu tiên gián điệp; chỉ rõ bề mặt bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã được biên dịch và ký số trước phát hành; giải thích khách hàng nhận bản cập nhật Orion hợp lệ, ký đúng chứng thư. Mức đầy đủ: nêu đủ tác nhân, động cơ và bề mặt build system/ký số. Mức khá: thiếu một trong các ý trên. Mức thiếu: chỉ nêu chung chung hoặc sai bề mặt tấn công.",
+     "max_score": "2"
+    },
+    {
+     "name": "Chuỗi tấn công",
+     "guidance": "Trình bày được các bước: xâm nhập môi trường dựng phần mềm; cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức; bản cập nhật có chữ ký hợp lệ phát cho khoảng 18.000 tổ chức; mã nằm im 12–14 ngày rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com, giả dạng lưu lượng Orion; với khoảng 100 mục tiêu được chọn: nạp TEARDROP/Cobalt Strike, di chuyển ngang, đánh cắp khoá ký SAML (Golden SAML), leo thang lên dịch vụ thư điện tử đám mây. Mức đầy đủ: nêu đúng thứ tự và đủ ý chính. Mức khá: đúng nhưng thiếu 1–2 chi tiết quan trọng. Mức thiếu: sai thứ tự hoặc bỏ sót nhiều bước cốt lõi.",
+     "max_score": "3.5"
+    },
+    {
+     "name": "Tác động",
+     "guidance": "Nêu được nhiều cơ quan liên bang Mỹ và doanh nghiệp phải coi hệ thống đã bị xâm nhập, dựng lại máy chủ, xoay vòng khoá và chứng thư; thiệt hại chính là niềm tin vào chuỗi cung ứng phần mềm; SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la; nếu nêu thời gian gián đoạn từng tổ chức thì phải ghi rõ là định tính/chưa có số liệu công khai đáng tin. Mức đầy đủ: nêu đủ tác động vận hành, niềm tin và chi phí. Mức khá: thiếu một ý hoặc số liệu. Mức thiếu: chỉ nói chung về thiệt hại mà không có ý chính.",
+     "max_score": "2"
+    },
+    {
+     "name": "Phòng thủ và giảm thiểu",
+     "guidance": "Đề xuất được các biện pháp: phân đoạn mạng cho máy chủ giám sát, không ra Internet trực tiếp; xác thực đa yếu tố, giới hạn quyền tài khoản dịch vụ, xoay vòng khoá ký; kiểm tra toàn vẹn bản dựng (build tái lập được, SBOM); giám sát hành vi bất thường của tiến trình hợp lệ như DNS lạ; không tin chữ ký số là đủ. Mức đầy đủ: nêu được ít nhất 4 biện pháp đúng và gắn với bài học. Mức khá: nêu 2–3 biện pháp đúng. Mức thiếu: nêu 0–1 biện pháp hoặc chỉ khuyến nghị chung.",
+     "max_score": "2.5"
+    }
+   ]
+  },
+  {
+   "s": 20.2,
+   "n": 4,
+   "sum": "10.0",
+   "criteria": [
+    {
+     "name": "Tác nhân và bề mặt tấn công",
+     "guidance": "Nêu được tác nhân APT29/Cozy Bear có tài trợ nhà nước, ưu tiên gián điệp; chỉ ra bề mặt là hệ thống dựng phần mềm SolarWinds nơi mã được biên dịch và ký số trước phát hành; giải thích khách hàng nhận bản cập nhật Orion hợp lệ, ký đúng chứng thư. Chấm: đủ 3 ý = tối đa; thiếu 1 ý = 2/3; thiếu 2 ý = 1/3; không nêu = 0.",
+     "max_score": "2.5"
+    },
+    {
+     "name": "Chuỗi tấn công",
+     "guidance": "Trình bày đúng thứ tự tối thiểu 5 bước: xâm nhập môi trường dựng; cấy backdoor SUNBURST vào DLL Orion chính thức; phát bản cập nhật có chữ ký hợp lệ tới khoảng 18.000 tổ chức; mã nằm im 12–14 ngày rồi gọi về avsvmcloud.com giả dạng lưu lượng Orion; với khoảng 100 mục tiêu nạp TEARDROP/Cobalt Strike, di chuyển ngang, đánh cắp khoá SAML (Golden SAML) và leo thang lên thư điện tử đám mây. Chấm: đủ 5 bước = tối đa; thiếu 1 = 4/5; thiếu 2 = 3/5; thiếu ≥3 = 0–2/5.",
+     "max_score": "3"
+    },
+    {
+     "name": "Tác động",
+     "guidance": "Nêu hệ thống nhiều cơ quan liên bang và doanh nghiệp bị coi là xâm nhập, phải dựng lại máy chủ, xoay vòng khoá/chứng thư; thiệt hại chính là niềm tin chuỗi cung ứng phần mềm; chi phí ứng phó 2021 khoảng 40 triệu đô la; nêu rõ chưa có số liệu công khai đáng tin về thời gian gián đoạn từng tổ chức (định tính). Chấm: đủ 4 ý = tối đa; thiếu 1 = 3/4; thiếu 2 = 2/4; thiếu ≥3 = 0–1/4.",
+     "max_score": "2"
+    },
+    {
+     "name": "Phòng thủ",
+     "guidance": "Đề xuất được biện pháp: phân đoạn mạng cho máy chủ giám sát không ra Internet trực tiếp; xác thực đa yếu tố, giới hạn quyền tài khoản dịch vụ, xoay vòng khoá ký; kiểm tra toàn vẹn bản dựng (build tái lập, SBOM); giám sát hành vi bất thường của tiến trình hợp lệ như DNS lạ; không tin chữ ký số là đủ. Chấm: đủ 5 nhóm = tối đa; thiếu 1 = 4/5; thiếu 2 = 3/5; thiếu ≥3 = 0–2/5.",
+     "max_score": "2.5"
+    }
+   ]
+  },
+  {
+   "s": 20.1,
+   "n": 4,
+   "sum": "10.0",
+   "criteria": [
+    {
+     "name": "Tác nhân và bề mặt tấn công",
+     "guidance": "Cần nêu: tác nhân APT29 (Cozy Bear), có tài trợ nhà nước, ưu tiên gián điệp; bề mặt bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã được biên dịch và ký số trước phát hành; khách hàng nhận bản cập nhật Orion hợp lệ, ký đúng chứng thư. Chấm: đủ 3 ý đạt tối đa; thiếu 1 ý trừ khoảng 1/3; chỉ nêu tác nhân hoặc chỉ nêu bề mặt đạt khoảng một nửa; không nêu được ý cốt lõi thì 0.",
+     "max_score": "2.5"
+    },
+    {
+     "name": "Chuỗi tấn công",
+     "guidance": "Cần trình bày các bước: xâm nhập môi trường dựng phần mềm; cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức; bản cập nhật có chữ ký hợp lệ được phát cho khoảng 18.000 tổ chức; mã độc nằm im 12–14 ngày rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com, giả dạng lưu lượng Orion; với khoảng 100 mục tiêu được chọn thì nạp TEARDROP/Cobalt Strike, di chuyển ngang, đánh cắp khoá ký SAML (Golden SAML) và leo thang lên dịch vụ thư điện tử đám mây. Chấm: đủ 5 ý đạt tối đa; thiếu mỗi ý trừ khoảng 1/5; nêu đúng chuỗi nhưng thiếu chi tiết kỹ thuật quan trọng đạt khoảng 60–80%; nêu rời rạc, sai thứ tự hoặc thiếu nhiều ý đạt dưới 50%.",
+     "max_score": "3"
+    },
+    {
+     "name": "Tác động",
+     "guidance": "Cần nêu: nhiều cơ quan liên bang Mỹ và doanh nghiệp phải coi hệ thống đã bị xâm nhập, dựng lại máy chủ, xoay vòng khoá và chứng thư; thiệt hại chính là niềm tin vào chuỗi cung ứng phần mềm; SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la; chưa có số liệu công khai đáng tin về thời gian gián đoạn từng tổ chức, chấp nhận nêu rõ là định tính. Chấm: đủ các ý chính đạt tối đa; thiếu ý về niềm tin chuỗi cung ứng hoặc số liệu chi phí thì trừ khoảng 1/3; chỉ nêu chung chung về thiệt hại đạt khoảng một nửa; không nêu được tác động cốt lõi thì 0.",
+     "max_score": "2"
+    },
+    {
+     "name": "Phòng thủ",
+     "guidance": "Cần nêu các biện pháp: phân đoạn mạng cho máy chủ giám sát, không ra Internet trực tiếp; xác thực đa yếu tố, giới hạn quyền tài khoản dịch vụ, xoay vòng khoá ký; kiểm tra toàn vẹn bản dựng như build tái lập được và SBOM; giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ DNS lạ; không tin chữ ký số là đủ. Chấm: đủ 5 nhóm biện pháp đạt tối đa; thiếu mỗi nhóm trừ khoảng 1/5; nêu được 2–3 nhóm đạt khoảng 50–70%; chỉ nêu khẩu hiệu chung không gắn với bài học từ vụ việc đạt dưới 40%.",
+     "max_score": "2.5"
+    }
+   ]
+  }
+ ],
+ "ai_summary": [
+  {
+   "account": "sv.gioi",
+   "s": 13.8,
+   "draft": {
+    "summary": "Sinh viên có mặt đủ 10/10 buổi, không vắng/trễ; tham gia phát biểu 12 lần với tổng điểm tham gia 3.00. Thời gian học ghi nhận 300 phút/tuần trong 3 tuần đầu và 0 phút ở tuần 4. Số câu hỏi theo tuần là 0,0,1,68; số bài đăng là 0,0,6,0. Không có mã lý do rủi ro.",
+    "strengths": [
+     "Đi học đầy đủ 10/10 buổi, không có vắng/trễ.",
+     "Có 12 lượt phát biểu và tổng điểm tham gia 3.00.",
+     "Duy trì 300 phút học trong 3 tuần đầu."
+    ],
+    "concerns": [
+     "Tuần 4 ghi nhận 0 phút học.",
+     "Số câu hỏi tập trung cao ở tuần 4 (68), các tuần trước là 0,0,1.",
+     "Bài đăng chỉ xuất hiện ở tuần 3 với 6 bài."
+    ],
+    "suggestions": [
+     "Duy trì thời gian học đều đặn, chú ý tuần 4 có 0 phút.",
+     "Phân bố câu hỏi và bài đăng đều hơn giữa các tuần.",
+     "Tiếp tục duy trì đi học đầy đủ và tham gia phát biểu."
+    ]
+   },
+   "contains_name": false,
+   "contains_code": false
+  },
+  {
+   "account": "sv.kha",
+   "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-6513-7e2b-8949-19e226a24332/ai-summary → 504 {\"code\":\"DEADLINE_EXCEEDED\",\"message\":\"Xử lý quá thời hạn.\",\"trace_id\":\"49aca9689b96d2135ea067cfb345fc1c\"}\n"
+  },
+  {
+   "account": "sv.nguyco",
+   "error": "POST /courses/01a1df27-62b5-7775-a346-5c602a43e2f9/students/01a1df27-651a-7710-9d22-1bc37fec90bb/ai-summary → 504 {\"code\":\"DEADLINE_EXCEEDED\",\"message\":\"Xử lý quá thời hạn.\",\"trace_id\":\"06f854e2cee8b77714873bf8a7756b1c\"}\n"
+  }
+ ]
+}

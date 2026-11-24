@@ -1,0 +1,21 @@
+trước CHAT ['QC 9router'] 228
+  PUT 200 
+trước CLASSIFY ['QC 9router'] 192
+  PUT 200 
+trước UTILITY ['QC 9router'] 51
+  PUT 200 
+trước GRADING ['QC 9router'] 44
+  PUT 200 
+trước QUESTION_GEN ['QC 9router'] 13
+  PUT 200 
+trước INSIGHT ['QC 9router'] 11
+  PUT 200 
+trước EMBEDDING [] 0
+sau CHAT [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau CLASSIFY [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau UTILITY [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau GRADING [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau QUESTION_GEN [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau INSIGHT [('OpenCode Go', 'deepseek-v4.1-flash')]
+sau EMBEDDING []
+{'embedding': None}

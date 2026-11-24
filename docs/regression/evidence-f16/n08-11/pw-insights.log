@@ -1,0 +1,208 @@
+
+Running 8 tests using 2 workers
+
+(node:50397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:50398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc-real-insights-empty.spec.ts:7:1 › @real INS-EMPTY /insights lớp 761987 chưa có báo cáo (TC-05-03) (316ms)
+  ✘  2 [desktop] › e2e/qc-real-insights.spec.ts:16:1 › @real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/09/10/16/17/18) (11.6s)
+(node:50422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:50422) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✘  3 [desktop] › e2e/qc-real-insights.spec.ts:57:1 › @real INS-2 thread ghim + buổi ôn tập (TC-05-11/12/14/15) (2.0m)
+(node:52260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 [desktop] › e2e/qc-real-insights.spec.ts:97:1 › @real INS-3 quyền, lỗi, 375 px (TC-05-19/20/21) (17.3s)
+(node:52601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52601) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  5 [desktop] › e2e/qc-real-insights.spec.ts:128:1 › @real INS-4 chọn kỳ (TC-04-04b) (1.8s)
+  ✘  6 [desktop] › e2e/qc-real-insights.spec.ts:154:1 › @real INS-5 nút nổi bật theo has_new_data (TC-05-06) + không dữ liệu mới (TC-05-08) (1.3s)
+(node:52617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52617) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✘  7 [desktop] › e2e/qc-real-insights.spec.ts:175:1 › @real INS-6 job chạy nền (TC-05-07) (2.0m)
+(node:54547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  8 [desktop] › e2e/qc-real-insights.spec.ts:200:1 › @real INS-7 POST threads lỗi 500 giữ nháp (TC-05-13) (2.0m)
+
+
+  1) [desktop] › e2e/qc-real-insights-empty.spec.ts:7:1 › @real INS-EMPTY /insights lớp 761987 chưa có báo cáo (TC-05-03) 
+
+    Error: tiền điều kiện: chưa có báo cáo nào
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "0"
+    Received: "2"
+
+       6 |
+       7 | test("@real INS-EMPTY /insights lớp 761987 chưa có báo cáo (TC-05-03)", async ({ page, request }) => {
+    >  8 |   expect(sql("select count(*) from insight_reports")[0][0], "tiền điều kiện: chưa có báo cáo nào").toBe("0");
+         |                                                                                                    ^
+       9 |   const tk = await login(request, "teacher");
+      10 |   const cid = await courseId(request, "teacher");
+      11 |   const api = await call(request, tk, "GET", `/courses/${cid}/insights/knowledge-gap/latest`);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights-empty.spec.ts:8:100
+
+    Error Context: test-results/qc-real-insights-empty--re-3d253-7-chưa-có-báo-cáo-TC-05-03--desktop/error-context.md
+
+  2) [desktop] › e2e/qc-real-insights.spec.ts:16:1 › @real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/09/10/16/17/18) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Chủ đề nên dạy lại', { exact: true })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Chủ đề nên dạy lại', { exact: true }) with timeout 10000ms
+      - waiting for getByText('Chủ đề nên dạy lại', { exact: true })
+
+
+      18 |   page.on("request", (r) => { if (r.url().includes("/api/v1/courses/") && r.url().includes("/insights/")) reads.push(`${r.method()} ${r.url().split("/api/v1")[1]}`); });
+      19 |   await openInsights(page);
+    > 20 |   await expect(page.getByText("Chủ đề nên dạy lại", { exact: true })).toBeVisible();
+         |                                                                       ^
+      21 |   expect.soft(reads.every((r) => r.startsWith("GET ") && r.includes("/knowledge-gap/latest")), `chỉ GET latest: ${reads.join(" | ")}`).toBe(true);
+      22 |   const tk = await login(request, "teacher");
+      23 |   const cid = await courseId(request, "teacher", await shownCode(page));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights.spec.ts:20:71
+
+    Error Context: test-results/qc-real-insights--real-INS-80f48-05-02-04-05-09-10-16-17-18--desktop/error-context.md
+
+  3) [desktop] › e2e/qc-real-insights.spec.ts:57:1 › @real INS-2 thread ghim + buổi ôn tập (TC-05-11/12/14/15) 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Tạo thread ghim' }).first()
+
+
+      59 |   const cid = await courseId(request, "teacher", await shownCode(page));
+      60 |   const before = Number(sql(`select count(*) from forum_threads where course_id='${cid}' and pinned_at is not null`)[0][0]);
+    > 61 |   await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+         |                                                                       ^
+      62 |   const grp = page.getByRole("group", { name: "Tạo thread ghim" });
+      63 |   await expect(grp.getByLabel("Tiêu đề")).toBeVisible();
+      64 |   const title = `QC ghim ${Date.now().toString(36)}`;
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights.spec.ts:61:71
+
+    Error Context: test-results/qc-real-insights--real-INS-097dc-i-ôn-tập-TC-05-11-12-14-15--desktop/error-context.md
+
+  4) [desktop] › e2e/qc-real-insights.spec.ts:97:1 › @real INS-3 quyền, lỗi, 375 px (TC-05-19/20/21) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Chủ đề nên dạy lại', { exact: true })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Chủ đề nên dạy lại', { exact: true }) with timeout 10000ms
+      - waiting for getByText('Chủ đề nên dạy lại', { exact: true })
+
+
+      116 |   fail = false;
+      117 |   await retry.click();
+    > 118 |   await expect(page.getByText("Chủ đề nên dạy lại", { exact: true })).toBeVisible();
+          |                                                                       ^
+      119 |   await page.setViewportSize({ width: 375, height: 812 });
+      120 |   await page.reload();
+      121 |   await expect(page.getByText("Chủ đề nên dạy lại", { exact: true })).toBeVisible();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights.spec.ts:118:71
+
+    Error Context: test-results/qc-real-insights--real-INS-cd173--lỗi-375-px-TC-05-19-20-21--desktop/error-context.md
+
+  5) [desktop] › e2e/qc-real-insights.spec.ts:154:1 › @real INS-5 nút nổi bật theo has_new_data (TC-05-06) + không dữ liệu mới (TC-05-08) 
+
+    Error: TC-05-06: has_new_data=true ↔ nút secondary
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      161 |   await expect(btn).toHaveCount(1);
+      162 |   const variant = await btn.getAttribute("data-variant");
+    > 163 |   expect.soft(variant === "primary", `TC-05-06: has_new_data=${has} ↔ nút ${variant}`).toBe(has);
+          |                                                                                        ^
+      164 |   await shot(page, `ins5-has-new-${has}`);
+      165 |   if (!has) {
+      166 |     const n0 = Number(sql(`select count(*) from insight_reports where course_id='${cid}'`)[0][0]);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights.spec.ts:163:88
+
+    Error Context: test-results/qc-real-insights--real-INS-4e9fb-không-dữ-liệu-mới-TC-05-08--desktop/error-context.md
+
+  6) [desktop] › e2e/qc-real-insights.spec.ts:175:1 › @real INS-6 job chạy nền (TC-05-07) ──────────
+
+    Error: báo cáo cũ / mới vẫn xem được khi quay lại
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      193 |   await page.goto("/insights");
+      194 |   await expect(page.getByRole("heading", { name: "Lỗ hổng kiến thức", level: 1 })).toBeVisible();
+    > 195 |   expect.soft(await page.getByText("Chủ đề nên dạy lại", { exact: true }).count(), "báo cáo cũ / mới vẫn xem được khi quay lại").toBeGreaterThan(0);
+          |                                                                                                                                  ^
+      196 |   await expect.poll(async () => ((await call(request, tk, "GET", "/notifications?limit=50")).json as { items: { id: string; type: string; title: string }[] }).items.filter((n) => !unread0.includes(n.id)).map((n) => `${n.type}:${n.title}`).join(" | "), { timeout: 120_000, intervals: [3_000] }).toMatch(/INSIGHT|báo cáo|Báo cáo|lỗ hổng/i);
+      197 |   await shot(page, "ins6-after");
+      198 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights.spec.ts:195:130
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /INSIGHT|báo cáo|Báo cáo|lỗ hổng/i
+    Received string:  ""
+
+    Call Log:
+    - Test timeout of 120000ms exceeded
+
+      194 |   await expect(page.getByRole("heading", { name: "Lỗ hổng kiến thức", level: 1 })).toBeVisible();
+      195 |   expect.soft(await page.getByText("Chủ đề nên dạy lại", { exact: true }).count(), "báo cáo cũ / mới vẫn xem được khi quay lại").toBeGreaterThan(0);
+    > 196 |   await expect.poll(async () => ((await call(request, tk, "GET", "/notifications?limit=50")).json as { items: { id: string; type: string; title: string }[] }).items.filter((n) => !unread0.includes(n.id)).map((n) => `${n.type}:${n.title}`).join(" | "), { timeout: 120_000, intervals: [3_000] }).toMatch(/INSIGHT|báo cáo|Báo cáo|lỗ hổng/i);
+          |                                                                                                                                                                                                                                                                                                       ^
+      197 |   await shot(page, "ins6-after");
+      198 | });
+      199 |
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights.spec.ts:196:295
+
+    Error Context: test-results/qc-real-insights--real-INS-6-job-chạy-nền-TC-05-07--desktop/error-context.md
+
+  7) [desktop] › e2e/qc-real-insights.spec.ts:200:1 › @real INS-7 POST threads lỗi 500 giữ nháp (TC-05-13) 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Tạo thread ghim' }).first()
+
+
+      201 |   await openInsights(page);
+      202 |   await page.route("**/api/v1/courses/*/threads", (r) => (r.request().method() === "POST" ? r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "Lỗi hệ thống.", trace_id: "qc" }) }) : r.continue()));
+    > 203 |   await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+          |                                                                       ^
+      204 |   const grp = page.getByRole("group", { name: "Tạo thread ghim" });
+      205 |   const title = `QC nháp ${Date.now().toString(36)}`;
+      206 |   await grp.getByLabel("Tiêu đề").fill(title);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-insights.spec.ts:203:71
+
+    Error Context: test-results/qc-real-insights--real-INS-a1221--lỗi-500-giữ-nháp-TC-05-13--desktop/error-context.md
+
+  7 failed
+    [desktop] › e2e/qc-real-insights-empty.spec.ts:7:1 › @real INS-EMPTY /insights lớp 761987 chưa có báo cáo (TC-05-03) 
+    [desktop] › e2e/qc-real-insights.spec.ts:16:1 › @real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/09/10/16/17/18) 
+    [desktop] › e2e/qc-real-insights.spec.ts:57:1 › @real INS-2 thread ghim + buổi ôn tập (TC-05-11/12/14/15) 
+    [desktop] › e2e/qc-real-insights.spec.ts:97:1 › @real INS-3 quyền, lỗi, 375 px (TC-05-19/20/21) 
+    [desktop] › e2e/qc-real-insights.spec.ts:154:1 › @real INS-5 nút nổi bật theo has_new_data (TC-05-06) + không dữ liệu mới (TC-05-08) 
+    [desktop] › e2e/qc-real-insights.spec.ts:175:1 › @real INS-6 job chạy nền (TC-05-07) ───────────
+    [desktop] › e2e/qc-real-insights.spec.ts:200:1 › @real INS-7 POST threads lỗi 500 giữ nháp (TC-05-13) 
+  1 passed (6.6m)
