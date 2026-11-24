@@ -569,13 +569,16 @@ func (g *Gateway) chat(c *call, r Request, schema json.RawMessage) (Response, er
 	ch, err := runChain(c,
 		func(t Target) int { return estTokens(c.opts(t, r, schema)) },
 		func(ctx context.Context, t Target) (chatVal, int, error) {
-			res, err := t.P.Chat(ctx, c.opts(t, r, schema))
+			o := c.opts(t, r, schema)
+			res, err := t.P.Chat(ctx, o)
 			if err != nil {
 				return res, 0, err
 			}
 			if len(schema) > 0 {
 				res.Text = stripFence(res.Text)
 				if verr := ValidateJSON(schema, json.RawMessage(res.Text)); verr != nil {
+					// Hàng audit của lần lỗi không ghi token; dòng này cho biết «cụt ở trần» (tokens_out ≈ cap) hay sai schema thật. Không ghi nội dung đầu ra.
+					g.o.Log.WarnContext(ctx, "structured_invalid", "task", string(c.task), "provider", t.ProviderName, "tokens_out", res.TokensOut, "cap", o.MaxTokens, "err", verr.Error())
 					return res, 0, &provider.Error{Kind: provider.KindBadResponse}
 				}
 			}

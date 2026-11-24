@@ -3,7 +3,9 @@ package llm_test
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/edupilot/backend-go/internal/llm"
@@ -161,3 +163,34 @@ func TestEmbedEmptyInput(t *testing.T) {
 		t.Errorf("audit = %d dòng", len(rows))
 	}
 }
+
+// Đầu ra sai schema để lại MỘT dòng WARN structured_invalid (tác vụ, token ra, trần, lỗi schema) để phân biệt «bị cắt cụt ở trần» với «sai schema»;
+// tuyệt đối không có nội dung đầu ra.
+func TestStructuredInvalidLogsTokensNotContent(t *testing.T) {
+	t.Parallel()
+	var buf syncBuf
+	log := slog.New(slog.NewTextHandler(&buf, nil))
+	secret := "NỘI-DUNG-BÍ-MẬT-CỦA-MÔ-HÌNH"
+	wrong := &stub{name: "A", chat: func(int, provider.ChatOpts) (provider.Result, error) {
+		return provider.Result{Text: `{"label":"` + secret + `","confidence":0.5}`, TokensOut: 777}, nil
+	}}
+	g, _ := newGatewayLog(t, log, wrong)
+	_, _ = g.Structured(t.Context(), llm.Request{Task: llm.TaskClassify, Messages: userMsg("hỏi"), Params: llm.Params{MaxTokens: 123}}, json.RawMessage(classifySchema))
+	out := buf.String()
+	for _, want := range []string{"structured_invalid", "task=CLASSIFY", "tokens_out=777", "cap=123", "err="} {
+		if !strings.Contains(out, want) {
+			t.Errorf("thiếu %q trong log: %s", want, out)
+		}
+	}
+	if strings.Contains(out, secret) {
+		t.Errorf("log chứa nội dung đầu ra: %s", out)
+	}
+}
+
+type syncBuf struct {
+	mu sync.Mutex
+	b  strings.Builder
+}
+
+func (s *syncBuf) Write(p []byte) (int, error) { s.mu.Lock(); defer s.mu.Unlock(); return s.b.Write(p) }
+func (s *syncBuf) String() string              { s.mu.Lock(); defer s.mu.Unlock(); return s.b.String() }
