@@ -37,10 +37,10 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) · F6 ☑ (sprint 6) · F7 ☑ (sprint 7) · F8 ☑ (sprint 7) · F9 ☑ (sprint 9) · F10 ☑ (sprint 8) · F11 ☑ (sprint 9) · F12 ☑ (sprint 10; E2E `practice.real.spec.ts` + TC-12-15 một mạch, 25/11) · F13 ☑ (sprint 6) · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐ · F19 ☑ (sprint 5, `playwright-cli` + e2e)
 
 ## Phiên gần nhất
-- Ngày: 2026-11-01
-- Đã làm: sprint 8 (P6, 11/11 story PASS, proposals #1–#26) và sprint 9 (P7, 11/12 story PASS, US-P7-03 FAIL chỉ AC9 LCP; proposals #1–#17). PM chốt thay chủ dự án khi vắng (31/10 → 01/11), danh sách [ĐIỂM] trong `docs/sprints/9/report.md`. Chủ dự án chốt 2026-11-01.
-- Đang dở: không.
-- Bước kế tiếp cụ thể: CI `main` xanh; LCP → sửa ở sprint 11; tính tay A, B, C để sau; PM lập kế hoạch sprint 10 (P9 Luyện đề).
+- Ngày: 2026-11-25
+- Đã làm: sprint 10 → 11 (P9, P10 phần đánh giá) và smoke hồi quy toàn bộ ca cũ sprint 1 → 10.6 trên đầu nhánh `sprint/11-p10-eval` (kết quả ở `docs/regression/` nhánh `qc2/regression`; proposals sprint 11 tới P-11-111). Thêm nhà cung cấp LLM thật OpenCode Go (P-11-106…110; 72 ca). Chủ dự án uỷ quyền PM chốt 24/11.
+- Đang dở: 3 ca 10.6 (G10-10/12/13) chờ nhãn E3 của chủ dự án; nhãn E1/E2/E5; persona-eval hoãn (P-11-24).
+- Bước kế tiếp cụ thể: Gate P10 — merge `sprint/11-p10-eval` vào `main`, dựng demo, chạy `DEMO_SCRIPT`; rồi phase PR (migration từ `00030`; nợ ở mục Nợ).
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
 - 9.1 UX17-8, UX17-9 (`/insights`, `/observability` còn dữ liệu mô phỏng; Admin xem hàng → `audit_log`, lớp chưa có báo cáo) → kiểm khi P10 nối API thật (P-91-15).
