@@ -35,7 +35,7 @@
   --ep-text-label: .875rem;
   --ep-text-meta: .75rem;
   /* Chữ màn chiếu điểm danh (DESIGN §14.8.1, P-108-8): CHỈ features/attendance/display/ được dùng (ui-antipatterns 32). Theo cạnh ngắn của màn để đọc được từ cuối giảng đường. */
-  --ep-text-projector-code: 11vmin;
+  --ep-text-projector-code: 14vmin;
   --ep-text-projector-count: 8vmin;
   --ep-text-projector-meta: 4vmin;
 

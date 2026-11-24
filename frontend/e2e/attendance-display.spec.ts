@@ -111,7 +111,10 @@ test("attendance display: mã ngắn nằm trọn trong khung ở 1024×768, 136
     const code = page.locator("[data-part=short-code]");
     await expect(code).toBeVisible();
     const [c, q] = [await code.boundingBox(), await page.getByRole("img", { name: "Mã QR điểm danh" }).boundingBox()];
-    if (w > h) expect(c!.x, `${w}×${h}: mã không đè QR`).toBeGreaterThanOrEqual(q!.x + q!.width);
+    expect(c!.y, `${w}×${h}: mã NGAY DƯỚI QR (US-AS-08 AC2)`).toBeGreaterThanOrEqual(q!.y + q!.height);
+    expect(c!.x, `${w}×${h}: mã nằm trong bề ngang QR`).toBeGreaterThanOrEqual(q!.x - 1);
+    expect(c!.x + c!.width, `${w}×${h}: mã nằm trong bề ngang QR`).toBeLessThanOrEqual(q!.x + q!.width + 1);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1), `${w}×${h}: không cuộn dọc`).toBe(true);
     expect(await code.evaluate((e) => e.scrollWidth <= e.clientWidth + 1 && e.getBoundingClientRect().right <= innerWidth), `${w}×${h}: mã trọn trong khung`).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   }
