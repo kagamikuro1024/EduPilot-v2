@@ -1,0 +1,10 @@
+test_fake (benchmarks.decision.test_real.Label.test_fake) ... ok
+test_real (benchmarks.decision.test_real.Label.test_real) ... ok
+test_fake_always_runs (benchmarks.decision.test_real.RealGate.test_fake_always_runs) ... ok
+test_real_cap_300 (benchmarks.decision.test_real.RealGate.test_real_cap_300) ... ok
+test_real_needs_env_and_flag (benchmarks.decision.test_real.RealGate.test_real_needs_env_and_flag) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+OK
