@@ -30,7 +30,7 @@ function History({ courseId }: { courseId: string }) {
         empty={<Panel><EmptyState title="Chưa có lượt luyện nào" action={<ButtonLink href="/practice" variant="primary">Luyện ngay</ButtonLink>} /></Panel>}
       >
         {topics.length > 0 && (
-          <Section title="Chủ đề bạn hay sai">
+          <Section title="Chủ đề cần ôn">
             <div className={s.weak}>
               <BarList items={topics.map((w) => ({ label: w.topic, value: Math.round((w.wrong / w.answered) * 100), tone: w.wrong / w.answered >= 0.5 ? "red" : "ink" }))} max={100} format={(v) => `${v}% sai`} />
             </div>
