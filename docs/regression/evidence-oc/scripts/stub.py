@@ -11,6 +11,8 @@ class H(BaseHTTPRequestHandler):
             cnt[mode]=cnt.get(mode,0)+1
             open(LOG,'a').write(json.dumps({'t':time.time(),'mode':mode,'n':cnt[mode],'path':self.path,'ua':self.headers.get('User-Agent'),'session':self.headers.get('x-opencode-session'),'auth':bool(self.headers.get('Authorization')),'body':body})+'\n')
         if mode=='r429': code,out,hd=429,{"error":{"message":"rate limit"}},{'Retry-After':'1'}
+        elif mode=='r404': code,out,hd=404,{"error":{"message":"model not found"}},{}
+        elif mode=='r403': code,out,hd=403,{"error":{"message":"forbidden region"}},{}
         elif mode=='r500': code,out,hd=500,{"error":{"message":"boom"}},{}
         else:
             code,hd=200,{}

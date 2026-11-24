@@ -134,3 +134,33 @@ LINE 1: select s.id is not null, gr.run_state, left(gr.rubric_scores...
 cột grading_results: id,course_id,submission_id,round,run_state,status,attempts,not_before,lease_owner,lease_until,error_code,criteria,overall_feedback,total,ai_scores,ai_total_before_late,late_days,late_penalty,late_penalty_manual,llm_reported_total,flags,needs_review,confidence,pass_detail,deviation,teacher_changed_criteria,reviewed_by,reviewed_at,published_by,published_at,version,created_at,updated_at,guidance_version,ai_comments,first_reviewed_at,first_reviewed_by
 RESTORED đúng? True
 UNLOCK qc3 (run4) 2026-11-24T21:50:21.560997
+create QC3-stub-ok 201 01a20e11-20df-79f4-b7b7-e1c25542ce28
+create QC3-stub-404 201 01a20e11-20e9-78ef-9fae-a71a1bb81661
+create QC3-stub-403 201 01a20e11-20f1-74c8-9e8f-45264bb9bd0f
+create QC3-badmodel 201 01a20e11-20f8-7d08-aaee-9855310c9644
+LOCK qc3 (run5) 2026-11-24T21:58:53.296433
+P108-400 [OpenCode model lạ, stub-ok] 6 lời gọi: [('-', None, 3.1), ('-', None, 0.5), ('-', None, 0.7), ('-', None, 0.3), ('-', None, 0.4), ('-', None, 0.5)] | stub-ok nhận 0 request | circuit badmodel = closed
+CHAT|QC3-badmodel|deepseek-v9-khong-co|error|BAD_REQUEST|0|3048
+CHAT|QC3-badmodel|deepseek-v9-khong-co|error|BAD_REQUEST|0|505
+CHAT|QC3-badmodel|deepseek-v9-khong-co|error|BAD_REQUEST|0|658
+CHAT|QC3-badmodel|deepseek-v9-khong-co|error|BAD_REQUEST|0|313
+CHAT|QC3-badmodel|deepseek-v9-khong-co|error|BAD_REQUEST|0|390
+CHAT|QC3-badmodel|deepseek-v9-khong-co|error|BAD_REQUEST|0|483
+P108-404 [stub-404, stub-ok] 6 lời gọi: [('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0)] | stub404 nhận 6 | circuit stub404 = closed
+CHAT|QC3-stub-ok|m1|ok||1|4
+CHAT|QC3-stub-ok|m1|ok||1|2
+CHAT|QC3-stub-ok|m1|ok||1|2
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|2
+CHAT|QC3-stub-ok|m1|ok||1|2
+P108-403 [stub-403, stub-ok] 7 lời gọi: [('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0), ('QC3-stub-ok', 0.0)] | stub403 nhận 5 | circuit stub403 = open
+CHAT|QC3-stub-ok|m1|ok||1|3
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|1
+CHAT|QC3-stub-ok|m1|ok||1|0
+CHAT|QC3-stub-ok|m1|ok||1|0
+RESTORE CHAT 200
+RESTORED đúng? True
+UNLOCK qc3 (run5) 2026-11-24T21:59:11.663212
