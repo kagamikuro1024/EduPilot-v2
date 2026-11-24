@@ -56,3 +56,5 @@ TC-OC-55	P	CHAT=[stub-404, stub-ok] ×6: stub404 nhận 6, 6/6 thành công qua 
 TC-OC-56	P	CHAT=[stub-403, stub-ok] ×7: 7/7 thành công fallback_index=1; stub403 nhận đúng 5 request rồi circuit=open, lượt 6–7 không gọi stub403
 TC-OC-57	N	chờ mã: probeTimeout vẫn 10 s ở sprint/11-p10-eval @2713340b (internal/httpapi/llmhttp/verify.go:24); P-11-108 mới ở SRS. Chạy khi dev đổi 30 s và QC rebuild
 TC-OC-58	P	@2713340b (⊇ eec49533): go test ./internal/llm -run TestAuditDegradedKeepsLastTried → PASS; ở eec49533~1 + tệp test mới → FAIL (audit suy giảm Provider:"" Model:"" FallbackIndex:0); go test ./internal/llm/... xanh. Kiểm trên stack: chờ QC rebuild
+TC-OC-59	P	@origin/sprint/11 (⊇ 843a6f4a): TestSaveSlowProbeOutlivesRequestDeadline PASS; ở 843a6f4a~1 + tệp test mới → FAIL (POST expected 201 actual 504)
+TC-OC-60	P	TestProbeNotCutByRequestDeadline PASS (0,30 s); ở 76157fa7~1 + tệp test mới → FAIL («probe bị cắt theo hạn của request: Kind:TIMEOUT Latency:50.8ms»); go test ./internal/llmconfig ./internal/httpapi/llmhttp ./internal/llm/... xanh
