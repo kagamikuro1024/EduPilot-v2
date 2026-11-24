@@ -101,6 +101,22 @@ test("attendance display: lớp lấy từ URL, không từ lớp đang chọn; 
   expect(asked.length).toBe(before);
 });
 
+test("attendance display: mã ngắn nằm trọn trong khung ở 1024×768, 1366×768, 1440×900, 1920×1080, 375×667 (DEF-GP10-02)", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  await asDemo(context, "teacher");
+  await mock(page, (n) => json(disp(n, 20000, 10, { short_code: "WWM8WW" })));
+  for (const [w, h] of [[1024, 768], [1366, 768], [1440, 900], [1920, 1080], [375, 667]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(URL_DISPLAY);
+    const code = page.locator("[data-part=short-code]");
+    await expect(code).toBeVisible();
+    const [c, q] = [await code.boundingBox(), await page.getByRole("img", { name: "Mã QR điểm danh" }).boundingBox()];
+    if (w > h) expect(c!.x, `${w}×${h}: mã không đè QR`).toBeGreaterThanOrEqual(q!.x + q!.width);
+    expect(await code.evaluate((e) => e.scrollWidth <= e.clientWidth + 1 && e.getBoundingClientRect().right <= innerWidth), `${w}×${h}: mã trọn trong khung`).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  }
+});
+
 test("attendance display: axe 0 lỗi nghiêm trọng ở 1280×720 và 1920×1080 (mã đang hiện, và «Đã đóng»); QR vuông, vừa khung, không cuộn", async ({ page, context }, info) => {
   test.skip(info.project.name !== "desktop", "đo một lần");
   await asDemo(context, "teacher");
