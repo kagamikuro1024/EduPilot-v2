@@ -500,7 +500,7 @@ Ví dụ câu đạt cho UndoLine: "Không hoàn tác được. Thay đổi vẫ
 
 | Nhóm | Mục (href, nhãn) | Sinh viên | TA | Giảng viên | Admin |
 | --- | --- | --- | --- | --- | --- |
-| (không nhóm) SV | `/` Hôm nay · `/chat` Chat riêng · `/threads` Threads · `/assignments` Bài tập (P-11-14) · `/practice` Luyện đề · `/exams` Bài thi · `/library` Thư viện · `/calendar` Lịch · `/me` Kết quả của tôi | 9 | — | — | — |
+| (không nhóm) SV | `/` Hôm nay · `/chat` Chat riêng · `/threads` Threads · `/assignments` Bài tập (P-11-14) · `/practice` Luyện đề · `/exams` Bài thi · `/checkin` Điểm danh (US-AS-15, P-11-137) · `/library` Thư viện · `/calendar` Lịch · `/me` Kết quả của tôi | 10 | — | — | — |
 | Làm việc | `/` Hôm nay · `/inbox` Hộp thư hỗ trợ (huy hiệu `inbox`) · `/students` Sinh viên · `/attendance` Điểm danh | — | 4 | 4 | — |
 | Đánh giá | `/gradebook` Sổ điểm · `/grading` Chấm bài (huy hiệu `grading`) · `/exams` Bài thi · `/questions` Ngân hàng câu hỏi | — | 4 | 4 | — |
 | Nội dung | `/threads` Threads · `/documents` Tài liệu · `/calendar` Lịch | — | 3 | 3 | — |
@@ -509,7 +509,7 @@ Ví dụ câu đạt cho UndoLine: "Không hoàn tác được. Thay đổi vẫ
 | Vận hành (Admin) | `/` Hôm nay · `/observability` Quan sát AI | — | — | — | 2 |
 | Quản trị | `/admin/courses` Lớp học · `/admin/users` Người dùng · `/admin/audit` Nhật ký (US-P10-14, P-11-30) | — | — | — | 3 |
 | Cấu hình | `/settings/llm` Cấu hình LLM · `/settings/integrations` Tích hợp | — | — | — | 2 |
-| **Tổng** | | **9** (chưa vào lớp: 1) | **13** | **16** (13 + Hệ thống 3) | **7** (2 + 3 + 2) |
+| **Tổng** | | **10** (chưa vào lớp: 1) | **13** | **16** (13 + Hệ thống 3) | **7** (2 + 3 + 2) |
 
 Ma trận quyền mở route (tiền tố dài nhất thắng; giữ nguyên `ACCESS` của prototype): `/inbox /students /attendance /gradebook /grading /questions /documents /insights /analytics /class` → TA, GV; `/observability /settings` → GV, Admin; `/admin` → Admin; `/chat /practice /library /me /assignments /join` → Sinh viên; `/threads /calendar` → SV, TA, GV; `/exams` → SV, TA, GV (góp ý #1 sprint 5: phân vai **trong** màn — Sinh viên chỉ danh sách và `/exams/[id]/take`, `/exams/[id]` và `/exams/[id]/results` chỉ TA, GV; API thật trả 403 cho sai vai). Admin không mở route nội dung lớp (ADMIN không đọc nội dung lớp mặc định — `AGENTS.md`).
 
