@@ -31,7 +31,8 @@ const CommandPalette = lazy(() => import("@/shared/ui/CommandPalette").then((m) 
 const DemoShellExtras = lazy(() => import("./DemoShellExtras").then((m) => ({ default: m.DemoShellExtras })));
 
 const subscribeNever = () => () => {};
-const NARROW = "(max-width: 719px)";
+// điện thoại: hẹp HOẶC xoay ngang (thấp) trên máy cảm ứng ⇒ khung dưới đáy, không thanh bên chỉ-icon (M2)
+const NARROW = "(max-width: 719px), (max-height: 500px) and (pointer: coarse)";
 const MID = "(max-width: 1099px)";
 function useMedia(query: string) {
   return useSyncExternalStore(
@@ -190,10 +191,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <span className={s.courseCode} title="Tất cả lớp của tôi">Tất cả lớp của tôi</span>
                 ) : (
                   <>
-                    <span className={s.courseCode} title={realPicked?.class_code ?? course.code}>{realPicked?.class_code ?? course.code}</span>
+                    <span className={`${s.courseCode} ${s.courseId}`} title={realPicked?.class_code ?? course.code}>{realPicked?.class_code ?? course.code}</span>
                     {" "}
                     <span className={s.courseName} title={courseTitle}>
-                      · {realPicked?.name ?? course.name}
+                      {realPicked?.name ?? course.name}
                     </span>
                   </>
                 )}

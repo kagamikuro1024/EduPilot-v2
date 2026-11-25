@@ -1,7 +1,7 @@
 import type { RouteIntro } from "./intro";
 import shell from "./AppShell.module.css";
 import pre from "./PreShell.module.css";
-import { Page, PageHeader, Panel } from "@/shared/ui";
+import { Page, PageHeader, Panel, Skeleton } from "@/shared/ui";
 
 /**
  * Khung trước phiên (US-PU-06): cùng hình học với AppShell (thanh trên, cột bên, vùng chính) và cùng lớp CSS của PageHeader,
@@ -40,8 +40,15 @@ export function PreShell({ intro, landmark = "main" }: { intro: RouteIntro; /** 
               <p className={pre.body}>{intro.body}</p>
             </Panel>
           )}
+          {!intro.body && !intro.early && (
+            <Panel>
+              <Skeleton lines={4} />
+            </Panel>
+          )}
         </Page>
       </Main>
+      {/* điện thoại: thanh đáy giữ chỗ (cùng chiều cao với thanh thật) để khung không nhảy khi phiên về (M12) */}
+      <div className={pre.bottom} data-part="pre-bottom" aria-hidden="true" />
     </div>
   );
 }

@@ -88,6 +88,7 @@
 @media (hover: hover) and (pointer: fine) { .courseBtn:hover { background: var(--ep-surface-subtle); } }
 .courseBtn svg { width: 16px; height: 16px; color: var(--ep-ink-2); flex: none; }
 .courseCode { white-space: nowrap; }
+.courseName::before { content: "· "; }
 .courseName { font-weight: 500; color: var(--ep-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .courseCurrent { display: none; }
 
@@ -168,13 +169,16 @@
   .searchText, .profileRole { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; text-overflow: clip; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 }
 
-@media (max-width: 719px) {
+@media (max-width: 719px), (max-height: 500px) and (pointer: coarse) {
   .sidebar { display: none; }
   .topbar, .main { margin-left: 0; }
   .main { padding-bottom: calc(56px + env(safe-area-inset-bottom)); } /* không để thanh dưới che nút cuối */
   .topbar { padding: env(safe-area-inset-top, 0px) var(--ep-space-3) 0 var(--ep-space-4); gap: var(--ep-space-3); }
   .mobileBrand { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: calc(-1 * var(--ep-space-2)); }
-  .courseName { display: none; }
+  /* điện thoại: thanh trên mang TÊN lớp (mã lớp vô nghĩa với người dùng; mã vẫn ở menu chọn lớp) (M1) */
+  .courseId { display: none; }
+  .courseName::before { content: none; }
+  .courseName { color: var(--ep-ink); font-weight: 600; }
   .courseBtn { min-height: 44px; min-width: 0; }
   /* mã lớp dài (≤ 20 ký tự) co lại bằng dấu … thay vì đẩy cụm tìm / chuông / hồ sơ ra ngoài khung (DEF-R1.5-02) */
   .topbar > :has(.courseBtn) { min-width: 0; }

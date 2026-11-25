@@ -10,3 +10,8 @@
 /* ≥ 1100 px màn thật chia chính | ngăn câu 340 px (Split main-aside): cột câu hỏi hẹp hơn 64ch, câu hỏi thật xuống dòng sớm hơn */
 @media (min-width: 1100px) { .earlyQuestion { max-width: 386px; } }
 .fontWarm { position: absolute; visibility: hidden; pointer-events: none; }
+/* thanh đáy giữ chỗ: chỉ ở điện thoại, cùng hình học với .bottomNav của AppShell (56 px + vùng an toàn) */
+.bottom { display: none; }
+@media (max-width: 719px), (max-height: 500px) and (pointer: coarse) {
+  .bottom { display: block; position: fixed; inset: auto 0 0 0; z-index: var(--ep-z-topbar); height: calc(56px + env(safe-area-inset-bottom)); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+}
