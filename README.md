@@ -206,29 +206,19 @@ Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … 
    # khôi phục: docker compose -p edupilot exec -T postgres pg_restore -U edupilot -d edupilot --clean --if-exists < tệp.dump
    ```
 2. **`.env.local`** phải có `BLOB_PUBLIC_ENDPOINT=localhost` và `BLOB_PUBLIC_USE_SSL=true`. Thiếu hai dòng này, URL tải tệp ký sẵn trỏ `localhost:9000`, CSP chặn, mọi lần tải tệp báo «Không kết nối được».
-3. **Tệp compose phụ** (ngoài repo): `docker-compose.local.yml` không chuyển `KNOWLEDGE_EMBED_TIMEOUT` (worker, mặc định 10 s) và `AI_SUMMARY_TIMEOUT` (gateway, mặc định 20 s) vào container, nên đặt trong `.env.local` không có tác dụng. Với nhà cung cấp thật cần nới:
-   ```yaml
-   # ~/edupilot-demo.override.yml
-   services:
-     worker:
-       environment:
-         KNOWLEDGE_EMBED_TIMEOUT: 45s   # embedding thật qua mạng ≈ 11–24 s mỗi lời gọi (đo 25/11)
-     gateway:
-       environment:
-         AI_SUMMARY_TIMEOUT: 60s        # khoảng hợp lệ 5–120 s
-   ```
-4. **Mọi lệnh compose của demo** dùng cùng tiền tố (thiếu `-f` tệp phụ → timeout về mặc định; thiếu `COMPOSE_PROFILES=ingest` → không có `docling`, seed dừng ở bước 11):
+3. **Nhà cung cấp thật chậm hơn bản giả**: thêm vào `.env.local` `KNOWLEDGE_EMBED_TIMEOUT=45s` (worker, mặc định 10 s; embedding thật qua mạng ≈ 11–24 s mỗi lời gọi, đo 25/11) và `AI_SUMMARY_TIMEOUT=60s` (gateway, mặc định 20 s, khoảng 5–120 s). Compose chuyển mọi biến `config.go` đọc vào container (`TestComposeEveryEnvReachesAService`), nên đặt trong `.env.local` là đủ; đổi biến thì tạo lại service đó.
+4. **Mọi lệnh compose của demo** dùng cùng tiền tố (thiếu `COMPOSE_PROFILES=ingest` → không có `docling`, seed dừng ở bước 11):
    ```bash
    export COMPOSE_PROJECT_NAME=edupilot COMPOSE_PROFILES=ingest
-   C="docker compose -f docker-compose.local.yml -f $HOME/edupilot-demo.override.yml --env-file .env.local"
+   C="docker compose -f docker-compose.local.yml --env-file .env.local"
    ```
-5. **Sau mỗi lần build**, tạo lại MỌI service vừa build rồi đối chiếu image id. Build xong mà không tạo lại thì container vẫn chạy image cũ (đã xảy ra với frontend ngày 25/11). Tên image cố định trong compose (`edupilot-gateway`, `edupilot-worker`, …) nên mọi stack trên máy dùng chung một tag: dựng stack thử (`ep-qc`, …) sẽ đổi tag `latest` mà stack demo không biết. Vì vậy build lại từ đúng commit ngay trước khi tạo lại demo.
+5. **Sau mỗi lần build**, tạo lại MỌI service vừa build rồi đối chiếu image id. Build xong mà không tạo lại thì container vẫn chạy image cũ (đã xảy ra với frontend ngày 25/11). Tên image theo project (`${COMPOSE_PROJECT_NAME}-gateway`, …), nên build ở stack thử (`ep-qc`, …) không đổi image của demo.
    ```bash
    $C build gateway worker frontend
    $C up -d --force-recreate --no-deps gateway worker frontend
    for s in gateway worker frontend; do
-     c=$(docker inspect edupilot-$s-1 --format '{{.Image}}' | cut -d: -f2 | cut -c1-12)
-     i=$(docker images edupilot-$s:latest --format '{{.ID}}')
+     c=$(docker inspect $COMPOSE_PROJECT_NAME-$s-1 --format '{{.Image}}' | cut -d: -f2 | cut -c1-12)
+     i=$(docker images $COMPOSE_PROJECT_NAME-$s:latest --format '{{.ID}}')
      [ "$c" = "$i" ] && echo "$s khớp $i" || echo "$s LỆCH: container $c, image $i"
    done
    ```
@@ -260,7 +250,7 @@ Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test.
 Các bước trên stack demo:
 1. Sinh chữ + embedding: `/settings/llm` → `Thêm nhà cung cấp` hai lần theo hai dòng đầu của bảng → tuyến các tác vụ sinh chữ sang nhà thứ nhất, tuyến `EMBEDDING` sang nhà thứ hai. Đặt `EMBEDDING` **trước** khi seed nạp tài liệu (mục 5.2 bước 6). Đổi embedding sau khi đã nạp thì phải nhúng lại tài liệu.
 2. Decision: thêm vào `.env.local` `LLM_DECISION_ALLOW_REAL=true` và `LLM_DECISION_BASE_URL=https://opencode.ai/inference/go/systemone/v1` (compose chuyển cả hai cho gateway và worker), tạo lại `gateway` và `worker` (`$C up -d --force-recreate --no-deps gateway worker`), rồi ở phần «Quyết định» của `/settings/llm` nhập khoá và chọn `gemini-decision-1`.
-3. Tóm tắt AI của hồ sơ 360 với nhà cung cấp thật: `AI_SUMMARY_TIMEOUT=60s` cho gateway qua tệp compose phụ (mặc định 20 s; compose không chuyển biến này từ `.env.local`).
+3. Tóm tắt AI của hồ sơ 360 với nhà cung cấp thật: `AI_SUMMARY_TIMEOUT=60s` trong `.env.local` (mặc định 20 s), tạo lại `gateway`.
 
 Về lại bản giả: `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang tắt. Không còn nhà cung cấp bật thì gateway rơi về `LLM_PROVIDER=fake`, kèm bản ghi `seed/demo/fake_llm.json` (xem `docs/DEMO_SCRIPT.md` mục 5). Decision về bản giả: chọn `decision-fake`.
 
