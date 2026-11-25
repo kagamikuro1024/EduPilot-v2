@@ -22,7 +22,7 @@
 @media (max-width: 719px) {
   .drop { min-height: 96px; }
   .actions { display: none; } /* trên điện thoại «Nộp bài» ở thanh đáy (.dock) */
-  .dock { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) max(var(--ep-space-4), env(safe-area-inset-right, 0px)) var(--ep-space-2) max(var(--ep-space-4), env(safe-area-inset-left, 0px)); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+  .dock { position: fixed; inset: auto 0 var(--ep-bottom-h) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) max(var(--ep-space-4), env(safe-area-inset-right, 0px)) var(--ep-space-2) max(var(--ep-space-4), env(safe-area-inset-left, 0px)); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
   .dock button { min-height: 44px; width: 100%; }
   .dockSpacer { display: block; height: 64px; }
 }

@@ -34,7 +34,7 @@
 @media (max-width: 719px) {
     .bar { grid-template-columns: auto 1fr auto; row-gap: var(--ep-space-1); }
   .save { grid-column: 1 / -1; order: 5; }
-  .foot { bottom: calc(56px + env(safe-area-inset-bottom)); } /* trên thanh điều hướng dưới của khung app */
+  .foot { bottom: var(--ep-bottom-h); } /* trên thanh điều hướng dưới của khung app */
   .foot > * { min-height: 44px; }
 }
 .integrity { display: grid; gap: var(--ep-space-2); padding: var(--ep-space-3) 0; border-top: 1px solid var(--ep-rule); border-bottom: 1px solid var(--ep-rule); }

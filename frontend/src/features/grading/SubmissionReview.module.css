@@ -216,7 +216,7 @@
   .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ep-space-1); }
   .tabs button { min-height: 44px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; }
   .tabs button[aria-selected="true"] { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 650; }
-  .foot { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); margin: 0; padding: var(--ep-space-2) var(--ep-space-4); }
+  .foot { position: fixed; inset: auto 0 var(--ep-bottom-h) 0; z-index: var(--ep-z-topbar); margin: 0; padding: var(--ep-space-2) var(--ep-space-4); }
   .footText { max-width: none; }
   .panel { padding-bottom: calc(88px + 56px); }
 }

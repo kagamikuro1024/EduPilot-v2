@@ -3,7 +3,7 @@
 import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { lazy, Suspense, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
 import { ALL_COURSES } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
@@ -97,7 +97,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setPaletteTick((n) => n + 1);
   };
   const [more, setMore] = useState(false);
-  const [askLogout, setAskLogout] = useState(0); // số thay đổi chưa lưu khi bấm Đăng xuất (0 = không hỏi)
+  const [askLogout, setAskLogout] = useState(0);
+  // DEF-R10.8-07: dock / thanh dính đáy đặt TRÊN thanh điều hướng theo chiều cao THẬT (chữ hệ thống lớn làm thanh cao hơn 56 px).
+  const navRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const apply = () => {
+      const h = el.getBoundingClientRect().height;
+      const root = document.documentElement.style;
+      if (h > 0) root.setProperty("--ep-bottom-h", `${Math.round(h)}px`);
+      else root.removeProperty("--ep-bottom-h"); // desktop (thanh ẩn): về mặc định 56 px
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty("--ep-bottom-h");
+    };
+  }, []); // số thay đổi chưa lưu khi bấm Đăng xuất (0 = không hỏi)
 
   // M17: mất mạng thì Next không lấy được dữ liệu route và tải cả trang ⇒ trình duyệt rời app sang trang lỗi (kẹt cả khi có mạng lại).
   // Link nội bộ của khung (thanh đáy, «Thêm», thanh bên) giữ trang hiện tại; dải mất mạng là phản hồi.
@@ -386,7 +405,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {narrow && (
         <>
-          <nav className={s.bottomNav} data-part="bottom-nav" aria-label="Điều hướng chính">
+          <nav ref={navRef} className={s.bottomNav} data-part="bottom-nav" aria-label="Điều hướng chính">
             {mobilePrimary.map((item) => (
               <BottomLink key={item.href} item={item} active={isActive(item.href)} badge={item.badgeKey ? badges[item.badgeKey] : 0} />
             ))}
@@ -403,7 +422,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     ) : null,
                   )}
                 </span>
-                <span>Thêm</span>
+                <span className={s.bottomLabel}>Thêm</span>
               </button>
             )}
           </nav>
@@ -475,7 +494,7 @@ function BottomLink({ item, active, badge }: { item: NavItem; active: boolean; b
           </span>
         ) : null}
       </span>
-      <span>{item.short ?? item.label}</span>
+      <span className={s.bottomLabel}>{item.short ?? item.label}</span>
     </Link>
   );
 }

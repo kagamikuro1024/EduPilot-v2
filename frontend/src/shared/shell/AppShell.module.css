@@ -171,7 +171,7 @@
 @media (max-width: 719px), (max-height: 500px) and (pointer: coarse) {
   .sidebar { display: none; }
   .topbar, .main { margin-left: 0; }
-  .main { padding-bottom: calc(56px + env(safe-area-inset-bottom)); } /* không để thanh dưới che nút cuối */
+  .main { padding-bottom: var(--ep-bottom-h); } /* không để thanh dưới che nút cuối */
   .topbar { padding: env(safe-area-inset-top, 0px) var(--ep-space-3) 0 var(--ep-space-4); gap: var(--ep-space-3); }
   .mobileBrand { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: calc(-1 * var(--ep-space-2)); }
   /* điện thoại: thanh trên mang TÊN lớp (mã lớp vô nghĩa với người dùng; mã vẫn ở menu chọn lớp) (M1) */
@@ -200,6 +200,8 @@
   }
   .bottomItem { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; padding: var(--ep-space-1) 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-meta); font-weight: 500; line-height: 1.2; }
   .bottomItem svg { width: 20px; height: 20px; stroke-width: 1.8; }
+  /* DEF-R10.8-07: chữ hệ thống lớn (2,0×) không làm nhãn xuống 2 dòng → thanh điều hướng không cao thêm */
+  .bottomLabel { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bottomIcon { position: relative; }
   .bottomBadge { position: absolute; top: -4px; right: -10px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; line-height: 16px; text-align: center; }
   .bottomActive { color: var(--ep-ink); font-weight: 600; }
