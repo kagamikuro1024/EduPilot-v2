@@ -421,4 +421,77 @@ final class IosTests: XCTestCase {
         savePng(shotName())
         print("zoom_tapped=\(two.exists)")
     }
+
+    /// PRM-07/08 + GEO: xử lý hộp xin quyền vị trí (allow/deny) rồi chụp kết quả.
+    func testGeoPrompt() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let allow = ProcessInfo.processInfo.environment["GEO_ALLOW"] ?? "1"
+        var log: [String] = []
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let allowOnce = spring.buttons.matching(NSPredicate(format: "label IN %@", ["Allow Once", "Cho phép một lần"])).firstMatch
+        let allowWhile = spring.buttons.matching(NSPredicate(format: "label IN %@", ["Allow While Using Websites", "Cho phép khi dùng trang web"])).firstMatch
+        let deny = spring.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "phép")).firstMatch
+        if allowOnce.waitForExistence(timeout: 8) || allowWhile.waitForExistence(timeout: 2) || deny.exists {
+            log.append("prompt shown")
+            if allow == "1" {
+                if allowWhile.exists { allowWhile.tap() } else if allowOnce.exists { allowOnce.tap() }
+            } else if deny.exists { deny.tap() }
+            sleep(2)
+        } else { log.append("no prompt") }
+        sleep(8)
+        log.append("texts=\((web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(10)).joined(separator: " | "))")
+        savePng(shotName())
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(log.joined(separator: " | "))
+    }
+
+    /// PWA: bấm aA ở thanh dưới (toạ độ) → Share → Add to Home Screen → Add.
+    func testPwaInstall() {
+        safari.activate(); sleep(2)
+        _ = safari.webViews.firstMatch.waitForExistence(timeout: 20)
+        let aa = safari.buttons.matching(NSPredicate(format: "label IN %@", ["aA", "AA", "Page Menu"])).firstMatch
+        if aa.exists { aa.tap() } else { safari.buttons["PageMenuButton"].tap() }
+        sleep(3); savePng(shotName() + "-menu")
+        let share = safari.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Share")).firstMatch
+        if share.exists { share.tap() } else { safari.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Share")).firstMatch.tap() }
+        sleep(6); savePng(shotName() + "-share")
+        var add = safari.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Add to Home Screen")).firstMatch
+        if !add.exists { safari.swipeUp(); sleep(2); add = safari.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Add to Home Screen")).firstMatch }
+        if add.exists { add.tap(); sleep(4); savePng(shotName() + "-sheet") }
+        let addBtn = safari.buttons["Add"]
+        if addBtn.waitForExistence(timeout: 5) { addBtn.tap(); sleep(4) } else {
+            safari.coordinate(withNormalizedOffset: CGVector(dx: 0.91, dy: 0.085)).tap(); sleep(4)
+        }
+        savePng(shotName())
+    }
+
+    /// Mở PWA từ Màn hình chính (web clip), chụp trạng thái standalone.
+    func testPwaOpen() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        let icon = spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch
+        if icon.exists { icon.tap() } else { spring.icons.matching(NSPredicate(format: "label CONTAINS[c] %@", "EduPilot")).firstMatch.tap() }
+        sleep(12)
+        savePng(shotName())
+        print("safari_chrome=\(safari.buttons["PageMenuButton"].exists)")
+    }
+
+    /// NAV: vuốt cạnh trái để quay lại trong PWA, chụp trước/sau.
+    func testNavBack() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        let icon = spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch
+        if icon.exists { icon.tap() } else { spring.icons.matching(NSPredicate(format: "label CONTAINS[c] %@", "EduPilot")).firstMatch.tap() }
+        sleep(8)
+        savePng(shotName() + "-home")
+        let app = XCUIApplication(bundleIdentifier: "com.apple.webapp")
+        let web = app.webViews.firstMatch
+        if web.waitForExistence(timeout: 10) {
+            web.swipeRight(); sleep(3); savePng(shotName() + "-back")
+            web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Điểm danh")).firstMatch.tap()
+            sleep(4); savePng(shotName() + "-checkin")
+            web.swipeRight(); sleep(3); savePng(shotName() + "-back2")
+        }
+    }
 }
