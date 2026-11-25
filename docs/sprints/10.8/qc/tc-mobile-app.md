@@ -205,7 +205,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 | TC-MOB-ERR-11 | US-AS-09 AC10 | A, I | W mở | Nhập mã sai (đúng cú pháp) và mã hết hạn (mã cũ) | cả hai cùng câu «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» ở dưới ô (không phân biệt); ô có viền lỗi + `aria-invalid`; không hộp thoại | TAY |  |
 | TC-MOB-ERR-12 | US-AS-09 AC10; US-AS-15 AC6 | A, I | Ô mã rỗng; ký tự lạ (emoji, `@#$`, dấu tiếng Việt) | Quan sát nút; gõ ký tự lạ rồi `Điểm danh` | nút `Điểm danh` khoá khi rỗng; ký tự lạ → cùng câu «Mã không đúng hoặc đã hết hạn. …», không gọi API; không crash | TAY+ADB |  |
 | TC-MOB-ERR-13 | US-AS-09 AC10 | A, I | Ô mã | Dán chuỗi 40 ký tự; gõ 12+ ký tự | ô giới hạn 12 ký tự (`maxlength`), phần dư bị cắt; không tràn ngang; mã dán có khoảng trắng đầu/cuối vẫn xử lý | TAY |  |
-| TC-MOB-ERR-14 | US-AS-15 AC14 | W | Playwright `route` trả 500 / HTML / rỗng cho `POST …/checkins` | Gửi mã ngắn và token | «Chưa điểm danh được. Thử lại.» một câu; không JSON, `undefined`, mã HTTP; nút còn dùng được | E2E |  |
+| TC-MOB-ERR-14 | US-AS-15 AC14 | W | Playwright `route` trả 500 / HTML / rỗng cho `POST …/checkins` | Gửi mã ngắn và token | Câu theo ĐÚNG loại lỗi ở SRS `FEAT-ui-foundation` bảng 3.7: 500 → «Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn. Thử lại sau ít phút.»; HTML/502 → «Máy chủ chưa phản hồi đúng. Dữ liệu của bạn vẫn an toàn.»; thân rỗng/không đọc được → «Phản hồi từ máy chủ không đọc được. Thử lại sau.» Mỗi ca một câu, `role=alert`, có «Thử lại»; không JSON, `undefined`, mã HTTP; nút còn dùng được | E2E |  |
 | TC-MOB-ERR-15 | US-AS-15 AC14 | I | iPhone Simulator Safari, tắt mạng trước khi mở liên kết lần đầu | Mở liên kết khi offline | trang lỗi của Safari (do hệ điều hành, ngoài tầm app) — ghi nhận nội dung; sau khi có mạng, mở lại liên kết còn hạn mã → điểm danh được; KHÔNG kỳ vọng chữ tiếng Việt của app ở bước offline đầu tiên | TAY |  |
 | TC-MOB-ERR-16 | US-AS-09 AC4; điều kiện biên | A | Đồng hồ máy lệch +10 phút (tắt giờ tự động) rồi trả lại | Điểm danh bằng quét và bằng mã | vẫn «Đã điểm danh hh:mm» (hạn mã do máy chủ tính; riêng cất `sessionStorage` 60 s dùng giờ máy: ghi nhận); giờ hiển thị khớp `checked_in_at` đổi sang giờ Việt Nam; trả lại giờ tự động sau test | TAY+SQL |  |
 | TC-MOB-ERR-17 | US-AS-09 AC1; múi giờ | A, I | Múi giờ máy đặt UTC rồi Asia/Ho_Chi_Minh | Điểm danh, đọc «Đã điểm danh hh:mm» | ghi hai giá trị; kỳ vọng giờ khớp `checked_in_at` đổi sang giờ Việt Nam; nếu hiển thị theo múi giờ máy khi máy đặt UTC thì ghi nhận cho PM quyết (spec chỉ nói hh:mm) | TAY+SQL |  |
@@ -232,7 +232,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 | TC-MOB-UIW-14 | US-AS-15 AC2 | A | Đang gửi (mạng chậm) | Xoay máy giữa lúc «Đang gửi» | đúng một lượt trong DB; kết quả hiện sau xoay; không «Đang gửi» lặp | TAY+SQL |  |
 | TC-MOB-UIW-15 | US-AS-15 AC2 | A | Ô mã đã gõ `ABC12` | Xoay dọc → ngang → dọc | mã vẫn `ABC12`; focus giữ hoặc trả lại hợp lý; không gửi | TAY |  |
 | TC-MOB-UIW-16 | US-AS-15 AC2 | A | Đang quét | Xoay máy | camera chạy tiếp hoặc dựng lại ≤ 2 s, không treo; Activity không tạo lại (cùng `ActivityRecord`) | TAY+ADB |  |
-| TC-MOB-UIW-17 | US-AS-15 AC1; AC2 (shell) | A, I | Khung app `AppShell` ở dọc và ngang | Quan sát thanh trên, thanh dưới (SV: 5 mục), chọn lớp, menu «Thêm» | dọc: thanh dưới 5 mục thấy đủ, không cắt chữ; ngang ≥ 720 px: chuyển sang thanh bên (ghi nhận), không mất mục; không cuộn ngang | TAY |  |
+| TC-MOB-UIW-17 | US-AS-15 AC1; AC2 (shell) | A, I | Khung app `AppShell` ở dọc và ngang | Quan sát thanh trên, thanh dưới (SV: 5 mục), chọn lớp, menu «Thêm» | dọc: thanh dưới 5 mục thấy đủ, không cắt chữ. Ngang điện thoại (cao < 500 px CSS, `pointer: coarse`) → **vẫn thanh đáy** theo M2 (`@media (max-width: 719px), (max-height: 500px) and (pointer: coarse)` trong `AppShell.module.css`), đủ 5 mục, không cắt. Thanh bên chỉ khi RỘNG ≥ 720 px VÀ cao ≥ 500 px (hoặc trỏ chuột chính xác), ghi nhận, không mất mục; không cuộn ngang | TAY |  |
 | TC-MOB-UIW-18 | US-AS-15 AC1 | W, A | Mọi màn trong khung app đầu SV: Hôm nay, Chat riêng, Hỏi đáp, Luyện đề, Thêm | Mở từng màn ở 360 và 430 | không cuộn ngang (`scrollWidth ≤ innerWidth`) ở mọi màn; thanh dưới không che nội dung cuối (`padding-bottom` 56 px + safe area) | E2E |  |
 | TC-MOB-UIW-19 | US-AS-15 AC1 | W | Tải `/checkin` mỗi độ rộng; đo CLS (Lighthouse mobile / `PerformanceObserver`) | Chạy 3 lượt mỗi độ rộng | CLS ≤ 0,1 (ngưỡng của `lighthouserc.json`); chuyển trạng thái sending → done không nhảy bố cục (khung xương cùng kích thước kết quả) | E2E |  |
 | TC-MOB-UIW-20 | US-AS-15 AC1 | W, A | Độ cao thấp 640 px ở 360 px, có thanh dưới 56 px | Trạng thái nhập mã không bàn phím | ô, nhãn «Lớp {mã lớp}», nút `Điểm danh` (dock) thấy hết, không cuộn dọc | E2E+TAY |  |
@@ -328,7 +328,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 ## 6.N Mạng yếu, mất mạng, khôi phục (US-AS-15 AC9)
 | Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| TC-MOB-NET-01 | US-AS-15 AC9 | A | SV đăng nhập; mạng chậm R-NET-slow (≈ 400 kbit/s, RTT 2 s) | Mở `/checkin` (nav), đo từ lúc chạm tới lúc thấy nội dung | khung (thanh trên, tiêu đề «Điểm danh») hiện ≤ 3 s, nội dung ≤ 8 s (ngưỡng QC đề xuất, PM chốt); có khung xương (`Skeleton`), không màn trắng; không cuộn ngang | TAY |  |
+| TC-MOB-NET-01 | US-AS-15 AC9 | A | SV đăng nhập; mạng chậm R-NET-slow (≈ 400 kbit/s, RTT 2 s) | Mở `/checkin` (nav) | Có phản hồi ngay khi chạm: khung xương/chờ (`Skeleton`, `aria-busy`) hiện thay vì màn trắng; nội dung cuối cùng hiện ra hoặc câu lỗi có «Thử lại» (không treo vô hạn); không cuộn ngang. **Không chấm theo ngưỡng thời gian** (bỏ 3 s/8 s — P-11-143, US-AS-15 AC9 chỉ yêu cầu hành vi) | TAY |  |
 | TC-MOB-NET-02 | US-AS-09 AC4; US-AS-15 AC9 | A | Đang ở ô nhập mã đã gõ mã đúng | Bật chế độ máy bay → `Điểm danh` | ≤ 15 s hiện «Chưa có mạng.» + `Thử lại`; dải offline (OfflineBanner) hiện; mã đã gõ giữ nguyên | TAY |  |
 | TC-MOB-NET-03 | US-AS-15 AC9 | A | Sau NET-02 | Tắt chế độ máy bay; bấm `Thử lại` | dải offline biến mất ≤ 3 s sau khi có mạng; `Thử lại` thành công «Đã điểm danh hh:mm»; một lượt; không tải lại trang | TAY+SQL |  |
 | TC-MOB-NET-04 | US-AS-15 AC9 | A | Mạng chập chờn (R-NET-flaky: bật/tắt 5 lần trong 20 s) khi quét QR | Quét Q-OK | không đăng xuất, không màn lỗi, không lượt thứ hai; cuối cùng thành công hoặc «Chưa có mạng.» + `Thử lại` | TAY+SQL |  |
@@ -715,6 +715,22 @@ Nguồn: `docs/sprints/10.8/qc/tc-mobile-run-android.md` (qc2; AVD `ep-api36` An
 - **Chưa chạy (chờ lượt sau):** 6.D `SCN-01…16`, 6.E `GEO-01,04,06…13`, 6.H `SAF-04…10`, 6.J `THM-02…08`, 6.L `NAV-02,03,05…12`, 6.M `PRM-02…10`, 6.O `LIF-01…13`, 6.Q `A11-01,02,04…15` (TalkBack chưa bật), 6.U `DEV-01…14`, checklist `CL-3,5…12,14…16`, `INS-08,13`.
 
 **Cộng dồn pha 1 + pha 2 (khử trùng `A11-16`):** 71 TC có kết quả — **63 P, 0 F, 8 N**.
+
+### 9.3 Pha 3 — iOS Simulator (qc3, 26/11/2026, máy `qc3-iphone15`)
+
+Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Qc2UITests` từ qc2) + `xcrun simctl`; ảnh trong `docs/regression/evidence-ios/shots/`. Máy: iPhone 15 (iOS 27.2, 393×852 CSS).
+
+**Lô A — cấu hình, khung, sáng/tối: 7 TC = 7 P, 0 F.**
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-PWA-01 | P | `manifest.webmanifest` 200 `application/manifest+json`: `name`/`short_name` «EduPilot», `start_url`/`scope` `/`, `display` `standalone`, `lang` `vi`, `theme_color` `#FFFFFF`, `background_color` `#FFFFFF`; icon `/brand/icon-192.png` 200 (192×192), `/brand/icon-512.png` 200 (512×512), `logo-edupilot-mark.svg` 200. Không có `serviceWorker` trong mã `frontend/src` (0 lần) ⇒ không đăng ký SW |
+| TC-MOB-PWA-02 | P | Safari `/` → Chia sẻ → «Thêm vào Màn hình chính»: hộp tên đề xuất «EduPilot»; duyệt trang không hiện banner/hộp mời cài đặt |
+| TC-MOB-PWA-03 | P | Biểu tượng trên Màn hình chính: logo EduPilot (sách + bút đỏ) trên nền trắng bo góc, không phải ảnh chụp trang/chữ cái đầu, không viền lạ; `apple-touch-icon` = `/brand/icon-192.png` (đã có trong HTML) |
+| TC-MOB-SAF-05 | P | `/checkin` dọc trong Safari: đo khung (XCUITest) — cửa sổ 393×852; «Mã điểm danh» y=261 (dưới đảo động), ô nhập 296..340, nút «Điểm danh» 645..689, thanh đáy 728..745 (trên thanh công cụ Safari và trên vùng Home 818); không dải trắng đáy; HTML có `viewport-fit` |
+| TC-MOB-SAF-06 | P | PWA standalone: thanh trạng thái trắng chữ đen, tiêu đề «Hôm nay»/«Điểm danh» dưới đảo; thanh đáy 5 mục nằm trên thanh Home; nền trên/dưới cùng màu canvas trắng, không dải đen/trắng lệch |
+| TC-MOB-THM-04 | P | `simctl ui appearance dark`: trang vẫn SÁNG ở cả Safari và PWA (chữ đen trên nền trắng), thanh trạng thái PWA đọc được (chữ đen, nền trắng `theme_color`) |
+| TC-MOB-THM-07 | P | Ảnh: giờ/pin/sóng màu đen trên nền trắng — đọc rõ. `theme_color` đang dùng `#FFFFFF` (không phải BRAND.red); đối chiếu US-AS-15 AC11/D59: nền sáng, ghi nhận là quan sát |
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

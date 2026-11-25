@@ -146,6 +146,16 @@ export async function authed(b: Browser, dev: "pixel" | "iphone", user: string, 
   pool.set(user, v);
   return v;
 }
+/** Đăng nhập lại từ đầu cho một tài khoản (phiên cũ bị thu hồi khi đăng nhập ở context khác). */
+export async function relogin(b: Browser, dev: "pixel" | "iphone", user: string) {
+  const hit = pool.get(user);
+  if (hit) {
+    pool.delete(user);
+    await hit.ctx.close().catch(() => undefined);
+  }
+  return authed(b, dev, user);
+}
+
 /** Đóng mọi context cuối tệp. */
 export async function closeAll() {
   for (const { ctx } of pool.values()) await ctx.close().catch(() => undefined);

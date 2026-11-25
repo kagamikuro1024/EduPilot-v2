@@ -1,0 +1,23 @@
+import { test } from "@playwright/test";
+import { ACCT, authed, C, closeWindow, openWindow } from "./qc-mob-lib";
+test("pr2", async ({ browser }) => {
+  const { page } = await authed(browser, "pixel", ACCT.s1);
+  const txt = async () => (await page.locator("[data-part=checkin]").innerText()).replace(/\n+/g, "|");
+  const w = await openWindow(C.QCMOB1);
+  await page.goto(`/checkin?c=${C.QCMOB1}#${w.qr.slice(0, -1)}${w.qr.endsWith("A") ? "B" : "A"}`);
+  await page.waitForTimeout(4000);
+  console.log("MAC-SAI:", JSON.stringify({ state: await page.locator("[data-part=checkin]").getAttribute("data-state"), t: await txt() }));
+  const w2 = await openWindow(C.QCMOB1);
+  await closeWindow(C.QCMOB1, w2.wid);
+  await page.goto(`/checkin?c=${C.QCMOB1}#${w2.qr}`);
+  await page.waitForTimeout(4000);
+  console.log("DONG-CUA-SO:", JSON.stringify({ state: await page.locator("[data-part=checkin]").getAttribute("data-state"), t: await txt() }));
+  await page.route("**/checkins", (r) => (r.request().method() === "POST" ? r.fulfill({ status: 500, contentType: "application/json", body: "{}" }) : r.continue()));
+  await page.goto(`/checkin?course=${C.QCMOB1}`);
+  await page.waitForFunction(() => !new URLSearchParams(location.search).has("course"));
+  await page.getByLabel("Mã điểm danh").fill("ABC123");
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(3000);
+  console.log("500:", JSON.stringify({ state: await page.locator("[data-part=checkin]").getAttribute("data-state"), t: await txt() }));
+  await closeWindow(C.QCMOB1, w.wid).catch(() => undefined);
+});

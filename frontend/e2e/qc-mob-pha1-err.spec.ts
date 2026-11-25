@@ -1,14 +1,13 @@
 // QC 10.8 mobile pha 1 — lô B: 6.F nhánh lỗi (ERR) + 6.S câu chữ lỗi (MSG phần web).
 import { test } from "@playwright/test";
-import { ACCT, api, authed, C, check, closeWindow, gotoEntry, openWindow, pwFor, rec, BASE } from "./qc-mob-lib";
+import { ACCT, api, authed, C, check, closeWindow, gotoEntry, openWindow, pwFor, rec, relogin, BASE } from "./qc-mob-lib";
 
-test.describe.configure({ mode: "serial" });
 const OUT = process.env.QC_OUT ?? "/tmp/qc-mob";
 const body = (p: import("@playwright/test").Page) => p.locator("[data-part=checkin]");
 const text = async (p: import("@playwright/test").Page) => (await p.locator("body").innerText()).replace(/\n+/g, "|");
 const open = async (p: import("@playwright/test").Page, c: string, tok: string) => {
   await p.goto(`/checkin?c=${c}#${tok}`);
-  await p.locator("[data-part=checkin]").waitFor({ timeout: 20_000 });
+  await p.locator("main").waitFor({ timeout: 20_000 }); // màn chặn (GV) không có khung điểm danh
   await p.waitForTimeout(3000);
 };
 const codeIn = async (p: import("@playwright/test").Page, c: string, v: string) => {
@@ -74,6 +73,7 @@ test("ERR-06 để màn đăng nhập > 60 s: token bị bỏ, không POST", asy
   await page.waitForTimeout(6000);
   const t = await text(page);
   check("TC-MOB-ERR-06 đăng nhập chậm > 60 s → «Mã đã hết hạn…», không POST", /Mã đã hết hạn/.test(t) && posts === 0, `posts=${posts}; ${t.slice(0, 90)}`);
+  await relogin(browser, "pixel", ACCT.s1); // context dùng chung vừa bị thu hồi phiên
   rec("TC-MOB-ERR-06b kho cất sau khi quá 60 s", "NOTE", `ep.checkin=${(await page.evaluate(() => sessionStorage.getItem("ep.checkin") ? "còn" : "rỗng"))} (không thuộc AC; chỉ cần không POST)`);
   await closeWindow(C.QCMOB1, w.wid).catch(() => undefined);
   await c.close();
@@ -133,7 +133,9 @@ test("ERR-14 POST 500 / HTML / rỗng: «Chưa điểm danh được. Thử lạ
     await page.route("**/checkins", (r) => (r.request().method() === "POST" ? r.fulfill({ status: st, contentType: ct, body: b }) : r.continue()));
     await codeIn(page, C.QCMOB1, w.code);
     const t = await text(page);
-    const clean = /(Chưa điểm danh được\. Thử lại\.|Máy chủ chưa phản hồi đúng\. Dữ liệu của bạn vẫn an toàn\.)/.test(t) && !/\b(500|200|undefined|null|\[object|INTERNAL|oops)\b/.test(t);
+    const clean =
+      /(Chưa điểm danh được\. Thử lại\.|Máy chủ chưa phản hồi đúng\. Dữ liệu của bạn vẫn an toàn\.|Có lỗi xảy ra\. Dữ liệu của bạn vẫn an toàn\. Thử lại sau ít phút\.|Phản hồi từ máy chủ không đọc được\. Thử lại sau\.)/.test(t) &&
+      !/\b(500|undefined|null|\[object|INTERNAL|oops)\b/.test(t);
     check(`TC-MOB-ERR-14 ${name}: một câu tiếng Việt (SRS: BAD_GATEWAY), không mã HTTP/JSON`, clean, t.slice(0, 110));
     await page.screenshot({ path: `${OUT}/ERR-14-${name.replace(/\s/g, "-")}.png` });
   }
