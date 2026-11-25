@@ -1,6 +1,6 @@
 # Trạng thái lỗi (qc2, 25/11/2026)
 
-**Cách đếm.** Một dòng cho mỗi mã `DEF-*` có mục riêng trong `defects-<sprint>.md` (tiêu đề `###`/`##`, dòng bảng hoặc dòng `- **DEF-…**`) và `defects-opencode-go.md`; mã chỉ được nhắc tới trong mục khác không tính. Tổng **209** mã (132 là số tiêu đề `###`; còn lại là dòng bảng ở defects-9/10/10.5/10.6, tiêu đề `##` ở defects-4/10.5, dòng `- **DEF-…**` ở defects-4). `defects.md` (16/11, 72 ca) và bản `defects-status.md` cũ (19/11, 111 mã) là số của ngày đó, thay bằng tệp này.
+**Cách đếm.** Một dòng cho mỗi mã `DEF-*` có mục riêng trong `defects-<sprint>.md` (tiêu đề `###`/`##`, dòng bảng hoặc dòng `- **DEF-…**`) và `defects-opencode-go.md`; mã chỉ được nhắc tới trong mục khác không tính. Tổng **211** mã (132 là số tiêu đề `###`; còn lại là dòng bảng ở defects-9/10/10.5/10.6, tiêu đề `##` ở defects-4/10.5, dòng `- **DEF-…**` ở defects-4). `defects.md` (16/11, 72 ca) và bản `defects-status.md` cũ (19/11, 111 mã) là số của ngày đó, thay bằng tệp này.
 
 **Trạng thái cuối** lấy theo thứ tự: (1) `~/.config/edupilot-team/fixes.tsv` (đóng / rút, đã bung dải mã như `R10S-04..07`); (2) nếu fixes.tsv không có mã đó: mọi TC của DEF có dòng cuối là P trong `smoke-*.md` (đếm bằng `env/qc2-count.py`) hoặc TC lỗi thời đã xoá có nguồn; (3) sha lấy từ fixes.tsv → `env/def-sha.tsv` → chữ trong mục DEF. Mục DEF viết lúc mới phát hiện (ví dụ «Trạng thái: MỞ» ở DEF-R105S-06) có thể cũ hơn: tệp này thắng.
 
@@ -8,65 +8,66 @@
 
 | Trạng thái | Số mã |
 |---|---|
-| ĐÓNG | 201 |
+| ĐÓNG | 202 |
 | RÚT (không phải lỗi sản phẩm) | 8 |
-| MỞ | 0 |
+| MỞ | 1 |
 | Nợ PR | 0 |
-| **Tổng** | **209** |
+| **Tổng** | **211** |
 
-Nợ PR: không còn. DEF-R6-01 (vai DB siêu quyền) từng là nợ PR, đã sửa ở 3f332fb3 + ea0cf217 (migration 00030) và TC-P3-01-49 chạy lại P.
+MỞ: DEF-R10.8-05 (Back native của app Android, TC-AS11-17 F; dev đang sửa). Nợ PR: không còn; DEF-R6-01 (vai DB siêu quyền) từng là nợ PR, đã sửa ở 3f332fb3 + ea0cf217 (migration 00030) và TC-P3-01-49 chạy lại P.
 
 ### Cách đóng
 
 | Cách | Số mã |
 |---|---|
-| sửa mã/tài liệu (có sha) | 165 |
+| sửa mã/tài liệu (có sha) | 166 |
 | chạy lại đạt (không ghi sha) | 25 |
 | spec/TC đổi (P-xx) | 11 |
 | không phải lỗi sản phẩm | 8 |
+| chưa đóng | 1 |
 
 ### Theo mức
 
-| Mức | ĐÓNG | RÚT | Tổng |
-|---|---|---|---|
-| Cao | 9 | 0 | 9 |
-| Trung bình | 42 | 0 | 42 |
-| Thấp | 150 | 5 | 155 |
-| không ghi | 0 | 3 | 3 |
+| Mức | ĐÓNG | RÚT | MỞ | Tổng |
+|---|---|---|---|---|
+| Cao | 10 | 0 | 0 | 10 |
+| Trung bình | 42 | 0 | 1 | 43 |
+| Thấp | 150 | 5 | 0 | 155 |
+| không ghi | 0 | 3 | 0 | 3 |
 
 ### Theo «lọt sprint gốc / do sprint sau»
 Lấy từ trường «Hồi quy do sprint sau?» hoặc chữ «Không phải hồi quy» / «hồi quy do sprint 11» trong mục DEF; mục không ghi thì xếp «không ghi» (dòng bảng của defects-9/10/10.6 chỉ có mức, TC và mô tả).
 
-| Nhóm | ĐÓNG | RÚT | Tổng |
-|---|---|---|---|
-| lọt sprint gốc | 46 | 1 | 47 |
-| do sprint sau | 24 | 0 | 24 |
-| không rõ | 22 | 0 | 22 |
-| không ghi | 109 | 7 | 116 |
+| Nhóm | ĐÓNG | RÚT | MỞ | Tổng |
+|---|---|---|---|---|
+| lọt sprint gốc | 46 | 1 | 0 | 47 |
+| do sprint sau | 24 | 0 | 0 | 24 |
+| không rõ | 22 | 0 | 0 | 22 |
+| không ghi | 110 | 7 | 1 | 118 |
 
 ### Theo tệp sprint
 
-| Tệp | ĐÓNG | RÚT | Tổng |
-|---|---|---|---|
-| 1 | 1 | 0 | 1 |
-| 1.5 | 2 | 0 | 2 |
-| 2 | 4 | 0 | 4 |
-| 3 | 7 | 1 | 8 |
-| 4 | 12 | 5 | 17 |
-| 5 | 23 | 0 | 23 |
-| 5.5 | 1 | 0 | 1 |
-| 6 | 23 | 0 | 23 |
-| 7 | 12 | 0 | 12 |
-| 8 | 7 | 0 | 7 |
-| 9 | 10 | 1 | 11 |
-| 9.1 | 6 | 0 | 6 |
-| 9.5 | 26 | 0 | 26 |
-| 10 | 24 | 0 | 24 |
-| 10.5 | 7 | 1 | 8 |
-| 10.6 | 27 | 0 | 27 |
-| 10.7 | 4 | 0 | 4 |
-| 10.8 | 4 | 0 | 4 |
-| opencode-go | 1 | 0 | 1 |
+| Tệp | ĐÓNG | RÚT | MỞ | Tổng |
+|---|---|---|---|---|
+| 1 | 1 | 0 | 0 | 1 |
+| 1.5 | 2 | 0 | 0 | 2 |
+| 2 | 4 | 0 | 0 | 4 |
+| 3 | 7 | 1 | 0 | 8 |
+| 4 | 12 | 5 | 0 | 17 |
+| 5 | 23 | 0 | 0 | 23 |
+| 5.5 | 1 | 0 | 0 | 1 |
+| 6 | 23 | 0 | 0 | 23 |
+| 7 | 12 | 0 | 0 | 12 |
+| 8 | 7 | 0 | 0 | 7 |
+| 9 | 10 | 1 | 0 | 11 |
+| 9.1 | 6 | 0 | 0 | 6 |
+| 9.5 | 26 | 0 | 0 | 26 |
+| 10 | 24 | 0 | 0 | 24 |
+| 10.5 | 7 | 1 | 0 | 8 |
+| 10.6 | 27 | 0 | 0 | 27 |
+| 10.7 | 4 | 0 | 0 | 4 |
+| 10.8 | 5 | 0 | 1 | 6 |
+| opencode-go | 1 | 0 | 0 | 1 |
 
 ## Từng mã
 
@@ -280,6 +281,8 @@ Lấy từ trường «Hồi quy do sprint sau?» hoặc chữ «Không phải h
 | 10.8 | DEF-R10.8-02 | Thấp | TC-AS14-11, TC-AS13-05 | ĐÓNG | sửa b8c43df8 | lọt sprint gốc | bảng truy vết SRS §11 trỏ tới 13 tên test không tồn tại |
 | 10.8 | DEF-R10.8-03 | Thấp | TC-AS08-20 | ĐÓNG | sửa b3c039c0 | lọt sprint gốc | «Đóng» khi mất mạng thử lại bằng Idempotency-Key mới |
 | 10.8 | DEF-R10.8-04 | Thấp | TC-AS11-07 | ĐÓNG | sửa b3c039c0 | lọt sprint gốc | nút «Quét mã điểm danh» hiện cả khi qr_code không được hỗ trợ |
+| 10.8 | DEF-R10.8-05 | Trung bình | TC-AS11-17=F | MỞ | — (dev đang sửa; MainActivity.java không xử lý Back) | không ghi | Back khi đang quét QR đưa cả app Android ra launcher thay vì đóng khung quét |
+| 10.8 | DEF-R10.8-06 | Cao | TC-AS11-17=F | ĐÓNG | sửa e8b2162d | không ghi | gateway không nhận APP_PUBLIC_URL: qr_url / join_url / feed lịch dựng từ https://localhost |
 | opencode-go | DEF-OC-SI-01 | Thấp | TC-OC-70 | ĐÓNG | sửa 55664e51 | không ghi | log structured_invalid còn chép một phần nội dung đầu ra của mô hình |
 
 TC ghi riêng mã: mặc định dòng cuối là P; `=LT` là TC lỗi thời đã xoá có nguồn (không còn dòng trong smoke).

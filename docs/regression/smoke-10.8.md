@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15/16
-Tổng TC: 272 · Đạt: 271 · Trượt: 0 · Không chạy (K, loại a): 1 (TC-AS11-17, Android thật) · Chưa chạy (N): 0   (P+F+K+N = 272; đồng bộ 25/11: TC-AS09-34 P ở mục iOS Simulator cuối tệp)
+Tổng TC: 272 · Đạt: 271 · Trượt: 1 (TC-AS11-17: Back native, DEF-R10.8-05) · Không chạy (K): 0 · Chưa chạy (N): 0   (P+F+K+N = 272; đồng bộ 25/11: TC-AS09-34 P ở mục iOS Simulator, TC-AS11-17 F ở mục Android emulator, cuối tệp)
 
 Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,e2e}`, đã trỏ sang ep-r; script cũ không sửa):
 - API: `scripts/as_setup.py` rồi `as_a, as_b, as_c(+c3,c4), as_d(+d4,d5), as_e, as_f, as_g2, as_h, as_i2, as_j3, as_k`, bổ sung mới `as_long` (tự đóng, TOKEN_LATE), `as_more`, `as_more2`, `as_more3` (hộp công cụ: DB/DIFF/LOG, bảng ca tín hiệu, purge 4.320 hàng, ngắt giữa chừng), `as_arch`, `as_fix`, `as_manual`, `as_load` (thu nhỏ 84 SV). Lớp riêng `QC-ASr108`, GV/TG riêng `r108t`/`r108ta`.
@@ -338,3 +338,33 @@ Cờ `DEVICE_NEW` (`checkin.go:322`) có khi SV đã dùng một khoá khác tro
 | TC | KQ | Ghi chú |
 |---|---|---|
 | TC-AS09-34 | P | iOS Simulator 27.2 + VPS thật: khoá WebCrypto còn sau tắt app (Safari) và tắt/bật máy ảo (mức 2, không DEVICE_NEW); Thêm vào Màn hình chính + PWA đăng nhập còn; K: «> 7 ngày» (simulator không đổi giờ riêng) và điểm danh trong PWA (không có lối vào /checkin); xem mục trên |
+
+## TC-AS11-17 trên Android emulator + VPS (25/11, dev chạy; qc2 ghi lại từ `evidence-10.8/android/ket-qua-android-vps-8302ecca.md`, 34 ảnh ở `evidence-10.8/android/shots-vps/`)
+AVD `ep-api36` (Pixel 8, Android 16 / API 36), APK debug build từ HEAD (`APP_SERVER_URL` = VPS `https://v2202609419695521098.happysrv.de`, chứng chỉ ZeroSSL thật), VPS e8b2162d; emulator đã tắt.
+
+| Mục (android-checklist) | Kết quả | Ghi chú |
+|---|---|---|
+| AC-0 mở app | P | trang landing của VPS, không cảnh báo chứng chỉ |
+| AC-1 giữ phiên | P | đăng nhập `sv.gioi`; force-stop > 30 s, mở lại vẫn đăng nhập |
+| AC-3 quét QR | P (jsQR) | `BarcodeDetector` của emulator «không hoạt động» ⇒ app không hiện nút quét (đúng sau P-11-131); với shim jsQR cài trước khi tải trang: «Đã điểm danh» 1,7 s, channel WEB, mức 2 |
+| AC-3b QR lạ | P | QR chữ / origin khác / cùng origin khác đường dẫn: tiếp tục quét, 0 POST `/checkins` |
+| AC-4 mã ngắn | P | 631 ms, channel CODE |
+| AC-4b từ chối camera | P | «Chưa cấp quyền camera.» + ô mã |
+| AC-7 đăng ký thiết bị | P | challenge 200 → `/me/devices` 422 (đến bước chứng thực, gốc phần mềm); điểm danh 201 mức 2 |
+| AC-14 mã hết hạn | P | «Mã đã hết hạn…», ở lại `/checkin`, không đăng xuất |
+| a splash + logo | P | icon logo thương hiệu; splash trắng + logo ≈ 0,5 s |
+| b cutout + 3 nút + xoay | P (quan sát) | dock/thanh trên/thanh dưới không bị che; ngang đệm theo tai thỏ |
+| c chế độ tối | P | WebView luôn light |
+| d bàn phím | P | ô + «Điểm danh» thấy cùng lúc; phím «Đi» gửi; mã giữ nguyên |
+| e mất mạng khi mở app | P | «Không kết nối được máy chủ.» + «Thử lại» → vào lại còn đăng nhập |
+| f quyền Xấp xỉ | P | lớp geofence: assurance 1, `GEO_WEAK`, accuracy 2000 m |
+| AC-16 nền / xoay | P 3/4 | ra nền: khung quét đóng, camera tắt; xoay khi quét vẫn quét |
+| **US-AS-15 AC7(a) Back khi đang quét** | **F** | Back (phím / 3 nút / tap thật vào «Quét mã điểm danh» rồi Back) đưa cả app ra launcher thay vì đóng khung quét; phía web đúng (`history.state.epScan`, `history.back()` qua CDP đóng khung), vỏ Capacitor (`mobile/android/MainActivity.java`) không xử lý Back ⇒ DEF-R10.8-05 |
+| AC-9 «trong app không NOT_APP» | K: emulator không chứng thực được ⇒ luôn `NOT_APP` (`checkin.go:330`, đúng thiết kế) | |
+| AC-15 (mất mạng GIỮA lúc gửi), AC-18 (375 px mọi trạng thái), CL-8 (cấp lại quyền ở Cài đặt), AC-2, AC-8 | chưa chạy | để lượt chạy bộ mobile |
+
+Phát hiện khác: gateway không nhận `APP_PUBLIC_URL` (compose chỉ truyền cho worker) nên `qr_url` / `join_url` / feed lịch dựng từ `https://localhost`, app bỏ qua QR khác origin (quét 0/N) ⇒ DEF-R10.8-06, đã sửa e8b2162d (VPS đang chạy bản đó, AC-3 sau đó P). Quan sát: chỉ quyền Xấp xỉ mà provider mạng của emulator chưa có vị trí thì `getCurrentPosition` hết 8 s ⇒ `GEO_DENIED` (máy thật có vị trí mạng ⇒ `GEO_WEAK`); hộp «Chính xác / Gần đúng» của Android 12+ hiện mỗi lần xin vị trí và làm trễ lượt (có thể `TOKEN_LATE`).
+
+| TC | KQ | Ghi chú |
+|---|---|---|
+| TC-AS11-17 | F | Android emulator API 36 + VPS: 15 mục P (AC-0/1/3/3b/4/4b/7/14, a–f, AC-16 3/4); F: US-AS-15 AC7(a) Back khi đang quét thoát cả app (DEF-R10.8-05, dev đang sửa); K: AC-9 (emulator không chứng thực); chưa chạy: AC-15, AC-18, CL-8, AC-2, AC-8. Chạy lại sau khi sửa Back |

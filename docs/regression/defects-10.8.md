@@ -34,7 +34,23 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 - Nghi ngờ mã: `frontend/src/features/checkin/Scanner.tsx:10` (`hasBarcodeDetector` chỉ kiểm `"BarcodeDetector" in window`), `CheckinScreen.tsx:60-61` · Chạy lại lần 2: ổn định
 - Trạng thái DEF-04: ĐÃ SỬA (b3c039c0). Chạy lại sau dựng lại frontend 01:03: TC-AS11-07 P (`ui-more9.log`, `rerun-def.jsonl`).
 
+### DEF-R10.8-05 — Back khi đang quét QR đưa cả app Android ra launcher thay vì đóng khung quét
+- Mức: Trung bình · Sprint gốc: 10.8 · TC gốc: TC-AS11-17 (US-AS-15 AC7(a)) · Hồi quy do sprint sau?: KHÔNG (có sẵn)
+- Môi trường: AVD `ep-api36` (Android 16), APK debug HEAD, VPS e8b2162d, SV `sv.gioi`
+- Bước tái hiện: mở app, vào `/checkin`, bấm «Quét mã điểm danh» (hoặc tap thật), bấm Back (phím, nút 3 nút)
+- Kỳ vọng: khung quét đóng, về ô nhập mã · Thực tế: app thoát ra launcher; `history.state` có `epScan:true`, `history.length` 3; `history.back()` qua CDP đóng khung quét đúng ⇒ phía web đúng
+- Nghi ngờ mã: `mobile/android` `MainActivity.java` (vỏ Capacitor, không xử lý Back / không gọi `webView.goBack()`)
+- Bằng chứng: `evidence-10.8/android/ket-qua-android-vps-8302ecca.md`, ảnh `shots-vps/` (AC-16) · Chạy lại lần 2: ổn định
+- Trạng thái: MỞ (dev đang sửa; chạy lại TC-AS11-17 sau khi sửa)
+
+### DEF-R10.8-06 — gateway không nhận `APP_PUBLIC_URL`: `qr_url` / `join_url` / feed lịch dựng từ `https://localhost`
+- Mức: Cao · Sprint gốc: 10.8 · TC gốc: TC-AS11-17 (AC-3) · Hồi quy do sprint sau?: KHÔNG RÕ
+- Môi trường: VPS, AVD `ep-api36`
+- Kỳ vọng: URL công khai theo `APP_PUBLIC_URL` · Thực tế: compose chỉ truyền biến cho worker ⇒ gateway dựng URL từ `https://localhost`; app bỏ qua QR khác origin (quét 0/N)
+- Trạng thái: ĐÃ SỬA e8b2162d (thêm một dòng compose; VPS chạy bản đó); chạy lại: AC-3 P (1,7 s, WEB mức 2), AC-3b P
+
 ## Ghi nhận (không tính lỗi)
 1. `/me/today` mục `CHECKIN_REVIEW` đôi lúc vắng khi máy tải cao (provider «Hôm nay» hạn 60 ms, `today/providers.go:18`): 3 lần vắng / 8 lần đo; chờ cache 60 s hoặc gọi lại thì có. Go test `TestMeAttendanceCheckedAtAndTodayReview` trượt cùng lý do khi tải cao.
 2. `backend-go/internal/attendance/token.go:65,88` còn chú thích tên cũ `TOKEN_INVALID`/`TOKEN_EXPIRED` (mã chạy đúng `CHECKIN_TOKEN_*`).
 3. Go: `TestAttestRealChains`, `TestCheckinFlow`, `TestCheckinFlags`, `TestPurgeKeepsRecords`, `TestMeAttendanceCheckedAtAndTodayReview` hết hạn / trượt khi máy tải 30+; chạy lại khi tải thấp: toàn bộ PASS (`go-attendance3.log`, `go-attest3.log`, `-race` ok). `go test ./internal/contract` cần `-tags testroutes` (Makefile:17).
+4. Android emulator: chỉ quyền Xấp xỉ mà provider mạng chưa có vị trí thì `getCurrentPosition` hết 8 s ⇒ `GEO_DENIED` (máy thật ⇒ `GEO_WEAK`); hộp «Chính xác / Gần đúng» của Android 12+ làm trễ lượt (có thể `TOKEN_LATE`).
