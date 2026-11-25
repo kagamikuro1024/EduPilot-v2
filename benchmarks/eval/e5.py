@@ -5,10 +5,15 @@
                  Trần 5 lô / lớp / giờ: POST bị 429 thì ghi (lô, giờ, mã), dừng; chạy lại `e5.py run` sau → tiếp lô dở, không sinh đôi.
                  Stack đã dựng lại (course_id khác raw) → raw cũ cất thành `e5-<commit cũ>.json`, bắt đầu lượt mới.
   e5.py export   lưu vết câu đã sinh → raw/e5-questions.json
+  e5.py pack     gói duyệt mù → benchmarks/eval/human/e5_duyet_goi.csv (đề, phương án, đáp án đánh dấu, giải thích, nguồn + trích đoạn;
+                 KHÔNG có điểm / nhận định của máy). Trích đoạn đọc `content_chunks` qua EVAL_PSQL (READ ONLY).
+  e5.py apply    áp bản đã điền benchmarks/eval/human/e5_duyet.csv qua API (vai TEACHER): DUYỆT → review APPROVE; SỬA → PUT câu
+                 (cột sua_*) rồi APPROVE; BỎ → review REJECT. Câu không còn PENDING thì bỏ qua (chạy lại an toàn) → raw/e5-apply.json
   e5.py report   `GET …/questions/gen-stats?job_id` từng lô → e5.json / e5.md / e5.svg. Chưa có câu nào được duyệt → WAITING_HUMAN (không nội suy)
 Không đếm câu đã duyệt sẵn trong seed (chỉ các lô do lệnh này tạo).
 """
 import argparse
+import csv
 import json
 import os
 import subprocess
@@ -105,6 +110,98 @@ def export():
     print(f"→ raw/e5-questions.json ({len(out)} câu)")
 
 
+PACK, FILLED = lib.HERE / "human/e5_duyet_goi.csv", lib.HERE / "human/e5_duyet.csv"
+LETTERS = "ABCDEFGH"
+REJECT = {"": "UNSPECIFIED", "MO_HO": "MO_HO", "SAI_DAP_AN": "SAI_DAP_AN", "TRUNG_LAP": "TRUNG_LAP", "LAC_DE": "LAC_DE",
+          "KHO_DE_BAT_THUONG": "KHO_DE_BAT_THUONG", "SAI_DINH_DANG": "SAI_DINH_DANG"}
+
+
+def _questions():
+    """100 câu theo thứ tự lô → [(mã E5-001…, câu)], từ raw/e5-questions.json (đã kiểm: cả 100 câu trong DB còn version 1, PENDING)."""
+    items = [it for it in lib.load_raw("e5-questions.json")["items"] if it["http"] == 200]
+    return [(f"E5-{i:03d}", it["question"]) for i, it in enumerate(items, 1)]
+
+
+def pack():
+    qs = _questions()
+    nopt = max(len(q["options"]) for _, q in qs)
+    chunk_ids = sorted({c["chunk_id"] for _, q in qs for c in q.get("citations") or []})
+    text = {r["id"]: r["text"] for r in lib.sql("select id::text, text from content_chunks where id in (" + ",".join(map(lib.lit, chunk_ids)) + ")")}
+    letters = LETTERS[:nopt]
+    PACK.parent.mkdir(exist_ok=True)
+    with PACK.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["stt", "ma", "chu_de", "de", *letters, "dap_an_danh_dau", "giai_thich", "nguon", "trich_doan",
+                    "quyet_dinh (DUYỆT / SỬA / BỎ)", "ghi_chu", "sua_de", *[f"sua_{x}" for x in letters], "sua_dap_an", "sua_giai_thich",
+                    "ly_do_bo (" + " / ".join(k for k in REJECT if k) + ")"])
+        for i, (ma, q) in enumerate(qs, 1):
+            opts = sorted(q["options"], key=lambda o: o["position"])
+            key = [LETTERS[k] for k, o in enumerate(opts) if o["id"] in q["answer_key"]["option_ids"]]
+            cites = q.get("citations") or []
+            w.writerow([i, ma, q["topic"], q["stem"], *[o["body"] for o in opts], *[""] * (nopt - len(opts)), ",".join(key), q.get("explanation") or "",
+                        "; ".join(f"{c['document_title']}, tr. {c['page']}" for c in cites),
+                        "\n---\n".join(text.get(c["chunk_id"], "") for c in cites), "", "", "", *[""] * nopt, "", "", ""])
+    lib.save_raw("e5-duyet-map.json", {"note": "mã E5-… của e5_duyet_goi.csv → id câu trong question_bank (lớp E5)", "map": {ma: q["id"] for ma, q in qs}})
+    print(f"→ {PACK} ({len(qs)} câu, {len(chunk_ids)} trích đoạn)")
+
+
+def _norm(s):
+    return (s or "").strip().upper().replace("Ệ", "E").replace("Ử", "U").replace("Ỏ", "O").replace("Ư", "U").replace("Ơ", "O")
+
+
+def apply():
+    if not FILLED.exists():
+        raise Fail(f"chưa có {FILLED}")
+    raw = lib.load_raw("e5.json")
+    cid, idmap = raw["course_id"], lib.load_raw("e5-duyet-map.json")["map"]
+    with FILLED.open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    col = lambda r, p: next((v for k, v in r.items() if k and k.startswith(p)), "")  # noqa: E731  — tiêu đề có phần chú thích trong ngoặc
+    out = lib.load_raw("e5-apply.json") or {"items": {}}
+    for r in rows:
+        ma, dec = r["ma"].strip(), _norm(col(r, "quyet_dinh"))
+        if not dec:
+            continue
+        if dec not in ("DUYET", "SUA", "BO"):
+            raise Fail(f"{ma}: quyết định lạ «{col(r, 'quyet_dinh')}»")
+        qid, tok = idmap[ma], login(TEACHER)
+        st, q = call("GET", f"/courses/{cid}/questions/{qid}", tok)
+        if st != 200:
+            raise Fail(f"{ma}: GET → {st} {q}")
+        if q["review_status"] != "PENDING":
+            print(f"  {ma}: đã {q['review_status']}, bỏ qua")
+            continue
+        ver = q["version"]
+        if dec == "SUA":
+            opts = sorted(q["options"], key=lambda o: o["position"])
+            bodies = [(r.get(f"sua_{LETTERS[k]}") or "").strip() or o["body"] for k, o in enumerate(opts)]
+            key = (r.get("sua_dap_an") or "").strip().upper()
+            correct = [LETTERS.index(x.strip()) for x in key.split(",") if x.strip()] if key else \
+                [k for k, o in enumerate(opts) if o["id"] in q["answer_key"]["option_ids"]]
+            body = {"type": q["type"], "title": q["title"], "topic": q["topic"], "difficulty": q["difficulty"],
+                    "stem": (r.get("sua_de") or "").strip() or q["stem"], "options": [{"body": b, "pinned_last": o["pinned_last"]} for b, o in zip(bodies, opts)],
+                    "correct": correct, "explanation": (r.get("sua_giai_thich") or "").strip() or q.get("explanation"), "version": ver}
+            if body["stem"] == q["stem"] and bodies == [o["body"] for o in opts] and not key and body["explanation"] == q.get("explanation"):
+                raise Fail(f"{ma}: SỬA nhưng không có cột sua_* nào khác bản gốc")
+            st, q2 = call("PUT", f"/courses/{cid}/questions/{qid}", tok, body)
+            if st != 200:
+                raise Fail(f"{ma}: PUT → {st} {q2}")
+            ver = q2["version"]
+        review = {"decision": "REJECT" if dec == "BO" else "APPROVE", "version": ver}
+        if dec == "BO":
+            reason = col(r, "ly_do_bo").strip().upper()
+            if reason not in REJECT:
+                raise Fail(f"{ma}: lý do bỏ lạ «{reason}»")
+            review["reject_reason"] = REJECT[reason]
+        st, q3 = call("PUT", f"/courses/{cid}/questions/{qid}/review", tok, review)
+        if st != 200:
+            raise Fail(f"{ma}: review → {st} {q3}")
+        out["items"][ma] = {"question_id": qid, "decision": dec, "status": q3["review_status"], "version": q3["version"], "at": lib.now_iso()}
+        lib.save_raw("e5-apply.json", out)
+        print(f"  {ma}: {dec} → {q3['review_status']} v{q3['version']}")
+    print(f"đã áp {len(out['items'])} câu → raw/e5-apply.json")
+
+
 def report():
     raw = lib.load_raw("e5.json")
     if not raw or not raw.get("jobs"):
@@ -180,7 +277,7 @@ def report():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("cmd", choices=["run", "report", "export"])
+    ap.add_argument("cmd", choices=["run", "report", "export", "pack", "apply"])
     a = ap.parse_args()
     try:
         if a.cmd == "run":
@@ -190,6 +287,10 @@ def main():
             run()
         elif a.cmd == "export":
             export()
+        elif a.cmd == "pack":
+            pack()
+        elif a.cmd == "apply":
+            apply()
         else:
             report()
     except Fail as e:
