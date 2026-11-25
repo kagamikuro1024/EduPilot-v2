@@ -14,6 +14,11 @@ export function PreShell({ intro, landmark = "main" }: { intro: RouteIntro; /** 
       <header className={shell.topbar} data-part="topbar">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className={shell.mobileBrand} src="/brand/logo-edupilot-mark.svg" alt="" width={28} height={28} />
+        {/* điện thoại: ô giữ chỗ cùng kích thước với nút chọn lớp + tìm / chuông / hồ sơ, để thanh trên không nhảy khi khung thật vào (M12) */}
+        <span className={pre.phPick} data-ph="" aria-hidden="true" />
+        <span className={pre.phEnd} aria-hidden="true">
+          <i data-ph="" /><i data-ph="" /><i data-ph="" />
+        </span>
       </header>
       <aside className={shell.sidebar} data-part="sidebar" aria-hidden="true">
         <div className={shell.brand}>
@@ -48,7 +53,14 @@ export function PreShell({ intro, landmark = "main" }: { intro: RouteIntro; /** 
         </Page>
       </Main>
       {/* điện thoại: thanh đáy giữ chỗ (cùng chiều cao với thanh thật) để khung không nhảy khi phiên về (M12) */}
-      <div className={pre.bottom} data-part="pre-bottom" aria-hidden="true" />
+      <div className={pre.bottom} data-part="pre-bottom" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span key={i} className={pre.phCell}>
+            <i data-ph="" />
+            <b data-ph="" />
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

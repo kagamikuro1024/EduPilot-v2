@@ -194,7 +194,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <span className={`${s.courseCode} ${s.courseId}`} title={realPicked?.class_code ?? course.code}>{realPicked?.class_code ?? course.code}</span>
                     {" "}
                     <span className={s.courseName} title={courseTitle}>
-                      {realPicked?.name ?? course.name}
+                      · {realPicked?.name ?? course.name}
                     </span>
                   </>
                 )}

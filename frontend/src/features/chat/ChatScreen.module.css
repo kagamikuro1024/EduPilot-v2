@@ -122,3 +122,11 @@
   /* Vùng chạm ≥ 44 px cho nút chữ trong luồng chat (00-AC15). */
   .sourceBtn, .linkBtn { min-height: 44px; }
 }
+
+/* Điện thoại (M9): cuộc trò chuyện không khung Panel (vẫn trong cột 12 px của khung, quy tắc W3 của frame.spec); ô soạn dính đáy ngay trên thanh điều hướng (bàn phím mở: khung nhìn co lại — viewport `interactive-widget=resizes-content` — ô soạn đi theo) */
+@media (max-width: 719px), (max-height: 500px) and (pointer: coarse) {
+  :global([data-ep-panel]):has(.convo) { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+  .convo { padding: var(--ep-space-2) var(--ep-space-3) 0; }
+  .composer { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); padding: var(--ep-space-2) max(var(--ep-space-3), env(safe-area-inset-right, 0px)) var(--ep-space-2) max(var(--ep-space-3), env(safe-area-inset-left, 0px)); border-top: 1px solid var(--ep-rule); }
+  .thread { padding-bottom: 9rem; } /* chữ cuối không nằm dưới ô soạn */
+}

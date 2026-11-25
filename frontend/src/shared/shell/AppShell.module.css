@@ -88,7 +88,6 @@
 @media (hover: hover) and (pointer: fine) { .courseBtn:hover { background: var(--ep-surface-subtle); } }
 .courseBtn svg { width: 16px; height: 16px; color: var(--ep-ink-2); flex: none; }
 .courseCode { white-space: nowrap; }
-.courseName::before { content: "· "; }
 .courseName { font-weight: 500; color: var(--ep-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .courseCurrent { display: none; }
 
@@ -177,11 +176,11 @@
   .mobileBrand { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: calc(-1 * var(--ep-space-2)); }
   /* điện thoại: thanh trên mang TÊN lớp (mã lớp vô nghĩa với người dùng; mã vẫn ở menu chọn lớp) (M1) */
   .courseId { display: none; }
-  .courseName::before { content: none; }
+  .courseName { text-indent: -0.95ch; } /* dấu «· » đầu tên bị đẩy ra ngoài mép (overflow: hidden) mà vẫn là chữ trong DOM: tên truy cập khớp chữ nhìn thấy (WCAG 2.5.3) */
   .courseName { color: var(--ep-ink); font-weight: 600; }
-  .courseBtn { min-height: 44px; min-width: 0; }
+  .courseBtn { min-height: 44px; min-width: 0; max-width: 100%; }
   /* mã lớp dài (≤ 20 ký tự) co lại bằng dấu … thay vì đẩy cụm tìm / chuông / hồ sơ ra ngoài khung (DEF-R1.5-02) */
-  .topbar > :has(.courseBtn) { min-width: 0; }
+  .topbar > :has(.courseBtn) { min-width: 0; flex: 1; } /* nút chọn lớp giãn hết phần trống: tên lớp chỉ cắt khi thật sự hết chỗ (M1) */
   .courseCode { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .topEnd { flex: none; }
   .courseCurrent { display: block; padding: var(--ep-space-2) var(--ep-space-3) var(--ep-space-1); font-size: var(--ep-text-label); font-weight: 600; line-height: 1.4; color: var(--ep-ink); overflow-wrap: anywhere; }
