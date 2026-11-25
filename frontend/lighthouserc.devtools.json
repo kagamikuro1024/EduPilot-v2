@@ -10,6 +10,7 @@
         "http://localhost:3310/me",
         "http://localhost:3310/practice",
         "http://localhost:3310/practice/history",
+        "http://localhost:3310/assignments/00000000-0000-7000-8000-0000000000d1?course=00000000-0000-7000-8000-0000000000c1",
         "http://localhost:3310/settings/llm",
         "http://localhost:3310/dev/ui"
       ],

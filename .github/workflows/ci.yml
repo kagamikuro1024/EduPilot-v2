@@ -337,7 +337,7 @@ jobs:
           - { name: simulate A, slug: simulate-a, config: lighthouserc.json, out: .lighthouseci, paths: "/ /chat /threads /inbox /gradebook" }
           - { name: simulate B, slug: simulate-b, config: lighthouserc.json, out: .lighthouseci, paths: "/me /checkin /settings/llm /dev/ui" }
           - { name: devtools A, slug: devtools-a, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/ /chat /threads /inbox" }
-          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice" }
+          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice /assignments/00000000-0000-7000-8000-0000000000d1?course=00000000-0000-7000-8000-0000000000c1" }
           - { name: devtools C, slug: devtools-c, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/practice/history /settings/llm /dev/ui" }
     steps:
       - uses: actions/checkout@v7

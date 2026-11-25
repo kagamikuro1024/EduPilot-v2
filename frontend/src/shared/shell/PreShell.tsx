@@ -24,6 +24,17 @@ export function PreShell({ intro, landmark = "main" }: { intro: RouteIntro; /** 
       <Main id="main" role={landmark === "div" ? "main" : undefined} className={shell.main} aria-busy="true">
         <Page kind={intro.width ?? "read"}>
           <PageHeader title={intro.title} />
+          {intro.early && (
+            // ă đ ơ ư thuộc tệp phông latin-ext (khai báo sau «vietnamese» nên thắng khi trùng dải) — tệp này không được preload: không có span này nó chỉ tải SAU khi chữ dữ liệu đã chèn → chữ chờ thêm ~1 RTT (phông display:block). visibility:hidden vẫn dàn trang nên trình duyệt tải phông ngay lúc dựng HTML.
+            <span className={pre.fontWarm} aria-hidden="true">ăđơư</span>
+          )}
+          {intro.early && (
+            <div hidden suppressHydrationWarning>
+              <Panel>
+                <p className={pre.early} data-part="early-body" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: "" }} />
+              </Panel>
+            </div>
+          )}
           {intro.body && (
             <Panel>
               <p className={pre.body}>{intro.body}</p>
