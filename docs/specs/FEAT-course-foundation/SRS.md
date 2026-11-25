@@ -207,11 +207,13 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 | | 30 | `LLM_BUDGET_WARN` | **P2** | ✓ |
 | | 40 | `COURSE_NO_TEACHER` | **P2** | ✓ |
 | | 50 | `INVITE_EXPIRED` | **P2** | ✓ |
-| | 60+ | dead-letter, sao lưu | PR | — |
+| | 60 | `DEAD_LETTER` | **P11** (P-11-122) | — |
+| | 70+ | sao lưu thất bại | PR (chưa có sao lưu tự động — `PRODUCTION_READINESS.md`) | — |
 | Sinh viên | 10 | `VERIFY_EMAIL` | **P2** | ✓ |
 | | 20 | `JOIN_CODE` | **P2** | ✓ |
 | | 30 | `JOIN_PENDING` | **P2** | ✓ |
-| | 40+ | hạn nộp, QUIZ, điểm, phúc khảo, câu trả lời GV, tài liệu mới | P7 / P9 / P6 / P4 / P8 | — |
+| | 40–80 | hạn nộp, QUIZ, điểm, phúc khảo, câu trả lời GV | P7 / P9 / P6 / P4 | — |
+| | 90 | `NEW_DOCUMENT` | **P11** (P-11-122) | — |
 
 `Overdue` do Provider đặt (P2: `JOIN_REQUEST` có yêu cầu cũ nhất > 48 giờ).
 
@@ -235,14 +237,24 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 | `LLM_BUDGET_*` | Ngân sách AI | "Chi phí AI hôm nay đã dùng {pct} % ngân sách." | `/settings/llm` |
 | `COURSE_NO_TEACHER` | Lớp {mã lớp} chưa có giảng viên | "Hãy gán giảng viên để lớp nhận thông báo và mở mã tham gia." | `/admin/courses` |
 | `INVITE_EXPIRED` | {N} lời mời giảng viên đã hết hạn | "Gửi lại lời mời để họ vào được hệ thống." | `/admin/users?status=INVITED` |
+| `DEAD_LETTER` (P-11-122) | Hàng đợi có {N} tin lỗi hẳn | "{topic} ({k}) · mới nhất {tuổi} trước." | — (chưa có trang riêng) |
+| `NEW_DOCUMENT` (P-11-122) | {N} tài liệu mới · lớp {mã lớp} | "{tên tài liệu mới nhất}" (N > 1: "{tên} và {N−1} tài liệu khác") | `/library?course={id}` |
 
 `{tuổi}`: "{n} phút" (< 60), "{n} giờ" (< 48 giờ), "{n} ngày"; tính bằng đồng hồ thật, làm tròn xuống.
 
 **`COURSE_SETUP`:** bốn bước `steps[{key,label,done,href}]` tự tick: `share_code` (có ≥ 1 enrollment STUDENT `ACTIVE`/`PENDING`), `policy` (có `documents` loại `COURSE_POLICY` của chính lớp, `status ≠ FAILED`), `sessions` (có `class_sessions`), `documents` (có tài liệu loại ≠ `COURSE_POLICY` của lớp hoặc chia sẻ vào lớp, `status ≠ FAILED`); mục ẩn khi xong cả bốn **hoặc** `courses.settings.setup.dismissed_at` có giá trị (`POST …/setup/dismiss`, Giảng viên). Ở P2 chỉ `share_code` và `sessions` có thể xong bằng dữ liệu thật (tài liệu thuộc P3 / P8); giảng viên có thể bỏ qua mục.
 
+**Hai nguồn thêm ở sprint 11 (P-11-122).**
+
+*`NEW_DOCUMENT` (chỉ Sinh viên).* Mỗi lớp `ACTIVE` của người xem có ≥ 1 tài liệu cho một mục `NEW_DOCUMENT:{course_id}`. Tài liệu đếm = đúng bộ lọc `/library` (`FEAT-docs-calendar` 4.4: `READY`, `visible_to_students`, `type <> 'ANSWER_KEY'`, của lớp hoặc chia sẻ vào lớp) **và** vào lớp trong 72 giờ qua (`documents.created_at`; tài liệu chia sẻ: `document_courses.created_at`) **và** sau lần sinh viên mở thư viện lớp đó gần nhất. «Đã mở»: `GET /courses/{id}/library` thành công (200 hoặc 304) ghi khoá Redis `ep:today:docseen:{user_id}:{course_id}` = thời điểm hiện tại, TTL 72 giờ, rồi xoá cache `today` của người đó; mất khoá (Redis lỗi / hết TTL) thì mục hiện lại cho tới khi quá 72 giờ, không báo lỗi. Đọc các khoá bằng một lệnh Redis `MGET`, không tính vào ngân sách SQL. Tiêu đề đếm tất cả tài liệu thỏa điều kiện; `Urgency` thấp nhất (bậc 90); không `Overdue`. Vô hiệu cache: khi `documents` chuyển `READY` (cuối job `document.ingest`), khi chia sẻ tài liệu vào lớp hoặc đổi `visible_to_students` / xoá tài liệu → xoá cache `today` của mọi STUDENT `ACTIVE` của lớp đó; TTL 60 giây là lưới an toàn. Phân quyền: chỉ lớp `ACTIVE` của chính người xem (từ `Viewer.Courses`); TA, GV, Admin không có nguồn này; không bao giờ đếm `ANSWER_KEY` hoặc tài liệu ẩn.
+
+*`DEAD_LETTER` (chỉ Admin).* Một mục duy nhất khi có ≥ 1 dòng `outbox` với `dead_at` trong 7 ngày qua (gồm thư `mail.send` chết). `N` = số dòng; `topic` / `k` = chủ đề có nhiều dòng nhất (hoà: theo thứ tự chữ cái); tuổi = từ `dead_at` mới nhất. Chỉ dùng `topic`, `dead_at`, số đếm: **không** đọc `payload`, `last_error`, địa chỉ thư hay tên (không PII). Không có thao tác «đã xem»: mục tự hết khi dòng cũ quá 7 ngày hoặc không còn dòng chết trong khoảng đó (xử lý lại là việc của vận hành, ngoài phạm vi sprint 11). Bậc 60 (sau `INVITE_EXPIRED`). Vô hiệu cache: không có sự kiện, chờ TTL 60 giây. Chỉ hàng đợi `outbox` được tính; dead-letter của Redis Streams worker (`grading.jobs`, `reindex.jobs`…) chưa có nơi lưu bền → **không** thuộc nguồn này. «Sao lưu gần nhất thất bại» thuộc phase PR (chưa có sao lưu tự động), chưa đăng ký.
+
+Cả hai là Provider theo khung trên: lỗi hoặc quá 150 ms → bỏ nguồn đó, log, phần còn lại vẫn trả (không 5xx, không trang trắng).
+
 **Cache:** `ep:today:{user_id}:{scope}` (`scope` = `all` | id lớp), JSON, TTL `TODAY_CACHE_TTL` 60 s. Vô hiệu: handler `today.invalidate` chạy cho mọi topic bảng 4.9 và xoá `ep:today:{uid}:all` + `ep:today:{uid}:{course_id}` của từng người bị ảnh hưởng (payload nêu `user_ids` hoặc handler suy ra từ `enrollments` của lớp: giảng viên + TA + người liên quan); `user.verified` xoá `all` và mọi lớp của người đó. TTL là lưới an toàn.
 
-**Ngân sách truy vấn:** nền P2 ≤ 5 truy vấn SQL mỗi yêu cầu không cache (một truy vấn dựng `Viewer`/enrollments; mỗi Provider dùng tổng hợp một truy vấn; Provider P2 dùng chung ảnh chụp `enrollments` đã nạp). Các nguồn việc thêm sau P2 mỗi nguồn cộng đúng **một** truy vấn gộp cố định, không đổi theo số lớp (bài tập: +1 mỗi vai, `FEAT-assignments` SRS 4.12; luyện đề của sinh viên: +1, P-10-8 F1) → trần **≤ 7** mỗi yêu cầu `today` không cache, tính cả guard (giảng viên gọi theo một lớp: ≤ 8); `TestTodayQueryBudget` (`internal/today`). (P-11-104)
+**Ngân sách truy vấn:** nền P2 ≤ 5 truy vấn SQL mỗi yêu cầu không cache (một truy vấn dựng `Viewer`/enrollments; mỗi Provider dùng tổng hợp một truy vấn; Provider P2 dùng chung ảnh chụp `enrollments` đã nạp). Các nguồn việc thêm sau P2 mỗi nguồn cộng đúng **một** truy vấn gộp cố định, không đổi theo số lớp (bài tập: +1 mỗi vai, `FEAT-assignments` SRS 4.12; luyện đề của sinh viên: +1, P-10-8 F1) → trần **≤ 7** mỗi yêu cầu `today` không cache, tính cả guard (giảng viên gọi theo một lớp: ≤ 8); `TestTodayQueryBudget` (`internal/today`). (P-11-104) **P-11-122:** `NEW_DOCUMENT` cộng **+1** truy vấn gộp cố định (đếm tài liệu mới theo mọi lớp `ACTIVE` bằng một câu `GROUP BY course_id`, không N+1) → trần **sinh viên ≤ 8** (từ 7); `DEAD_LETTER` cộng +1 cho Admin (≤ 7 vẫn đủ: nền P2 + 1). Giảng viên / TA không đổi (≤ 7; một lớp ≤ 8).
 
 ### 4.8 Seed (US-P2-12)
 
@@ -624,7 +636,7 @@ Tính theo **ngày lịch** (`Asia/Ho_Chi_Minh`) từ đồng hồ thật: cùng
 | `roster/import` 500 dòng | ≤ 5 s (không bcrypt; thư xếp hàng) |
 | Thông báo phân công tới chuông | ≤ 60 s (thực tế ≤ 2 s; chuông làm mới ≤ 30 s) |
 | Việc "Hôm nay" xử lý xong biến | ≤ 60 s (≤ 2 s với sự kiện) |
-| Số truy vấn SQL / request `today` | ≤ 7 (nền P2 ≤ 5; P-11-104) |
+| Số truy vấn SQL / request `today` | ≤ 7; sinh viên ≤ 8 (nền P2 ≤ 5; P-11-104, P-11-122) |
 
 ### 8.3 Bảo mật và cách ly
 

@@ -102,7 +102,7 @@ Truy vết: PRD M9, M10; FLOWS F6 bước 5, F3 (tool `search_library`); P8 L2; 
   Kiểm: `$PW documents.spec.ts -g 'offline upload retry|patch rollback'`; `$PW library.spec.ts -g 'search error keeps query'`.
 
 ### Ngoài phạm vi của story này
-- Nút `Luyện đề này` (P9); tải xuống hàng loạt; chỉnh sửa nội dung tệp; thông báo "tài liệu mới" (Q6).
+- Nút `Luyện đề này` (P9); tải xuống hàng loạt; chỉnh sửa nội dung tệp; chuông / thông báo đẩy "tài liệu mới" (mục «Hôm nay» `NEW_DOCUMENT` đã làm ở sprint 11: `FEAT-course-foundation` US-P2-11 AC15, P-11-122).
 
 ### Phụ thuộc
 - US-P8-01; US-P3-05 (`document_id` của phiên, khoá giờ thi); `FEAT-ui-foundation` (`PageState`, `DataTable`, `ConfirmIrreversible`, `useSSE`); `FEAT-course-foundation`.
