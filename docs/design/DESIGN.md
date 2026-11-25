@@ -841,7 +841,7 @@ Primary job: a student is marked present in one action, within 3 s of scanning, 
 Role: STUDENT. TA / TEACHER / ADMIN get the standard blocked screen with no API call.
 
 Frame (§23): inside the app shell, kind `read`, `h1` `Điểm danh`, no header meta (the course is in the top bar), one `Panel`.
-- The route is not in `nav.ts`, so `frame.spec.ts` lists it explicitly (P-108-8).
+- The route is a student item in `nav.ts` (`Điểm danh`, one of the 10 student items: sidebar, «Thêm» on mobile, «Tìm nhanh»), so `frame.spec.ts` covers it through the nav list like any other route (P-11-137).
 - Route group `app/(checkin)/checkin/`. Its layout runs BEFORE `AuthGate`:
   1. Store `{c, token, at}` in `sessionStorage` (`ep.checkin`, ≤ 60 s).
   2. Clear the hash with `history.replaceState`.
