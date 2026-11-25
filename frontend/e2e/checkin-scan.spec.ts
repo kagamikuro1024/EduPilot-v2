@@ -17,7 +17,8 @@ const stub = (qr: string[], deny = false) =>
       return s;
     };
     const queue = ${JSON.stringify(qr)}.map((v) => v.replace("ORIGIN", location.origin));
-    window.BarcodeDetector = class { async detect() { const v = queue.shift(); return v ? [{ rawValue: v }] : []; } };
+    // canvas = phép thử khả dụng (QR mẫu vẽ tại chỗ, P-11-131); video = khung camera
+    window.BarcodeDetector = class { async detect(src) { if (src instanceof HTMLCanvasElement) return [{ rawValue: "probe" }]; const v = queue.shift(); return v ? [{ rawValue: v }] : []; } };
   })()`;
 
 test("checkin scan: mã lạ bị bỏ qua, mã đúng → gửi token một lần và tắt camera", async ({ page, context }) => {
@@ -45,6 +46,8 @@ test("checkin scan: từ chối camera → «Chưa cấp quyền camera.» + ô 
 for (const [name, patch] of [
   ["getSupportedFormats() rỗng", `window.BarcodeDetector.getSupportedFormats = async () => [];`],
   ["getSupportedFormats() không có qr_code", `window.BarcodeDetector.getSupportedFormats = async () => ["code_128", "ean_13"];`],
+  ["detect() ném lỗi dù báo qr_code (máy thiếu GMS, «not operational»)", `window.BarcodeDetector.getSupportedFormats = async () => ["qr_code"]; window.BarcodeDetector.prototype.detect = async () => { throw new DOMException("Barcode Detector is not operational", "NotSupportedError"); };`],
+  ["detect() không đọc ra QR mẫu", `window.BarcodeDetector.getSupportedFormats = async () => ["qr_code"]; window.BarcodeDetector.prototype.detect = async () => [];`],
   ["hàm dựng ném lỗi", `window.BarcodeDetector = class { constructor() { throw new TypeError("formats không hỗ trợ"); } };`],
 ] as const) {
   test(`checkin scan: ${name} ⇒ không nút «Quét mã điểm danh», ô nhập mã hiện ngay`, async ({ page, context }) => {
