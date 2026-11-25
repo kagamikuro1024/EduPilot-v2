@@ -45,4 +45,4 @@ for (const [w, h0] of sizes) {
 }
 await b.close();
 fs.writeFileSync(`${out}/report-${Date.now()}.json`, JSON.stringify(report, null, 1));
-console.log(JSON.stringify(report.map(x => ({ r: x.route, w: x.w, url: x.url, sw: x.scrollW, h: x.docH, smallN: x.smallN, over: x.over.length, clip: x.clipped.length, errs: x.errs.length }))));
+console.log(JSON.stringify(report.map(x => ({ r: x.route, w: x.w, url: x.url, sw: x.scrollW, h: x.docH, smallN: x.smallN, over: x.over?.length, errs: x.errs?.length, missing: x.missing }))));
