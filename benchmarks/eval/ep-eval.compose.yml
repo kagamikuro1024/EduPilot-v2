@@ -1,0 +1,19 @@
+# Stack «ep-eval» trên VPS: DB ep-qc (dump 2026-11-25) + gateway đúng bản ep-qc dùng khi đo E5 (708dc729), để giảng viên-nhãn
+# duyệt 100 câu E5 qua API rồi `e5.py report`. Không dùng LLM, không worker, không frontend.
+# Mã nguồn: `git archive 708dc729` (KHÔNG sửa); dùng thêm -f sau docker-compose.local.yml + docker-compose.test.yml của bản đó:
+#   docker compose -p ep-eval --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f ep-eval.compose.yml up -d --no-deps postgres pgbouncer redis minio gateway
+# Cổng chỉ 127.0.0.1, dải 2653x (không đụng stack edupilot, dịch vụ test edupilot-test-*, 9router).
+services:
+  postgres:
+    ports: !override ["127.0.0.1:26533:5432"]
+  redis:
+    ports: !override ["127.0.0.1:26534:6379"]
+  minio:
+    ports: !override ["127.0.0.1:26535:9000"]
+  gateway:
+    image: ep-eval-gateway-test # bản 708dc729 đặt tên image cố định; tên riêng để không ghi đè image của stack khác
+    ports: ["127.0.0.1:26580:8080"]
+    environment:
+      FAKE_LLM_VALID_KEY: qc-fake-valid-key-p1129 # như ep-qc.override.yml
+      RATE_LIMIT_IP_PER_MIN: "5000"
+      AUTH_LOGIN_IP_PER_MIN: "1000"

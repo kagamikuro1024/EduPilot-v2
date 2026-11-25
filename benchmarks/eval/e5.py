@@ -5,12 +5,18 @@
                  Trần 5 lô / lớp / giờ: POST bị 429 thì ghi (lô, giờ, mã), dừng; chạy lại `e5.py run` sau → tiếp lô dở, không sinh đôi.
                  Stack đã dựng lại (course_id khác raw) → raw cũ cất thành `e5-<commit cũ>.json`, bắt đầu lượt mới.
   e5.py export   lưu vết câu đã sinh → raw/e5-questions.json
+  e5.py pack     gói duyệt mù → benchmarks/eval/human/e5_duyet_goi.csv (đề, phương án, đáp án đánh dấu, giải thích, nguồn + trích đoạn;
+                 KHÔNG có điểm / nhận định của máy). Trích đoạn đọc `content_chunks` qua EVAL_PSQL (READ ONLY).
+  e5.py apply    áp bản đã điền benchmarks/eval/human/e5_duyet.csv qua API (vai TEACHER): DUYỆT → review APPROVE; SỬA → PUT câu
+                 (cột sua_*) rồi APPROVE; BỎ → review REJECT. Câu không còn PENDING thì bỏ qua (chạy lại an toàn) → raw/e5-apply.json
   e5.py report   `GET …/questions/gen-stats?job_id` từng lô → e5.json / e5.md / e5.svg. Chưa có câu nào được duyệt → WAITING_HUMAN (không nội suy)
 Không đếm câu đã duyệt sẵn trong seed (chỉ các lô do lệnh này tạo).
 """
 import argparse
+import csv
 import json
 import os
+import re
 import subprocess
 import time
 from datetime import datetime
@@ -105,6 +111,98 @@ def export():
     print(f"→ raw/e5-questions.json ({len(out)} câu)")
 
 
+PACK, FILLED = lib.HERE / "human/e5_duyet_goi.csv", lib.HERE / "human/e5_duyet.csv"
+LETTERS = "ABCDEFGH"
+REJECT = {"": "UNSPECIFIED", "MO_HO": "MO_HO", "SAI_DAP_AN": "SAI_DAP_AN", "TRUNG_LAP": "TRUNG_LAP", "LAC_DE": "LAC_DE",
+          "KHO_DE_BAT_THUONG": "KHO_DE_BAT_THUONG", "SAI_DINH_DANG": "SAI_DINH_DANG"}
+
+
+def _questions():
+    """100 câu theo thứ tự lô → [(mã E5-001…, câu)], từ raw/e5-questions.json (đã kiểm: cả 100 câu trong DB còn version 1, PENDING)."""
+    items = [it for it in lib.load_raw("e5-questions.json")["items"] if it["http"] == 200]
+    return [(f"E5-{i:03d}", it["question"]) for i, it in enumerate(items, 1)]
+
+
+def pack():
+    qs = _questions()
+    nopt = max(len(q["options"]) for _, q in qs)
+    chunk_ids = sorted({c["chunk_id"] for _, q in qs for c in q.get("citations") or []})
+    text = {r["id"]: r["text"] for r in lib.sql("select id::text, text from content_chunks where id in (" + ",".join(map(lib.lit, chunk_ids)) + ")")}
+    letters = LETTERS[:nopt]
+    PACK.parent.mkdir(exist_ok=True)
+    with PACK.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["stt", "ma", "chu_de", "de", *letters, "dap_an_danh_dau", "giai_thich", "nguon", "trich_doan",
+                    "quyet_dinh (DUYỆT / SỬA / BỎ)", "ghi_chu", "sua_de", *[f"sua_{x}" for x in letters], "sua_dap_an", "sua_giai_thich",
+                    "ly_do_bo (" + " / ".join(k for k in REJECT if k) + ")"])
+        for i, (ma, q) in enumerate(qs, 1):
+            opts = sorted(q["options"], key=lambda o: o["position"])
+            key = [LETTERS[k] for k, o in enumerate(opts) if o["id"] in q["answer_key"]["option_ids"]]
+            cites = q.get("citations") or []
+            w.writerow([i, ma, q["topic"], q["stem"], *[o["body"] for o in opts], *[""] * (nopt - len(opts)), ",".join(key), q.get("explanation") or "",
+                        "; ".join(f"{c['document_title']}, tr. {c['page']}" for c in cites),
+                        "\n---\n".join(text.get(c["chunk_id"], "") for c in cites), "", "", "", *[""] * nopt, "", "", ""])
+    lib.save_raw("e5-duyet-map.json", {"note": "mã E5-… của e5_duyet_goi.csv → id câu trong question_bank (lớp E5)", "map": {ma: q["id"] for ma, q in qs}})
+    print(f"→ {PACK} ({len(qs)} câu, {len(chunk_ids)} trích đoạn)")
+
+
+def _norm(s):
+    return (s or "").strip().upper().replace("Ệ", "E").replace("Ử", "U").replace("Ỏ", "O").replace("Ư", "U").replace("Ơ", "O")
+
+
+def apply():
+    if not FILLED.exists():
+        raise Fail(f"chưa có {FILLED}")
+    raw = lib.load_raw("e5.json")
+    cid, idmap = raw["course_id"], lib.load_raw("e5-duyet-map.json")["map"]
+    with FILLED.open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    col = lambda r, p: next((v for k, v in r.items() if k and k.startswith(p)), "")  # noqa: E731  — tiêu đề có phần chú thích trong ngoặc
+    out = lib.load_raw("e5-apply.json") or {"items": {}}
+    for r in rows:
+        ma, dec = r["ma"].strip(), _norm(col(r, "quyet_dinh"))
+        if not dec:
+            continue
+        if dec not in ("DUYET", "SUA", "BO"):
+            raise Fail(f"{ma}: quyết định lạ «{col(r, 'quyet_dinh')}»")
+        qid, tok = idmap[ma], login(TEACHER)
+        st, q = call("GET", f"/courses/{cid}/questions/{qid}", tok)
+        if st != 200:
+            raise Fail(f"{ma}: GET → {st} {q}")
+        if q["review_status"] != "PENDING":
+            print(f"  {ma}: đã {q['review_status']}, bỏ qua")
+            continue
+        ver = q["version"]
+        if dec == "SUA":
+            opts = sorted(q["options"], key=lambda o: o["position"])
+            bodies = [(r.get(f"sua_{LETTERS[k]}") or "").strip() or o["body"] for k, o in enumerate(opts)]
+            key = (r.get("sua_dap_an") or "").strip().upper()
+            correct = [LETTERS.index(x.strip()) for x in key.split(",") if x.strip()] if key else \
+                [k for k, o in enumerate(opts) if o["id"] in q["answer_key"]["option_ids"]]
+            body = {"type": q["type"], "title": q["title"], "topic": q["topic"], "difficulty": q["difficulty"],
+                    "stem": (r.get("sua_de") or "").strip() or q["stem"], "options": [{"body": b, "pinned_last": o["pinned_last"]} for b, o in zip(bodies, opts)],
+                    "correct": correct, "explanation": (r.get("sua_giai_thich") or "").strip() or q.get("explanation"), "version": ver}
+            if body["stem"] == q["stem"] and bodies == [o["body"] for o in opts] and not key and body["explanation"] == q.get("explanation"):
+                raise Fail(f"{ma}: SỬA nhưng không có cột sua_* nào khác bản gốc")
+            st, q2 = call("PUT", f"/courses/{cid}/questions/{qid}", tok, body)
+            if st != 200:
+                raise Fail(f"{ma}: PUT → {st} {q2}")
+            ver = q2["version"]
+        review = {"decision": "REJECT" if dec == "BO" else "APPROVE", "version": ver}
+        if dec == "BO":
+            reason = col(r, "ly_do_bo").strip().upper()
+            if reason not in REJECT:
+                raise Fail(f"{ma}: lý do bỏ lạ «{reason}»")
+            review["reject_reason"] = REJECT[reason]
+        st, q3 = call("PUT", f"/courses/{cid}/questions/{qid}/review", tok, review)
+        if st != 200:
+            raise Fail(f"{ma}: review → {st} {q3}")
+        out["items"][ma] = {"question_id": qid, "decision": dec, "reason": review.get("reject_reason"), "status": q3["review_status"], "version": q3["version"], "at": lib.now_iso()}
+        lib.save_raw("e5-apply.json", out)
+        print(f"  {ma}: {dec} → {q3['review_status']} v{q3['version']}")
+    print(f"đã áp {len(out['items'])} câu → raw/e5-apply.json")
+
+
 def report():
     raw = lib.load_raw("e5.json")
     if not raw or not raw.get("jobs"):
@@ -131,20 +229,40 @@ def report():
     rate = {k: round(tot[k] / reviewed, 4) for k in ("unchanged", "edited", "rejected")} if reviewed else None
     status = "OK" if reviewed >= 100 else "WAITING_HUMAN"
     models = sorted({f"{a['provider']}/{a['model']}" for a in calls})
-    obj = {"meta": lib.meta({"stack": "ep-qc", "model": ", ".join(models) or prov.get("P1", {}).get("model"), "via": "9router", "plan": PLAN}),
-           "status": status, "reason": None if status == "OK" else f"Giảng viên (chủ dự án) mới duyệt {reviewed}/{created} câu; AC7: ghi cỡ mẫu thật, không nội suy.",
+    obj = {"meta": lib.meta({"stack": "ep-qc (sinh) → ep-eval (duyệt)", "model": ", ".join(models) or prov.get("P1", {}).get("model"), "via": "9router", "plan": PLAN}),
+           "status": status, "reason": None if status == "OK" else f"Người duyệt mới duyệt {reviewed}/{created} câu; AC7: ghi cỡ mẫu thật, không nội suy.",
            "generated": created, "skipped_by_reason": skipped, "review": tot, "n_reviewed": reviewed, "rates": rate,
            "llm_calls": len(calls), "latency_ms": lib.pct([a["latency_ms"] for a in calls]), "tokens_in": sum(a["tokens_in"] for a in calls), "tokens_out": sum(a["tokens_out"] for a in calls),
            "jobs": raw["jobs"], "rate_limited": raw.get("rate_limited", [])}
+    # lý do loại theo lô: raw/e5-apply.json (quyết định người duyệt) ⨝ câu → lô (raw/e5.json)
+    batch_of = {q: k for k, j in raw["jobs"].items() for q in (j.get("result") or {}).get("created") or []}
+    reasons, by_batch_reason = {}, {}
+    for it in ((lib.load_raw("e5-apply.json") or {}).get("items") or {}).values():
+        if it["decision"] == "BO":
+            reasons[it.get("reason") or "?"] = reasons.get(it.get("reason") or "?", 0) + 1
+            by_batch_reason.setdefault(batch_of.get(it["question_id"]), {}).setdefault(it.get("reason") or "?", 0)
+            by_batch_reason[batch_of.get(it["question_id"])][it.get("reason") or "?"] += 1
+    obj["rejected_by_reason"] = reasons
+    obj["usable_rate"] = round((tot["unchanged"] + tot["edited"]) / reviewed, 4) if reviewed else None
+    qs = [it["question"] for it in (lib.load_raw("e5-questions.json") or {}).get("items") or [] if it.get("question")]
+    key_a = sum(sorted(q["options"], key=lambda o: o["position"])[0]["id"] in q["answer_key"]["option_ids"] for q in qs)
+    leak_cn = sum(bool(re.search(r"\[C\d+\]", (q.get("explanation") or "") + q["stem"])) for q in qs)
+    pages = {}
+    for it in (lib.load_raw("e5-questions.json") or {}).get("items") or []:
+        pages.setdefault(it["batch"], []).extend(c["page"] for c in it["question"].get("citations") or [])
+    obj["findings_data"] = {"answer_key_A": key_a, "citation_marker_in_text": leak_cn, "n": len(qs), "cited_pages": {k: [min(v), max(v)] for k, v in sorted(pages.items()) if v}}
     lib.svg_bars("e5.svg", [("duyệt nguyên", [tot["unchanged"]]), ("sửa nhẹ", [tot["edited"]]), ("loại", [tot["rejected"]]), ("chờ duyệt", [tot["pending"]])], ["số câu"],
                  f"E5 — {created} câu AI sinh: kết quả duyệt (n duyệt = {reviewed})", "câu", fmt="{:.0f}")
     pct = lambda x: "–" if rate is None else f"{rate[x] * 100:.1f} %".replace(".", ",")  # noqa: E731
     iso = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))  # noqa: E731
     build_of = lambda j: lib.build_of(j.get("gateway_image"), j["t0"])  # noqa: E731
-    L = ["# E5 — câu hỏi AI sinh", "", f"Trạng thái: **{status}**. Stack `ep-qc`; bản gateway của từng lô ở cột «bản dựng» (sha do người dựng xác nhận, image không mang sha). "
+    L = ["# E5 — câu hỏi AI sinh", "", f"Trạng thái: **{status}**. Sinh trên stack `ep-qc` (2026-11-15; bản gateway của từng lô ở cột «bản dựng», sha do người dựng xác nhận, image không mang sha); "
+         "duyệt trên stack `ep-eval` (VPS, 2026-11-25: DB `ep-qc` dump 2026-11-25 + gateway 708dc729, `benchmarks/eval/ep-eval.compose.yml`). "
          f"Bộ đo `benchmarks/eval/e5.py` @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. Model sinh: `{obj['meta']['config']['model']}` qua 9router.", "",
          f"- Sinh: **{created}** câu từ {len(raw['jobs'])} lô (10 câu / lô, MCQ một đáp án, mức MEDIUM, nguồn: «Network Security Threats», «Forecasting (QMB ch. 6b)»). Bỏ: " + (", ".join(f"{k} {v}" for k, v in skipped.items()) or "không") + ".",
-         f"- Duyệt: **n = {reviewed}** — duyệt nguyên {tot['unchanged']} ({pct('unchanged')}), sửa nhẹ {tot['edited']} ({pct('edited')}), loại {tot['rejected']} ({pct('rejected')}); chờ duyệt {tot['pending']}.",
+         f"- Duyệt: **n = {reviewed}** — duyệt nguyên {tot['unchanged']} ({pct('unchanged')}), sửa nhẹ {tot['edited']} ({pct('edited')}), loại {tot['rejected']} ({pct('rejected')}); chờ duyệt {tot['pending']}. "
+         + (f"**Dùng được (duyệt nguyên + sửa nhẹ): {obj['usable_rate'] * 100:.1f} %**".replace(".", ",") if reviewed else "")
+         + (". Loại theo lý do: " + ", ".join(f"{k} {v}" for k, v in sorted(reasons.items(), key=lambda x: -x[1])) if reasons else "") + ".",
          f"- Lời gọi QUESTION_GEN (llm_audit): {len(calls)}, p50 {obj['latency_ms'].get('p50')} ms, p95 {obj['latency_ms'].get('p95')} ms; token vào {obj['tokens_in']}, ra {obj['tokens_out']}.", "",
          "## Từng lô", "", "| lô | chủ đề | bản dựng | POST (UTC) | xong (UTC) | giây | trạng thái | câu tạo | bỏ | lỗi | POST bị 429 trước lô | lời gọi LLM (trạng thái) |",
          "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
@@ -163,24 +281,37 @@ def report():
                  + (", ".join(f"{s} {n}" for s, n in sorted(st_count.items())) or "–") + " |")
     for k in sorted(set(rl) - set(raw["jobs"])):
         L.append(f"| {k} | {dict((f'lo{i + 1:02d}', t) for i, (_, t) in enumerate(PLAN))[k]} | – | – | – | – | chưa nhận (429) | 0 | 0 | – | {', '.join(rl[k])} | – |")
+    if reviewed:
+        L += ["", "## Kết quả duyệt theo lô", "", "| lô | chủ đề | duyệt nguyên | sửa nhẹ | loại | lý do loại | trang trích dẫn |", "| --- | --- | --- | --- | --- | --- | --- |"]
+        for k, j in sorted(raw["jobs"].items()):
+            g, pg = j.get("gen_stats") or {}, obj["findings_data"]["cited_pages"].get(k)
+            L.append(f"| {k} | {j['topic']} | {g.get('unchanged', '–')} | {g.get('edited', '–')} | {g.get('rejected', '–')} | "
+                     + (", ".join(f"{r} {n}" for r, n in sorted(by_batch_reason.get(k, {}).items(), key=lambda x: -x[1])) or "–") + f" | {f'{pg[0]}–{pg[1]}' if pg else '–'} |")
     if lib.builds():
         L += ["", "Bản dựng (`raw/builds.json`): " + "; ".join(f"`{b['sha']}` = image `{b['image']}` tạo {b['created'][:19]}Z ({b['source']})" for b in lib.builds()) + "."]
-    L += ["", "![](e5.svg)", "", "## Cách duyệt (chủ dự án)", "",
-          f"1. Mở `{os.environ.get('APP_PUBLIC_URL', 'http://localhost:580')}`, đăng nhập `teacher@edupilot.local` (mật khẩu seed), chọn lớp 761987 → **Ngân hàng câu hỏi** (`/questions`).",
-          "2. Lọc **Nguồn = Sinh từ tài liệu**, **Trạng thái = Chờ duyệt**, rồi lần lượt **Chủ đề** = một trong 10 chủ đề ở bảng trên (lớp còn câu chờ duyệt khác do QC tạo, không thuộc E5; gen-stats chỉ đếm câu của 10 lô này).",
-          "3. Mở từng câu: đúng như AI viết → `Duyệt` (tính «duyệt nguyên»); phải sửa → `Chỉnh sửa`, lưu, rồi `Duyệt` (tính «sửa nhẹ»); sai / lạc đề / trùng → menu `⋯` → `Loại`.",
-          "4. Xong (hoặc dừng giữa chừng) chạy `python3 benchmarks/eval/e5.py report` (hay `make eval-report`): đọc gen-stats, không gọi LLM; tỉ lệ chỉ tính trên câu đã duyệt.",
-          "",
-          "Câu và kết quả duyệt nằm trong volume Postgres của `ep-qc`: `docker stop` / `start`, khởi động lại hay dựng lại image gateway KHÔNG làm mất; chỉ `docker compose down -v` (xoá volume, bị cấm) mới mất. "
-          "`raw/e5-questions.json` là bản lưu vết, không nhập lại được.", "",
+    fd = obj["findings_data"]
+    L += ["", "![](e5.svg)", "", "## Phát hiện của người duyệt", "",
+          "Người duyệt ghi khi duyệt; số trong ngoặc do Tech Lead kiểm lại trên dữ liệu (2026-11-25).", "",
+          "1. Lô 09 «Làm trơn hàm mũ» và lô 10 «Đo sai số dự báo»: tài liệu «Forecasting (QMB ch. 6b)» không có hai chủ đề này mà máy vẫn sinh đủ 10 câu / lô "
+          "(kiểm: 19 đoạn, 23 trang của tài liệu trong `content_chunks` không có «smoothing», «forecast error», «MAD», «mean absolute deviation»). Hệ thống chưa từ chối khi chủ đề không có trong nguồn.",
+          "2. Lô 03–05 (trinh sát, truy cập, từ chối dịch vụ) chỉ trích trang ≤ 50 của «Network Security Threats» "
+          f"(kiểm: tài liệu 141 trang; trích dẫn lô 01–06 nằm trong trang {min(v[0] for k, v in fd['cited_pages'].items() if k <= 'lo06')}–{max(v[1] for k, v in fd['cited_pages'].items() if k <= 'lo06')}, "
+          "trong khi «reconnaissance» có ở trang 46, 69, 72, 79, 91, 119; «denial of service» ở 17, 46, 60, 69, 79, 91; «access attack» ở 46, 69, 79, 91): phần sau trang 50 của tài liệu không được dùng.",
+          f"3. Khoảng 45 ý khác nhau cho 100 câu (ước lượng của người duyệt): nhiều câu hỏi lại cùng một ý; {reasons.get('TRUNG_LAP', 0)} câu bị loại vì `TRUNG_LAP`.",
+          f"4. Đáp án đúng nằm ở phương án A trong **{fd['answer_key_A']}/{fd['n']}** câu (thứ tự phương án như máy sinh).",
+          f"5. **{fd['citation_marker_in_text']}/{fd['n']}** câu lộ mã trích dẫn nội bộ `[Cn]` trong chữ hiện cho người đọc (giải thích; 1 câu cả trong đề).", "",
+          "## Cách duyệt", "",
+          f"Người duyệt {lib.LABELER} duyệt mù trên gói `benchmarks/eval/human/e5_duyet_goi.csv` (đề, phương án, đáp án đánh dấu, giải thích, nguồn + trích đoạn; không có điểm / nhận định của máy), "
+          "điền `benchmarks/eval/human/e5_duyet.csv` (DUYỆT / SỬA kèm bản sửa / BỎ kèm lý do). `e5.py apply` áp từng quyết định qua API của `ep-eval` bằng vai giảng viên "
+          "(DUYỆT → duyệt; SỬA → lưu bản sửa rồi duyệt, gen-stats tính «sửa nhẹ»; BỎ → loại kèm lý do) → `raw/e5-apply.json`; `e5.py report` đọc gen-stats từng lô.", "",
          "## Giới hạn", "", "- Dữ liệu mô phỏng (D44): tài liệu seed lớp 1; chưa kiểm chứng với câu hỏi giảng viên thật dùng trong lớp.",
-         "- Tỉ lệ chỉ tính trên câu đã duyệt (AC7); chưa duyệt đủ 100 câu thì ghi cỡ mẫu thật, không nội suy.", "- Người duyệt: chủ dự án (một người, không có người duyệt thứ hai)."]
+         "- Tỉ lệ chỉ tính trên câu đã duyệt (AC7); chưa duyệt đủ 100 câu thì ghi cỡ mẫu thật, không nội suy.", f"- Người duyệt: {lib.LABELER}; một người, không có người duyệt thứ hai."]
     lib.write_report("e5", obj, L)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("cmd", choices=["run", "report", "export"])
+    ap.add_argument("cmd", choices=["run", "report", "export", "pack", "apply"])
     a = ap.parse_args()
     try:
         if a.cmd == "run":
@@ -190,6 +321,10 @@ def main():
             run()
         elif a.cmd == "export":
             export()
+        elif a.cmd == "pack":
+            pack()
+        elif a.cmd == "apply":
+            apply()
         else:
             report()
     except Fail as e:
