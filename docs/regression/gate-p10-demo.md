@@ -402,3 +402,19 @@ URL trần (tham khảo, không chấm; giới hạn đã biết): `/assignments
 
 Soát tay (Chromium headless, 1440 + 375; ảnh `evidence-gate-p10-r3/`): chữ không nhảy lúc thay khung bằng nội dung thật, không trùng chữ, dấu tiếng Việt đúng phông Be Vietnam Pro, không cuộn ngang (scrollWidth = innerWidth). Network `/assignments/<id>?course=`: **đúng 1** `GET …/assignments/<id>/mine` (+ refresh, events, notifications, me/courses). → **P**.
 Quan sát (không chấm): (1) `/practice/<id>?course=` gọi `GET …/practice/attempts/<id>` **2 lần**; (2) tiêu đề thanh trên hiện lớp mặc định «761987 · An ninh mạng» khoảng 20 ms rồi đổi sang lớp của `?course=` («QD105A» / «QD10C»); (3) mô tả bài tập hiện nguyên dấu `#`/`##` của markdown («# Bài tập 03…», «## Đề bài»), cả bản sớm lẫn bản cuối như nhau.
+
+## L2.11 Lượt kiểm cuối trước merge PR #6 (ep-qc gateway + worker + frontend ở HEAD 3f91ed90 ⊇ 8bd9f820, 1fda2f18, 15654647, c1a54d5d)
+
+Ảnh: `evidence-gate-p10-r3/` (f14a-*, f14b-*, c-ass-*, d-*). Lớp QC `QD10Q` / `QD10A` / `QD105A` (không 761987/88).
+
+| Mục | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| (a) F14 SV «N tài liệu mới · lớp …» (1fda2f18) | **P** | sv37 (không có việc ưu tiên cao hơn) ở QD10Q, 1440 + 375: thêm tài liệu READY → «2 tài liệu mới · lớp QD10Q — QC3 F14 Giáo trình tuần 5 và 1 tài liệu khác»; thêm tài liệu nữa → «3 tài liệu mới … và 2 tài liệu khác»; bấm «Mở thư viện» → /library → quay lại Hôm nay: mục biến mất (cả 1440 và 375). Lưu ý: Hôm nay chỉ hiện MỘT việc nên làm; với SV có việc bậc cao hơn (sv36: «Ôn chủ đề …») mục này không hiện — đúng bậc 90 |
+| (b) F14 Admin «Hàng đợi có N tin lỗi hẳn» (15654647) | **P** | 3 dòng outbox thử (1 giờ, 2 ngày, 9 ngày): hiện «Hàng đợi có 2 tin lỗi hẳn — qc3.f14.test (2) · mới nhất 1 giờ trước.» (dòng 9 ngày không tính); 1440 + 375, không cuộn ngang; payload/`last_error` không có trong DOM và trong JSON `/me/today`; đã xoá 3 dòng thử |
+| (c) Không nháy tên lớp ở `/assignments/<id>?course=` (c1a54d5d) | **P** | ghi nhãn thanh trên theo rAF (1440 + 375): trống → «QD105A · QC smoke10.5 QD105A» (một tên, không còn «761987 · An ninh mạng» thoáng qua) |
+| (d) Mô tả bài tập có tiêu đề, không còn «#» (8bd9f820) | **P** | `/assignments/<id>?course=` 1440 + 375: 0 dòng bắt đầu bằng `#`; `# Bài tập 03…` thành `h3`, `## Đề bài` thành `h3`; không cuộn ngang. Chat: tin trợ lý có `##`/`###` → `h3`/`h4` đúng (1440 + 375). Thread: bài AI có `##`/`###` → `h3`/`h4` đúng, không vỡ bố cục |
+| (e) LCP TC-08-02 / TC-12-17 đo lại (?course=) | xem dưới | devtools, 3 lượt, trung vị |
+
+Quan sát (không chấm): nội dung do NGƯỜI viết trong thread (câu hỏi, bình luận) hiện chữ thường — `## …` nguyên văn (`<p>`; chỉ bài AI đi qua bộ render Markdown); mô tả bài tập seed có «Đề bài» hai lần (tiêu đề khối + «## Đề bài» trong nội dung).
+
+(e) LCP devtools, 3 lượt, sv.kha, `?course=`: `/assignments/<id>` 1919 / 1917 / 1918 → **1918 ms** (TBT ≤ 42; script 214 KB) **P**; `/practice/<id>` 1919 / 1932 / 1933 → **1932 ms** (TBT ≤ 47; script 220 KB) **P**. Ngưỡng 2.500 không đổi.
