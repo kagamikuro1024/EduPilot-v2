@@ -8,14 +8,14 @@
 
 | Trạng thái | Số mã |
 |---|---|
-| ĐÓNG | 202 |
-| ĐÃ SỬA, CHỜ XÁC NHẬN | 1 |
+| ĐÓNG | 203 |
+| ĐÃ SỬA, CHỜ XÁC NHẬN | 0 |
 | RÚT (không phải lỗi sản phẩm) | 8 |
 | MỞ | 0 |
 | Nợ PR | 0 |
 | **Tổng** | **211** |
 
-Chờ xác nhận: DEF-R10.8-05 (Back native của app Android; sửa dea5f197, dev kiểm tay; qc2 chạy lại TC-AS11-17 AC7(a) ở lượt bộ mobile cuối, TC giữ F tới lúc đó). Nợ PR: không còn; DEF-R6-01 (vai DB siêu quyền) từng là nợ PR, đã sửa ở 3f332fb3 + ea0cf217 (migration 00030) và TC-P3-01-49 chạy lại P.
+DEF-R10.8-05 (Back native Android) đã ĐÓNG 26/11: qc2 chạy lại AC7(a) trên ep-api36 — khung quét đóng khi Back, app không thoát. Nợ PR: không còn; DEF-R6-01 (vai DB siêu quyền) từng là nợ PR, đã sửa ở 3f332fb3 + ea0cf217 (migration 00030) và TC-P3-01-49 chạy lại P.
 
 ### Cách đóng
 
@@ -31,7 +31,7 @@ Chờ xác nhận: DEF-R10.8-05 (Back native của app Android; sửa dea5f197, 
 | Mức | ĐÓNG | CHỜ XÁC NHẬN | RÚT | MỞ | Tổng |
 |---|---|---|---|---|---|
 | Cao | 10 | 0 | 0 | 0 | 10 |
-| Trung bình | 42 | 1 | 0 | 0 | 43 |
+| Trung bình | 43 | 0 | 0 | 0 | 43 |
 | Thấp | 150 | 0 | 5 | 0 | 155 |
 | không ghi | 0 | 0 | 3 | 0 | 3 |
 
@@ -281,7 +281,7 @@ Lấy từ trường «Hồi quy do sprint sau?» hoặc chữ «Không phải h
 | 10.8 | DEF-R10.8-02 | Thấp | TC-AS14-11, TC-AS13-05 | ĐÓNG | sửa b8c43df8 | lọt sprint gốc | bảng truy vết SRS §11 trỏ tới 13 tên test không tồn tại |
 | 10.8 | DEF-R10.8-03 | Thấp | TC-AS08-20 | ĐÓNG | sửa b3c039c0 | lọt sprint gốc | «Đóng» khi mất mạng thử lại bằng Idempotency-Key mới |
 | 10.8 | DEF-R10.8-04 | Thấp | TC-AS11-07 | ĐÓNG | sửa b3c039c0 | lọt sprint gốc | nút «Quét mã điểm danh» hiện cả khi qr_code không được hỗ trợ |
-| 10.8 | DEF-R10.8-05 | Trung bình | TC-AS11-17=F | ĐÃ SỬA, CHỜ XÁC NHẬN | sửa dea5f197 (chạy lại AC7(a) ở lượt bộ mobile cuối) | không ghi | Back khi đang quét QR đưa cả app Android ra launcher thay vì đóng khung quét |
+| 10.8 | DEF-R10.8-05 | Trung bình | TC-AS11-17=F | ĐÓNG | sửa dea5f197 (qc2 xác nhận 26/11: AC7(a) Back đóng khung quét, ở lại app) | không ghi | Back khi đang quét QR đưa cả app Android ra launcher thay vì đóng khung quét |
 | 10.8 | DEF-R10.8-06 | Cao | TC-AS11-17=F | ĐÓNG | sửa e8b2162d | không ghi | gateway không nhận APP_PUBLIC_URL: qr_url / join_url / feed lịch dựng từ https://localhost |
 | opencode-go | DEF-OC-SI-01 | Thấp | TC-OC-70 | ĐÓNG | sửa 55664e51 | không ghi | log structured_invalid còn chép một phần nội dung đầu ra của mô hình |
 
