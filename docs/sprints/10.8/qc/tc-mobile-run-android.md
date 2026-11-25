@@ -178,3 +178,8 @@ Tổng: **57 TC = 47 P, 0 F, 10 N.**
 
 - **LIF-02 = P**: login form ngay trước ca; mạng chậm 3 s; gửi mã rồi giáo viên đóng cửa sổ tức thì (close 200) → «Đã điểm danh 00:54», DB đúng 1 dòng, không màn trắng, phiên không rơi.
 - Giới hạn: biến thể «gửi vào cửa sổ đã đóng trước khi bấm» chưa dựng được vì SV đã điểm danh nên ô nhập ẩn (cần SV khác hoặc cửa sổ mới + đóng trước).
+
+## 16. Lượt 12 (26/11) — CL-8, CL-3 = N
+
+- **CL-8 = N**: emulator không có camera; thu hồi quyền camera vẫn không hiện «Chưa cấp quyền camera.» lẫn nút «Quét mã điểm danh», cấp lại cũng không đổi ⇒ không phân biệt được nhánh. Cần máy thật.
+- **CL-3 = N**: cutout tall + thanh cử chỉ: 412×843, `visualViewport` 843, không dải trắng đáy, nhưng phần tử đầu đo được `top = 0` nên chưa kết luận được che/khuất — cần so ảnh chụp.
