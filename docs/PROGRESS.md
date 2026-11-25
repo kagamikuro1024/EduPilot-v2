@@ -29,7 +29,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | P7 Chấm bài | Xong | 2026-10-31 | 2026-11-01 | ĐẠT kỹ thuật (`sprints/9/qc/gate-P7.md`); nợ G7-23 LCP `/assignments/[id]` 4,7 s | `00017_assignments`; chấm mù hai lượt, kiểm bằng mã; thư chỉ tin khi `dmarc=pass`; Teams qua `mock-graph` |
 | P8 Tài liệu + Lịch | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P8.md`) | `docling-serve` (profile `ingest`), tìm lai RRF + `tsv`, lịch UNION, ICS token băm |
 | P9 Luyện đề | QC đạt (smoke hồi quy 25/11: 248 ca, 0 F sau TC-12-16) | 2026-11-12 | 2026-11-24 | `docs/regression/smoke-10.md` (nhánh `qc2/regression`) | `00019_practice`; chấm bằng `quiz` (không LLM); lượt luyện là bản chụp câu; đáp án thi thử chỉ lộ sau nộp; nhập Forms chỉ TEACHER, ghi `QUIZ` không công bố |
-| P10 Đánh giá | Xong (Gate P10 25/11) | 2026-11-14 | 2026-11-25 | `DEMO_SCRIPT` hai lượt trên demo (`docs/regression/gate-p10-demo.md`), smoke hồi quy toàn bộ ca cũ sprint 1 → 11 (`docs/regression/smoke-*.md`, nhánh `qc2/regression`); merge `main` PR #3–#6 | E1–E6 (`benchmarks/reports/eval-2026-11-15/`); nhãn người E1/E2/E3/E5 chờ chủ dự án; persona-eval hoãn (P-11-24) |
+| P10 Đánh giá | Xong (Gate P10 25/11) | 2026-11-14 | 2026-11-25 | `DEMO_SCRIPT` hai lượt trên demo (`docs/regression/gate-p10-demo.md`), smoke hồi quy toàn bộ ca cũ sprint 1 → 11 (`docs/regression/smoke-*.md`, nhánh `qc2/regression`); merge `main` PR #3–#6 | E1–E6 (`benchmarks/reports/eval-2026-11-15/`); nhãn người E1/E2/E3/E5 xong (giaovien, 25/11): E1 53/57 → 57/57 sau BA phán, E2 24/24, E3 QWK P1 0,529, E5 dùng được 45 %; persona-eval hoãn (P-11-24) |
 | PR Sẵn sàng thí điểm | Chưa | | | | → vạch thí điểm thật |
 
 ## Luồng end-to-end (tick khi có spec E2E xanh cho đường chính + một nhánh lỗi)
@@ -39,7 +39,8 @@ F1 ☑ (25/11; `account.spec.ts` + `qc-real-f1-account` trên stack, mạo danh 
 ## Phiên gần nhất
 - Ngày: 2026-11-25
 - Đã làm: Gate P10 xong — sprint 11 merge `main` (PR #3–#6), `DEMO_SCRIPT` hai lượt trên demo, smoke hồi quy toàn bộ ca cũ sprint 1 → 11 (`docs/regression/`, nhánh `qc2/regression`). Chủ dự án lệnh 25/11 «xanh hết hôm nay»: trả nợ vai DB không superuser (00030), exam.tick (00031), LCP `/assignments/[id]` + `/practice/[id]`; compose chuyển đủ biến + tên image theo project; sửa lỗi mất lượt thử lại của máy chấm code; tách gói `grade` khỏi CI rest-2; 3 ca 10.6 G10-10/12/13 P bằng nhãn tạm QC; F1, F2, F14, F15 tick (nguồn Hôm nay mới P-11-122). Proposals sprint 11 tới P-11-124.
-- Đang dở: nhãn người E1/E2/E3/E5 (chủ dự án); persona-eval hoãn (P-11-24); F18 thuộc phase PR.
+- Nhãn người E1/E2/E3/E5 xong (giaovien, người gán nhãn do chủ dự án chỉ định; báo cáo trên nhánh sprint @52f4c617): E1 đồng ý 53/57 (κ 0,860), 4 bất đồng S6 → BA phán CHẶN, nhãn cuối 57/57; E2 soát 24/24 Đúng; E3 người–AI QWK / MAE / Pearson P1r1 0,529 / 1,196 / 0,825 (n 60), P2r1 0,656 / 0,688 / 0,852 (n 24); E5 duyệt 100 câu trên stack `ep-eval` (VPS): duyệt nguyên 30, sửa nhẹ 15, loại 55 → dùng được 45 %.
+- Đang dở: persona-eval hoãn (P-11-24); F18 thuộc phase PR. Stack `ep-eval` trên VPS giữ tới khi chốt đồ án (PM báo dừng).
 - Bước kế tiếp cụ thể: dựng lại demo từ `main` (seed trong ngày trình bày — `README.md` §5.2), quyển đồ án đợt 2; rồi phase PR (migration từ `00032`; nợ ở mục Nợ).
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
