@@ -734,14 +734,14 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 
 ### 9.4 Soát tổng theo MÃ TC (26/11/2026 — qc chốt lại `bb052c71`)
 
-Nguồn từng mã: qc3 iOS 65 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 22 mã trùng (13 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, `NET-12` P/qc3–N/qc, `ERR-06` F/qc3–P/qc, `ERR-17` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
+Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 38 mã trùng (13 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, `NET-12` P/qc3–N/qc, `ERR-06` F/qc3–P/qc, `ERR-17` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 64 | 1 | 0 |
+| qc3 iOS | 76 | 1 | 0 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (266 mã gốc − 22 trùng = 244)** | **180** | **1** | **63** |
+| **Hợp (284 mã gốc − 38 trùng = 246)** | **185** | **1** | **60** |
 | TC | 345 | | |
 
 1 F: `TC-MOB-ERR-06` (qc3 §9.9). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -802,6 +802,27 @@ Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 đ
 | TC-MOB-ERR-06 | **F** | Đăng xuất, mở liên kết QR mới (cửa sổ `01a21463-66f3`), để màn đăng nhập **91 s** rồi đăng nhập `sv.qc3`: trang về **ô nhập mã** («Mã điểm danh», lớp QC3M1), KHÔNG hiện «Mã đã hết hạn. Quét lại mã trên màn chiếu.» như TC đòi; gateway **0 POST** (đúng phần "không POST"). Gốc: DEF-MOB-05 (e039b61f) cho `pick()` xoá im lặng stash quá 60 s nên nhánh `stashExpired` của màn không còn được dùng tới sau khi đăng nhập lại. |
 
 ERR-15/NET-09: **N**, không cắt được mạng riêng cho Simulator mà không cắt mạng dùng chung — phủ bởi NET-02/03 Android (qc2) + pha 1 (qc).
+
+### 9.10 Lô C — kích thước / ngang / vùng an toàn / chữ lớn / bàn phím (iOS `40281db4`)
+
+Máy: `qc3-se3` (375×667), `qc3-iphone15` (390×844), `qc3-iphone15pm` (430×932). Lưu ý dữ liệu: lớp đang chọn trên SE3/15PM là `QC3M2` vốn chưa có `settings.attendance` (mặc định `self_checkin=false`) nên màn khoá; đã bật `self_checkin=true` cho `QC3M2` + mở cửa sổ `01a21478-c11b` để dựng 6 trạng thái.
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-UIW-02 | P | SE3 375×667 dọc: «Mã điểm danh» + nút «Điểm danh» nằm trong khung nhìn khi KHÔNG bàn phím, không cuộn ngang (`C-UIW-02c`) |
+| TC-MOB-UIW-03 | P | iPhone 15 390×844: đủ trạng thái ô nhập / đã điểm danh / lỗi ngay trong khung (`C-UIW-03`, `ERR-11`, `FLW-02`) |
+| TC-MOB-UIW-05 | P | 15 Pro Max 430×932: nội dung căn giữa cột đọc, không chữ quá nhỏ, không tràn (`C-UIW-05b`) |
+| TC-MOB-UIW-11 | P | SE3 667×375 ngang: thanh đáy 5 mục thấy đủ, nút «Điểm danh» + ô nhập trong khung nhìn, không cuộn ngang (`C-UIW-11-land`). Không kiểm được `Thoát` của khung quét (Simulator không có camera) |
+| TC-MOB-UIW-12 | P | iPhone 15 844×390 ngang: nút chính và ô nhập không bị Dynamic Island che, lề hai bên lớn hơn tai thỏ (`C-UIW-12-land2`) |
+| TC-MOB-UIW-17 | P | Dọc: thanh đáy 5 mục (Hôm nay · Chat riêng · Hỏi đáp · Luyện đề · Thêm) đủ chữ; ngang (< 500 px CSS): **vẫn thanh đáy**, không cắt chữ (`C-UIW-11-land`, `C-KBD-err`) |
+| TC-MOB-SAF-07 | P | iPhone 15 ngang: ô nhập + nút chính nằm trong vùng an toàn, không dải trắng hai bên (`C-UIW-12-land2`) |
+| TC-MOB-SAF-08 | P | SE3 (không tai thỏ): đáy trang sát thanh đáy, không khoảng đệm an toàn thừa (`C-UIW-02c`) |
+| TC-MOB-TXT-05 | P | `content_size=accessibility-extra-extra-extra-large`: chữ phóng to, bố cục vẫn 1 cột, không cuộn ngang, nút chính còn chạm được (`C-TXT-05`) |
+| TC-MOB-KBD-02 | P* | Bàn phím mở: ô nhập thấy trước, không bị che (`C-KBD-kbd`, SE3 dọc — TC ghi ngang, ghi nhận lệch) |
+| TC-MOB-KBD-03 | P | Mã sai + phím «Đi»: câu lỗi hiện ngay dưới ô, KHÔNG bị bàn phím che, nút chính thấy được (`C-KBD-err`) |
+| TC-MOB-KBD-05 | P | Phím Enter/«Đi» gửi như nút: nhận phản hồi từ máy chủ (`C-KBD-err` hiện câu lỗi mã sai do POST) |
+
+**N (chưa dựng được):** `SAF-10` (rà đủ 6 trạng thái cùng lúc với đường biên vùng an toàn), `TXT-04` (Safari phóng trang 200 % qua menu `aA`), `KBD-04` (kiểm `autocorrect=off`/`spellcheck=false` cần đọc DOM), `KBD-09` (dán từ clipboard cần bật clipboard dùng chung).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

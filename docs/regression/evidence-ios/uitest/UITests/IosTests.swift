@@ -313,4 +313,38 @@ final class IosTests: XCTestCase {
         savePng(shotName())
         print("labels=\(labels.prefix(20))")
     }
+
+    /// Xoay ngang, chụp, trả lại dọc.
+    func testLandscape() {
+        XCUIDevice.shared.orientation = .landscapeLeft; sleep(4)
+        safari.activate(); sleep(2)
+        savePng(shotName())
+        XCUIDevice.shared.orientation = .portrait; sleep(2)
+    }
+    /// Bàn phím mở: chụp ô nhập; gõ mã sai + phím Đi; chụp câu lỗi so với bàn phím.
+    func testKeyFlow() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let field = web.textFields.firstMatch; _ = field.waitForExistence(timeout: 12)
+        field.tap(); sleep(3)
+        savePng(shotName() + "-kbd")
+        field.typeText("ZZZ999"); sleep(1)
+        safari.typeText("\n"); sleep(6)
+        savePng(shotName() + "-err")
+        print(web.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ").prefix(300))
+    }
+
+    /// Chọn lớp QC3M1 trong ô chọn lớp ở thanh trên.
+    func testSelectClass() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let sel = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3")).firstMatch
+        if sel.exists { sel.tap() } else { web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3")).firstMatch.tap() }
+        sleep(3)
+        let opt = web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3M1")).firstMatch
+        if opt.exists { opt.tap() } else { web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3M1")).firstMatch.tap() }
+        sleep(5)
+        savePng(shotName())
+        print(web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(12).joined(separator: " | "))
+    }
 }

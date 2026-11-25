@@ -3,7 +3,7 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE/uitest" || exit 1
-U=$(cat ../udid.txt)
+U="${QC_UDID:-$(cat ../udid.txt)}"
 EMAIL="${2:-sv.qc3@edupilot.local}"
 PW=$(awk -F'\t' -v e="$EMAIL" '$1==e{print $2}' ~/.config/edupilot-team/secrets/vps-qc-accounts.txt)
 [ -z "$PW" ] && PW=$(cat ~/.config/edupilot-team/secrets/vps-seed.txt)
