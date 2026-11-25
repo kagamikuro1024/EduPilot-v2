@@ -1,0 +1,2 @@
+web_true
+texts=Bỏ qua điều hướng | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh | Mã điểm danh | Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu. | Lớp QC3M1

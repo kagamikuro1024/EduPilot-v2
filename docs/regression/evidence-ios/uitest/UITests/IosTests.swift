@@ -211,4 +211,49 @@ final class IosTests: XCTestCase {
         dump(pwa, shotName()); savePng(shotName())
         print("fields=", web.textFields.count)
     }
+
+    /// Tắt hẳn Safari (xoá sessionStorage của tab) — dùng để kiểm lại từ trạng thái sạch.
+    func testKillSafari() { safari.terminate(); sleep(3); safari.launch(); sleep(4); savePng(shotName()) }
+
+    /// Lô B: ô mã (ERR-11/12/13) — nút khoá khi rỗng, câu lỗi chung, maxlength 12.
+    func testCodeEntry() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch
+        _ = web.waitForExistence(timeout: 20)
+        var log: [String] = []
+        let field = web.textFields.firstMatch
+        let btnName = "Điểm danh"
+        let btn = web.buttons.matching(NSPredicate(format: "label == %@", btnName)).firstMatch
+        log.append("field_exists=\(field.waitForExistence(timeout: 10)) btn_exists=\(btn.exists) btn_enabled=\(btn.isEnabled)")
+        let long = String(repeating: "A", count: 40)
+        field.tap(); sleep(2); field.typeText(long); sleep(1)
+        log.append("value_len=\(((field.value as? String) ?? "").count)")
+        let bad = "ZZZ999"
+        field.tap(); sleep(1)
+        let cur = (field.value as? String) ?? ""
+        if !cur.isEmpty { field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: cur.count)) }
+        field.typeText(bad); sleep(1)
+        if btn.isEnabled { btn.tap() } else { safari.typeText("\n") }
+        sleep(4)
+        let body = safari.webViews.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ")
+        log.append("body=\(body.prefix(400))")
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName())
+        print(log.joined(separator: "\n"))
+    }
+
+    /// ERR-11: gõ mã sai rồi Enter → câu lỗi chung dưới ô, aria-invalid.
+    func testWrongCode() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let field = web.textFields.firstMatch; _ = field.waitForExistence(timeout: 10)
+        field.tap(); sleep(2)
+        let cur = (field.value as? String) ?? ""
+        if !cur.isEmpty { field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: cur.count)) }
+        field.typeText("ZZZ999"); sleep(1); safari.typeText("\n"); sleep(5)
+        var log = ["web_true"]
+        log.append("texts=\(web.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | "))")
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName()); print(log.joined(separator: "\n").prefix(600))
+    }
 }

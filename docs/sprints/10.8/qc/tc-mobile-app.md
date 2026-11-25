@@ -747,6 +747,23 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 - Đã tính `CL-4` = P (`f6113582`, `DEF-R10.8-07` đóng) và `GEO-03` = P.
 - **N còn lại (72):** 61 của qc (camera, `adb`/`simctl`, bàn phím thật, TalkBack/VoiceOver, WebView, geofence, thiếu dữ kiện) + 11 của qc2.
 
+### 9.5 Pha 3 — iOS, lô B (một phần; 26/11/2026)
+
+Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 để token sống đủ lâu qua bước tải trang), buổi 6/7.
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-FLW-02 | P | `simctl openurl` liên kết `#token` khi Safari đã đăng nhập: trang tự gửi MỘT `POST`, hiện «Đã điểm danh 01:28», không bấm gì; DB `attendance_checkins` `channel=WEB`, đúng 1 dòng/cửa sổ |
+| TC-MOB-ERR-02 | P | Mở liên kết của bước đã quay: «Mã đã hết hạn. Quét lại mã trên màn chiếu.» một dòng, không nút |
+| TC-MOB-ERR-11 | P | Gõ mã sai `ZZZ999` + Enter: «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» dưới ô, viền lỗi, không hộp thoại |
+| TC-MOB-ERR-12 | P | Ô rỗng: nút «Điểm danh» ở trạng thái khoá (`isEnabled=false`); ký tự lạ đi cùng một câu lỗi chung ở ERR-11 |
+| TC-MOB-ERR-13 | P | Dán 40 ký tự: ô chỉ giữ **12** (`value.count=12`), không tràn ngang |
+| TC-MOB-ERR-18 | P | `POST …/checkins {code, student_id}` bằng token SV: **422** `VALIDATION_FAILED`, `details[0].{field:"student_id", code:"unknown"}`; không ghi gì |
+
+**DEF-MOB-05 (Thấp, đề nghị mở):** mở một liên kết QR MỚI trong tab Safari đang còn `sessionStorage.ep.checkin` cũ (> 60 s) → trang hiện «Mã đã hết hạn. Quét lại mã trên màn chiếu.» và **không** điểm danh, dù token mới hợp lệ. Tái hiện 4 lần; cùng token đó `POST` trực tiếp trả **201**. Sau khi tắt hẳn Safari (xoá sessionStorage) thì liên kết mới chạy đúng («Đã điểm danh 01:28»). Gốc: `/checkin` giữ stash cũ trong `sessionStorage` khi trang được phục hồi (bfcache/SPA) nên không ghi đè stash mới; stash cũ quá 60 s ⇒ nhánh `stashExpired` trả câu hết hạn.
+
+**Còn lại của lô B (chưa chạy):** `FLW-04` (PWA gõ mã), `ERR-01` (`c` không phải UUID), `ERR-03` (MAC sai), `ERR-04` (cửa sổ đã đóng), `ERR-05/19` (SV không thuộc lớp), `ERR-06` (đăng nhập chậm > 60 s), `ERR-07/08` (teacher/TA/admin), `ERR-09` (429 sau 6 mã sai), `ERR-15` (offline lần đầu — cần cắt mạng host), `ERR-17` (múi giờ), `NET-09/12`.
+
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
 - Không có ca nào kiểm Play Integrity, App Attest, thông báo đẩy, đa cửa sổ, máy tính bảng, màn gập, chế độ tối thật (ngoài phạm vi US-AS-15).
