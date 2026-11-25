@@ -50,6 +50,7 @@ export function ActionRow({
   lead,
   data,
   inlineAction,
+  noDot,
 }: {
   tone?: Tone;
   title: ReactNode;
@@ -65,10 +66,12 @@ export function ActionRow({
   data?: Record<`data-${string}`, string>;
   /** dưới 720 px hành động vẫn nằm cuối cùng hàng (mặc định xuống hàng riêng): cho hành động nhỏ như «⋯» */
   inlineAction?: boolean;
+  /** không chấm trạng thái ở đầu hàng (hàng không mang tín hiệu nào) */
+  noDot?: boolean;
 }) {
   const body = (
     <>
-      {lead ?? <span className={[s.dot, s[tone]].join(" ")} aria-hidden />}
+      {lead ?? (noDot ? null : <span className={[s.dot, s[tone]].join(" ")} aria-hidden />)}
       <span className={s.text}>
         <span className={s.title}>{title}</span>
         {context && <span className={s.context}>{context}</span>}

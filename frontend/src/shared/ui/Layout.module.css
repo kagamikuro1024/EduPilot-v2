@@ -92,8 +92,7 @@
   .split[data-only="main"] > .splitAside, .split[data-only="aside"] > .splitMain { display: none; } /* chỉ một ngăn: màn có tab */
   .wide { display: none; }
   .dockedOnly { display: none; } /* chỉ có nút chính và nút đó ở thanh dính đáy: không để hàng nút rỗng */
-  .lead { order: -1; flex: 1; }
-  .lead > *, .lead > div, .lead button, .lead a { flex: 1; width: 100%; justify-content: center; }
+  .lead { order: -1; } /* nút phụ duy nhất giữ chiều rộng tự nhiên, căn trái; chỉ nút chính rộng cả màn (§23.2, M13) */
   .narrow { display: inline-flex; }
   .dlRow { grid-template-columns: 1fr; gap: var(--ep-space-1); }
   /* công tắc / trạng thái xuống hàng riêng, không đè ô nào (02-AC15) */
