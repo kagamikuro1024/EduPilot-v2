@@ -100,6 +100,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [askLogout, setAskLogout] = useState(0);
   // DEF-R10.8-07: dock / thanh dính đáy đặt TRÊN thanh điều hướng theo chiều cao THẬT (chữ hệ thống lớn làm thanh cao hơn 56 px).
   const navRef = useRef<HTMLElement | null>(null);
+  // M21 (US-PU-04 AC1): thanh bên thu gọn — nhãn mục hiện thành chip bên phải thanh khi rê chuột / focus bàn phím.
+  const sideRef = useRef<HTMLElement | null>(null);
+  const [navTip, setNavTip] = useState<{ label: string; top: number } | null>(null);
+  const pointTip = (target: EventTarget | null) => {
+    const a = target instanceof Element ? target.closest("a[href]") : null;
+    const side = sideRef.current;
+    if (!collapsed || !a || !side) return setNavTip(null);
+    const r = a.getBoundingClientRect();
+    setNavTip({ label: a.getAttribute("aria-label") ?? "", top: r.top - side.getBoundingClientRect().top + r.height / 2 });
+  };
   useEffect(() => {
     const el = navRef.current;
     if (!el) return;
@@ -348,13 +358,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {!narrow && (
-      <aside className={s.sidebar} data-part="sidebar" data-collapsed={collapsed || undefined}>
+      <aside ref={sideRef} className={s.sidebar} data-part="sidebar" data-collapsed={collapsed || undefined}>
         <Link href="/" prefetch={false} className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={32} className={collapsed ? s.logoMark : s.logo} />
         </Link>
 
-        <nav className={s.nav} id="sidebar-nav" aria-label="Điều hướng chính">
+        <nav
+          className={s.nav}
+          id="sidebar-nav"
+          aria-label="Điều hướng chính"
+          onMouseOver={(e) => pointTip(e.target)}
+          onMouseOut={() => setNavTip(null)}
+          onFocus={(e) => pointTip(e.target)}
+          onBlur={() => setNavTip(null)}
+          onScroll={() => setNavTip(null)}
+        >
           {groups.map((g, gi) => (
             <div key={gi} className={s.group}>
               {g.label && !collapsed && <p className={s.groupLabel}>{g.label}</p>}
@@ -368,6 +387,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </nav>
+
+        {collapsed && navTip?.label && (
+          <span className={s.navTip} data-part="nav-tip" aria-hidden="true" style={{ top: navTip.top }}>
+            {navTip.label}
+          </span>
+        )}
 
         <div className={s.sideFoot}>
           {demo && !collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}

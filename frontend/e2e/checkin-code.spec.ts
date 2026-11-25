@@ -70,12 +70,21 @@ test("checkin code: chữ 2,0× (30 px) ở 375 → dock không bị thanh đi�
   const dock = await page.locator("[data-part=checkin-dock]").boundingBox();
   expect(nav).not.toBeNull();
   expect(dock!.y + dock!.height).toBeLessThanOrEqual(nav!.y + 1); // đáy dock không lọt vào thanh điều hướng
-  const lines = await page.locator("[data-part=bottom-nav] a, [data-part=bottom-nav] button").evaluateAll((els) =>
-    els.map((el) => {
-      const label = el.lastElementChild as HTMLElement;
-      const lh = parseFloat(getComputedStyle(label).lineHeight) || parseFloat(getComputedStyle(label).fontSize) * 1.2;
-      return Math.round(label.getBoundingClientRect().height / lh);
-    }),
-  );
-  expect(lines).toEqual(lines.map(() => 1)); // mỗi nhãn đúng 1 dòng
+  // M21 hồi quy (PM): nhãn thanh đáy ĐƯỢC xuống 2 dòng khi chữ lớn — bỏ vế «một dòng» vì chiều cao thanh giờ đo thật (--ep-bottom-h), dock vẫn đúng như khẳng định trên.
+});
+
+// M21 hồi quy (PM): cỡ chữ thường ở 360 / 375 / 390 → nhãn thanh điều hướng KHÔNG bị cắt (không ellipsis, không nowrap ép).
+test("checkin code: cỡ chữ thường 360/375/390 → nhãn thanh điều hướng không bị cắt", async ({ page, context }) => {
+  await checkinApi(page, context);
+  for (const w of [360, 375, 390]) {
+    await page.setViewportSize({ width: w, height: 812 });
+    await page.goto("/checkin");
+    const cut = await page.locator("[data-part=bottom-nav] a, [data-part=bottom-nav] button").evaluateAll((els) =>
+      els
+        .map((el) => el.lastElementChild as HTMLElement)
+        .filter((label) => label.scrollWidth > label.clientWidth + 1 || getComputedStyle(label).textOverflow === "ellipsis")
+        .map((label) => label.textContent ?? ""),
+    );
+    expect(cut, `${w}px`).toEqual([]);
+  }
 });

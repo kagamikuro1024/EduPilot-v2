@@ -146,6 +146,39 @@ test("nav per role: nhãn + href + thứ tự khớp SRS 7.5", async ({ page, co
   expect(navFor("teacher").flatMap((g) => g.items)).toHaveLength(16);
 });
 
+// M21 (US-PU-04 AC1, techlead-ui f6a5b0c6): 720–1099 px thanh bên thu gọn — rê chuột / Tab vào mục thì nhãn HIỆN thành chip bên phải thanh.
+test("1024: thanh bên thu gọn — hover và Tab hiện nhãn mục (chip), không tràn ngang", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "1024 là ca desktop");
+  mockOnly();
+  await asDemo(context, "teacher");
+  await page.setViewportSize({ width: 1024, height: 800 });
+  await page.goto("/");
+  const rail = page.locator("[data-part=sidebar]");
+  const item = page.locator("#sidebar-nav a").first();
+  const name = (await item.getAttribute("aria-label"))!; // thu gọn: nhãn ẩn khỏi DOM nhìn, tên nằm ở aria-label
+  const chip = page.locator("[data-part=nav-tip]");
+  await expect(chip).toHaveCount(0);
+  await item.hover();
+  await expect(chip).toBeVisible();
+  await expect(chip).toHaveText(name);
+  const railW = (await rail.boundingBox())!.width;
+  const box = (await chip.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(railW - 1); // chip nằm NGOÀI thanh (bên phải)
+  expect(box.x + box.width).toBeLessThanOrEqual(1024); // không tràn màn
+  // chip KHÔNG nằm trong khung cuộn của nav (nav overflow-y:auto cắt mọi thứ tràn ngang) ⇒ không bị cắt
+  expect(await chip.evaluate((el) => el.closest("#sidebar-nav") === null && el.closest("[data-part=sidebar]") !== null)).toBe(true);
+  await page.mouse.move(700, 700);
+  await expect(chip).toHaveCount(0);
+  // bàn phím: Tab tới mục trong thanh bên ⇒ chip hiện như khi rê chuột
+  await page.locator("body").click({ position: { x: 900, y: 700 } });
+  for (let i = 0; i < 40 && (await page.locator("#sidebar-nav a:focus-visible").count()) === 0; i++) await page.keyboard.press("Tab");
+  const focused = page.locator("#sidebar-nav a:focus-visible").first();
+  await expect(focused).toBeVisible();
+  await expect(chip).toBeVisible();
+  await expect(chip).toHaveText((await focused.getAttribute("aria-label"))!);
+  expect((await chip.boundingBox())!.x + (await chip.boundingBox())!.width).toBeLessThanOrEqual(1024);
+});
+
 test("badges: chỉ inbox / grading; không viết cứng số trong nav.ts", async ({ page, context }) => {
   mockOnly();
   await asDemo(context, "teacher");
