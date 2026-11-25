@@ -351,3 +351,43 @@ func TestExtractPageCap(t *testing.T) {
 	_, err = r.svc.EnqueueExtract(ctx, r.teacher, r.course, practice.ExtractIn{DocumentID: paper(practice.MaxExtractPages)})
 	require.NoError(t, err)
 }
+
+// DEF-R10S-16 (TC-03-09): tập câu có sẵn và ứng viên dùng CÙNG khoá — số thứ tự đầu, chữ hoa, dấu cách đôi, thiếu «?» vẫn trùng, bất kể trạng thái câu có sẵn.
+func TestGenerateDuplicateKeyMatchesExisting(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.staff()
+	ctx := t.Context()
+	for stem, status := range map[string]string{
+		"Thủ đô của Việt Nam là gì?":      "REJECTED",
+		"Giao thức TCP hoạt động ra sao?": "APPROVED",
+		"7. Tầng mạng làm nhiệm vụ gì?":   "PENDING",
+	} {
+		d, err := r.ex.Create(ctx, r.teacher, r.course, exam.QuestionIn{Type: "TRUE_FALSE", Title: "có sẵn", Topic: "Mạng", Stem: stem, Value: new(true)})
+		require.NoError(t, err)
+		r.exec(`update question_bank set review_status = $2::question_review_status, reviewed_by = case when $2 in ('APPROVED','REJECTED') then created_by end where id = $1`, d.ID, status)
+	}
+	q := func(stem string) map[string]any {
+		return map[string]any{"type": "MCQ_SINGLE", "stem": stem, "value": nil, "explanation": "Theo đoạn nguồn.", "sources": []string{"C1"},
+			"options": []map[string]any{{"body": "Đúng", "correct": true}, {"body": "Sai một", "correct": false}, {"body": "Sai hai", "correct": false}, {"body": "Sai ba", "correct": false}}}
+	}
+	stub := &fakeStructured{reply: func(_, _ string) string {
+		b, _ := json.Marshal(map[string]any{"questions": []any{
+			q("12. Thủ đô của  Việt Nam là gì"), q("GIAO THỨC TCP HOẠT ĐỘNG RA SAO"), q("Tầng  mạng làm nhiệm vụ gì"), q("Câu hoàn toàn mới về DNS?")}})
+		return string(b)
+	}}
+	w := &practice.Worker{Pool: r.pool, Exam: r.ex, LLM: stub}
+	lecture := r.doc("LECTURE", "Bài giảng", "Đoạn một về mạng máy tính.")
+	in := practice.GenerateIn{DocumentIDs: []uuid.UUID{lecture}, Topic: "Mạng", Difficulty: "MEDIUM", Count: 4}
+	status, raw, ec := r.runJob(w, r.teacher, practice.KindGenerate, practice.GeneratePayload{CourseID: r.course, GenerateIn: in})
+	require.Equal(t, "SUCCEEDED", status, ec)
+	var res practice.ExtractResult
+	require.NoError(t, json.Unmarshal(raw, &res))
+	require.Len(t, res.Created, 1, "%v", res.Skipped)
+	dups := []int{}
+	for _, s := range res.Skipped {
+		require.Equal(t, "DUPLICATE", s.Reason)
+		dups = append(dups, s.Number)
+	}
+	require.ElementsMatch(t, []int{1, 2, 3}, dups)
+}

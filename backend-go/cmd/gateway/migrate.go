@@ -41,5 +41,13 @@ func runMigrate(args []string, getenv func(string) string, stdout, stderr io.Wri
 		_, _ = fmt.Fprintf(stderr, "migrate: %v\n", err)
 		return 1
 	}
+	if cmd == "up" {
+		if pw := getenv("APP_DB_PASSWORD"); pw == "" {
+			_, _ = fmt.Fprintln(stderr, "migrate: APP_DB_PASSWORD trống — vai "+db.AppRole+" chưa đăng nhập được (gateway / worker không nối được)")
+		} else if err := db.SetAppRolePassword(ctx, url, pw, getenv("APP_ENV") == "test"); err != nil {
+			_, _ = fmt.Fprintf(stderr, "migrate: %v\n", err)
+			return 1
+		}
+	}
 	return 0
 }

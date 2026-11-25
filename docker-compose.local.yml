@@ -5,8 +5,10 @@
 x-app-env: &app-env
   APP_ENV: ${APP_ENV:-dev}
   LOG_LEVEL: ${LOG_LEVEL:-}
-  DATABASE_URL: ${DATABASE_URL}
-  PGBOUNCER_URL: ${PGBOUNCER_URL}
+  # Gateway / worker nối bằng vai ứng dụng edupilot_app (migration 00030; không superuser, không chủ bảng — TC-P3-01-49). Mật khẩu: APP_DB_PASSWORD, bỏ trống = dùng POSTGRES_PASSWORD
+  # (volume cũ nâng bằng build + up, không sửa .env.local). DATABASE_URL / PGBOUNCER_URL trong .env.local là của vai CHỦ và chỉ migrate dùng.
+  DATABASE_URL: postgres://edupilot_app:${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+  PGBOUNCER_URL: postgres://edupilot_app:${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}@pgbouncer:6432/${POSTGRES_DB}?sslmode=disable
   REDIS_URL: ${REDIS_URL}
   DB_MAX_CONNS: ${DB_MAX_CONNS:-}
   DB_SLOW_QUERY_MS: ${DB_SLOW_QUERY_MS:-}
@@ -26,6 +28,86 @@ x-app-env: &app-env
   BLOB_PUBLIC_ENDPOINT: ${BLOB_PUBLIC_ENDPOINT:-}
   BLOB_PUBLIC_USE_SSL: ${BLOB_PUBLIC_USE_SSL:-}
   BLOB_REGION: ${BLOB_REGION:-}
+  # Biến config.go / worker trước đây không vào container; trống = mặc định của mã. INSTANCE_ID cố ý vắng: mỗi bản sao tự lấy hostname.
+  # AI, knowledge, quyền riêng tư
+  AI_SUMMARY_PER_HOUR: ${AI_SUMMARY_PER_HOUR:-}
+  AI_SUMMARY_TIMEOUT: ${AI_SUMMARY_TIMEOUT:-}
+  KNOWLEDGE_EMBED_TIMEOUT: ${KNOWLEDGE_EMBED_TIMEOUT:-}
+  PRIVACY_MASK_TIMEOUT_MS: ${PRIVACY_MASK_TIMEOUT_MS:-}
+  TODAY_PROVIDER_TIMEOUT: ${TODAY_PROVIDER_TIMEOUT:-}
+  # Điểm danh tự check-in
+  ATTENDANCE_MAX_ROWS: ${ATTENDANCE_MAX_ROWS:-}
+  ATTENDANCE_SELF_CHECKIN_ENABLED: ${ATTENDANCE_SELF_CHECKIN_ENABLED:-}
+  ATTESTATION_CERT_SHA256: ${ATTESTATION_CERT_SHA256:-}
+  ATTESTATION_PACKAGE: ${ATTESTATION_PACKAGE:-}
+  ATTESTATION_REVOCATION_TTL_H: ${ATTESTATION_REVOCATION_TTL_H:-}
+  CAMPUS_CIDR_MAX: ${CAMPUS_CIDR_MAX:-}
+  CHECKIN_CODE_FAIL_PER_MIN: ${CHECKIN_CODE_FAIL_PER_MIN:-}
+  CHECKIN_CODE_LEN: ${CHECKIN_CODE_LEN:-}
+  CHECKIN_CODE_LOOKBACK_MIN: ${CHECKIN_CODE_LOOKBACK_MIN:-}
+  CHECKIN_LATE_AFTER_DEFAULT_MIN: ${CHECKIN_LATE_AFTER_DEFAULT_MIN:-}
+  CHECKIN_MAX_ROUNDS: ${CHECKIN_MAX_ROUNDS:-}
+  CHECKIN_RATE_PER_MIN: ${CHECKIN_RATE_PER_MIN:-}
+  CHECKIN_RAW_RETENTION_DAYS: ${CHECKIN_RAW_RETENTION_DAYS:-}
+  CHECKIN_REVIEW_DAYS: ${CHECKIN_REVIEW_DAYS:-}
+  CHECKIN_ROTATE_DEFAULT: ${CHECKIN_ROTATE_DEFAULT:-}
+  CHECKIN_ROTATE_MAX: ${CHECKIN_ROTATE_MAX:-}
+  CHECKIN_ROTATE_MIN: ${CHECKIN_ROTATE_MIN:-}
+  CHECKIN_SWEEP_INTERVAL_S: ${CHECKIN_SWEEP_INTERVAL_S:-}
+  CHECKIN_WINDOW_MINUTES_MAX: ${CHECKIN_WINDOW_MINUTES_MAX:-}
+  CHECKIN_WINDOW_MINUTES_R1: ${CHECKIN_WINDOW_MINUTES_R1:-}
+  CHECKIN_WINDOW_MINUTES_R2: ${CHECKIN_WINDOW_MINUTES_R2:-}
+  DEVICE_CHALLENGE_RATE_PER_MIN: ${DEVICE_CHALLENGE_RATE_PER_MIN:-}
+  DEVICE_CHALLENGE_TTL_S: ${DEVICE_CHALLENGE_TTL_S:-}
+  DISPLAY_RATE_PER_MIN: ${DISPLAY_RATE_PER_MIN:-}
+  GEO_MAX_ACCURACY_M: ${GEO_MAX_ACCURACY_M:-}
+  GEO_RADIUS_MAX_M: ${GEO_RADIUS_MAX_M:-}
+  GEO_RADIUS_MIN_M: ${GEO_RADIUS_MIN_M:-}
+  HEARTBEAT_COUNTER_TTL: ${HEARTBEAT_COUNTER_TTL:-}
+  HEARTBEAT_MAX_PER_MINUTE: ${HEARTBEAT_MAX_PER_MINUTE:-}
+  SPOT_CHECK_DEFAULT: ${SPOT_CHECK_DEFAULT:-}
+  SPOT_CHECK_MAX: ${SPOT_CHECK_MAX:-}
+  TOKEN_LATE_EXTRA_MS: ${TOKEN_LATE_EXTRA_MS:-}
+  # Khác (auth, chat, ticket, nhắc, ingest…)
+  ASSIGN_MAX_BYTES: ${ASSIGN_MAX_BYTES:-}
+  AUTH_CHANGE_PW_FAIL_PER_10M: ${AUTH_CHANGE_PW_FAIL_PER_10M:-}
+  AUTH_FORGOT_EMAIL_PER_HOUR: ${AUTH_FORGOT_EMAIL_PER_HOUR:-}
+  AUTH_FORGOT_IP_PER_HOUR: ${AUTH_FORGOT_IP_PER_HOUR:-}
+  AUTH_LOGIN_IP_FAIL_PER_15M: ${AUTH_LOGIN_IP_FAIL_PER_15M:-}
+  AUTH_REFRESH_IP_PER_MIN: ${AUTH_REFRESH_IP_PER_MIN:-}
+  AUTH_RESEND_SECONDS: ${AUTH_RESEND_SECONDS:-}
+  CHAT_MAX_INPUT_CHARS: ${CHAT_MAX_INPUT_CHARS:-}
+  CHAT_RATE_PER_MIN: ${CHAT_RATE_PER_MIN:-}
+  CHAT_STREAM_MAX_SECONDS: ${CHAT_STREAM_MAX_SECONDS:-}
+  CHUNK_CHARS: ${CHUNK_CHARS:-}
+  DOC_MAX_BYTES: ${DOC_MAX_BYTES:-}
+  DOC_MAX_PAGES: ${DOC_MAX_PAGES:-}
+  INGEST_CLAIM_IDLE: ${INGEST_CLAIM_IDLE:-}
+  INGEST_EXTRACT_TIMEOUT: ${INGEST_EXTRACT_TIMEOUT:-}
+  LOCKOUT_BACKOFF_FROM: ${LOCKOUT_BACKOFF_FROM:-}
+  LOCKOUT_DURATION: ${LOCKOUT_DURATION:-}
+  LOCKOUT_LOCK_AT: ${LOCKOUT_LOCK_AT:-}
+  MAIL_TICKET_NEW_COALESCE: ${MAIL_TICKET_NEW_COALESCE:-}
+  OUTREACH_PER_DAY: ${OUTREACH_PER_DAY:-}
+  PARTICIPATION_DEFAULT_POINTS: ${PARTICIPATION_DEFAULT_POINTS:-}
+  REMINDER_LEAD: ${REMINDER_LEAD:-}
+  REMINDER_TICK: ${REMINDER_TICK:-}
+  REPORT_AUTOHIDE_THRESHOLD: ${REPORT_AUTOHIDE_THRESHOLD:-}
+  REPORT_RATE_PER_HOUR: ${REPORT_RATE_PER_HOUR:-}
+  RISK_JOB_AT: ${RISK_JOB_AT:-}
+  ROLLUP_TICK: ${ROLLUP_TICK:-}
+  STUDY_DAILY_CAP: ${STUDY_DAILY_CAP:-}
+  THREAD_PIN_MAX: ${THREAD_PIN_MAX:-}
+  TICKET_AUTOCLOSE_DAYS: ${TICKET_AUTOCLOSE_DAYS:-}
+  TICKET_ESCALATE_AFTER: ${TICKET_ESCALATE_AFTER:-}
+  TICKET_INACTIVE_AFTER: ${TICKET_INACTIVE_AFTER:-}
+  TICKET_OPEN_CAP: ${TICKET_OPEN_CAP:-}
+  TICKET_REMIND_AFTER: ${TICKET_REMIND_AFTER:-}
+  TICKET_REOPEN_DAYS: ${TICKET_REOPEN_DAYS:-}
+  TICKET_SLA_TICK: ${TICKET_SLA_TICK:-}
+  TICKET_WORKDAYS: ${TICKET_WORKDAYS:-}
+  TICKET_WORKDAY_END: ${TICKET_WORKDAY_END:-}
+  TICKET_WORKDAY_START: ${TICKET_WORKDAY_START:-}
 
 services:
   postgres:
@@ -49,7 +131,7 @@ services:
     image: edoburu/pgbouncer:v1.26.0-p0
     environment:
       AUTH_TYPE: scram-sha-256
-      DATABASE_URLS: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB},postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@postgres:5432/
+      DATABASE_URLS: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB},postgres://edupilot_app:${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}@postgres:5432/${POSTGRES_DB},postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@postgres:5432/
       PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
       PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
     volumes: ["./deploy/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro"]
@@ -105,7 +187,7 @@ services:
     build:
       context: ./backend-go
       target: mock-graph
-    image: edupilot-mock-graph
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-mock-graph
     ports: ["127.0.0.1:${EP_PORT_MOCK_GRAPH:-8090}:8090"] # seed / check-assignments-seed.mjs đọc nhật ký từ máy chủ
     healthcheck:
       test: ["CMD", "/mock-graph", "-healthcheck"]
@@ -118,7 +200,7 @@ services:
     build:
       context: ./backend-go
       target: mock-imap
-    image: edupilot-mock-imap
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-mock-imap
     ports: ["127.0.0.1:${EP_PORT_MOCK_IMAP:-8091}:8091"]
     healthcheck:
       test: ["CMD", "/mock-imap", "-healthcheck"]
@@ -131,13 +213,14 @@ services:
     build:
       context: ./backend-go
       target: gateway
-    image: edupilot-gateway
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-gateway
     entrypoint: ["/gateway", "migrate"]
     command: ["up"]
     environment:
       APP_ENV: ${APP_ENV:-dev}
       LOG_LEVEL: ${LOG_LEVEL:-}
       DATABASE_URL: ${DATABASE_URL}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}
     restart: "no"
     read_only: true
     tmpfs: ["/tmp"]
@@ -149,7 +232,7 @@ services:
     build:
       context: ./backend-go
       target: gateway
-    image: edupilot-gateway
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-gateway
     volumes: ["./seed/demo:/seed/demo:ro"]
     environment:
       <<: *app-env
@@ -273,7 +356,7 @@ services:
     build:
       context: ./backend-go
       target: worker
-    image: edupilot-worker
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-worker
     volumes: ["./seed/demo:/seed/demo:ro"]
     environment:
       <<: *app-env
@@ -396,7 +479,7 @@ services:
     profiles: [ingest]
     build:
       context: ./infra/docling
-    image: edupilot-docling
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-docling
     environment:
       DOCLING_SERVE_ENG_LOC_NUM_WORKERS: "1"
       DOCLING_SERVE_LOAD_MODELS_AT_BOOT: "false"
@@ -414,7 +497,7 @@ services:
   judge:
     build:
       context: ./deploy/judge
-    image: edupilot-judge:dev
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-judge:dev
     environment:
       JUDGE_TOKEN: ${JUDGE_TOKEN:-}
       JUDGE_PARALLELISM: ${JUDGE_PARALLELISM:-2}

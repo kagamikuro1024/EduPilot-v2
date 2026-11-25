@@ -118,6 +118,12 @@ Giao diện (mở rộng khung PG; thay `CourseResolver.CanAccess` trả `bool`)
 | `StaffOrAdmin` | `Staff` **hoặc** JWT `ADMIN` |
 | `Manage` | `Teacher` **hoặc** JWT `ADMIN` |
 | `MemberOrAdmin` | `Member` **hoặc** JWT `ADMIN` (chỉ `GET /courses/{id}`) |
+| `MemberRole` | `ACTIVE` bất kỳ vai, **không** `ADMIN` (thi hằng tuần; P-11-120) |
+| `StaffRole` | `ACTIVE`, vai `TEACHER` hoặc `TA`; **không** `ADMIN` (thi hằng tuần) |
+| `TeacherRole` | `ACTIVE`, vai `TEACHER`; **không** `ADMIN` (thi hằng tuần) |
+| `StudentRole` | `ACTIVE`, vai `STUDENT` (route làm bài của sinh viên; giảng viên / TA không làm bài thay) |
+
+Bốn chế độ `*Role` do thi hằng tuần thêm (FEAT-weekly-exam SRS 2, 6.2): thành viên `ACTIVE` sai vai → `403` `reason="role"`; người ngoài lớp, `PENDING`, `REMOVED`, `ADMIN` vẫn `reason="course"` (ADMIN không bao giờ qua: không đọc nội dung bài thi). Ma trận của sáu chế độ đầu ở `TestGuardMatrix`; bốn chế độ `*Role` kiểm ở `internal/exam/guard_test.go`.
 
 Bảng route → chế độ: `GET /courses/{id}` `MemberOrAdmin`; `GET …/sessions`, `GET …/today` `Member`; `POST …/sessions/generate` `Staff`; `GET …/join-code`, `GET …/members` `StaffOrAdmin`; `POST …/members/{uid}/approve|reject|undo` `StaffOrAdmin` (+ kiểm riêng `EMAIL_MISMATCH` → `Manage`); `POST …/join-code/regenerate`, `PUT …/join-settings`, `DELETE …/members/{uid}`, `PUT …/assistants`, `GET …/assistant-candidates` `Manage`; `POST …/roster/import`, `GET …/share-sources`, `POST …/share-from`, `POST …/setup/dismiss` `Teacher`. Route `/admin/*` dùng `RequireRole(ADMIN)` (không qua guard lớp).
 
@@ -125,7 +131,7 @@ Bảng route → chế độ: `GET /courses/{id}` `MemberOrAdmin`; `GET …/sess
 
 Quy tắc: một truy vấn có chỉ mục (`enrollments (course_id, user_id)`), **không cache** (mời ra → 403 ngay yêu cầu sau); `id` không phải uuid → 404; **uuid hợp lệ nhưng lớp không tồn tại → 403** (như người ngoài lớp; không lộ tồn tại; Q-QC-P207-1); lỗi DB → 503; từ chối → 403 `reason="course"` (hoặc `role`); `CourseAccess.Role` từ `enrollments`, không từ JWT; vai `ADMIN` chỉ xuất hiện ở các chế độ có "hoặc ADMIN". Lớp `ARCHIVED`: guard cho qua (đọc được); các **handler ghi** trả 409 `COURSE_ARCHIVED`.
 
-**Ma trận kiểm** (`TestGuardMatrix`): vai JWT {STUDENT, TA, TEACHER, ADMIN} × tình trạng {`ACTIVE` vai tương ứng, `ACTIVE` vai khác, `PENDING`, `REMOVED`, không có} × 6 chế độ.
+**Ma trận kiểm** (`TestGuardMatrix`): vai JWT {STUDENT, TA, TEACHER, ADMIN} × tình trạng {`ACTIVE` vai tương ứng, `ACTIVE` vai khác, `PENDING`, `REMOVED`, không có} × 6 chế độ của sprint 2 (`Member`, `Staff`, `Teacher`, `StaffOrAdmin`, `Manage`, `MemberOrAdmin`); bốn chế độ `*Role` của thi hằng tuần kiểm riêng ở `internal/exam/guard_test.go` (P-11-120).
 
 ### 4.2 Lớp và mã tham gia (US-P2-08, 09)
 
@@ -283,7 +289,7 @@ Mỗi topic có thể có nhiều handler độc lập (idempotent; lỗi một 
 | FR | Hệ thống phải… | AC |
 | --- | --- | --- |
 | FR-1 | `00003` 8 bảng dạng cuối, CHECK, index (`course_id` đầu); không ALTER | 07-AC1, AC2, AC3 |
-| FR-2 | `CourseAccessGuard` thật theo 6 chế độ, không cache; ADMIN từ chối mặc định | 07-AC4, AC5 |
+| FR-2 | `CourseAccessGuard` thật theo 10 chế độ (6 của sprint 2 + 4 `*Role` của thi hằng tuần, P-11-120), không cache; ADMIN từ chối mặc định | 07-AC4, AC5 |
 | FR-3 | Đọc chunk luôn lọc `course_ids` (GIN), không đường đọc không lọc | 07-AC6 |
 | FR-4 | `GET /me/courses`, `GET /courses/{id}` đúng phạm vi vai | 07-AC7, AC8, AC14 |
 | FR-5 | Hồ sơ (MSSV đổi không đổi snapshot) và tuỳ chọn | 07-AC9, AC10 |

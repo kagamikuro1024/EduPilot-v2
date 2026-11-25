@@ -37,7 +37,19 @@ type Feedback = "HELPFUL" | "NOT_HELPFUL" | null;
 
 // Khối dữ liệu điểm do tool trả (US-P6-09): chỉ để LLM diễn đạt, không hiển thị thô cho sinh viên.
 const GRADE_BLOCKS = new Set(["grade_summary", "what_if", "grade_scheme"]);
-const BLOCK_TITLE: Record<string, string> = { upcoming_events: "Lịch sắp tới", exam_schedule: "Lịch thi", library_results: "Tài liệu" };
+const BLOCK_TITLE: Record<string, string> = { upcoming_events: "Lịch sắp tới", exam_schedule: "Lịch thi", attendance: "Chuyên cần", participation: "Phát biểu" };
+const vnDate = (iso: unknown) => String(iso).split("-").reverse().slice(0, 2).join("/"); // "2026-11-12" → "12/11"
+const vnNum = (v: unknown) => String(v).replace(".", ",");
+/** Khối dữ liệu tool → các dòng «nhãn: giá trị» bằng tiếng Việt; khoá kỹ thuật và JSON không bao giờ ra màn hình (DESIGN §13). */
+function blockRows(kind: string, d: Record<string, unknown>): [string, string][] {
+  if (kind === "attendance") {
+    const rows: [string, string][] = [["Vắng", String(d.absent)], ["Có mặt", String(d.present)], ["Muộn", String(d.late)], ["Có phép", String(d.excused)]];
+    const recent = Array.isArray(d.recent_absent) ? (d.recent_absent as { date: string }[]).map((x) => vnDate(x.date)) : [];
+    return recent.length ? [...rows, ["Buổi vắng gần đây", recent.join(", ")]] : rows;
+  }
+  if (kind === "participation") return [["Số lần phát biểu", String(d.speak_count)], ["Điểm cộng", vnNum(d.points_total)]];
+  return []; // loại khối chưa có cách trình bày: câu trả lời đã đủ (nguồn tài liệu hiện ở danh sách trích dẫn)
+}
 const newKey = () => crypto.randomUUID();
 
 function errorLine(code: string | null, retryAfter?: number): string {
@@ -64,6 +76,14 @@ export function RealChat({ courseId }: { courseId: string }) {
   const keyRef = useRef<{ text: string; key: string } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const resumed = useRef<string | null>(null);
+
+  // điều hướng cùng route tới ?session=… (chuông «GV đã trả lời» lúc đang ở /chat): useState chỉ đọc URL một lần, nên theo URL khi nó đổi
+  const urlSid = params.get("session");
+  const [seenUrl, setSeenUrl] = useState(urlSid);
+  if (urlSid !== seenUrl) {
+    setSeenUrl(urlSid);
+    if (urlSid) setSid(urlSid);
+  }
 
   // phiên đang xem nằm trong URL: tải lại mở đúng phiên đó, nháp (khoá theo phiên) còn nguyên (UX13-19)
   useEffect(() => {
@@ -425,8 +445,7 @@ function Blocks({ blocks }: { blocks: ChatBlock[] }) {
     <>
       {blocks.map((b, i) => {
         const data = b.data && typeof b.data === "object" ? (b.data as Record<string, unknown>) : {};
-        const rows = Object.entries(data);
-        if (rows.length === 0 || GRADE_BLOCKS.has(b.kind)) return null; // điểm: số nằm trong câu trả lời (code đưa vào, LLM chỉ diễn đạt) — không dựng bảng khoá / JSON thô
+        if (Object.keys(data).length === 0 || GRADE_BLOCKS.has(b.kind)) return null; // điểm: số nằm trong câu trả lời (code đưa vào, LLM chỉ diễn đạt) — không dựng bảng khoá / JSON thô
 
         if ((b.kind === "exam_schedule" || b.kind === "upcoming_events") && Array.isArray(data.events)) {
           // Lịch (US-P8-03): mỗi sự kiện một dòng "Thứ Hai, 21/09 · 14:00 · Tên · Địa điểm" (giờ đã định dạng ở máy chủ).
@@ -444,14 +463,16 @@ function Blocks({ blocks }: { blocks: ChatBlock[] }) {
             </section>
           );
         }
+        const lines = blockRows(b.kind, data);
+        if (lines.length === 0) return null;
         return (
-          <section key={i} className={s.block} aria-label={BLOCK_TITLE[b.kind] ?? "Kết quả"}>
-            <h3 className={r.blockTitle}>{BLOCK_TITLE[b.kind] ?? "Kết quả"}</h3>
+          <section key={i} className={s.block} aria-label={BLOCK_TITLE[b.kind]}>
+            <h3 className={r.blockTitle}>{BLOCK_TITLE[b.kind]}</h3>
             <dl className={r.list}>
-              {rows.map(([k, v]) => (
+              {lines.map(([k, v]) => (
                 <div key={k}>
                   <dt>{k}</dt>
-                  <dd>{Array.isArray(v) ? v.map((x) => (typeof x === "object" ? JSON.stringify(x) : String(x))).join(", ") : typeof v === "object" ? JSON.stringify(v) : String(v)}</dd>
+                  <dd>{v}</dd>
                 </div>
               ))}
             </dl>

@@ -177,6 +177,20 @@ for (const [w, h] of [[1440, 900], [375, 812]] as const) test(`removed source @$
   await expect(page.getByRole("link", { name: "Xem tài liệu" })).toHaveCount(0);
 });
 
+test("DEF-GP10-03: đang ở /chat, mở thông báo «GV đã trả lời» (điều hướng cùng route tới ?session=…) → hiện đúng phiên, không cần tải lại", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
+  await chatApi(page, {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: [msg({ content: "Câu trả lời đã có sẵn" })], next_cursor: null, openTickets: 0 })),
+  });
+  await page.goto("/chat");
+  await page.locator("[data-part=chat-thread]").waitFor();
+  await expect(page.getByText("Hỏi bất cứ điều gì về lớp này")).toBeVisible();
+  await page.evaluate((sid) => window.history.pushState(null, "", `/chat?session=${sid}`), SID);
+  await expect(page.getByText("Câu trả lời đã có sẵn")).toBeVisible();
+  await expect(page.getByText("Hỏi bất cứ điều gì về lớp này")).toHaveCount(0);
+});
+
 test("exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất", async ({ page, context }) => {
   await asDemo(context, "student", { person: "sv-2" });
   const until = new Date(Date.now() + 40 * 60_000).toISOString();

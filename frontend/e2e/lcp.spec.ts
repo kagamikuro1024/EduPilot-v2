@@ -94,3 +94,38 @@ test("lcp before refresh /practice/<id>: ứng viên đầu là chữ PreShell",
   expect(seen.length).toBeGreaterThan(0);
   expect(seen.every((c) => c.fromPre)).toBe(true);
 });
+
+// LCP-2 (US-P10-08 AC6, TC-08-02, TC-12-17): `/assignments/<id>` và `/practice/<id>` có LCP là chữ DỮ LIỆU. Mã nội tuyến (earlyPaint.ts) gọi đúng một GET ngay khi lần làm mới sớm
+// trả token và điền chữ thô vào ô PreShell, TRƯỚC khi JS nào chạy (ở đây mọi chunk JS bị chặn: chỉ HTML máy chủ + mã nội tuyến).
+const EC = "00000000-0000-7000-8000-00000000c001";
+for (const [path, api, body, expected] of [
+  [`/assignments/00000000-0000-7000-8000-0000000a0001?course=${EC}`, `**/api/v1/courses/${EC}/assignments/00000000-0000-7000-8000-0000000a0001/mine`, { assignment: { description: "**Đề:** phân tích `nhật ký` máy chủ." } }, "Đề: phân tích nhật ký máy chủ."],
+  [`/practice/00000000-0000-7000-8000-00000000d001?course=${EC}`, `**/api/v1/courses/${EC}/practice/attempts/00000000-0000-7000-8000-00000000d001`, { current_index: 1, items: [{ question: { stem: "câu 0" } }, { question: { stem: "Thiết bị nào chuyển khung theo MAC?" } }] }, "Thiết bị nào chuyển khung theo MAC?"],
+] as const) {
+  test(`early paint ${path.split("?")[0].replace(/[0-9a-f-]{36}/, "<id>")}: chữ dữ liệu hiện trong PreShell trước JS, token chỉ ở Authorization`, async ({ page, context }) => {
+    await asDemo(context, "student");
+    await page.route("**/_next/static/chunks/**", (r) => r.abort());
+    await page.route("**/api/v1/auth/refresh", (r) => r.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody("STUDENT", {})) }));
+    let auth = "";
+    await page.route(api, (r) => {
+      auth = r.request().headers()["authorization"] ?? "";
+      return r.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+    });
+    await page.goto(path);
+    await expect(page.locator("[data-part=pre-shell] [data-part=early-body]")).toHaveText(expected);
+    await expect(page.locator("[data-part=pre-shell] [data-part=early-body]")).toBeVisible();
+    expect(auth).toMatch(/^Bearer .+/);
+  });
+}
+
+test("early paint: không có ?course= và chưa nhớ lớp thì ô trống ẩn (không gọi API đoán lớp)", async ({ page, context }) => {
+  await asDemo(context, "student");
+  await page.route("**/_next/static/chunks/**", (r) => r.abort());
+  await page.route("**/api/v1/auth/refresh", (r) => r.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody("STUDENT", {})) }));
+  let called = 0;
+  await page.route("**/api/v1/courses/**", (r) => { called++; return r.abort(); });
+  await page.goto("/assignments/00000000-0000-7000-8000-0000000a0001");
+  await page.waitForTimeout(800);
+  await expect(page.locator("[data-part=pre-shell] [data-part=early-body]")).toBeHidden();
+  expect(called).toBe(0);
+});

@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, type CursorPage } from "@/shared/data";
 import { COURSES, type Course } from "@/mock/core";
+import { COURSE_STORAGE_KEY } from "./cookies";
 
 /** Một lớp thật của người đăng nhập (`GET /me/courses`); không có mã tham gia. */
 export type RealCourse = {
@@ -18,8 +19,6 @@ export type RealCourse = {
 
 type Item = { course: Omit<RealCourse, "role_in_course" | "enrollment_status">; role_in_course: RealCourse["role_in_course"]; enrollment_status: RealCourse["enrollment_status"] };
 
-/** Khoá lưu lựa chọn lớp ở trình duyệt (id lớp hoặc `all`; không phải bí mật). */
-export const COURSE_STORAGE_KEY = "ep:ui:course";
 
 export function readStoredCourse(): string | null {
   try {

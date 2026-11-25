@@ -41,6 +41,8 @@ export type Budget = {
 };
 export type TestResult = { ok: boolean; error_kind?: string; message?: string; latency_ms: number };
 
+/** Test kết nối / lưu có kiểm tra kết nối chờ nhà cung cấp tới 30 s (P-11-108), dài hơn hạn chung của apiClient. */
+export const PROBE_TIMEOUT_MS = 35_000;
 export const KEY = { providers: ["llm", "providers"], routes: ["llm", "routes"], budget: ["llm", "budget"], usage: (days: number) => ["llm", "usage", days] } as const;
 
 export const useProviders = () => useQuery({ queryKey: KEY.providers, queryFn: async ({ signal }) => (await apiClient.get<ProviderList>("/admin/llm/providers", { signal })).data });

@@ -109,7 +109,7 @@ jobs:
         run: sqlc diff
 
   go-test:
-    # TL-CI #5: `course` và `auth` mỗi gói một dòng (dài nhất, kèm bước đo thời gian); ba dòng `rest-1` / `rest-2` / `rest-3` (DEF-R7-01: hai dòng 10–11 phút) = MỌI gói còn lại (gói lẻ / chẵn theo thứ tự `go list`), tính lúc chạy
+    # TL-CI #5: `course`, `auth` và `grade` mỗi gói một dòng (dài nhất; `course` / `auth` kèm bước đo thời gian); ba dòng `rest-1` / `rest-2` / `rest-3` (DEF-R7-01: hai dòng 10–11 phút) = MỌI gói còn lại (gói lẻ / chẵn theo thứ tự `go list`), tính lúc chạy
     # từ `go list` nên gói mới không bao giờ bị rơi; tách đôi để mỗi dòng ≤ 10 phút (BUG-S7-01 BUG-2). Dòng nào không có gói nào thì đỏ (tránh `go test` chạy nhầm thư mục hiện tại).
     name: Go test (${{ matrix.name }})
     needs: changes
@@ -122,6 +122,7 @@ jobs:
         include:
           - { name: course, timing: ./internal/course/ }
           - { name: auth, timing: ./internal/auth/ }
+          - { name: grade }
           - { name: rest-1, save: true }
           - { name: rest-2 }
           - { name: rest-3 }
@@ -167,7 +168,8 @@ jobs:
           case "$ROW" in
             course) pkgs=$(grep -E '/internal/course(/|$)' <<<"$all" || true) ;;
             auth) pkgs=$(grep -E '/internal/auth(/|$)' <<<"$all" || true) ;;
-            rest-[0-9]) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | ../scripts/go-shard.sh "${ROW#rest-}" 3 || true) ;; # LPT theo thời gian: backend-go/ci-shard-weights.txt (DEF-R7-01)
+            grade) pkgs=$(grep -E '/internal/grade(/|$)' <<<"$all" || true) ;; # 541–592 s trên runner khi chung dòng với gói khác, sát hạn 10 m của go test (run 45578537547 chạm 600 s): một dòng riêng
+            rest-[0-9]) pkgs=$(grep -Ev '/internal/(course|auth|grade)(/|$)' <<<"$all" | ../scripts/go-shard.sh "${ROW#rest-}" 3 || true) ;; # LPT theo thời gian: backend-go/ci-shard-weights.txt (DEF-R7-01)
             *) echo "dòng $ROW không có trong bảng"; exit 1 ;;
           esac
           [ -n "$pkgs" ] || { echo "dòng $ROW không có gói nào"; exit 1; }
@@ -281,6 +283,9 @@ jobs:
         run: node --test scripts/ci-guard.test.mjs
       - name: build (như production)
         run: pnpm -C frontend build
+      # Dựng đúng image triển khai (context = gốc repo như docker-compose.local.yml). `pnpm build` trên host có đủ repo nên không thấy tệp thiếu trong context Docker (DEF-R10S-23).
+      - name: image frontend (docker build như compose)
+        run: docker build -f frontend/Dockerfile -t ep-frontend-ci .
 
   e2e:
     # TL-CI #3a + DEF-R7-01: Playwright chia 4 shard THEO THỜI GIAN (frontend/e2e/support/shard.mjs: LPT từ giây CPU của từng tệp ở shard-weights.json), không theo số test:
@@ -332,8 +337,8 @@ jobs:
           - { name: simulate A, slug: simulate-a, config: lighthouserc.json, out: .lighthouseci, paths: "/ /chat /threads /inbox /gradebook" }
           - { name: simulate B, slug: simulate-b, config: lighthouserc.json, out: .lighthouseci, paths: "/me /checkin /settings/llm /dev/ui" }
           - { name: devtools A, slug: devtools-a, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/ /chat /threads /inbox" }
-          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice" }
-          - { name: devtools C, slug: devtools-c, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/practice/history /settings/llm /dev/ui" }
+          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice /assignments/00000000-0000-7000-8000-0000000000d1?course=00000000-0000-7000-8000-0000000000c1" }
+          - { name: devtools C, slug: devtools-c, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/practice/history /practice/00000000-0000-7000-8000-00000000d001?course=00000000-0000-7000-8000-0000000000c1 /settings/llm /dev/ui" }
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/fe-setup

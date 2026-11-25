@@ -7,7 +7,7 @@ import { Button, ConfirmIrreversible, InlineNotice, OverflowMenu, StatusText, Sw
 import { ConflictNotice } from "./ConflictNotice";
 import dynamic from "next/dynamic";
 import type { FormMode } from "./ProviderForm";
-import { KEY, useSaver, type Provider, type TestResult } from "./api";
+import { KEY, PROBE_TIMEOUT_MS, useSaver, type Provider, type TestResult } from "./api";
 import { TYPE_LABEL, providerStatus, testMessage } from "./labels";
 import s from "./llm.module.css";
 
@@ -30,7 +30,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
   async function runTest(p: Provider) {
     setTests((t) => ({ ...t, [p.id]: { pending: true } }));
     try {
-      const r = await apiClient.post<TestResult>(`/admin/llm/providers/${p.id}/test`, {});
+      const r = await apiClient.post<TestResult>(`/admin/llm/providers/${p.id}/test`, {}, { timeoutMs: PROBE_TIMEOUT_MS });
       setTests((t) => ({ ...t, [p.id]: { pending: false, result: r.data } }));
       void qc.invalidateQueries({ queryKey: KEY.providers });
     } catch (e) {

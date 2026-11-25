@@ -70,6 +70,7 @@ type decision struct {
 	base string
 	key  string
 	cl   *http.Client
+	ocgo bool // OpenCode Go: System One (`POST {base}/systemone`, Bearer, trường `state`, usage.input_tokens); lỗi 529 đã rơi vào nhánh 5xx → SERVER
 }
 
 // NewDecision dựng provider `decision`: `POST {base}/decisions` bằng net/http (cấm SDK, D60 (1)), khoá ở header `x-goog-api-key` (không ở URL).
@@ -83,7 +84,7 @@ func NewDecision(c DecisionConfig) Provider {
 	if cl == nil {
 		cl = &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	}
-	return &decision{base: base, key: c.APIKey, cl: cl}
+	return &decision{base: base, key: c.APIKey, cl: cl, ocgo: isOpenCodeGo(base)}
 }
 
 func (*decision) Chat(context.Context, ChatOpts) (Result, error) {
@@ -106,7 +107,8 @@ type wireQuestion struct {
 
 type wireRequest struct {
 	Model     string                  `json:"model"`
-	Input     string                  `json:"input"`
+	Input     string                  `json:"input,omitempty"` // Google
+	State     string                  `json:"state,omitempty"` // System One (OpenCode Go)
 	Questions map[string]wireQuestion `json:"questions"`
 }
 
@@ -121,7 +123,8 @@ type wireAnswer struct {
 type wireResponse struct {
 	Answers map[string]wireAnswer `json:"answers"`
 	Usage   struct {
-		In int `json:"total_input_tokens"`
+		In    int `json:"total_input_tokens"` // Google
+		InSys int `json:"input_tokens"`       // System One
 	} `json:"usage"`
 }
 
@@ -143,16 +146,28 @@ func (d *decision) Decide(ctx context.Context, o DecideOpts) (DecideResult, erro
 	if len(qs) == 0 || strings.TrimSpace(o.Input) == "" {
 		return DecideResult{}, &Error{Kind: KindBadRequest, Detail: "thiếu câu hỏi hoặc đầu vào"}
 	}
-	body, err := json.Marshal(wireRequest{Model: o.Model, Input: o.Input, Questions: qs})
+	wr := wireRequest{Model: o.Model, Input: o.Input, Questions: qs}
+	if d.ocgo {
+		wr.Input, wr.State = "", o.Input
+	}
+	body, err := json.Marshal(wr)
 	if err != nil {
 		return DecideResult{}, &Error{Kind: KindBadRequest}
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, d.base+"/decisions", bytes.NewReader(body))
+	path := "/decisions"
+	if d.ocgo {
+		path = "/systemone"
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, d.base+path, bytes.NewReader(body))
 	if err != nil {
 		return DecideResult{}, &Error{Kind: KindBadRequest}
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("x-goog-api-key", d.key)
+	if d.ocgo {
+		req.Header.Set("Authorization", "Bearer "+d.key)
+	} else {
+		req.Header.Set("x-goog-api-key", d.key)
+	}
 	resp, err := d.cl.Do(req)
 	if err != nil {
 		return DecideResult{}, d.netErr(err)
@@ -169,7 +184,7 @@ func (d *decision) Decide(ctx context.Context, o DecideOpts) (DecideResult, erro
 	if err := json.Unmarshal(raw, &w); err != nil {
 		return DecideResult{}, &Error{Kind: KindBadResponse, Status: resp.StatusCode}
 	}
-	out := DecideResult{Answers: make(map[string]DecideAnswer, len(qs)), TokensIn: w.Usage.In}
+	out := DecideResult{Answers: make(map[string]DecideAnswer, len(qs)), TokensIn: max(w.Usage.In, w.Usage.InSys)}
 	for id, q := range o.Questions {
 		a, ok := w.Answers[id]
 		bad := func(why string) error { return &Error{Kind: KindBadResponse, Status: resp.StatusCode, Detail: why} }

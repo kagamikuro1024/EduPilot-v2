@@ -176,6 +176,9 @@ func (a *Admin) createProvider(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		verified = true
+		var cancel context.CancelFunc
+		ctx, cancel = afterProbeCtx(ctx)
+		defer cancel()
 	}
 	p, err := a.RT.Config.CreateProvider(ctx, in)
 	if err != nil {
@@ -245,6 +248,9 @@ func (a *Admin) updateProvider(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		verified = true
+		var cancel context.CancelFunc
+		ctx, cancel = afterProbeCtx(ctx)
+		defer cancel()
 	}
 	p, err := a.RT.Config.UpdateProvider(ctx, id, in)
 	var vc *llmconfig.ErrVersionConflict

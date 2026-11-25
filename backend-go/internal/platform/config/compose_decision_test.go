@@ -89,3 +89,37 @@ func TestComposeGuidanceEnvReachesGatewayAndWorker(t *testing.T) {
 		}
 	}
 }
+
+// TestComposeEveryEnvReachesAService — mọi biến môi trường mà config.go / ingest / worker đọc phải có mặt trong docker-compose.local.yml (khối chung, gateway hoặc worker);
+// thiếu thì đặt trong .env.local không tới container (AI_SUMMARY_TIMEOUT, KNOWLEDGE_EMBED_TIMEOUT, ATTENDANCE_*… từng thế). Thêm biến mới vào mã mà quên compose thì test đỏ.
+func TestComposeEveryEnvReachesAService(t *testing.T) {
+	t.Parallel()
+	compose, err := os.ReadFile("../../../../docker-compose.local.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// tên biến = đối số chuỗi ĐẦU của lời gọi: l.num("X", …), getenv("X"), i("X", …), os.Getenv("X")
+	call := regexp.MustCompile(`\w\("([A-Z][A-Z0-9_]{3,})"`)
+	exempt := map[string]bool{"INSTANCE_ID": true} // mỗi bản sao tự lấy hostname; chia sẻ một giá trị sẽ làm trùng định danh khi --scale
+	seen := map[string]bool{}
+	for _, f := range []string{"config.go", "../../ingest/settings.go", "../../../cmd/worker/gradingq.go", "../../../cmd/worker/imapsync.go", "../../../cmd/worker/teamssync.go"} {
+		src, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range call.FindAllStringSubmatch(string(src), -1) {
+			seen[m[1]] = true
+		}
+	}
+	if len(seen) < 150 {
+		t.Fatalf("chỉ thấy %d biến — bộ quét hỏng?", len(seen))
+	}
+	for v := range seen {
+		if exempt[v] {
+			continue
+		}
+		if !regexp.MustCompile(`(?m)^\s+` + v + `:`).Match(compose) {
+			t.Errorf("docker-compose.local.yml thiếu %s", v)
+		}
+	}
+}
