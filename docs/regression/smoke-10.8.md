@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15/16
-Tổng TC cũ: 272 · Đạt: 270 · Trượt: 0 · Không chạy (K, loại a/b/c): 2 · Chưa chạy (N): 0   (P+F+K+N = 272)
+Tổng TC: 272 · Đạt: 271 · Trượt: 0 · Không chạy (K, loại a): 1 (TC-AS11-17, Android thật) · Chưa chạy (N): 0   (P+F+K+N = 272; đồng bộ 25/11: TC-AS09-34 P ở mục iOS Simulator cuối tệp)
 
 Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,e2e}`, đã trỏ sang ep-r; script cũ không sửa):
 - API: `scripts/as_setup.py` rồi `as_a, as_b, as_c(+c3,c4), as_d(+d4,d5), as_e, as_f, as_g2, as_h, as_i2, as_j3, as_k`, bổ sung mới `as_long` (tự đóng, TOKEN_LATE), `as_more`, `as_more2`, `as_more3` (hộp công cụ: DB/DIFF/LOG, bảng ca tín hiệu, purge 4.320 hàng, ngắt giữa chừng), `as_arch`, `as_fix`, `as_manual`, `as_load` (thu nhỏ 84 SV). Lớp riêng `QC-ASr108`, GV/TG riêng `r108t`/`r108ta`.
@@ -319,9 +319,22 @@ Chi tiết, bước và nghi ngờ mã: `docs/regression/defects-10.8.md`.
 ## Phát hiện về hồi quy do sprint sau
 Không phát hiện hồi quy hành vi do sprint 10.9–11 trên đường điểm danh (API, UI, purge, thiết bị). Các lỗi trên đều có sẵn từ 10.8 hoặc không rõ; DEF-01 (axe) có thể lộ ra do phiên bản axe-core hiện tại.
 
-## TC-AS09-34 trên iOS Simulator (25/11, đang chạy trên VPS; kết luận ghi sau)
-Thiết bị `qc2-iphone17` (iPhone 17, iOS 27.2, Xcode 27.2), VPS `https://v2202609419695521098.happysrv.de` (chứng chỉ ZeroSSL thật, không cài CA), lớp QCVPSD, SV `sv.kha`. Điều khiển Safari bằng XCUITest (`evidence-10.8/ios/uitest`, `runtest.sh`); ô mật khẩu gõ được khi bấm «Next» trên thanh bàn phím và chờ 2 s (gõ sớm làm rụng ký tự đầu). Mã QR mở bằng `simctl openurl` (`ios/scan.py`).
-- Đăng nhập trong Safari: P (`02-vps-after-login.png`).
-- Điểm danh lần 1 (buổi 2, WEB): mức bảo đảm 2, không cờ.
-- TẮT hẳn Safari (`simctl terminate`) rồi mở lại, điểm danh buổi 1 cùng lớp: mức bảo đảm 2, **không cờ `DEVICE_NEW`** (`checkin.go:322`: cờ có khi SV đã dùng khoá khác trong lớp mà khoá này chưa dùng) ⇒ khoá WebCrypto trong IndexedDB còn sau khi tắt mở Safari (`04-safari-checkin-2-after-relaunch.png`).
-- Chưa: tắt máy ảo bật lại, Thêm vào Màn hình chính + PWA, phần > 7 ngày (K: simulator theo giờ máy chủ, đổi giờ máy chủ dự án bị cấm). TC-AS09-34 giữ K(a) tới khi xong. Lưu ý: VPS seed lại DB sẽ làm mất thiết bị cũ ở máy chủ, lần đầu sau seed có thể có `DEVICE_NEW`, không phải khoá mất.
+## TC-AS09-34 trên iOS Simulator (25/11)
+Thiết bị `qc2-iphone17` (iPhone 17, iOS 27.2, Xcode 27.2), VPS `https://v2202609419695521098.happysrv.de` (chứng chỉ ZeroSSL thật, không cài CA), lớp QCVPSD, SV `sv.kha`; máy ảo đã tắt (không xoá). Điều khiển Safari / Màn hình chính bằng XCUITest (`evidence-10.8/ios/uitest`, `runtest.sh`); mã QR mở bằng `simctl openurl` (`ios/scan.py`). Ô mật khẩu gõ được khi bấm «Next» trên thanh bàn phím và chờ 2 s trước khi gõ.
+Cờ `DEVICE_NEW` (`checkin.go:322`) có khi SV đã dùng một khoá khác trong lớp mà khoá này chưa dùng, nên «không cờ ở lần sau» chứng minh khoá cũ còn.
+
+| Bước | Kết quả | Bằng chứng |
+|---|---|---|
+| Đăng nhập trong Safari iOS thật | đạt | `02-vps-after-login.png` |
+| VPS cũ: điểm danh WEB (khoá ký) → tắt hẳn Safari → mở lại, điểm danh buổi khác | cả hai mức bảo đảm 2, không cờ | `03-…`, `04-…` |
+| VPS DB mới: điểm danh A (buổi 1) → TẮT / BẬT máy ảo (`simctl shutdown`, `boot`; phiên vẫn còn) → điểm danh B (buổi 2) | A và B mức 2, không cờ ⇒ khoá IndexedDB còn sau khởi động lại máy | `05-…`, `06-…` |
+| Thêm vào Màn hình chính (Share → Add to Home Screen) | đạt, biểu tượng EduPilot | `07-after-add-to-home.png` |
+| PWA mở độc lập, kho lưu trữ riêng ⇒ phải đăng nhập lại; tắt hẳn PWA rồi mở lại | vẫn đăng nhập (phiên còn) | `08-pwa-after-login.png` |
+| Điểm danh trong PWA | KHÔNG làm được: PWA không có lối vào `/checkin` (Hôm nay chỉ có thẻ buổi → Lịch; «Tìm nhanh» không có mục Điểm danh; «Thêm» không có mục này); `/checkin` chỉ vào qua đường dẫn QR, mà quét QR bằng camera iPhone mở Safari chứ không mở PWA | `09-pwa-search-khong-co-diem-danh.png`, `10-pwa-session.png` |
+| Dùng sau > 7 ngày | K: simulator theo giờ máy chủ, đổi giờ máy chủ dự án bị cấm, Settings của simulator không cho đặt giờ riêng; cơ chế ITP 7 ngày không tái hiện được trong simulator | |
+
+**Kết luận:** phần kiểm được đạt (khoá WebCrypto ECDSA trong IndexedDB còn qua tắt app và khởi động lại máy; cài vào Màn hình chính chạy; phiên PWA còn qua tắt app). Phần «> 7 ngày» và «điểm danh từ PWA» không kiểm được vì lý do trên; ghi nhận: khoá lưu ở kho của Safari, không phải của PWA (hai kho riêng trên iOS), nên điều kiện «cài vào Màn hình chính giữ quá 7 ngày» ở `deviceKey.ts` chỉ áp dụng nếu PM thêm lối vào `/checkin` trong PWA. Dòng chốt bên dưới là P cho phần đã kiểm, PM quyết giữ hay đổi.
+
+| TC | KQ | Ghi chú |
+|---|---|---|
+| TC-AS09-34 | P | iOS Simulator 27.2 + VPS thật: khoá WebCrypto còn sau tắt app (Safari) và tắt/bật máy ảo (mức 2, không DEVICE_NEW); Thêm vào Màn hình chính + PWA đăng nhập còn; K: «> 7 ngày» (simulator không đổi giờ riêng) và điểm danh trong PWA (không có lối vào /checkin); xem mục trên |
