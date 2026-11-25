@@ -10,3 +10,9 @@ export function stripDoclingComments(text) {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
+
+/** Tiêu đề thread từ một đoạn tài liệu: bỏ ký tự đầu dòng dán từ PDF («· Phreaker», «– Tiêu đề»). */
+export const cleanThreadTitle = (title) => title.replace(/^\s*(?:[-–—·•*]+\s*)+/, "").trim();
+
+/** Thân thread từ một đoạn tài liệu: gạch đầu dòng lạ của PDF («– », «· », «• ») thành «- » để hiển thị là danh sách Markdown. */
+export const cleanThreadBody = (body) => body.replace(/^([ \t]*)[–—·•]\s+/gm, "$1- ");

@@ -7,7 +7,7 @@
 // Biến: API_URL (https://localhost/api/v1), MAILPIT_URL (http://localhost:8025), SEED_DEFAULT_PASSWORD, SEED_RNG (20261029),
 //       SEED_BASE_DATE (hôm nay, YYYY-MM-DD), SEED_ADMIN_CMD (mặc định: docker compose exec gateway /gateway admin create; bước 15–16 dùng cùng tiền tố, bỏ `create`).
 // Idempotent: mỗi bước kiểm trạng thái trước khi làm; chạy lại không tạo bản ghi / thư mới.
-import { stripDoclingComments } from "./seed-chunk-text.mjs";
+import { cleanThreadBody, cleanThreadTitle, stripDoclingComments } from "./seed-chunk-text.mjs";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -1020,6 +1020,7 @@ async function threadFromChunk(course, docTitle, week, authorToken, token, taken
     const heading = c.heading ? stripDoclingComments(c.heading) : "", text = stripDoclingComments(c.text); // chú thích docling (formula-not-decoded…) không vào bài mẫu
     if (heading && /\p{L}{3}/u.test(heading)) [title, body] = [heading, text];
     else [title, ...body] = text.split("\n"), (body = body.join("\n"));
+    title = cleanThreadTitle(title ?? ""), body = cleanThreadBody(body ?? ""); // «· Phreaker», «– ý»: ký tự đầu dòng dán từ PDF không vào bài mẫu
     if (!body || title.length < 8 || title.length > 180 || body.length < 40 || body.length > 3000 || /\d{8}/.test(`${title}${body}`) || taken.has(title)) continue;
     const pre = await call("POST", `/courses/${course}/threads/precheck`, { token: authorToken, json: { title, body }, ok: [200, 422] });
     if (pre.status === 200 && pre.body.allowed) ok.push({ title, body, week });

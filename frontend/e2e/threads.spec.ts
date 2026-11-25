@@ -51,6 +51,24 @@ test("US-UX91-19 đoạn trích sạch: bỏ ký tự đầu dòng, gộp dòng,
   expect(texts[2].endsWith("…")).toBe(true);
 });
 
+// M16 (techlead-ui 2026-11-25): dấu ghim là biểu tượng phụ (--ep-ink-3, không đỏ: đỏ không mang nghĩa nào ở đây) và đứng CÙNG dòng đầu của tiêu đề.
+test("M16 @375: dấu ghim không đỏ, cùng dòng với tiêu đề", async ({ page, context }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await openList(page, context, { [`GET ${T}`]: json({ items: [row({ id: "n1", title: "Bài thường" })], pinned: [row({ id: "g1", title: "Quy định chung của lớp học phần năm học 2026 cần đọc trước", pinned: true })], next_cursor: null }) });
+  const pinned = page.locator("[data-part=pinned-row]");
+  const pin = pinned.locator("svg[aria-label=\"Đã ghim\"]");
+  await expect(pin).toBeVisible();
+  const color = await pin.evaluate((e) => getComputedStyle(e).color);
+  const red = await page.evaluate(() => { const d = document.createElement("i"); d.style.color = "var(--ep-red)"; document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; });
+  expect(color).not.toBe(red);
+  const title = (await pinned.locator("a > span").first().boundingBox())!;
+  const box = (await pin.boundingBox())!;
+  expect(box.y - title.y).toBeLessThan(10); // cùng dòng đầu, không hàng riêng
+  expect(box.x - title.x).toBeLessThan(4); // đầu dòng
+  const line = await pinned.locator("a > span").first().evaluate((e) => parseFloat(getComputedStyle(e).lineHeight) || 24);
+  expect(title.height).toBeLessThan(line * 4 + 8);
+});
+
 test("US-UX91-19 nhãn lặp: trạng thái đa số (≥ 80 %) nêu một lần ở đầu danh sách, chỉ hàng khác trạng thái mang nhãn", async ({ page, context }) => {
   const pending = Array.from({ length: 5 }, (_, i) => row({ id: `p${i}`, title: `Chờ ${i}` }));
   await openList(page, context, { [`GET ${T}`]: list([...pending, row({ id: "v1", title: "Đã xong", answer_state: "VERIFIED" })]) });
