@@ -310,6 +310,22 @@ ADMIN_PASSWORD='…' ./bin/gateway admin create --email admin@edupilot.local --n
 
 CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy job **Go** (`go vet` hai bộ tag, `golangci-lint`, `sqlc diff`, `go test -race -tags testroutes`) và **Frontend** (lint, build, `ui-antipatterns.sh`, Playwright gồm ảnh mốc và axe, Lighthouse CI) trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật (provider `fake` + bản ghi replay). Ảnh mốc Playwright sinh trong image `mcr.microsoft.com/playwright` để khớp CI. Số đo nền của bản Go: [`benchmarks/reports/pg-baseline.md`](benchmarks/reports/pg-baseline.md).
 
+### Smoke hồi quy toàn bộ ca cũ (sprint 11)
+Trước Gate P10, các phiên QC hồi quy chạy lại test case của **mọi sprint đã gộp** (1 → 10.8, kèm lượt OpenCode Go) trên đầu nhánh `sprint/11-p10-eval`, trên stack riêng (`ep-r` và các stack `ep-*` khác, không ghi lên demo). Nhãn mỗi ca: `P` đạt, `F` trượt, `K` không kiểm được với đúng một trong ba lý do (thiết bị không có, cần người thật, ngoài phạm vi đồ án), `D` lỗi thời vì spec đã đổi hợp lệ (ghi mã đề xuất), `N` / `M` / `X` chưa chạy (ghi lý do). Quy ước đầy đủ ở dòng đầu mỗi `smoke-*.md`. Lỗi tìm thấy được sửa trên nhánh `fix/…` riêng; QC chạy lại đúng ca gốc trên bản sửa rồi mới đóng.
+
+Kết quả nằm trên nhánh **`qc2/regression`** (không gộp vào `main`), thư mục `docs/regression/`:
+
+| Tệp | Nội dung |
+| --- | --- |
+| `smoke-<sprint>.md` | Bảng từng ca của một sprint: mã đã chạy, stack, tổng P / F / K / N, lệnh chạy |
+| `defects-<sprint>.md`, `defects.md` | Lỗi tìm thấy: mức, ca gốc, hồi quy do sprint sau hay có sẵn, bước tái hiện, bằng chứng |
+| `defects-closed.md`, `defects-status.md` | Lỗi đã đóng (ca gốc chạy lại đạt); bảng trạng thái MỞ / ĐÃ SỬA — CHỜ CHẠY LẠI / ĐÓNG |
+| `smoke-11-opencode-go.md`, `defects-opencode-go.md` | Lượt kiểm nhà cung cấp OpenCode Go |
+| `gate-p10-demo.md` | Gate P10: chạy `docs/DEMO_SCRIPT.md` trên stack demo, lượt 1 và lượt 2 |
+| `evidence-<sprint>/`, `env/` | Script, log, ảnh của từng lượt; script dựng stack hồi quy (`env/rebuild.sh`, `env/ep-r-env.sh`); `env/qc2-progress.py` tổng hợp `smoke-*.md` thành bảng tiến độ |
+
+Đọc mà không cần chuyển nhánh: `git fetch origin qc2/regression && git show origin/qc2/regression:docs/regression/defects-status.md`.
+
 ## 7. Luật bất biến
 
 Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md).
@@ -394,10 +410,13 @@ flowchart LR
 | 8 | ✅ Xong | P6 | Sổ điểm kiểu bảng tính, AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay), chốt / mở khoá có lý do, nhập / xuất XLSX, điểm của tôi + tính thử |
 | 9 | ✅ Xong | P7 | Bài tập nộp trong app / ZIP / mail / Teams giả lập, khớp sinh viên an toàn, AI chấm nháp hai lượt có bằng chứng, duyệt cạnh nhau, chỉ giảng viên công bố, phúc khảo |
 | 9.1 | ✅ Xong | UI/UX | Khảo sát 34 màn × 4 vai × 1440 / 375 (27 vấn đề), sửa theo 6 đợt: nút có lý do khoá, giờ ICT, menu tiếng Việt, "Hôm nay" chia nhóm, sổ điểm / duyệt bài gọn, trang giới thiệu v2 + video có phụ đề |
-| 9.5 | | NFR | Seed đầy đủ, đo tải / hiệu năng trên Mac (VPS đã thu hồi), đánh giá LLM thật (Gemini) |
+| 9.5 | ✅ Xong | NFR | Seed đầy đủ, đo tải T1 trên Mac ×1 và ×2 (máy chủ thuê đã thu hồi), hỗn loạn, chấm 1.000 bài qua LLM thật trong 1,68 h, đo LLM thật R1–R6 (`docs/research/2026-11-14-nfr-real-llm.md`) |
 | 10 | ✅ Xong | P9 | Luyện đề: ngân hàng câu hỏi (trích từ đề cũ, sinh từ tài liệu có trích dẫn, duyệt hàng loạt), luyện theo chủ đề, thi thử có giờ + tự lưu, tự luận có nhận xét gợi ý, chủ đề cần ôn trên "Hôm nay", liêm chính với bài thi, nhập Google Forms vào sổ điểm |
 | 10.5 | ✅ Xong | D60 | Decision model `gemini-decision-1` + cascade 3 cổng (tường lửa Threads chỉ-thêm-chặn, cờ chèn lệnh, định tuyến chat; dưới ngưỡng về luật), mặc định tắt theo lớp, bản giả cho CI / demo, `/settings/llm` + `/observability` |
-| 11 | | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
+| 10.6 | ✅ Xong | D61 / D62 | Lưu ý chấm học từ lần giảng viên sửa (phiên bản do giảng viên duyệt, ghim theo lượt chấm), ca hồi quy chấm (`cmd/regress`) |
+| 10.7 | ✅ Xong | UI | Làm lại khung giao diện, bộ màu ĐHBK, trang giới thiệu có chuyển động |
+| 10.8 | ✅ Xong | M5 | Điểm danh tự phục vụ: QR xoay vòng + mã ngắn, cờ nghi điểm danh hộ, app Android có khoá thiết bị |
+| 11 | ✅ Xong | P10 | Quan sát AI + nhật ký quản trị (F16), báo cáo lỗ hổng kiến thức (F17), đánh giá E1–E6, smoke hồi quy toàn bộ ca cũ (mục 6), thêm OpenCode Go, **Gate P10**: chạy `docs/DEMO_SCRIPT.md` trên demo dựng lại (lượt 2: 44 đạt, 3 trượt, 4 chưa kiểm, `gate-p10-demo.md`) → **vạch bảo vệ** |
 
 Chi tiết ghép phase, cổng và mục cắt được khi trễ: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
