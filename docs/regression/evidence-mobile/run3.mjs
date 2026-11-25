@@ -1,0 +1,28 @@
+import { createRequire } from "node:module";
+import { readFileSync, writeFileSync } from "node:fs";
+const require = createRequire("/srv/work/TA_Agent_dev3/frontend/package.json");
+const { chromium } = require("@playwright/test");
+const BASE = "https://v2202609419695521098.happysrv.de";
+const PWQ = readFileSync("/srv/work/.qc3-secret", "utf8").trim();
+const IDS = JSON.parse(readFileSync(new URL("./vps-ids.json", import.meta.url), "utf8"));
+const OUT = "/srv/work/.qc3-out"; const R = [];
+const rec = (tc, kq, note) => { R.push({ tc, kq, note }); console.log(kq, tc, note.slice(0, 220)); };
+const b = await chromium.launch({ args: ["--no-sandbox"] });
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, ignoreHTTPSErrors: true, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh", hasTouch: true, isMobile: true });
+const p = await ctx.newPage();
+await p.goto(BASE + "/login", { waitUntil: "domcontentloaded" });
+await p.locator("input[type=email]").fill("sv.qc3@edupilot.local");
+await p.locator("input[type=password]").fill(PWQ);
+await p.keyboard.press("Enter");
+await p.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30000 }).catch(() => {});
+await p.goto(BASE + "/checkin?course=" + IDS.QC3M1, { waitUntil: "domcontentloaded" }); await p.waitForTimeout(4500);
+const d = await p.evaluate(() => {
+  const inp = document.querySelector('input[placeholder="ABC 123"]');
+  const lbl = inp ? (inp.labels && inp.labels[0] ? inp.labels[0].innerText.trim() : inp.getAttribute("aria-label")) : null;
+  const svg = [...document.querySelectorAll("svg")];
+  return { hasInput: Boolean(inp), label: lbl, labelEl: inp ? inp.getAttribute("aria-labelledby") : null, svg: svg.length, svgNoHidden: svg.filter((s) => !s.closest("[aria-hidden=true]") && s.getAttribute("aria-hidden") !== "true").length, h1: document.querySelector("h1")?.innerText };
+});
+await p.screenshot({ path: `${OUT}/shots/A11-09-label.png` });
+rec("TC-MOB-A11-09", d.hasInput && d.label && d.label.length > 0 && d.svgNoHidden === 0 ? "P" : `F:${JSON.stringify(d)}`, `ô mã: có=${d.hasInput} nhãn="${d.label}" (labelledby=${d.labelEl}); h1="${d.h1}"; svg=${d.svg}, không aria-hidden=${d.svgNoHidden}`);
+await b.close();
+writeFileSync(`${OUT}/results-run3.json`, JSON.stringify(R, null, 1));
