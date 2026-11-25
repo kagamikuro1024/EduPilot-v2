@@ -716,6 +716,22 @@ Nguồn: `docs/sprints/10.8/qc/tc-mobile-run-android.md` (qc2; AVD `ep-api36` An
 
 **Cộng dồn pha 1 + pha 2 (khử trùng `A11-16`):** 71 TC có kết quả — **63 P, 0 F, 8 N**.
 
+### 9.3 Pha 3 — iOS Simulator (qc3, 26/11/2026, máy `qc3-iphone15`)
+
+Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Qc2UITests` từ qc2) + `xcrun simctl`; ảnh trong `docs/regression/evidence-ios/shots/`. Máy: iPhone 15 (iOS 27.2, 393×852 CSS).
+
+**Lô A — cấu hình, khung, sáng/tối: 7 TC = 7 P, 0 F.**
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-PWA-01 | P | `manifest.webmanifest` 200 `application/manifest+json`: `name`/`short_name` «EduPilot», `start_url`/`scope` `/`, `display` `standalone`, `lang` `vi`, `theme_color` `#FFFFFF`, `background_color` `#FFFFFF`; icon `/brand/icon-192.png` 200 (192×192), `/brand/icon-512.png` 200 (512×512), `logo-edupilot-mark.svg` 200. Không có `serviceWorker` trong mã `frontend/src` (0 lần) ⇒ không đăng ký SW |
+| TC-MOB-PWA-02 | P | Safari `/` → Chia sẻ → «Thêm vào Màn hình chính»: hộp tên đề xuất «EduPilot»; duyệt trang không hiện banner/hộp mời cài đặt |
+| TC-MOB-PWA-03 | P | Biểu tượng trên Màn hình chính: logo EduPilot (sách + bút đỏ) trên nền trắng bo góc, không phải ảnh chụp trang/chữ cái đầu, không viền lạ; `apple-touch-icon` = `/brand/icon-192.png` (đã có trong HTML) |
+| TC-MOB-SAF-05 | P | `/checkin` dọc trong Safari: đo khung (XCUITest) — cửa sổ 393×852; «Mã điểm danh» y=261 (dưới đảo động), ô nhập 296..340, nút «Điểm danh» 645..689, thanh đáy 728..745 (trên thanh công cụ Safari và trên vùng Home 818); không dải trắng đáy; HTML có `viewport-fit` |
+| TC-MOB-SAF-06 | P | PWA standalone: thanh trạng thái trắng chữ đen, tiêu đề «Hôm nay»/«Điểm danh» dưới đảo; thanh đáy 5 mục nằm trên thanh Home; nền trên/dưới cùng màu canvas trắng, không dải đen/trắng lệch |
+| TC-MOB-THM-04 | P | `simctl ui appearance dark`: trang vẫn SÁNG ở cả Safari và PWA (chữ đen trên nền trắng), thanh trạng thái PWA đọc được (chữ đen, nền trắng `theme_color`) |
+| TC-MOB-THM-07 | P | Ảnh: giờ/pin/sóng màu đen trên nền trắng — đọc rõ. `theme_color` đang dùng `#FFFFFF` (không phải BRAND.red); đối chiếu US-AS-15 AC11/D59: nền sáng, ghi nhận là quan sát |
+
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
 - Không có ca nào kiểm Play Integrity, App Attest, thông báo đẩy, đa cửa sổ, máy tính bảng, màn gập, chế độ tối thật (ngoài phạm vi US-AS-15).
