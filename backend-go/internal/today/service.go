@@ -69,6 +69,7 @@ func NewService(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, log *
 	agg.Register(AssignmentProvider{Pool: pool})              // US-P7-03: ASSIGNMENT_DUE (bậc 41)
 	agg.Register(NewDocumentProvider{Pool: pool, Redis: rdb}) // P-11-122: NEW_DOCUMENT (bậc 90)
 	agg.Register(AdminProvider{Pool: pool, LLM: llm})
+	agg.Register(DeadLetterProvider{Pool: pool}) // P-11-122: DEAD_LETTER (bậc 60); Provider riêng để lỗi của nó không làm mất mục khác của Admin
 	return &Service{Pool: pool, Redis: rdb, Clock: clk, Log: log, Agg: agg, Attn: staff.Attn, TTL: DefaultTTL, warned: new(atomic.Int64)}
 }
 

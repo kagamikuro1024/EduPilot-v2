@@ -71,6 +71,7 @@ const (
 	KindAssignmentAppealReply  Kind = "ASSIGNMENT_APPEAL_REPLY"  // US-P7-10: phản hồi phúc khảo (sinh viên, 7 ngày)
 	KindAssignmentDue          Kind = "ASSIGNMENT_DUE"           // US-P7-03: bài tập đã công bố, chưa nộp, hạn trong ≤ 24 giờ (hoặc đang nộp muộn) — sinh viên
 	KindNewDocument            Kind = "NEW_DOCUMENT"             // P-11-122 (US-P2-11 AC15): tài liệu mới ≤ 72 giờ chưa mở thư viện — sinh viên
+	KindDeadLetter             Kind = "DEAD_LETTER"              // P-11-122 (US-P2-11 AC16): hàng đợi outbox có tin lỗi hẳn ≤ 7 ngày — Admin
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -115,6 +116,7 @@ const (
 	TierAssignmentAppealReply  = 48
 	TierAssignmentDue          = 41 // SRS FEAT-assignments 4.12: bậc 41 không trùng bậc nào khác trong vai sinh viên
 	TierNewDocument            = 90 // P-11-122 (SRS 4.7): sau mọi việc khác của sinh viên
+	TierDeadLetter             = 60 // P-11-122 (SRS 4.7): Admin, sau INVITE_EXPIRED (50)
 	TierCheckinReview          = 13 // 10.8 (SRS FR-18): sau SESSION_UNMARKED (12), trước mọi bậc 15+
 	TierSessionUnmarked        = 12 // 15 đã là TierExamGradeError: hai mục cùng bậc xếp theo tuổi, mất thứ tự chủ đích (TLR-10)
 )
@@ -132,7 +134,7 @@ func allowed(role Role, k Kind) bool {
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold, KindPublishPending, KindAppeal, KindGuidancePending:
 		return role == RoleTeacher
-	case KindCourseStalled, KindLLMProviderError, KindLLMBudgetOut, KindLLMBudgetWarn, KindCourseNoTeacher, KindInviteExpired:
+	case KindCourseStalled, KindLLMProviderError, KindLLMBudgetOut, KindLLMBudgetWarn, KindCourseNoTeacher, KindInviteExpired, KindDeadLetter:
 		return role == RoleAdmin
 	}
 	return false

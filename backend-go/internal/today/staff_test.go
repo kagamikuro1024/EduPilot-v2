@@ -628,12 +628,14 @@ func TestTodayQueryBudget(t *testing.T) {
 	}
 	su, ss := r.person(store.UserRoleSTUDENT, true)
 	r.enrollAt(c1, su, "STUDENT", "ACTIVE", "", time.Hour)
+	_, as := r.person(store.UserRoleADMIN, true)
+	r.exec(`insert into outbox (topic, attempts, dead_at) values ('mail.send', 4, now())`) // Admin có đủ dữ liệu cho cả DEAD_LETTER (P-11-122)
 	for name, tc := range map[string]struct {
 		s     session
 		path  string
 		limit int64
 	}{
-		"giảng viên tất cả lớp": {g, "/me/today", 7}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 8}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 8},
+		"giảng viên tất cả lớp": {g, "/me/today", 7}, "Admin": {as, "/me/today", 7}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 8}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 8},
 	} {
 		before := r.qc.n.Load()
 		require.Equal(t, http.StatusOK, r.tgetC(tc.s, tc.path).code, name)

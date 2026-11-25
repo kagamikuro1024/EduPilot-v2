@@ -196,6 +196,14 @@ d as (
 select course_id, array_agg(title order by at desc, id)::text[] as titles, array_agg(at order by at desc, id)::timestamptz[] as ats
 from d group by course_id;
 
+-- name: TodayDeadLetters :many
+-- DEAD_LETTER (P-11-122): dòng outbox chết trong cửa sổ `since`, gộp theo chủ đề. CHỈ topic, đếm, dead_at mới nhất — KHÔNG đọc payload / last_error (không PII).
+select topic, count(*)::int as n, max(dead_at)::timestamptz as latest
+from outbox
+where dead_at is not null and dead_at > sqlc.arg(since)::timestamptz
+group by topic
+order by topic;
+
 -- name: TodayAdminProviders :many
 -- Nhà cung cấp AI đang bật: lỗi nếu lần kiểm gần nhất thất bại (mạch mở do Scheduler báo thêm).
 select id, name, coalesce(last_test_ok, true)::boolean as ok from llm_providers where enabled order by name;

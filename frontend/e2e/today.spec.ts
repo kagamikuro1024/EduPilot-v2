@@ -265,6 +265,18 @@ test("admin today: việc của hệ thống, không có lớp", async ({ page }
   expect(st.calls).toEqual(["/me/today"]);
 });
 
+test("admin today: tin lỗi hẳn ⇒ một việc không đường dẫn, không nút, chỉ chủ đề và số lượng (P-11-122)", async ({ page }) => {
+  await open(page, "ADMIN", [], () =>
+    ({ count: 1, actions: [item("DEAD_LETTER", "Hàng đợi có 3 tin lỗi hẳn", "mail.send (2) · mới nhất 3 giờ trước.", { id: "DEAD_LETTER", href: "" })] }),
+  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("1 việc cần xử lý hôm nay");
+  await expect(main(page).getByText("Hàng đợi có 3 tin lỗi hẳn")).toBeVisible();
+  await expect(main(page).getByText("mail.send (2) · mới nhất 3 giờ trước.")).toBeVisible();
+  await expect(main(page).getByRole("link")).toHaveCount(0);
+  await expect(main(page).getByRole("button")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { timeout: 5000 }).toBeLessThanOrEqual(0);
+});
+
 test("today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu", async ({ page }) => {
   const st = await open(page, "STUDENT", [], () => student({ no_course: true }));
   await expect(page.getByLabel("Mã tham gia lớp")).toBeVisible();

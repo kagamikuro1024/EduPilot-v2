@@ -439,6 +439,41 @@ func (q *Queries) TodayCourseStaff(ctx context.Context, courseID uuid.UUID) ([]u
 	return items, nil
 }
 
+const todayDeadLetters = `-- name: TodayDeadLetters :many
+select topic, count(*)::int as n, max(dead_at)::timestamptz as latest
+from outbox
+where dead_at is not null and dead_at > $1::timestamptz
+group by topic
+order by topic
+`
+
+type TodayDeadLettersRow struct {
+	Topic  string
+	N      int32
+	Latest time.Time
+}
+
+// DEAD_LETTER (P-11-122): dòng outbox chết trong cửa sổ `since`, gộp theo chủ đề. CHỈ topic, đếm, dead_at mới nhất — KHÔNG đọc payload / last_error (không PII).
+func (q *Queries) TodayDeadLetters(ctx context.Context, since time.Time) ([]TodayDeadLettersRow, error) {
+	rows, err := q.db.Query(ctx, todayDeadLetters, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TodayDeadLettersRow{}
+	for rows.Next() {
+		var i TodayDeadLettersRow
+		if err := rows.Scan(&i.Topic, &i.N, &i.Latest); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const todayNewDocuments = `-- name: TodayNewDocuments :many
 with ids as (select unnest($1::text[])::uuid as course_id),
 d as (
