@@ -738,10 +738,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 77 | 0 | 0 |
+| qc3 iOS | 79 | 0 | 1 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (284 mã gốc − 38 trùng = 246)** | **186** | **0** | **60** |
+| **Hợp (287 mã gốc − 40 trùng = 247)** | **189** | **0** | **58** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -816,13 +816,16 @@ Máy: `qc3-se3` (375×667), `qc3-iphone15` (390×844), `qc3-iphone15pm` (430×93
 | TC-MOB-UIW-12 | P | iPhone 15 844×390 ngang: nút chính và ô nhập không bị Dynamic Island che, lề hai bên lớn hơn tai thỏ (`C-UIW-12-land2`) |
 | TC-MOB-UIW-17 | P | Dọc: thanh đáy 5 mục (Hôm nay · Chat riêng · Hỏi đáp · Luyện đề · Thêm) đủ chữ; ngang (< 500 px CSS): **vẫn thanh đáy**, không cắt chữ (`C-UIW-11-land`, `C-KBD-err`) |
 | TC-MOB-SAF-07 | P | iPhone 15 ngang: ô nhập + nút chính nằm trong vùng an toàn, không dải trắng hai bên (`C-UIW-12-land2`) |
+| TC-MOB-SAF-10 | P | Rà 5 trạng thái chụp riêng trên iPhone 15 (Dynamic Island): ô nhập (`C-TXT04b`), đã điểm danh (`FLW-02e`), lỗi mã (`ERR-11`), hết hạn (`C-ERR06-after`), đã đóng (`ERR-04`) — không phần tử tương tác nào nằm dưới vùng bị che; trạng thái quét không kiểm được (Simulator không camera) |
 | TC-MOB-SAF-08 | P | SE3 (không tai thỏ): đáy trang sát thanh đáy, không khoảng đệm an toàn thừa (`C-UIW-02c`) |
+| TC-MOB-TXT-04 | P | Safari `aA` → Page Zoom **200 %**: vẫn một cột, không cuộn ngang, không chữ chồng, nút «Điểm danh» nằm trên thanh đáy và không bị che (`C-TXT04b`) |
 | TC-MOB-TXT-05 | P | `content_size=accessibility-extra-extra-extra-large`: chữ phóng to, bố cục vẫn 1 cột, không cuộn ngang, nút chính còn chạm được (`C-TXT-05`) |
-| TC-MOB-KBD-02 | P* | Bàn phím mở: ô nhập thấy trước, không bị che (`C-KBD-kbd`, SE3 dọc — TC ghi ngang, ghi nhận lệch) |
+| TC-MOB-KBD-02 | **N** | SE3 ngang 667×375 + bàn phím mở: ô «Mã điểm danh» thấy trước, không bị che (`C-KBD-02b`), nhưng nút «Điểm danh» nằm dưới đáy khung và **hai lần vuốt trong vùng nội dung không cuộn được** (`C-KBD-02d`, `-02e`); phím «Đi» trên bàn phím vẫn gửi được (KBD-05). Cần một lần thao tác tay để chốt P/F |
 | TC-MOB-KBD-03 | P | Mã sai + phím «Đi»: câu lỗi hiện ngay dưới ô, KHÔNG bị bàn phím che, nút chính thấy được (`C-KBD-err`) |
 | TC-MOB-KBD-05 | P | Phím Enter/«Đi» gửi như nút: nhận phản hồi từ máy chủ (`C-KBD-err` hiện câu lỗi mã sai do POST) |
+| TC-MOB-KBD-04 | P | Gõ ba dạng trên ô trống (SE3): `abc 123` → **ABC 123**, `ABC-123` → **ABC-123**, `abc123` → **ABC123** — chữ hoa, giữ dấu cách/gạch, không tự sửa (`C-KBD04-f1..f3`). Thuộc tính ô (mã nguồn `CheckinScreen.tsx`): `autoCapitalize="characters"`, `autoComplete="off"`, `autoCorrect="off"`, `spellCheck={false}`, `enterKeyHint="go"`, `inputMode="text"`, `maxLength={12}`, `onChange` đổi `toUpperCase()` |
 
-**N (chưa dựng được):** `SAF-10` (rà đủ 6 trạng thái cùng lúc với đường biên vùng an toàn), `TXT-04` (Safari phóng trang 200 % qua menu `aA`), `KBD-04` (kiểm `autocorrect=off`/`spellcheck=false` cần đọc DOM), `KBD-09` (dán từ clipboard cần bật clipboard dùng chung).
+**N (chưa dựng được):** `KBD-02` (nút chính không cuộn tới được trong 2 lần vuốt — cần chốt tay), `KBD-09` (`simctl pbcopy` + chạm giữ không hiện menu Dán trong ảnh `C-KBD09-menu`, cần thao tác tay).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
