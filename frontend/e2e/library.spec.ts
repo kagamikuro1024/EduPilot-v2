@@ -67,12 +67,31 @@ for (const [w, h] of [[1440, 900], [375, 812]] as const) {
         return r.fulfill(list(cat ? all.filter((d) => d.category === cat) : all));
       },
     });
+    if (w < 720) await page.getByRole("button", { name: /^Bộ lọc/ }).click(); // di động: Loại / Chủ đề / Tuần nằm trong bảng «Bộ lọc» (M4)
     await page.getByLabel("Chủ đề").selectOption("Mật mã");
     await expect(page.getByText("Slide AES")).toBeVisible();
     await expect(page.getByText("Quy chế học vụ")).toHaveCount(0);
     expect(calls.some((c) => c.path.includes("category=M"))).toBe(true);
   });
 }
+
+// M4 (techlead-ui 2026-11-25): di động không tự focus ô tìm (bàn phím che nửa màn), Loại / Chủ đề / Tuần gom vào một nút «Bộ lọc», hàng tài liệu gọn.
+test("M4 @375: ô tìm không tự focus, bộ lọc gom một nút, danh sách bắt đầu cao, mỗi hàng ≤ 110 px, cả hàng là liên kết", async ({ page, context }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page, context, { [`GET ${L}`]: list([libItem({ category: "Quy chế" }), libItem({ id: "d2", title: "Slide TLS", file_kind: "PPTX", category: "Mật mã" })]) });
+  await expect(page.getByLabel("Tìm tài liệu")).not.toBeFocused();
+  const toggle = page.getByRole("button", { name: /^Bộ lọc/ });
+  await expect(toggle).toBeVisible();
+  for (const f of ["Loại", "Chủ đề", "Tuần"]) await expect(page.getByLabel(f, { exact: true }), f).toBeHidden();
+  const rows = page.locator("[data-ep-action-list] > li");
+  await expect(rows).toHaveCount(2);
+  const first = (await rows.first().boundingBox())!;
+  expect(first.y).toBeLessThanOrEqual(260);
+  for (const h of await rows.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeLessThanOrEqual(110);
+  await expect(page.getByRole("link", { name: /Quy chế học vụ/ })).toHaveCount(1); // cả hàng là liên kết
+  await toggle.click();
+  for (const f of ["Loại", "Chủ đề", "Tuần"]) await expect(page.getByLabel(f)).toBeVisible();
+});
 
 test("ask about document: tạo phiên có document_id rồi sang /chat?session=", async ({ page, context }) => {
   await context.route("**/api/v1/chat/sessions?**", (r) => r.fulfill(json({ items: [], next_cursor: null })));
