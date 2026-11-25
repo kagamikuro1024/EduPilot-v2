@@ -280,4 +280,18 @@ final class IosTests: XCTestCase {
         savePng(shotName())
         print("after login: \((web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(12)).joined(separator: " | "))")
     }
+
+    /// FLW-04: ô mã + nút Điểm danh gõ mã đúng → «Đã điểm danh»; không có nút quét (iOS).
+    func testCodeCheckin() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let scan = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Quét")).count
+        let field = web.textFields.firstMatch; _ = field.waitForExistence(timeout: 12)
+        let code = "NKB 6Q1"
+        field.tap(); sleep(2); field.typeText(code); sleep(1)
+        safari.typeText("\n"); sleep(7)
+        let texts = web.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ")
+        try? ("scan_buttons=\(scan) code=\(code) texts=\(texts)").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName()); print("scan=\(scan) texts=\(texts.prefix(300))")
+    }
 }

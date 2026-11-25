@@ -734,14 +734,14 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 
 ### 9.4 Soát tổng theo MÃ TC (26/11/2026 — qc chốt lại `bb052c71`)
 
-Nguồn từng mã: qc3 iOS 59 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 22 mã trùng (12 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
+Nguồn từng mã: qc3 iOS 62 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 22 mã trùng (13 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, `NET-12` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 59 | 0 | 0 |
+| qc3 iOS | 62 | 0 | 0 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 82 | 2 | 55 |
-| **Hợp (266 mã gốc − 22 trùng = 244)** | **177** | **2** | **65** |
+| **Hợp (266 mã gốc − 22 trùng = 244)** | **178** | **2** | **64** |
 | TC | 345 | | |
 
 2 F của qc: `TC-MOB-TGT-02`, `TC-MOB-ATT-02` — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -782,6 +782,16 @@ Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 đ
 | TC-MOB-ERR-08 | P | TA `POST /checkins`: **403** |
 | TC-MOB-ERR-09 | P | 5 lần mã sai liên tiếp = 422, lần thứ **6** trở đi = **429** `RATE_LIMITED` |
 | TC-MOB-ERR-01 | P | P-11-145. (a) `?c=khong-phai-uuid#<token thật>` → «Liên kết không đúng.» một dòng, không gọi API, không đăng xuất (`ERR-01c`). (b) `?c=khong-phai-uuid#tokenbatky` → ô nhập mã «Mã điểm danh» + lớp QC3M1, **0 POST** (gateway log 90 s chỉ có 1 POST của lớp khác), URL giữ nguyên (`ERR-01b2`). |
+
+### 9.8 Lô B — tiếp 26/11 (VPS `40281db4`)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-ERR-04 | P | Cửa sổ vừa đóng, token còn trong bước: API **409** `WINDOW_CLOSED` «Đã đóng điểm danh.»; mở liên kết trên iOS hiện đúng «Đã đóng điểm danh.» một dòng (`ERR-04`) |
+| TC-MOB-FLW-04 | P | `/checkin` không `#token`: ô «Mã điểm danh» + «Lớp QC3M1» + nút Điểm danh, **0 nút Quét** trên iOS; gõ mã đúng → «Đã điểm danh 03:23»; DB `channel=CODE` (`FLW-04b`, log `scan_buttons=0`) |
+| TC-MOB-NET-12 | P | Cùng một token gửi 3 lần: **201** rồi **200, 200** với `checked_in_at` y hệt (`20:24:12.408Z`); SQL mỗi SV đúng **1** dòng |
+
+**Chưa chạy được (N, nêu lý do):** `ERR-06` (cần đăng nhập chậm > 60 s), `ERR-15` + `NET-09` (cần cắt mạng host — không cắt mạng dùng chung), `ERR-17` (đổi múi giờ thiết bị), `ERR-19` (cần đăng nhập bằng SV không thuộc lớp).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
