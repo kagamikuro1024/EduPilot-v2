@@ -159,6 +159,17 @@ test("attendance complete không có thay đổi vẫn gửi complete:true cho c
   expect(bodyOf(api.puts()[0]).records).toHaveLength(30);
 });
 
+// techlead-ui 2026-11-25: nút «+ phát biểu» không được ẩn chờ rê chuột (cảm ứng không có hover; /attendance dùng ở 375 px): luôn hiện, không cần rê.
+test("attendance speak visible without hover: nút ghi phát biểu hiện sẵn (opacity 1) mà chưa rê vào hàng", async ({ page, context }, info) => {
+  await open(page, context);
+  await page.mouse.move(0, 0);
+  // ≥ 720 px: bảng (cột «Phát biểu»); < 720 px: hàng thu gọn có nút «+» riêng
+  const speak = (info.project.name === "desktop" ? row(page, 6) : page.locator(`[data-part=att-row][data-student-id="${sid(6)}"]`)).getByRole("button", { name: /^Ghi phát biểu/ });
+  await expect(speak).toBeVisible();
+  expect(await speak.evaluate((e) => getComputedStyle(e).opacity)).toBe("1");
+  expect((await speak.boundingBox())!.width).toBeGreaterThanOrEqual(44);
+});
+
 test("attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await open(page, context);

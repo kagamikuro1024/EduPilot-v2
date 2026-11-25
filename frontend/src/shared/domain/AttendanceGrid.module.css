@@ -21,9 +21,9 @@
   color: var(--ep-ink-2); margin-block: calc(var(--ep-space-2) * -1);
 }
 .speak svg { width: 18px; height: 18px; }
+/* luôn hiện (cảm ứng không có hover): dạng tĩnh nhẹ ink-3, đậm lên khi rê */
+.speak { color: var(--ep-ink-3); }
 @media (hover: hover) and (pointer: fine) {
-  .speak { opacity: 0; transition: opacity var(--ep-fast) var(--ep-ease-standard); }
-  tr:hover .speak, tr:focus-within .speak, .speak:focus-visible { opacity: 1; }
   .speak:hover:not(:disabled) { border-color: var(--ep-rule); color: var(--ep-ink); }
 }
 .speak:disabled { color: var(--ep-ink-3); }
