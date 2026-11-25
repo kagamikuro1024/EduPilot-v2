@@ -293,3 +293,14 @@ Tổng: **97 TC = 66 P, 0 F, 31 N.**
 - **NAV-05:** đặt net delay 3 s, POST vẫn xong (DB 1 dòng) và không crash, nhưng không chốt được đúng thời điểm Back rơi vào lúc POST đang bay, và mở lại app về «/» chứ không hiện kết quả.
 
 Đã trả lại cấu hình QCMOB2 (`rotate_seconds=10`, không geofence) và tắt `force_dark_override`, `uimode auto`.
+
+## 29. Lượt 25 (26/11) — AVD Play Store: nhánh QUÉT chạy được; SCN-01/02/03 = P
+
+Tổng: **97 TC = 69 P, 0 F, 28 N.**
+
+- Làm theo PM: cài `system-images;android-36;google_apis_playstore;arm64-v8a`, tạo AVD **ep-api36-ps** (`hw.camera.back=virtualscene`), boot một mình (tắt `ep-api36`), cài `app-debug-vps-HEAD.apk`.
+- **BarcodeDetector có thật**: `typeof BarcodeDetector` = `function`, `getSupportedFormats()` chứa `qr_code`, `detect()` chạy → nút «Quét mã điểm danh» hiện (trước đây trên ảnh `google_apis` bị ẩn đúng như AC3a).
+- Poster QR đưa lên tường ảo bằng `adb emu virtualscene-image wall <png>`; **emulator cache ảnh theo đường dẫn** nên mỗi poster phải ghi ra tên tệp mới.
+- **SCN-01 = P**: `pm reset-permissions` → bấm quét: hộp quyền hiện đúng một lần (While using the app / Only this time / Don't allow); cấp quyền → khung camera vuông 354,7 × 354,7 CSS px (= bề rộng panel), tiêu đề «Điểm danh» + «Thoát».
+- **SCN-02 = P**: poster đúng → nhận sau 2,3 s, «Đã điểm danh 05:30», DB 1 dòng.
+- **SCN-03 = P**: 6 poster sai (URL lạ, khác origin, khác path, `c` không UUID, thiếu fragment, chữ thường) giữ 4,5 s mỗi cái → bỏ qua im lặng, không câu lỗi, vẫn ở khung quét, DB 0 dòng; đổi sang poster đúng → nhận sau 0,9 s, DB 1 dòng.
