@@ -117,7 +117,7 @@ function Assignments({ courseId, list }: { courseId: string; list: ReturnType<ty
 }
 
 function Attendance({ a }: { a: MyAttendance["attendance"] }) {
-  const missed = a.sessions.filter((x) => x.status !== "PRESENT");
+  const missed = a.sessions.filter((x) => x.status !== "PRESENT" || x.checked_in_at);
   return (
     <Section title="Chuyên cần">
       {a.recorded === 0 ? (
