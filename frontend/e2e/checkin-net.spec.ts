@@ -160,3 +160,39 @@ test("DEF-MOB-07b đăng xuất → mở link QR mới → đứng ở /login �
   expect(await page.evaluate(() => sessionStorage.getItem("ep.checkin"))).toBeNull();
   await context.close();
 });
+
+// DEF-MOB-08 (qc2 GEO-05): lớp bật geofence, hộp quyền vị trí không trả lời / giữ lâu ⇒ VẪN gửi điểm danh với geo.denied=true (AC4/AC5).
+test("DEF-MOB-08 geofence + hộp quyền vị trí KHÔNG bao giờ trả lời: vẫn đúng 1 POST với geo.denied, «Đã điểm danh», không «Chưa có mạng.»", async ({ page, context }) => {
+  test.slow();
+  const log = await checkinApi(page, context, { geoCheck: true });
+  await page.addInitScript(() => {
+    // WebView không gọi callback (hộp quyền treo) — trần 8 s của trình duyệt cũng không cứu
+    navigator.geolocation.getCurrentPosition = () => undefined;
+  });
+  await page.goto(`/checkin?course=${COURSE}`);
+  await page.getByLabel("Mã điểm danh").fill("abc 123");
+  const t0 = Date.now();
+  await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
+  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh", { timeout: 25_000 });
+  expect(Date.now() - t0).toBeLessThanOrEqual(22_000);
+  await expect(page.getByText("Chưa có mạng.")).toHaveCount(0);
+  expect(log.posts).toHaveLength(1);
+  expect(log.posts[0].body.geo).toMatchObject({ denied: true });
+});
+
+test("DEF-MOB-08 geofence + hộp quyền vị trí giữ 16 s rồi cấp: không «Chưa có mạng.», đúng 1 POST, «Đã điểm danh»", async ({ page, context }) => {
+  test.slow();
+  const log = await checkinApi(page, context, { geoCheck: true });
+  await page.addInitScript(() => {
+    navigator.geolocation.getCurrentPosition = (ok: PositionCallback) => {
+      setTimeout(() => ok({ coords: { latitude: 10, longitude: 106, accuracy: 12 } as GeolocationCoordinates } as GeolocationPosition), 16_000);
+    };
+  });
+  await page.goto(`/checkin?course=${COURSE}`);
+  await page.getByLabel("Mã điểm danh").fill("abc 123");
+  await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
+  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh", { timeout: 25_000 });
+  await expect(page.getByText("Chưa có mạng.")).toHaveCount(0);
+  expect(log.posts).toHaveLength(1);
+  expect(log.posts[0].body.geo).toMatchObject({ denied: true }); // trần định vị 10 s ⇒ coi như từ chối, không chờ 16 s
+});
