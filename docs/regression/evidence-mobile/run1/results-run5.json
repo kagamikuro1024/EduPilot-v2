@@ -1,0 +1,7 @@
+[
+ {
+  "tc": "TC-MOB-PRF-04",
+  "kq": "P",
+  "note": "4G chậm (1,6 Mbps/150 ms) + CPU 4×: LCP=780 ms (trần 2500), CLS=0.000 (trần 0,1), long task=0 (TBT xấp xỉ 0 ms, trần 200), load=653 ms; đo bằng Playwright+CDP vì lhci không mang được Bearer trong bộ nhớ"
+ }
+]
