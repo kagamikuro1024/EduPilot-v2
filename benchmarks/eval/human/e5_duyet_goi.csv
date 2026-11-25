@@ -1,0 +1,988 @@
+stt,ma,chu_de,de,A,B,C,D,dap_an_danh_dau,giai_thich,nguon,trich_doan,quyet_dinh (DUYỆT / SỬA / BỎ),ghi_chu,sua_de,sua_A,sua_B,sua_C,sua_D,sua_dap_an,sua_giai_thich,ly_do_bo (MO_HO / SAI_DAP_AN / TRUNG_LAP / LAC_DE / KHO_DE_BAT_THUONG / SAI_DINH_DANG)
+1,E5-001,Phân loại mối đe doạ an ninh mạng,"Theo tài liệu, bốn phân loại chính của các mối đe dọa đối với an ninh mạng (classes of threats) bao gồm những loại nào?","Unstructured threats, Structured threats, External threats, Internal threats","Reconnaissance attacks, Access attacks, DoS attacks, Malicious code","Viruses, Worms, Trojan horses, Rootkits","Physical threats, Wireless threats, Software threats, Network threats",A,"Tài liệu [C1] nêu rõ bốn lớp mối đe dọa chính gồm: Unstructured threats, Structured threats, External threats và Internal threats.","Network Security Threats, tr. 2","- To protect assets!
+- – Historically done through physical security and closed networks.
+- With the advent of personal computers, LANs, and the wide-open world of the Internet, the networks of today are more open.
+- There are four primary classes of threats to network security:
+- – Unstructured threats
+- – Structured threats
+- – External threats
+- – Internal threats
+Evolution of Network Security",,,,,,,,,,
+2,E5-002,Phân loại mối đe doạ an ninh mạng,Bốn danh mục tấn công mạng (categories of attacks) được liệt kê trong tài liệu là gì?,"Malicious Code, Reconnaissance Attacks, Access Attacks, Denial of Service (DoS) Attacks","Unstructured threats, Structured threats, External threats, Internal threats","Phishing, Spimming, Wardialing, Spoofing","Buffer overflow, Spyware, Rootkits, Backdoors",A,"Theo [C18], bốn danh mục tấn công gồm Malicious Code, Reconnaissance Attacks, Access Attacks và Denial of Service (DoS) Attacks.","Network Security Threats, tr. 46","- There are four categories of attacks:
+- – Malicious Code: Viruses, Worms and Trojan Horses
+- – Reconnaissance Attacks
+- – Access Attacks
+- – Denial of Service (DoS) Attacks
+Let ' s focus on Malicious Code
+- ― Malicious software ‖ is software designed to infiltrate a computer without the owner's informed consent.
+- Malware includes:
+- – Computer viruses
+- – Worms
+- – Trojan horses
+- – Rootkits
+- – Backdoors (Method of bypassing normal authentication procedures and usually installed using Trojan horses or worms.)
+- – For profit (Spyware, botnets, keystroke loggers, and dialers)",,,,,,,,,,
+3,E5-003,Phân loại mối đe doạ an ninh mạng,"Trong các loại mã độc (Malware), phương pháp vượt qua các thủ tục xác thực thông thường và thường được cài đặt qua Trojan horse hoặc sâu máy tính được gọi là gì?",Rootkits,Backdoors,Spyware,Dialers,B,Đoạn [C18] định nghĩa Backdoors là phương pháp vượt qua các thủ tục xác thực thông thường (bypassing normal authentication procedures) và thường được cài đặt bằng Trojan horses hoặc sâu.,"Network Security Threats, tr. 46","- There are four categories of attacks:
+- – Malicious Code: Viruses, Worms and Trojan Horses
+- – Reconnaissance Attacks
+- – Access Attacks
+- – Denial of Service (DoS) Attacks
+Let ' s focus on Malicious Code
+- ― Malicious software ‖ is software designed to infiltrate a computer without the owner's informed consent.
+- Malware includes:
+- – Computer viruses
+- – Worms
+- – Trojan horses
+- – Rootkits
+- – Backdoors (Method of bypassing normal authentication procedures and usually installed using Trojan horses or worms.)
+- – For profit (Spyware, botnets, keystroke loggers, and dialers)",,,,,,,,,,
+4,E5-004,Phân loại mối đe doạ an ninh mạng,"Loại mã độc nào được định nghĩa là danh mục vì mục đích lợi nhuận (strictly for-profit) chuyên dùng để theo dõi duyệt web, hiển thị quảng cáo không mong muốn và chuyển hướng doanh thu tiếp thị liên kết?",Spyware,Rootkit,Trojan horse,Computer virus,A,"Theo [C19], Spyware là loại mã độc hoàn toàn vì lợi nhuận được thiết kế để theo dõi duyệt web của người dùng, hiển thị quảng cáo và chuyển hướng doanh thu tiếp thị liên kết.","Network Security Threats, tr. 48","- Spyware is a strictly for-profit category of malware designed to:
+- – Monitor a users web browsing.
+- – Display unsolicited advertisements.
+- – Redirect affiliate marketing revenues to the spyware creator.
+- Spyware programs are generally installed by exploiting security holes or as Trojan horse programs such as most peer-to-peer applications.",,,,,,,,,,
+5,E5-005,Phân loại mối đe doạ an ninh mạng,Sâu máy tính Code Red đã thực hiện hành vi tấn công từ chối dịch vụ (packet-flooding DoS) nhắm vào một địa chỉ IP cố định vào khoảng thời gian nào trong tháng?,Ngày 1 đến ngày 19,Ngày 20 đến ngày 27,Ngày 28 đến cuối tháng,Tất cả các ngày trong tháng,B,"Theo [C6], từ ngày 20 đến ngày 27, sâu Code Red phát động cuộc tấn công từ chối dịch vụ kiểu tràn gói tin nhắm vào một địa chỉ IP cố định.","Network Security Threats, tr. 17","- If the exploit was successful, the worm began executing on the victim host.
+- – In the earlier variant of the worm, victim hosts experienced the following defacement on all pages requested from the server:
+HELLO! Welcome to http://www.worm.com! Hacked By Chinese!
+- Actual worm activity on a compromised machine was time sensitive and different activity occurred based on the date of the system clock:
+- – Day 1 - 19: The infected host will attempt to connect to TCP port 80 of randomly chosen IP addresses in order to further propagate the worm.
+- – Day 20 - 27: A packet-flooding denial of service attack will be launched against a particular fixed IP address.
+- – Day 28 - end of the month: The worm ""sleeps""; no active connections or denial of service.",,,,,,,,,,
+6,E5-006,Phân loại mối đe doạ an ninh mạng,Sâu Morris (Morris worm) lây lan và hoạt động bằng cách khai thác điểm yếu bảo mật trong những thành phần nào?,"Unix sendmail, Finger, rsh/rexec và mật khẩu yếu",Dịch vụ HTTP GET request và cổng TCP 80,Lỗ hổng tràn bộ đệm trong Indexing Service của web server,Các ứng dụng chia sẻ ngang hàng P2P và email spam,A,"Theo [C3], sâu Morris hoạt động bằng cách khai thác các lỗ hổng đã biết trong Unix sendmail, Finger, rsh/rexec và mật khẩu yếu.","Network Security Threats, tr. 12","- According to Morris, the worm was not written to cause damage, but to gauge the size of the Internet.
+- – But the worm was released from MIT, not Cornell where Morris was a student.
+- The Morris worm worked by exploiting known vulnerabilities in Unix sendmail, Finger, rsh/rexec and weak passwords.
+- It is usually reported that around 6,000 major Unix machines were infected by the Morris worm.
+- – The cost of the damage was estimated at $10M–100M.",,,,,,,,,,
+7,E5-007,Phân loại mối đe doạ an ninh mạng,"Theo tài liệu, các máy tính bị nhiễm mã độc biến thành 'máy tính zombie' thường bị kẻ tấn công khai thác vì mục đích gì?","Gửi email rác (spam), lưu trữ dữ liệu bất hợp pháp, hoặc tham gia tấn công DDoS để tống tiền",Tạo ra các cuộc gọi điện thoại đường dài miễn phí mà không cần trả tiền,Tự động xóa sạch toàn bộ hệ thống tệp và phá hủy phần cứng máy chủ,Thực hiện tấn công dò quét cổng bằng Nmap trên mạng nội bộ,A,"Theo [C21], các máy tính zombie bị nhiễm độc được dùng để gửi thư rác, lưu trữ dữ liệu cấm hoặc tham gia vào các cuộc tấn công DDoS nhằm mục đích tống tiền.","Network Security Threats, tr. 50","- Malicious code writing has changed for profitable reasons.
+- – Mainly due to the Internet and broadband access.
+- – Since 2003 the majority of viruses and worms have been designed to take control of users' computers for black-market exploitation.
+- – Infected ""zombie computers"" are used to send email spam, to host contraband data, or to engage in DDoS attacks as a form of extortion.
+- In 2008, Symantec published:
+- – The release rate of malicious code and other unwanted programs may be exceeding that of legitimate software applications.",,,,,,,,,,
+8,E5-008,Phân loại mối đe doạ an ninh mạng,Tiêu chuẩn ISO/IEC 27002 quy định bao nhiêu lĩnh vực (domains) về an ninh mạng để cung cấp một khuôn khổ tổ chức thông tin?,4 lĩnh vực,5 lĩnh vực,10 lĩnh vực,12 lĩnh vực,D,"Theo đoạn [C16], ISO/IEC 27002 chỉ rõ 12 lĩnh vực an ninh mạng (12 network security domains) để làm cơ sở chung phát triển tiêu chuẩn an ninh.","Network Security Threats, tr. 41","- It is also important to have an understanding of the various network security domains.
+- – Domains provide an organized framework to facilitate learning about network security .
+- ISO/IEC 27002 specifies 12 network security domains.
+- – These 12 domains serve to organize at a high level the vast realm of information under the umbrella of network security.
+- – The 12 domains are intended to serve as a common basis for developing organizational security standards and effective security management practices, and to help build confidence in inter-organizational activities.",,,,,,,,,,
+9,E5-009,Phân loại mối đe doạ an ninh mạng,"Theo tài liệu, thuật ngữ nào dùng để chỉ cá nhân thao túng mạng điện thoại nhằm thực hiện chức năng không được phép như gọi điện đường dài miễn phí?",Spammer,Script kiddie,Phreak (Phone Freak),Zombie,C,Đoạn [C9] và [C10] mô tả cá nhân thao túng mạng điện thoại để thực hiện gọi đường dài miễn phí là Phone Freaks (Phreaks) với ví dụ Captain Crunch.,"Network Security Threats, tr. 24; Network Security Threats, tr. 24","- – An individual that manipulates the phone network in order to cause it to perform a function that is normally not allowed such as to make free long distance calls.
+- – Captain Crunch (John Drapper)
+· Spammer
+- – Individual that sends large quantities of unsolicited email messages.
+- – Spammers often use viruses to take control of home computers to send out their bulk messages.
+---
+- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.
+- 1960s - Phone Freaks (Phreaks)
+- 1980s - Wardialing (WarGames)
+- 1988 - Internet Worm
+- 1993 - First def Con hacking conference held
+- 1995 - First 5 year federal prison sentence for hacking
+- 1997 - Nmap released
+- 1997 - First malicious scripts used by script kiddies
+- 2002 - Melissa virus creator gets 20 months in jail
+- The first email virus, the Melissa virus, was written by David Smith and resulted in memory overflows in Internet mail servers.
+- – David Smith was sentenced to 20 months in federal prison and a US$5,000 fine.",,,,,,,,,,
+10,E5-010,Phân loại mối đe doạ an ninh mạng,"Theo tài liệu, sâu Code Red đã khai thác lỗ hổng nào để xâm nhập vào máy chủ web?",Khai thác mật khẩu yếu trên cổng TCP 80,Tràn bộ đệm trong Indexing Service qua yêu cầu HTTP GET được tạo thủ công,Khai thác lỗi trong sendmail và lệnh rsh/rexec,Gửi hàng loạt email chứa mã độc để làm tràn bộ nhớ máy chủ thư,B,"Đoạn [C5] chỉ ra rằng khi kết nối thành công tới cổng 80, sâu Code Red gửi yêu cầu HTTP GET được thiết kế đặc biệt nhằm khai thác lỗi tràn bộ đệm trong Indexing Service.","Network Security Threats, tr. 15","- Code Red:
+- – Defaced web pages.
+- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.
+- Network professionals responded slowly to system patches which only exacerbated the problem.
+- The ""Code Red"" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.
+- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .
+- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.
+- – However, depending on the configuration of the host which receives this request, there are varied consequences.",,,,,,,,,,
+11,E5-011,"Sâu máy tính, virus và trojan","Theo tài liệu, sâu Internet đầu tiên xuất hiện vào năm 1988 được viết ra với mục đích ban đầu là gì?",Đo kích thước của mạng Internet,Tấn công từ chối dịch vụ làm sập hệ thống web,Chiếm quyền kiểm soát máy tính để gửi thư rác,Phá hủy dữ liệu trên các máy chủ Unix,A,"Theo tài liệu, sâu Internet năm 1988 được tạo ra không phải nhằm mục đích gây hại mà để đo kích thước của mạng Internet.","Network Security Threats, tr. 12","- According to Morris, the worm was not written to cause damage, but to gauge the size of the Internet.
+- – But the worm was released from MIT, not Cornell where Morris was a student.
+- The Morris worm worked by exploiting known vulnerabilities in Unix sendmail, Finger, rsh/rexec and weak passwords.
+- It is usually reported that around 6,000 major Unix machines were infected by the Morris worm.
+- – The cost of the damage was estimated at $10M–100M.",,,,,,,,,,
+12,E5-012,"Sâu máy tính, virus và trojan",Sâu Internet đầu tiên năm 1988 đã khai thác những lỗ hổng đã biết nào trên hệ thống để lây lan?,"Unix sendmail, Finger, rsh/rexec và mật khẩu yếu",Lỗ hổng tràn bộ đệm trong dịch vụ lập chỉ mục (Indexing Service),Các lỗ hổng trong phần mềm máy trạm chia sẻ ngang hàng (P2P),Lỗ hổng xác thực trên cổng TCP 80 của máy chủ web,A,"Sâu Internet năm 1988 hoạt động bằng cách khai thác các lỗ hổng đã biết trong Unix sendmail, Finger, rsh/rexec và mật khẩu yếu.","Network Security Threats, tr. 12","- According to Morris, the worm was not written to cause damage, but to gauge the size of the Internet.
+- – But the worm was released from MIT, not Cornell where Morris was a student.
+- The Morris worm worked by exploiting known vulnerabilities in Unix sendmail, Finger, rsh/rexec and weak passwords.
+- It is usually reported that around 6,000 major Unix machines were infected by the Morris worm.
+- – The cost of the damage was estimated at $10M–100M.",,,,,,,,,,
+13,E5-013,"Sâu máy tính, virus và trojan",Sự cố sâu Internet năm 1988 đã thúc đẩy DARPA tài trợ thành lập tổ chức nào tại Đại học Carnegie Mellon?,CERT/CC,SANS Institute,(ISC)2,Cisco SIO,A,Sâu Internet năm 1988 đã thôi thúc DARPA tài trợ thành lập CERT/CC tại Đại học Carnegie Mellon làm trung tâm điều phối ứng phó khẩn cấp mạng.,"Network Security Threats, tr. 13","- The Morris worm prompted DARPA to fund the establishment of the CERT/CC at Carnegie Mellon University to give experts a central point for coordinating responses to network emergencies.
+- Robert Morris was tried and convicted of violating the 1986 Computer Fraud and Abuse Act.
+- – After appeals he was sentenced to three years probation, 400 hours of community service, and a fine of $10,000.
+- The Code Red worm was a DoS attack and was released on July 19, 2001 and attacked web servers globally, infecting over 350,000 hosts and in turn affected millions of users.",,,,,,,,,,
+14,E5-014,"Sâu máy tính, virus và trojan",Sâu Code Red tấn công máy chủ web bằng cách gửi yêu cầu HTTP GET nhằm khai thác lỗ hổng nào?,Tràn bộ đệm trong Indexing Service,Vượt qua xác thực trong Finger,Chiếm quyền điều khiển qua Unix sendmail,Tràn bộ nhớ trong máy chủ thư điện tử,A,"Khi kết nối thành công đến cổng TCP 80, sâu Code Red gửi yêu cầu HTTP GET độc hại để khai thác lỗi tràn bộ đệm trong Indexing Service.","Network Security Threats, tr. 15","- Code Red:
+- – Defaced web pages.
+- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.
+- Network professionals responded slowly to system patches which only exacerbated the problem.
+- The ""Code Red"" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.
+- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .
+- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.
+- – However, depending on the configuration of the host which receives this request, there are varied consequences.",,,,,,,,,,
+15,E5-015,"Sâu máy tính, virus và trojan",Hành vi của sâu Code Red trên máy nạn nhân từ ngày 20 đến ngày 27 hàng tháng là gì?,Thực hiện tấn công từ chối dịch vụ (DoS) bằng cách làm tràn ngập gói tin vào một IP cố định,Kết nối tới cổng TCP 80 của các IP ngẫu nhiên để tiếp tục lây lan,Chuyển sang trạng thái 'ngủ' và không tạo kết nối hoạt động nào,Ghi đè giao diện tất cả các trang web được yêu cầu từ máy chủ,A,"Từ ngày 20 đến ngày 27 hàng tháng, sâu Code Red sẽ phát động tấn công từ chối dịch vụ dạng tràn ngập gói tin nhằm vào một địa chỉ IP cố định.","Network Security Threats, tr. 17","- If the exploit was successful, the worm began executing on the victim host.
+- – In the earlier variant of the worm, victim hosts experienced the following defacement on all pages requested from the server:
+HELLO! Welcome to http://www.worm.com! Hacked By Chinese!
+- Actual worm activity on a compromised machine was time sensitive and different activity occurred based on the date of the system clock:
+- – Day 1 - 19: The infected host will attempt to connect to TCP port 80 of randomly chosen IP addresses in order to further propagate the worm.
+- – Day 20 - 27: A packet-flooding denial of service attack will be launched against a particular fixed IP address.
+- – Day 28 - end of the month: The worm ""sleeps""; no active connections or denial of service.",,,,,,,,,,
+16,E5-016,"Sâu máy tính, virus và trojan",Đặc điểm cư trú của sâu Code Red trên hệ thống là gì và có thể loại bỏ nó bằng cách nào?,Lưu trú hoàn toàn trong bộ nhớ; việc khởi động lại máy sẽ loại bỏ nó khỏi hệ thống,Lưu trữ vĩnh viễn trên ổ đĩa; cần cài đặt lại hệ điều hành để loại bỏ,Ẩn trong các tiến trình hệ thống; chỉ có thể loại bỏ bằng cách cập nhật bản vá ngay lập tức,Nằm trong firmware của thiết bị; cần can thiệp phần cứng để gỡ bỏ,A,"Sâu Code Red chỉ cư trú hoàn toàn trong bộ nhớ và việc khởi động lại máy tính sẽ loại bỏ nó khỏi hệ thống, dù nguy cơ tái nhiễm vẫn rất cao nếu chưa vá lỗi.","Network Security Threats, tr. 18","- Although the worm resides entirely in memory, a reboot of the machine will purge it from the system.
+- – However, patching the system for the underlying vulnerability remains imperative since the likelihood of re-infection is quite high due to the rapid propagation of the worm.
+- Network security professionals must develop and implement a security policy which includes a process to continually keep tabs on security advisories and patches .
+- It was a wake up call for network administrators.
+- – It made it very apparent that network security administrators must patch their systems regularly .
+- If security patches had been applied in a timely manner, the Code Red worm would only merit a footnote in network security history .
+- http://www.cert.org/advisories/CA-2001-19.html",,,,,,,,,,
+17,E5-017,"Sâu máy tính, virus và trojan","Theo tài liệu, virus Melissa được ghi nhận là loại mã độc nào?","Virus thư điện tử đầu tiên, gây tràn bộ nhớ trên các máy chủ thư điện tử",Sâu máy tính đầu tiên tấn công tràn bộ đệm qua dịch vụ Indexing Service,Phần mềm gián điệp đầu tiên được phát tán qua các ứng dụng ngang hàng (P2P),Trojan horse đầu tiên mở cửa sau (backdoor) trên máy tính gia đình,A,Virus Melissa là loại virus thư điện tử đầu tiên và đã gây ra hiện tượng tràn bộ nhớ trong các máy chủ thư điện tử Internet.,"Network Security Threats, tr. 24","- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.
+- 1960s - Phone Freaks (Phreaks)
+- 1980s - Wardialing (WarGames)
+- 1988 - Internet Worm
+- 1993 - First def Con hacking conference held
+- 1995 - First 5 year federal prison sentence for hacking
+- 1997 - Nmap released
+- 1997 - First malicious scripts used by script kiddies
+- 2002 - Melissa virus creator gets 20 months in jail
+- The first email virus, the Melissa virus, was written by David Smith and resulted in memory overflows in Internet mail servers.
+- – David Smith was sentenced to 20 months in federal prison and a US$5,000 fine.",,,,,,,,,,
+18,E5-018,"Sâu máy tính, virus và trojan",Thành phần mã độc nào được định nghĩa là phương thức vượt qua các thủ tục xác thực thông thường và thường được cài đặt qua sâu máy tính hoặc Trojan horse?,Backdoors (Cửa sau),Rootkits,Dialers,Keystroke loggers,A,Backdoors là phương thức vượt qua các quy trình xác thực thông thường và thường được cài đặt vào hệ thống thông qua sâu máy tính hoặc Trojan horse.,"Network Security Threats, tr. 46","- There are four categories of attacks:
+- – Malicious Code: Viruses, Worms and Trojan Horses
+- – Reconnaissance Attacks
+- – Access Attacks
+- – Denial of Service (DoS) Attacks
+Let ' s focus on Malicious Code
+- ― Malicious software ‖ is software designed to infiltrate a computer without the owner's informed consent.
+- Malware includes:
+- – Computer viruses
+- – Worms
+- – Trojan horses
+- – Rootkits
+- – Backdoors (Method of bypassing normal authentication procedures and usually installed using Trojan horses or worms.)
+- – For profit (Spyware, botnets, keystroke loggers, and dialers)",,,,,,,,,,
+19,E5-019,"Sâu máy tính, virus và trojan",Các chương trình phần mềm gián điệp (Spyware) thường được cài đặt vào máy nạn nhân bằng hình thức nào?,Khai thác lỗ hổng bảo mật hoặc dưới dạng các chương trình Trojan horse,Lây lan qua khai thác dịch vụ rsh/rexec và mật khẩu yếu,Khai thác lỗi tràn bộ nhớ trên máy chủ thư điện tử,Gửi yêu cầu HTTP GET thủ công qua cổng TCP 80,A,Phần mềm gián điệp (Spyware) nhìn chung được cài đặt bằng cách khai thác các lỗ hổng bảo mật hoặc dưới dạng các chương trình Trojan horse (như hầu hết các ứng dụng P2P).,"Network Security Threats, tr. 48","- Spyware is a strictly for-profit category of malware designed to:
+- – Monitor a users web browsing.
+- – Display unsolicited advertisements.
+- – Redirect affiliate marketing revenues to the spyware creator.
+- Spyware programs are generally installed by exploiting security holes or as Trojan horse programs such as most peer-to-peer applications.",,,,,,,,,,
+20,E5-020,"Sâu máy tính, virus và trojan","Từ năm 2003, mục đích phát triển của phần lớn virus và sâu máy tính đã có sự thay đổi căn bản như thế nào so với giai đoạn đầu?",Được thiết kế nhằm chiếm quyền điều khiển máy tính phục vụ khai thác trên thị trường chợ đen,Được viết chủ yếu phục vụ các thử nghiệm đo đạc quy mô của hệ thống mạng,Được viết như các trò đùa vô hại nhằm cảnh báo quản trị viên cập nhật bản vá,Chuyển hướng hoàn toàn sang tấn công từ chối dịch vụ vào các trang web lớn,A,"Nếu như thời kỳ đầu mã độc thường chỉ là trò đùa hay thử nghiệm vô hại, thì từ năm 2003 đa số virus và sâu được thiết kế vì mục đích lợi nhuận nhằm chiếm quyền điều khiển máy tính để khai thác chợ đen.","Network Security Threats, tr. 49; Network Security Threats, tr. 50","- Most early worms and viruses were written as experiments or pranks generally intended to be harmless or merely annoying rather than to cause serious damage to computers.
+- Young programmers learning about viruses and the techniques wrote them for the sole purpose that they could or to see how far it could spread.
+- – In some cases the perpetrator did not realize how much harm their creations could do.
+- As late as 1999, widespread viruses such as the Melissa virus appear to have been written chiefly as pranks.
+---
+- Malicious code writing has changed for profitable reasons.
+- – Mainly due to the Internet and broadband access.
+- – Since 2003 the majority of viruses and worms have been designed to take control of users' computers for black-market exploitation.
+- – Infected ""zombie computers"" are used to send email spam, to host contraband data, or to engage in DDoS attacks as a form of extortion.
+- In 2008, Symantec published:
+- – The release rate of malicious code and other unwanted programs may be exceeding that of legitimate software applications.",,,,,,,,,,
+21,E5-021,Tấn công trinh sát,"Theo phân loại được nêu trong tài liệu, tấn công trinh sát (Reconnaissance Attacks) thuộc nhóm nào dưới đây?",Là một trong bốn loại hình tấn công mạng chính,Là một nhánh con thuộc danh mục phần mềm gián điệp (Spyware),Là một hình thức tấn công từ chối dịch vụ (DoS),Là một miền quản lý độc lập trong tiêu chuẩn ISO/IEC 27002,A,"Tài liệu chỉ rõ có 4 danh mục tấn công bao gồm: Malicious Code, Reconnaissance Attacks, Access Attacks và DoS Attacks.","Network Security Threats, tr. 46","- There are four categories of attacks:
+- – Malicious Code: Viruses, Worms and Trojan Horses
+- – Reconnaissance Attacks
+- – Access Attacks
+- – Denial of Service (DoS) Attacks
+Let ' s focus on Malicious Code
+- ― Malicious software ‖ is software designed to infiltrate a computer without the owner's informed consent.
+- Malware includes:
+- – Computer viruses
+- – Worms
+- – Trojan horses
+- – Rootkits
+- – Backdoors (Method of bypassing normal authentication procedures and usually installed using Trojan horses or worms.)
+- – For profit (Spyware, botnets, keystroke loggers, and dialers)",,,,,,,,,,
+22,E5-022,Tấn công trinh sát,"Dựa trên dòng thời gian các sự kiện an ninh mạng, công cụ rà quét mạng Nmap được phát hành vào năm nào?",1997,1988,1993,2002,A,"Theo mốc thời gian được liệt kê, năm 1997 đánh dấu sự kiện phát hành công cụ Nmap (1997 - Nmap released).","Network Security Threats, tr. 24","- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.
+- 1960s - Phone Freaks (Phreaks)
+- 1980s - Wardialing (WarGames)
+- 1988 - Internet Worm
+- 1993 - First def Con hacking conference held
+- 1995 - First 5 year federal prison sentence for hacking
+- 1997 - Nmap released
+- 1997 - First malicious scripts used by script kiddies
+- 2002 - Melissa virus creator gets 20 months in jail
+- The first email virus, the Melissa virus, was written by David Smith and resulted in memory overflows in Internet mail servers.
+- – David Smith was sentenced to 20 months in federal prison and a US$5,000 fine.",,,,,,,,,,
+23,E5-023,Tấn công trinh sát,Kỹ thuật dò quét số điện thoại (Wardialing) được ghi nhận gắn liền với mốc thời gian nào trong lịch sử an ninh mạng?,Thập niên 1980,Thập niên 1960,Thập niên 1990,Thập niên 1970,A,Tài liệu ghi chú mốc '1980s - Wardialing (WarGames)' trong lịch sử phát triển an ninh mạng.,"Network Security Threats, tr. 24","- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.
+- 1960s - Phone Freaks (Phreaks)
+- 1980s - Wardialing (WarGames)
+- 1988 - Internet Worm
+- 1993 - First def Con hacking conference held
+- 1995 - First 5 year federal prison sentence for hacking
+- 1997 - Nmap released
+- 1997 - First malicious scripts used by script kiddies
+- 2002 - Melissa virus creator gets 20 months in jail
+- The first email virus, the Melissa virus, was written by David Smith and resulted in memory overflows in Internet mail servers.
+- – David Smith was sentenced to 20 months in federal prison and a US$5,000 fine.",,,,,,,,,,
+24,E5-024,Tấn công trinh sát,"Theo tài liệu, sâu Internet năm 1988 đã khai thác lỗ hổng đã biết trong các dịch vụ Unix sendmail, rsh/rexec, mật khẩu yếu và dịch vụ nào sau đây?",Finger,HTTP,Telnet,FTP,A,"Sâu Internet năm 1988 hoạt động bằng cách khai thác các lỗ hổng đã biết trong Unix sendmail, Finger, rsh/rexec và mật khẩu yếu.","Network Security Threats, tr. 12","- According to Morris, the worm was not written to cause damage, but to gauge the size of the Internet.
+- – But the worm was released from MIT, not Cornell where Morris was a student.
+- The Morris worm worked by exploiting known vulnerabilities in Unix sendmail, Finger, rsh/rexec and weak passwords.
+- It is usually reported that around 6,000 major Unix machines were infected by the Morris worm.
+- – The cost of the damage was estimated at $10M–100M.",,,,,,,,,,
+25,E5-025,Tấn công trinh sát,"Khi tiến hành rà soát và tìm kiếm máy chủ web ngẫu nhiên để lây lan, sâu 'Code Red' thực hiện kết nối tới cổng nào?",Cổng TCP 80,Cổng TCP 443,Cổng TCP 21,Cổng TCP 25,A,Sâu 'Code Red' cố gắng kết nối tới cổng TCP 80 trên các máy chủ được chọn ngẫu nhiên với giả định sẽ tìm thấy máy chủ web.,"Network Security Threats, tr. 15","- Code Red:
+- – Defaced web pages.
+- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.
+- Network professionals responded slowly to system patches which only exacerbated the problem.
+- The ""Code Red"" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.
+- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .
+- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.
+- – However, depending on the configuration of the host which receives this request, there are varied consequences.",,,,,,,,,,
+26,E5-026,Tấn công trinh sát,"Từ ngày 1 đến ngày 19 trong chu kỳ hoạt động trên máy nạn nhân, sâu 'Code Red' thực hiện hành vi nào sau đây?",Cố gắng kết nối tới cổng TCP 80 của các địa chỉ IP ngẫu nhiên để tiếp tục lây lan,Tấn công từ chối dịch vụ làm tràn gói tin nhắm vào một địa chỉ IP cố định,Chuyển sang trạng thái 'ngủ' và ngắt toàn bộ kết nối đang hoạt động,Tự động xóa khỏi bộ nhớ máy tính mà không cần người dùng khởi động lại,A,"Theo tài liệu, từ ngày 1 đến ngày 19, máy bị nhiễm sẽ cố gắng kết nối đến cổng TCP 80 của các địa chỉ IP chọn ngẫu nhiên để phát tán sâu.","Network Security Threats, tr. 17","- If the exploit was successful, the worm began executing on the victim host.
+- – In the earlier variant of the worm, victim hosts experienced the following defacement on all pages requested from the server:
+HELLO! Welcome to http://www.worm.com! Hacked By Chinese!
+- Actual worm activity on a compromised machine was time sensitive and different activity occurred based on the date of the system clock:
+- – Day 1 - 19: The infected host will attempt to connect to TCP port 80 of randomly chosen IP addresses in order to further propagate the worm.
+- – Day 20 - 27: A packet-flooding denial of service attack will be launched against a particular fixed IP address.
+- – Day 28 - end of the month: The worm ""sleeps""; no active connections or denial of service.",,,,,,,,,,
+27,E5-027,Tấn công trinh sát,"Thành phần nào trong kiến trúc an ninh mạng được mô tả là các thiết bị cấp độ mạng dùng để kiểm tra nội dung, xác thực người dùng và nhận diện ứng dụng?",Scanning Engines,Delivery Mechanisms,Policy Management Consoles,Next-generation Endpoint,A,"Scanning Engines là các thiết bị cấp độ mạng thực hiện việc kiểm tra nội dung, xác thực người dùng và nhận dạng các ứng dụng.","Network Security Threats, tr. 43","- This architecture includes the following five major components:
+- – Scanning Engines – Network level devices that examine content, authenticate users, and identify applications. They can include firewall/IPS, proxy or a fusion of both.
+- – Delivery Mechanisms – The way the scanning engine is implemented in the network. It can be via a standalone appliance, a blade in a router, or a software package.
+- – Security Intelligence Operations (SIO) – A traffic monitoring database, used to identify and stop malicious traffic.
+- – Policy Management Consoles – Policy creation and management that determines what actions the scanning engines will take.
+- – Next - generation Endpoint – Any variety of devices. All traffic to or from these devices are pointed to a scanner.
+Malware / Malicious Code",,,,,,,,,,
+28,E5-028,Tấn công trinh sát,"Trong kiến trúc an ninh mạng năm thành phần, Security Intelligence Operations (SIO) giữ vai trò gì?",Cơ sở dữ liệu giám sát lưu lượng dùng để xác định và ngăn chặn lưu lượng độc hại,Bảng điều khiển tập trung định nghĩa hành động cho các động cơ quét,Cơ chế triển khai động cơ quét dưới dạng một gói phần mềm độc lập,Thiết bị điểm cuối điều hướng toàn bộ lưu lượng mạng vào bộ quét,A,"Tài liệu định nghĩa SIO là cơ sở dữ liệu giám sát lưu lượng, được dùng để nhận diện và ngăn chặn lưu lượng độc hại.","Network Security Threats, tr. 43","- This architecture includes the following five major components:
+- – Scanning Engines – Network level devices that examine content, authenticate users, and identify applications. They can include firewall/IPS, proxy or a fusion of both.
+- – Delivery Mechanisms – The way the scanning engine is implemented in the network. It can be via a standalone appliance, a blade in a router, or a software package.
+- – Security Intelligence Operations (SIO) – A traffic monitoring database, used to identify and stop malicious traffic.
+- – Policy Management Consoles – Policy creation and management that determines what actions the scanning engines will take.
+- – Next - generation Endpoint – Any variety of devices. All traffic to or from these devices are pointed to a scanner.
+Malware / Malicious Code",,,,,,,,,,
+29,E5-029,Tấn công trinh sát,"Theo tài liệu, các mối đe dọa đối với an ninh mạng được chia thành bốn lớp chính nào?","Mối đe dọa phi cấu trúc, có cấu trúc, bên ngoài và bên trong","Mối đe dọa vật lý, phần mềm độc hại, mạng LAN và Internet","Tấn công trinh sát, truy cập trái phép, từ chối dịch vụ và mã độc","Mối đe dọa có chủ đích, không chủ đích, do con người và do thiết bị",A,"Bốn lớp mối đe dọa an ninh mạng chính được liệt kê gồm: Unstructured threats, Structured threats, External threats và Internal threats.","Network Security Threats, tr. 2","- To protect assets!
+- – Historically done through physical security and closed networks.
+- With the advent of personal computers, LANs, and the wide-open world of the Internet, the networks of today are more open.
+- There are four primary classes of threats to network security:
+- – Unstructured threats
+- – Structured threats
+- – External threats
+- – Internal threats
+Evolution of Network Security",,,,,,,,,,
+30,E5-030,Tấn công trinh sát,Hành vi sử dụng thư điện tử hoặc các phương tiện khác nhằm đánh lừa người dùng cung cấp thông tin nhạy cảm (như mật khẩu hoặc thẻ tín dụng) được đề cập trong tài liệu phản ánh hình thức nào?,Hành vi đánh lừa để thu thập thông tin nhạy cảm,Hành vi can thiệp trái phép vào mạng điện thoại đường dài,Hành vi phát tán email hàng loạt qua máy tính ma để bán hàng,Hành vi rà quét ngẫu nhiên cổng dịch vụ của máy chủ web,A,Tài liệu mô tả cá nhân sử dụng email hoặc phương tiện khác để lừa người dùng cung cấp thông tin nhạy cảm như mật khẩu hay số thẻ tín dụng.,"Network Security Threats, tr. 24","- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.
+- 1960s - Phone Freaks (Phreaks)
+- 1980s - Wardialing (WarGames)
+- 1988 - Internet Worm
+- 1993 - First def Con hacking conference held
+- 1995 - First 5 year federal prison sentence for hacking
+- 1997 - Nmap released
+- 1997 - First malicious scripts used by script kiddies
+- 2002 - Melissa virus creator gets 20 months in jail
+- The first email virus, the Melissa virus, was written by David Smith and resulted in memory overflows in Internet mail servers.
+- – David Smith was sentenced to 20 months in federal prison and a US$5,000 fine.",,,,,,,,,,
+31,E5-031,Tấn công truy cập và leo thang đặc quyền,"Theo tài liệu, phương thức nào được định nghĩa là cách vượt qua các thủ tục xác thực thông thường và thường được cài đặt thông qua Trojan horse hoặc sâu máy tính?",Backdoor (Cửa sau),Rootkit,Dialer,Keystroke logger,A,Đoạn [C18] chỉ rõ backdoor là phương pháp vượt qua các thủ tục xác thực thông thường và thường được cài đặt bằng Trojan horse hoặc sâu máy tính.,"Network Security Threats, tr. 46","- There are four categories of attacks:
+- – Malicious Code: Viruses, Worms and Trojan Horses
+- – Reconnaissance Attacks
+- – Access Attacks
+- – Denial of Service (DoS) Attacks
+Let ' s focus on Malicious Code
+- ― Malicious software ‖ is software designed to infiltrate a computer without the owner's informed consent.
+- Malware includes:
+- – Computer viruses
+- – Worms
+- – Trojan horses
+- – Rootkits
+- – Backdoors (Method of bypassing normal authentication procedures and usually installed using Trojan horses or worms.)
+- – For profit (Spyware, botnets, keystroke loggers, and dialers)",,,,,,,,,,
+32,E5-032,Tấn công truy cập và leo thang đặc quyền,"Theo tài liệu, bốn phân loại tấn công chính bao gồm những loại nào?","Malicious Code, Reconnaissance Attacks, Access Attacks, Denial of Service (DoS) Attacks","Unstructured threats, Structured threats, External threats, Internal threats","Viruses, Worms, Trojan Horses, Rootkits","Scanning, Sniffing, Spoofing, Denial of Service",A,"Đoạn [C18] liệt kê 4 nhóm tấn công gồm Malicious Code, Reconnaissance Attacks, Access Attacks và Denial of Service (DoS) Attacks.","Network Security Threats, tr. 46","- There are four categories of attacks:
+- – Malicious Code: Viruses, Worms and Trojan Horses
+- – Reconnaissance Attacks
+- – Access Attacks
+- – Denial of Service (DoS) Attacks
+Let ' s focus on Malicious Code
+- ― Malicious software ‖ is software designed to infiltrate a computer without the owner's informed consent.
+- Malware includes:
+- – Computer viruses
+- – Worms
+- – Trojan horses
+- – Rootkits
+- – Backdoors (Method of bypassing normal authentication procedures and usually installed using Trojan horses or worms.)
+- – For profit (Spyware, botnets, keystroke loggers, and dialers)",,,,,,,,,,
+33,E5-033,Tấn công truy cập và leo thang đặc quyền,"Trong cuộc tấn công của sâu Code Red, kỹ thuật nào đã được kẻ tấn công sử dụng đối với Indexing Service thông qua yêu cầu HTTP GET?",Khai thác tràn bộ đệm (buffer overflow),Tấn công từ chối dịch vụ phân tán (DDoS),Đoán mật khẩu yếu (weak password cracking),Vượt qua xác thực mạng bằng backdoor,A,"Theo đoạn [C5], sâu Code Red gửi một yêu cầu HTTP GET được tạo thủ công đến nạn nhân nhằm khai thác lỗi tràn bộ đệm (buffer overflow) trong Indexing Service.","Network Security Threats, tr. 15","- Code Red:
+- – Defaced web pages.
+- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.
+- Network professionals responded slowly to system patches which only exacerbated the problem.
+- The ""Code Red"" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.
+- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .
+- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.
+- – However, depending on the configuration of the host which receives this request, there are varied consequences.",,,,,,,,,,
+34,E5-034,Tấn công truy cập và leo thang đặc quyền,Sâu máy tính đầu tiên phát tán qua Internet năm 1988 đã khai thác những lỗ hổng đã biết nào trên hệ thống Unix để lây lan?,"Unix sendmail, Finger, rsh/rexec và mật khẩu yếu","Indexing Service, HTTP GET và tràn bộ đệm","Cổng TCP 80, dịch vụ web và lỗi cấu hình mạng",Máy chủ thư điện tử Melissa và bộ nhớ đệm,A,"Theo đoạn [C3], sâu Morris hoạt động bằng cách khai thác các lỗ hổng đã biết trong Unix sendmail, Finger, rsh/rexec và mật khẩu yếu.","Network Security Threats, tr. 12","- According to Morris, the worm was not written to cause damage, but to gauge the size of the Internet.
+- – But the worm was released from MIT, not Cornell where Morris was a student.
+- The Morris worm worked by exploiting known vulnerabilities in Unix sendmail, Finger, rsh/rexec and weak passwords.
+- It is usually reported that around 6,000 major Unix machines were infected by the Morris worm.
+- – The cost of the damage was estimated at $10M–100M.",,,,,,,,,,
+35,E5-035,Tấn công truy cập và leo thang đặc quyền,"Để tìm kiếm máy chủ web và thực hiện hành vi tấn công, sâu Code Red cố gắng kết nối đến cổng mạng nào của các máy chủ được chọn ngẫu nhiên?",TCP port 80,TCP port 443,UDP port 53,TCP port 25,A,Đoạn [C5] nêu rõ sâu Code Red cố gắng kết nối tới cổng TCP 80 trên một máy chủ được chọn ngẫu nhiên với giả định sẽ tìm thấy máy chủ web.,"Network Security Threats, tr. 15","- Code Red:
+- – Defaced web pages.
+- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.
+- Network professionals responded slowly to system patches which only exacerbated the problem.
+- The ""Code Red"" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.
+- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .
+- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.
+- – However, depending on the configuration of the host which receives this request, there are varied consequences.",,,,,,,,,,
+36,E5-036,Tấn công truy cập và leo thang đặc quyền,Đặc điểm cư trú của sâu Code Red trên hệ thống bị lây nhiễm là gì và cách xử lý tạm thời khỏi hệ thống là gì?,Cư trú hoàn toàn trong bộ nhớ; việc khởi động lại máy sẽ xóa sạch nó khỏi hệ thống,Ghi đè vĩnh viễn vào ổ đĩa; cần cài lại hệ điều hành để loại bỏ,Ẩn trong Indexing Service; chỉ có thể gỡ bỏ bằng phần mềm diệt virus,Nằm trong tệp tin khởi động; việc ngắt kết nối mạng sẽ tự động hủy nó,A,"Theo đoạn [C7], sâu cư trú hoàn toàn trong bộ nhớ nên việc khởi động lại máy (reboot) sẽ xóa nó khỏi hệ thống, dù việc vá lỗ hổng vẫn là bắt buộc để tránh tái nhiễm.","Network Security Threats, tr. 18","- Although the worm resides entirely in memory, a reboot of the machine will purge it from the system.
+- – However, patching the system for the underlying vulnerability remains imperative since the likelihood of re-infection is quite high due to the rapid propagation of the worm.
+- Network security professionals must develop and implement a security policy which includes a process to continually keep tabs on security advisories and patches .
+- It was a wake up call for network administrators.
+- – It made it very apparent that network security administrators must patch their systems regularly .
+- If security patches had been applied in a timely manner, the Code Red worm would only merit a footnote in network security history .
+- http://www.cert.org/advisories/CA-2001-19.html",,,,,,,,,,
+37,E5-037,Tấn công truy cập và leo thang đặc quyền,Hành vi sử dụng email hoặc các phương tiện khác nhằm đánh lừa người dùng cung cấp thông tin nhạy cảm như mật khẩu hay số thẻ tín dụng được mô tả là gì?,Lừa đảo chiếm đoạt thông tin (Phishing/Tricking for sensitive info),Gửi thư rác quảng cáo (Spamming),Khai thác mạng điện thoại (Phreaking),Quét cổng dịch vụ (Wardialing),A,Đoạn [C10] mô tả hành vi sử dụng email hoặc phương tiện khác để lừa người dùng cung cấp thông tin nhạy cảm như mật khẩu hoặc số thẻ tín dụng.,"Network Security Threats, tr. 24","- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.
+- 1960s - Phone Freaks (Phreaks)
+- 1980s - Wardialing (WarGames)
+- 1988 - Internet Worm
+- 1993 - First def Con hacking conference held
+- 1995 - First 5 year federal prison sentence for hacking
+- 1997 - Nmap released
+- 1997 - First malicious scripts used by script kiddies
+- 2002 - Melissa virus creator gets 20 months in jail
+- The first email virus, the Melissa virus, was written by David Smith and resulted in memory overflows in Internet mail servers.
+- – David Smith was sentenced to 20 months in federal prison and a US$5,000 fine.",,,,,,,,,,
+38,E5-038,Tấn công truy cập và leo thang đặc quyền,"Theo tài liệu, kể từ năm 2003, các máy tính bị chiếm quyền kiểm soát ('zombie computers') chủ yếu bị lợi dụng cho mục đích nào trên thị trường chợ đen?","Gửi email rác, lưu trữ dữ liệu cấm hoặc tham gia tấn công DDoS để tống tiền",Chỉ dùng để quét cổng và thử nghiệm quy mô mở rộng của Internet,Tạo ra các trò đùa vô hại nhằm đánh giá kỹ năng của lập trình viên,Đánh sập máy chủ thư nội bộ nhằm gây tràn bộ nhớ đệm,A,"Theo đoạn [C21], các máy tính zombie bị lây nhiễm được sử dụng để gửi thư rác, lưu trữ dữ liệu cấm, hoặc tham gia tấn công DDoS như một hình thức tống tiền.","Network Security Threats, tr. 50","- Malicious code writing has changed for profitable reasons.
+- – Mainly due to the Internet and broadband access.
+- – Since 2003 the majority of viruses and worms have been designed to take control of users' computers for black-market exploitation.
+- – Infected ""zombie computers"" are used to send email spam, to host contraband data, or to engage in DDoS attacks as a form of extortion.
+- In 2008, Symantec published:
+- – The release rate of malicious code and other unwanted programs may be exceeding that of legitimate software applications.",,,,,,,,,,
+39,E5-039,Tấn công truy cập và leo thang đặc quyền,"Theo tài liệu, bốn phân lớp đe dọa chính đối với an ninh mạng (four primary classes of threats) gồm những gì?","Unstructured threats, Structured threats, External threats, Internal threats","Malicious code, Reconnaissance, Access attacks, DoS attacks","Viruses, Worms, Trojan horses, Spyware","Physical threats, Open network threats, LAN threats, Internet threats",A,"Đoạn [C1] nêu rõ 4 phân lớp đe dọa chính đối với an ninh mạng gồm Unstructured threats, Structured threats, External threats và Internal threats.","Network Security Threats, tr. 2","- To protect assets!
+- – Historically done through physical security and closed networks.
+- With the advent of personal computers, LANs, and the wide-open world of the Internet, the networks of today are more open.
+- There are four primary classes of threats to network security:
+- – Unstructured threats
+- – Structured threats
+- – External threats
+- – Internal threats
+Evolution of Network Security",,,,,,,,,,
+40,E5-040,Tấn công truy cập và leo thang đặc quyền,"Theo tài liệu, phần mềm gián điệp (Spyware) thường được cài đặt vào hệ thống nạn nhân thông qua những cách nào?",Khai thác lỗ hổng bảo mật hoặc dưới dạng các chương trình Trojan horse,Lây nhiễm qua các đoạn mã macro tự động kích hoạt trong tài liệu văn bản,Chèn trực tiếp vào các gói tin định tuyến của thiết bị mạng,Gửi yêu cầu HTTP GET làm tràn bộ đệm dịch vụ web,A,"Theo đoạn [C19], các chương trình gián điệp thường được cài đặt bằng cách khai thác lỗ hổng bảo mật hoặc dưới dạng chương trình Trojan horse ví dụ như trong hầu hết các ứng dụng chia sẻ ngang hàng (P2P).","Network Security Threats, tr. 48","- Spyware is a strictly for-profit category of malware designed to:
+- – Monitor a users web browsing.
+- – Display unsolicited advertisements.
+- – Redirect affiliate marketing revenues to the spyware creator.
+- Spyware programs are generally installed by exploiting security holes or as Trojan horse programs such as most peer-to-peer applications.",,,,,,,,,,
+41,E5-041,Tấn công từ chối dịch vụ,"Theo tài liệu, sâu máy tính Code Red được phân loại là dạng tấn công nào khi được phát hành vào ngày 19 tháng 7 năm 2001?",Tấn công từ chối dịch vụ (DoS attack),Tấn công do thám (Reconnaissance attack),Tấn công phi kỹ thuật (Social engineering),Tấn công nghe lén đường truyền (Eavesdropping),A,"Đoạn [C4] nêu rõ sâu Code Red là một cuộc tấn công từ chối dịch vụ (DoS attack), được phát hành vào ngày 19 tháng 7 năm 2001 và tấn công các máy chủ web trên toàn cầu.","Network Security Threats, tr. 13","- The Morris worm prompted DARPA to fund the establishment of the CERT/CC at Carnegie Mellon University to give experts a central point for coordinating responses to network emergencies.
+- Robert Morris was tried and convicted of violating the 1986 Computer Fraud and Abuse Act.
+- – After appeals he was sentenced to three years probation, 400 hours of community service, and a fine of $10,000.
+- The Code Red worm was a DoS attack and was released on July 19, 2001 and attacked web servers globally, infecting over 350,000 hosts and in turn affected millions of users.",,,,,,,,,,
+42,E5-042,Tấn công từ chối dịch vụ,"Trong chu kỳ hoạt động của sâu Code Red, hành vi tấn công từ chối dịch vụ nào được thực hiện vào khoảng thời gian từ ngày 20 đến ngày 27 hàng tháng?",Tấn công từ chối dịch vụ làm tràn gói tin nhắm vào một địa chỉ IP cố định cụ thể,Kết nối tới cổng TCP 80 của các địa chỉ IP ngẫu nhiên để tiếp tục phát tán,"Rơi vào trạng thái 'ngủ', không duy trì kết nối mạng hoặc tấn công từ chối dịch vụ",Thay đổi giao diện (deface) của tất cả các trang web trên máy chủ,A,"Đoạn [C6] chỉ rõ từ ngày 20 đến ngày 27, sâu sẽ tiến hành một cuộc tấn công từ chối dịch vụ làm tràn gói tin (packet-flooding DoS) nhắm vào một địa chỉ IP cố định.","Network Security Threats, tr. 17","- If the exploit was successful, the worm began executing on the victim host.
+- – In the earlier variant of the worm, victim hosts experienced the following defacement on all pages requested from the server:
+HELLO! Welcome to http://www.worm.com! Hacked By Chinese!
+- Actual worm activity on a compromised machine was time sensitive and different activity occurred based on the date of the system clock:
+- – Day 1 - 19: The infected host will attempt to connect to TCP port 80 of randomly chosen IP addresses in order to further propagate the worm.
+- – Day 20 - 27: A packet-flooding denial of service attack will be launched against a particular fixed IP address.
+- – Day 28 - end of the month: The worm ""sleeps""; no active connections or denial of service.",,,,,,,,,,
+43,E5-043,Tấn công từ chối dịch vụ,"Theo tài liệu, vào tháng 2 năm 2000, các cuộc tấn công DoS thu hút sự chú ý lớn từ truyền thông đã nhắm vào những hệ thống mục tiêu nào?","Yahoo!, Amazon.com, Dell, Inc., E*TRADE, eBay và CNN","Hệ thống mạng Unix sendmail, Finger và rsh/rexec",Viện Công nghệ MIT và Đại học Cornell,Tổ chức CERT/CC và Viện SANS,A,"Đoạn [C11] ghi nhận các cuộc tấn công DoS vào tháng 2 năm 2000 đã nhắm tới Yahoo!, Amazon.com, Dell, Inc., E*TRADE, eBay và CNN.","Network Security Threats, tr. 28","- Robert Morris created the first Internet worm with 99 lines of code.
+- – When the Morris Worm was released, 10% of Internet systems were brought to a halt.
+- MafiaBoy was the Internet alias of Michael Calce, a 15 year old high school student from Montreal, Canada .
+- He launched highly publicized DoS attacks in Feb 2000 against Yahoo!, Amazon.com, Dell, Inc., E*TRADE, eBay, and CNN.",,,,,,,,,,
+44,E5-044,Tấn công từ chối dịch vụ,"Vào khoảng thời gian từ ngày 28 đến cuối tháng, hoạt động của sâu Code Red đối với tấn công từ chối dịch vụ diễn ra như thế nào?",Sâu 'ngủ' và không có kết nối hoạt động hay tấn công từ chối dịch vụ nào,Gia tăng lưu lượng gói tin gấp đôi tới các địa chỉ IP cố định,Tìm kiếm cổng 80 của các máy chủ web để khai thác lỗi tràn bộ đệm,Khởi động lại hệ thống máy chủ để xóa dấu vết tấn công khỏi bộ nhớ,A,"Theo đoạn [C6], từ ngày 28 đến cuối tháng, sâu Code Red ở trạng thái 'ngủ' (sleeps), không có kết nối nào hoạt động và không thực hiện tấn công từ chối dịch vụ.","Network Security Threats, tr. 17","- If the exploit was successful, the worm began executing on the victim host.
+- – In the earlier variant of the worm, victim hosts experienced the following defacement on all pages requested from the server:
+HELLO! Welcome to http://www.worm.com! Hacked By Chinese!
+- Actual worm activity on a compromised machine was time sensitive and different activity occurred based on the date of the system clock:
+- – Day 1 - 19: The infected host will attempt to connect to TCP port 80 of randomly chosen IP addresses in order to further propagate the worm.
+- – Day 20 - 27: A packet-flooding denial of service attack will be launched against a particular fixed IP address.
+- – Day 28 - end of the month: The worm ""sleeps""; no active connections or denial of service.",,,,,,,,,,
+45,E5-045,Tấn công từ chối dịch vụ,"Theo tài liệu tổng kết các loại hình đe dọa, tấn công từ chối dịch vụ (DoS Attacks) là một trong bốn nhóm thuộc danh mục nào?",Bốn danh mục tấn công (categories of attacks),Bốn cấp độ đe dọa an ninh vật lý (physical security levels),Bốn thành phần kiến trúc quét an ninh mạng,Bốn giai đoạn phát triển chính sách bảo mật ISO/IEC,A,"Đoạn [C18] nêu rõ có bốn danh mục tấn công (categories of attacks): Mã độc, Tấn công do thám, Tấn công truy cập và Tấn công từ chối dịch vụ (DoS Attacks).","Network Security Threats, tr. 46","- There are four categories of attacks:
+- – Malicious Code: Viruses, Worms and Trojan Horses
+- – Reconnaissance Attacks
+- – Access Attacks
+- – Denial of Service (DoS) Attacks
+Let ' s focus on Malicious Code
+- ― Malicious software ‖ is software designed to infiltrate a computer without the owner's informed consent.
+- Malware includes:
+- – Computer viruses
+- – Worms
+- – Trojan horses
+- – Rootkits
+- – Backdoors (Method of bypassing normal authentication procedures and usually installed using Trojan horses or worms.)
+- – For profit (Spyware, botnets, keystroke loggers, and dialers)",,,,,,,,,,
+46,E5-046,Tấn công từ chối dịch vụ,"Theo tài liệu, các 'máy tính ma' (zombie computers) bị lây nhiễm mã độc thường được kẻ tấn công sử dụng vào mục đích tấn công DDoS nhằm mục tiêu gì?",Tham gia vào các cuộc tấn công DDoS như một hình thức tống tiền,Đo lường kích thước mạng Internet mà không gây hư hại hệ thống,Tự động gửi cảnh báo bảo mật tới các tổ chức CERT,Chạy thử nghiệm quét tìm lỗ hổng tràn bộ đệm trên hệ điều hành,A,"Đoạn [C21] cho biết các máy tính zombie bị lây nhiễm được sử dụng để gửi thư rác, lưu trữ dữ liệu lậu hoặc tham gia các cuộc tấn công DDoS như một hình thức tống tiền.","Network Security Threats, tr. 50","- Malicious code writing has changed for profitable reasons.
+- – Mainly due to the Internet and broadband access.
+- – Since 2003 the majority of viruses and worms have been designed to take control of users' computers for black-market exploitation.
+- – Infected ""zombie computers"" are used to send email spam, to host contraband data, or to engage in DDoS attacks as a form of extortion.
+- In 2008, Symantec published:
+- – The release rate of malicious code and other unwanted programs may be exceeding that of legitimate software applications.",,,,,,,,,,
+47,E5-047,Tấn công từ chối dịch vụ,Tác động làm gián đoạn dịch vụ trực tiếp của sâu Code Red đối với các máy chủ bị lây nhiễm và mạng cục bộ của chúng là gì?,Làm cho máy chủ và mạng cục bộ trở nên rất chậm hoặc không thể sử dụng được,Phá hủy vĩnh viễn bo mạch chủ và phần cứng máy chủ web,Ngăn chặn vĩnh viễn việc cập nhật và cài đặt các bản vá lỗi,Xóa toàn bộ dữ liệu cấu hình hệ thống trên đĩa cứng,A,"Đoạn [C5] ghi rõ Code Red làm gián đoạn truy cập vào các máy chủ bị nhiễm và mạng cục bộ lưu trữ máy chủ, khiến chúng trở nên rất chậm hoặc không thể sử dụng được (making them very slow or unusable).","Network Security Threats, tr. 15","- Code Red:
+- – Defaced web pages.
+- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.
+- Network professionals responded slowly to system patches which only exacerbated the problem.
+- The ""Code Red"" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.
+- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .
+- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.
+- – However, depending on the configuration of the host which receives this request, there are varied consequences.",,,,,,,,,,
+48,E5-048,Tấn công từ chối dịch vụ,"Trước khi thực hiện các hành vi gây nghẽn dịch vụ, sâu Code Red đã khai thác lỗ hổng nào trên các máy chủ mục tiêu?",Lỗ hổng tràn bộ đệm trong Indexing Service qua yêu cầu HTTP GET gửi đến cổng TCP 80,Lỗ hổng dịch vụ Finger và Unix sendmail qua cổng TCP 25,Lỗ hổng mật khẩu yếu trong các dịch vụ rsh/rexec,Lỗ hổng tràn bộ nhớ trong dịch vụ máy chủ thư Internet,A,Đoạn [C5] nêu rằng sâu Code Red cố gắng kết nối tới cổng TCP 80 và gửi yêu cầu HTTP GET được tạo đặc biệt để khai thác lỗi tràn bộ đệm trong Indexing Service.,"Network Security Threats, tr. 15","- Code Red:
+- – Defaced web pages.
+- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.
+- Network professionals responded slowly to system patches which only exacerbated the problem.
+- The ""Code Red"" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.
+- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .
+- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.
+- – However, depending on the configuration of the host which receives this request, there are varied consequences.",,,,,,,,,,
+49,E5-049,Tấn công từ chối dịch vụ,"Theo tài liệu, hành động nào có thể tạm thời loại bỏ sâu Code Red khỏi hệ thống vì nó chỉ cư trú trong bộ nhớ?",Khởi động lại (reboot) máy,Ngắt kết nối cổng TCP 80 vĩnh viễn,Cài đặt lại toàn bộ hệ điều hành,Xóa tập tin cấu hình của Indexing Service,A,"Đoạn [C7] xác nhận sâu cư trú hoàn toàn trong bộ nhớ (memory), nên việc khởi động lại máy (reboot) sẽ loại bỏ nó khỏi hệ thống, tuy nhiên cần phải vá lỗ hổng để tránh tái nhiễm.","Network Security Threats, tr. 18","- Although the worm resides entirely in memory, a reboot of the machine will purge it from the system.
+- – However, patching the system for the underlying vulnerability remains imperative since the likelihood of re-infection is quite high due to the rapid propagation of the worm.
+- Network security professionals must develop and implement a security policy which includes a process to continually keep tabs on security advisories and patches .
+- It was a wake up call for network administrators.
+- – It made it very apparent that network security administrators must patch their systems regularly .
+- If security patches had been applied in a timely manner, the Code Red worm would only merit a footnote in network security history .
+- http://www.cert.org/advisories/CA-2001-19.html",,,,,,,,,,
+50,E5-050,Tấn công từ chối dịch vụ,"Trong kiến trúc an ninh mạng được đề cập ở tài liệu, thành phần nào đóng vai trò là cơ sở dữ liệu giám sát lưu lượng để nhận diện và ngăn chặn lưu lượng độc hại?",Security Intelligence Operations (SIO),Policy Management Consoles,Scanning Engines,Next-generation Endpoint,A,"Đoạn [C17] mô tả Security Intelligence Operations (SIO) là một cơ sở dữ liệu giám sát lưu lượng, được sử dụng để xác định và ngăn chặn lưu lượng độc hại.","Network Security Threats, tr. 43","- This architecture includes the following five major components:
+- – Scanning Engines – Network level devices that examine content, authenticate users, and identify applications. They can include firewall/IPS, proxy or a fusion of both.
+- – Delivery Mechanisms – The way the scanning engine is implemented in the network. It can be via a standalone appliance, a blade in a router, or a software package.
+- – Security Intelligence Operations (SIO) – A traffic monitoring database, used to identify and stop malicious traffic.
+- – Policy Management Consoles – Policy creation and management that determines what actions the scanning engines will take.
+- – Next - generation Endpoint – Any variety of devices. All traffic to or from these devices are pointed to a scanner.
+Malware / Malicious Code",,,,,,,,,,
+51,E5-051,Biện pháp giảm thiểu tấn công mạng,"Trong lịch sử, việc bảo vệ tài nguyên và tài sản mạng trước khi máy tính cá nhân và Internet phát triển chủ yếu được thực hiện thông qua biện pháp nào?",Cài đặt các ứng dụng tường lửa và proxy thế hệ mới,Thực hiện an ninh vật lý và sử dụng các mạng đóng,Cập nhật thường xuyên các bản vá lỗ hổng hệ điều hành,Thành lập các trung tâm điều phối ứng cứu sự cố khẩn cấp,B,"Theo tài liệu, trước đây việc bảo vệ tài sản mạng chủ yếu được thực hiện thông qua an ninh vật lý và các mạng đóng (physical security and closed networks).","Network Security Threats, tr. 2","- To protect assets!
+- – Historically done through physical security and closed networks.
+- With the advent of personal computers, LANs, and the wide-open world of the Internet, the networks of today are more open.
+- There are four primary classes of threats to network security:
+- – Unstructured threats
+- – Structured threats
+- – External threats
+- – Internal threats
+Evolution of Network Security",,,,,,,,,,
+52,E5-052,Biện pháp giảm thiểu tấn công mạng,"Sau sự cố sâu mạng phát tán trên Internet năm 1988, tổ chức nào đã được DARPA tài trợ thành lập nhằm tạo đầu mối trung tâm giúp chuyên gia điều phối ứng phó sự cố khẩn cấp?",CERT/CC tại Đại học Carnegie Mellon,"Học viện SANS (SysAdmin, Audit, Network, Security)",Tổ chức chứng nhận an ninh mạng (ISC)2,Tổ chức Cisco SIO,A,Sự cố sâu mạng năm 1988 đã thúc đẩy DARPA tài trợ thành lập CERT/CC tại Đại học Carnegie Mellon để làm đầu mối điều phối ứng phó các sự cố mạng khẩn cấp.,"Network Security Threats, tr. 13","- The Morris worm prompted DARPA to fund the establishment of the CERT/CC at Carnegie Mellon University to give experts a central point for coordinating responses to network emergencies.
+- Robert Morris was tried and convicted of violating the 1986 Computer Fraud and Abuse Act.
+- – After appeals he was sentenced to three years probation, 400 hours of community service, and a fine of $10,000.
+- The Code Red worm was a DoS attack and was released on July 19, 2001 and attacked web servers globally, infecting over 350,000 hosts and in turn affected millions of users.",,,,,,,,,,
+53,E5-053,Biện pháp giảm thiểu tấn công mạng,"Theo tài liệu, biện pháp nào là cấp thiết để ngăn chặn nguy cơ tái nhiễm sâu Code Red sau khi hệ thống đã được khởi động lại?",Thay đổi cổng kết nối dịch vụ web từ TCP 80 sang cổng khác,Cập nhật bản vá (patching) cho lỗ hổng bảo mật nền tảng của hệ thống,Khởi động lại máy định kỳ mỗi ngày,Xóa toàn bộ các tệp tin lưu trữ trong bộ nhớ tạm,B,"Khởi động lại máy chỉ loại bỏ sâu khỏi bộ nhớ, việc vá lỗ hổng cơ bản của hệ thống là bắt buộc vì khả năng tái nhiễm là rất cao.","Network Security Threats, tr. 18","- Although the worm resides entirely in memory, a reboot of the machine will purge it from the system.
+- – However, patching the system for the underlying vulnerability remains imperative since the likelihood of re-infection is quite high due to the rapid propagation of the worm.
+- Network security professionals must develop and implement a security policy which includes a process to continually keep tabs on security advisories and patches .
+- It was a wake up call for network administrators.
+- – It made it very apparent that network security administrators must patch their systems regularly .
+- If security patches had been applied in a timely manner, the Code Red worm would only merit a footnote in network security history .
+- http://www.cert.org/advisories/CA-2001-19.html",,,,,,,,,,
+54,E5-054,Biện pháp giảm thiểu tấn công mạng,Bài học từ cuộc tấn công của sâu Code Red chỉ ra rằng chính sách an ninh mạng của tổ chức bắt buộc phải có quy trình nào?,Liên tục theo dõi các khuyến cáo an ninh và áp dụng các bản vá,Ngắt kết nối Internet của máy chủ vào các ngày 20 đến 27 hàng tháng,Cấm tất cả các yêu cầu HTTP GET gửi tới cổng 80,Chỉ sử dụng phần cứng chuyên dụng thay cho phần mềm quét,A,Chuyên gia an ninh mạng phải xây dựng và thực thi chính sách an ninh bao gồm quy trình liên tục theo dõi các khuyến cáo an ninh và áp dụng các bản vá thường xuyên.,"Network Security Threats, tr. 18","- Although the worm resides entirely in memory, a reboot of the machine will purge it from the system.
+- – However, patching the system for the underlying vulnerability remains imperative since the likelihood of re-infection is quite high due to the rapid propagation of the worm.
+- Network security professionals must develop and implement a security policy which includes a process to continually keep tabs on security advisories and patches .
+- It was a wake up call for network administrators.
+- – It made it very apparent that network security administrators must patch their systems regularly .
+- If security patches had been applied in a timely manner, the Code Red worm would only merit a footnote in network security history .
+- http://www.cert.org/advisories/CA-2001-19.html",,,,,,,,,,
+55,E5-055,Biện pháp giảm thiểu tấn công mạng,"Để nâng cao hiệu quả phòng ngừa và phản ứng trước các mối đe dọa an ninh mạng, các chuyên gia an ninh mạng được khuyến nghị thực hiện hoạt động nào?",Chỉ sử dụng mạng nội bộ khép kín không kết nối mạng bên ngoài,"Hợp tác thường xuyên với đồng nghiệp và tham gia các hội thảo, hội nghị chuyên môn",Tự phát triển hệ điều hành riêng để tránh lỗ hổng bảo mật phổ biến,Hạn chế tối đa việc chia sẻ thông tin về các lỗ hổng bảo mật,B,"Chuyên gia an ninh mạng cần hợp tác thường xuyên với đồng nghiệp và tham gia các hội thảo, hội nghị chuyên môn nhằm nắm bắt thông tin về phát hiện, phản ứng với mối đe dọa cũng như các thực hành tốt nhất.","Network Security Threats, tr. 34","- Network security professionals must collaborate with professional colleagues more frequently than most other professions.
+- – Attending workshops and conferences that are often affiliated with, sponsored or organized by local, national, or international technology organizations .
+- Must also know about various security organizations which provide help on:
+- – Detecting and responding to both established and emerging information security threats.
+- – Operating system weaknesses, best practices for security, and security training and certification information is also available.
+Network Security Organizations",,,,,,,,,,
+56,E5-056,Biện pháp giảm thiểu tấn công mạng,"Theo tiêu chuẩn ISO/IEC 27002, có bao nhiêu miền an ninh mạng được chỉ định để làm cơ sở xây dựng tiêu chuẩn an ninh và thực hành quản trị an ninh hiệu quả?",4 miền,5 miền,10 miền,12 miền,D,ISO/IEC 27002 chỉ định 12 miền an ninh mạng đóng vai trò làm khung có tổ chức và cơ sở chung để xây dựng tiêu chuẩn an ninh của tổ chức.,"Network Security Threats, tr. 41","- It is also important to have an understanding of the various network security domains.
+- – Domains provide an organized framework to facilitate learning about network security .
+- ISO/IEC 27002 specifies 12 network security domains.
+- – These 12 domains serve to organize at a high level the vast realm of information under the umbrella of network security.
+- – The 12 domains are intended to serve as a common basis for developing organizational security standards and effective security management practices, and to help build confidence in inter-organizational activities.",,,,,,,,,,
+57,E5-057,Biện pháp giảm thiểu tấn công mạng,"Trong 5 thành phần chính của kiến trúc an ninh mạng, thành phần 'Scanning Engines' thực hiện nhiệm vụ nào sau đây?",Lưu trữ cơ sở dữ liệu giám sát lưu lượng để nhận diện tấn công,"Kiểm tra nội dung, xác thực người dùng và nhận diện ứng dụng",Tạo và quản lý chính sách xác định hành động của hệ thống,Định tuyến lưu lượng truy cập từ thiết bị đầu cuối,B,"Scanning Engines là các thiết bị ở cấp độ mạng thực hiện kiểm tra nội dung, xác thực người dùng và nhận diện ứng dụng (bao gồm firewall/IPS, proxy).","Network Security Threats, tr. 43","- This architecture includes the following five major components:
+- – Scanning Engines – Network level devices that examine content, authenticate users, and identify applications. They can include firewall/IPS, proxy or a fusion of both.
+- – Delivery Mechanisms – The way the scanning engine is implemented in the network. It can be via a standalone appliance, a blade in a router, or a software package.
+- – Security Intelligence Operations (SIO) – A traffic monitoring database, used to identify and stop malicious traffic.
+- – Policy Management Consoles – Policy creation and management that determines what actions the scanning engines will take.
+- – Next - generation Endpoint – Any variety of devices. All traffic to or from these devices are pointed to a scanner.
+Malware / Malicious Code",,,,,,,,,,
+58,E5-058,Biện pháp giảm thiểu tấn công mạng,Thành phần 'Security Intelligence Operations (SIO)' trong kiến trúc an ninh mạng đóng vai trò gì?,Là cơ sở dữ liệu giám sát lưu lượng dùng để nhận diện và ngăn chặn lưu lượng độc hại,Là giao diện cho phép quản trị viên thiết lập chính sách bảo mật,Là phần cứng dạng phiến cắm tích hợp trực tiếp trên bộ định tuyến,Là cơ chế cô lập thiết bị đầu cuối khi phát hiện mã độc,A,"Security Intelligence Operations (SIO) là cơ sở dữ liệu giám sát lưu lượng, được sử dụng để nhận diện và ngăn chặn lưu lượng độc hại.","Network Security Threats, tr. 43","- This architecture includes the following five major components:
+- – Scanning Engines – Network level devices that examine content, authenticate users, and identify applications. They can include firewall/IPS, proxy or a fusion of both.
+- – Delivery Mechanisms – The way the scanning engine is implemented in the network. It can be via a standalone appliance, a blade in a router, or a software package.
+- – Security Intelligence Operations (SIO) – A traffic monitoring database, used to identify and stop malicious traffic.
+- – Policy Management Consoles – Policy creation and management that determines what actions the scanning engines will take.
+- – Next - generation Endpoint – Any variety of devices. All traffic to or from these devices are pointed to a scanner.
+Malware / Malicious Code",,,,,,,,,,
+59,E5-059,Biện pháp giảm thiểu tấn công mạng,"Trong kiến trúc an ninh mạng, thành phần nào chịu trách nhiệm tạo và quản lý các quy tắc quyết định hành động xử lý của công cụ quét (scanning engine)?",Delivery Mechanisms,Next-generation Endpoint,Policy Management Consoles,Security Intelligence Operations,C,"Policy Management Consoles đảm nhiệm việc tạo và quản lý chính sách, từ đó xác định hành động mà các công cụ quét (scanning engines) sẽ thực hiện.","Network Security Threats, tr. 43","- This architecture includes the following five major components:
+- – Scanning Engines – Network level devices that examine content, authenticate users, and identify applications. They can include firewall/IPS, proxy or a fusion of both.
+- – Delivery Mechanisms – The way the scanning engine is implemented in the network. It can be via a standalone appliance, a blade in a router, or a software package.
+- – Security Intelligence Operations (SIO) – A traffic monitoring database, used to identify and stop malicious traffic.
+- – Policy Management Consoles – Policy creation and management that determines what actions the scanning engines will take.
+- – Next - generation Endpoint – Any variety of devices. All traffic to or from these devices are pointed to a scanner.
+Malware / Malicious Code",,,,,,,,,,
+60,E5-060,Biện pháp giảm thiểu tấn công mạng,"Trong kiến trúc an ninh mạng, khái niệm 'Delivery Mechanisms' đề cập đến nội dung nào?","Cách thức triển khai công cụ quét trên mạng (thiết bị độc lập, phiến cắm trong router hoặc gói phần mềm)",Giao thức truyền tải dữ liệu cảnh báo từ máy chủ về trung tâm điều phối,Quy trình gửi thông báo về bản vá lỗ hổng tới người dùng cuối,Phương thức sao lưu cơ sở dữ liệu lưu lượng mạng về máy chủ dự phòng,A,"Delivery Mechanisms là cách thức công cụ quét được triển khai trong mạng, có thể qua thiết bị độc lập (appliance), phiến cắm trong router, hoặc gói phần mềm.","Network Security Threats, tr. 43","- This architecture includes the following five major components:
+- – Scanning Engines – Network level devices that examine content, authenticate users, and identify applications. They can include firewall/IPS, proxy or a fusion of both.
+- – Delivery Mechanisms – The way the scanning engine is implemented in the network. It can be via a standalone appliance, a blade in a router, or a software package.
+- – Security Intelligence Operations (SIO) – A traffic monitoring database, used to identify and stop malicious traffic.
+- – Policy Management Consoles – Policy creation and management that determines what actions the scanning engines will take.
+- – Next - generation Endpoint – Any variety of devices. All traffic to or from these devices are pointed to a scanner.
+Malware / Malicious Code",,,,,,,,,,
+61,E5-061,Mô hình dự báo chuỗi thời gian,Phương pháp bình phương bé nhất (least squares) xác định đường xu hướng dự báo bằng cách tối thiểu hóa chỉ số nào sau đây?,Mean square error giữa giá trị dự báo từ đường xu hướng và giá trị quan sát thực tế,Tổng các giá trị quan sát thực tế của chuỗi thời gian,Độ dốc (slope) của phương trình xu hướng,Mean absolute percentage error của các kỳ trong quá khứ,A,"Theo tài liệu, phương pháp bình phương bé nhất xác định đường xu hướng duy nhất giúp tối thiểu hóa sai số bình phương trung bình (mean square error) giữa dự báo và giá trị quan sát thực tế.","Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+62,E5-062,Mô hình dự báo chuỗi thời gian,"Trong phương trình dự báo xu hướng tuyến tính bằng phương pháp bình phương bé nhất, biến độc lập và biến phụ thuộc được xác định như thế nào?",Biến độc lập là khoảng thời gian (t) và biến phụ thuộc là giá trị quan sát thực tế,Biến độc lập là giá trị quan sát thực tế và biến phụ thuộc là khoảng thời gian (t),Cả hai biến đều là các giá trị dự báo trong tương lai,Biến độc lập là hệ số chặn trục Y và biến phụ thuộc là độ dốc đường thẳng,A,Tài liệu nêu rõ: biến độc lập là khoảng thời gian (time period) và biến phụ thuộc là giá trị quan sát thực tế trong chuỗi thời gian.,"Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+63,E5-063,Mô hình dự báo chuỗi thời gian,"Trong phương trình dự báo xu hướng tuyến tính Tt = b0 + b1*t, ký hiệu b0 và b1 lần lượt đại diện cho các đại lượng nào?",b0 là hệ số chặn trục Y (Y-intercept) và b1 là độ dốc (slope) của đường xu hướng,b0 là độ dốc và b1 là hệ số chặn trục Y của đường xu hướng,b0 là giá trị thực tế kỳ đầu tiên và b1 là số kỳ quan sát,b0 là giá trị trung bình của chuỗi và b1 là sai số bình phương,A,"Tài liệu định nghĩa: b0 = Y-intercept of the linear trend line (hệ số chặn Y), b1 = slope of the linear trend line (độ dốc).","Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+64,E5-064,Mô hình dự báo chuỗi thời gian,"Khi so sánh dự báo trong một chuỗi thời gian có thành phần xu hướng tăng (positive trend), phương pháp trung bình trượt có trọng số thường bộc lộ đặc điểm gì so với dự báo theo xu hướng?",Tạo ra dự báo bị trễ (lagging behind) so với dữ liệu đang biến đổi,Tạo ra dự báo biến động nhanh hơn và vượt xa đường xu hướng,Luôn luôn chính xác hơn phương pháp đường xu hướng,Hoàn toàn triệt tiêu được tác động của xu hướng,A,"Tài liệu chỉ ra rằng do có xu hướng tăng dương, phương pháp trung bình trượt có trọng số tạo ra dự báo bị trễ (lagging behind) so với dữ liệu đang thay đổi.","Forecasting (QMB ch. 6b), tr. 10","- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+65,E5-065,Mô hình dự báo chuỗi thời gian,"Khi mô hình hóa một biến phân loại có k mức độ (k levels) vào mô hình dự báo chuỗi thời gian theo mùa, cần bao nhiêu biến giả (dummy variables)?",k – 1 biến giả,k biến giả,k + 1 biến giả,2k biến giả,A,"Theo tài liệu, khi một biến phân loại có k mức độ, cần k – 1 biến giả (dummy variables).","Forecasting (QMB ch. 6b), tr. 16","- We will treat the season as a categorical variable.
+- Recall that when a categorical variable has k levels, k – 1 dummy variables are required.
+- If there are four seasons, we need three dummy variables.
+- Qtr1 = 1 if Quarter 1, 0 otherwise
+- Qtr2 = 1 if Quarter 2, 0 otherwise
+- Qtr3 = 1 if Quarter 3, 0 otherwise
+- Example: Umbrella Sales
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model is:
+<!-- formula-not-decoded -->
+- The forecasts of quarterly sales in year 6 are:
+- Quarter 1: Sales = 95 + 29(1) + 57(0) + 26(0) = 124
+- Quarter 2: Sales = 95 + 29(0) + 57(1) + 26(0) = 152
+- Quarter 3: Sales = 95 + 29(0) + 57(0) + 26(1) = 121
+- Quarter 4: Sales = 95 + 29(0) + 57(0) + 26(0) = 95
+Seasonality without Trend",,,,,,,,,,
+66,E5-066,Mô hình dự báo chuỗi thời gian,"Trong ví dụ bán ô dù (Umbrella Sales) với chuỗi thời gian 4 quý không có xu hướng, số lượng biến giả cần thiết để mô hình hóa tính mùa vụ là bao nhiêu?",3 biến giả,4 biến giả,2 biến giả,1 biến giả,A,"Do có 4 mùa (quý), áp dụng quy tắc k - 1 ta cần 4 - 1 = 3 biến giả (Qtr1, Qtr2, Qtr3).","Forecasting (QMB ch. 6b), tr. 16","- We will treat the season as a categorical variable.
+- Recall that when a categorical variable has k levels, k – 1 dummy variables are required.
+- If there are four seasons, we need three dummy variables.
+- Qtr1 = 1 if Quarter 1, 0 otherwise
+- Qtr2 = 1 if Quarter 2, 0 otherwise
+- Qtr3 = 1 if Quarter 3, 0 otherwise
+- Example: Umbrella Sales
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model is:
+<!-- formula-not-decoded -->
+- The forecasts of quarterly sales in year 6 are:
+- Quarter 1: Sales = 95 + 29(1) + 57(0) + 26(0) = 124
+- Quarter 2: Sales = 95 + 29(0) + 57(1) + 26(0) = 152
+- Quarter 3: Sales = 95 + 29(0) + 57(0) + 26(1) = 121
+- Quarter 4: Sales = 95 + 29(0) + 57(0) + 26(0) = 95
+Seasonality without Trend",,,,,,,,,,
+67,E5-067,Mô hình dự báo chuỗi thời gian,"Trong ví dụ bán ô dù (Umbrella Sales) không có xu hướng, dự báo doanh số cho Quý 4 của năm 6 được tính ra là bao nhiêu khi các biến giả Qtr1, Qtr2, Qtr3 đều nhận giá trị 0?",95,124,152,121,A,Công thức tính cho Quý 4 là Sales = 95 + 29(0) + 57(0) + 26(0) = 95.,"Forecasting (QMB ch. 6b), tr. 16","- We will treat the season as a categorical variable.
+- Recall that when a categorical variable has k levels, k – 1 dummy variables are required.
+- If there are four seasons, we need three dummy variables.
+- Qtr1 = 1 if Quarter 1, 0 otherwise
+- Qtr2 = 1 if Quarter 2, 0 otherwise
+- Qtr3 = 1 if Quarter 3, 0 otherwise
+- Example: Umbrella Sales
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model is:
+<!-- formula-not-decoded -->
+- The forecasts of quarterly sales in year 6 are:
+- Quarter 1: Sales = 95 + 29(1) + 57(0) + 26(0) = 124
+- Quarter 2: Sales = 95 + 29(0) + 57(1) + 26(0) = 152
+- Quarter 3: Sales = 95 + 29(0) + 57(0) + 26(1) = 121
+- Quarter 4: Sales = 95 + 29(0) + 57(0) + 26(0) = 95
+Seasonality without Trend",,,,,,,,,,
+68,E5-068,Mô hình dự báo chuỗi thời gian,"Đối với chuỗi thời gian có tính mùa vụ nhưng không có xu hướng (seasonality without trend), ngoài việc sử dụng hồi quy biến giả, có thể thu được dự báo hàng quý cho năm tiếp theo bằng cách nào?",Tính giá trị trung bình số lượng bán được trong từng quý tương ứng,Lấy giá trị của quý tương ứng của năm gần nhất,Áp dụng phương pháp làm mịn hàm mũ đơn giản,Tính bình phương khoảng cách giữa các quý,A,Tài liệu ghi chú rằng ta có thể thu được dự báo hàng quý cho năm tiếp theo bằng cách tính đơn giản số trung bình bán được ở từng quý (computing the average number of umbrellas sold in each quarter).,"Forecasting (QMB ch. 6b), tr. 18","| Year | Quarter 1 | Quarter 2 | Quarter 3 | Quarter 4 |
+|---------|--------------|--------------|--------------|-------------|
+| 1 | 125 | 153 | 106 | 88 |
+| 2 | 118 | 161 | 133 | 102 |
+| 3 | 138 | 144 | 113 | 80 |
+| 4 | 109 | 137 | 125 | 109 |
+| 5 | 130 | 165 | 128 | 96 |
+| Average | 124 | 152 | 121 | 95 |
+- We could have obtained the quarterly forecasts for next year by simply computing the average number of umbrellas sold in each quarter.",,,,,,,,,,
+69,E5-069,Mô hình dự báo chuỗi thời gian,"Để mô hình hóa chuỗi thời gian bao gồm cả hiệu ứng mùa vụ và xu hướng tuyến tính (seasonality and linear trend), mô hình cần bổ sung thêm thành phần nào?",Một biến bổ sung để đại diện cho thời gian,Thêm một biến giả cho mùa cơ sở,Bình phương của sai số trung bình,Một hệ số làm mịn hàm mũ,A,Tài liệu nêu: 'We will introduce an additional variable to represent time' để mở rộng mô hình gồm cả tính mùa vụ và xu hướng tuyến tính.,"Forecasting (QMB ch. 6b), tr. 19","- We will now extend the curve - fitting approach to include situations where the time series contains both a seasonal effect and a linear trend.
+- We will introduce an additional variable to represent time.
+Seasonality and Trend",,,,,,,,,,
+70,E5-070,Mô hình dự báo chuỗi thời gian,"Trong ví dụ Terry's Tie Shop với 3 mùa trong năm và chuỗi số liệu 4 năm (12 kỳ), các mùa của năm thứ 5 tương ứng với các kỳ thời gian (time periods) nào?","13, 14 và 15","10, 11 và 12","1, 2 và 3","16, 17 và 18",A,"Tài liệu chỉ ra rằng các mùa trong năm thứ 5 tương ứng với các khoảng thời gian (time periods) là 13, 14 và 15.","Forecasting (QMB ch. 6b), tr. 23","- The forecasts of average weekly sales in the three seasons of year 5 (time periods 13, 14, and 15) are:
+<!-- formula-not-decoded -->
+<!-- formula-not-decoded -->
+<!-- formula-not-decoded -->
+<!-- formula-not-decoded -->",,,,,,,,,,
+71,E5-071,Trung bình trượt và trung bình trượt có trọng số,"Trong ví dụ Auger's Plumbing Service, để dự báo cho tháng 12 (tháng 10) bằng phương pháp trung bình trượt có trọng số 3 thời kỳ (k = 3), những tháng nào được sử dụng?","Tháng 8, tháng 9 và tháng 10","Tháng 9, tháng 10 và tháng 11","Tháng 7, tháng 8 và tháng 9","Tháng 3, tháng 7 và tháng 11",B,"Theo tài liệu, dự báo cho tháng 12 là trung bình có trọng số của 3 tháng liền trước: tháng 9, tháng 10 và tháng 11.","Forecasting (QMB ch. 6b), tr. 9; Forecasting (QMB ch. 6b), tr. 10","Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408
+---
+- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+72,E5-072,Trung bình trượt và trung bình trượt có trọng số,"Trong ví dụ dự báo bằng phương pháp trung bình trượt có trọng số 3 thời kỳ (k = 3), các trọng số được phân bổ từ dữ liệu mới nhất đến cũ nhất lần lượt là bao nhiêu?","0,1; 0,3 và 0,6","0,5; 0,3 và 0,2","0,6; 0,3 và 0,1","0,33; 0,33 và 0,33",C,"Tài liệu nêu rõ các trọng số là 0,6; 0,3 và 0,1 tương ứng từ dữ liệu mới nhất đến dữ liệu cũ nhất.","Forecasting (QMB ch. 6b), tr. 9","Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408",,,,,,,,,,
+73,E5-073,Trung bình trượt và trung bình trượt có trọng số,"Khi tính dự báo tháng 12 bằng trung bình trượt có trọng số 3 thời kỳ cho Auger's Plumbing Service, tháng nào nhận trọng số cao nhất (0,6)?",Tháng 9,Tháng 10,Tháng 11,Tháng 12,C,"Trọng số lớn nhất 0,6 được áp dụng cho dữ liệu mới nhất (thời kỳ hiện tại ngay trước tháng dự báo), tức là tháng 11.","Forecasting (QMB ch. 6b), tr. 9; Forecasting (QMB ch. 6b), tr. 10","Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408
+---
+- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+74,E5-074,Trung bình trượt và trung bình trượt có trọng số,Số thời kỳ (k) được sử dụng cho phương pháp trung bình trượt có trọng số trong ví dụ Auger's Plumbing Service là bao nhiêu?,k = 2,k = 3,k = 4,k = 9,B,Ví dụ nêu rõ việc sử dụng phương pháp trung bình trượt có trọng số ba thời kỳ (three-period weighted moving average with k = 3).,"Forecasting (QMB ch. 6b), tr. 9","Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408",,,,,,,,,,
+75,E5-075,Trung bình trượt và trung bình trượt có trọng số,"Dựa trên số công việc thực tế của tháng 9 (399), tháng 10 (412) và tháng 11 (408), giá trị dự báo cho tháng 12 theo phương pháp trung bình trượt có trọng số với các trọng số lần lượt từ mới nhất đến cũ nhất là 0,6; 0,3; 0,1 bằng bao nhiêu?","406,3","408,3","409,5","412,0",B,"Giá trị dự báo = (0,6 × 408) + (0,3 × 412) + (0,1 × 399) = 244,8 + 123,6 + 39,9 = 408,3.","Forecasting (QMB ch. 6b), tr. 6; Forecasting (QMB ch. 6b), tr. 9; Forecasting (QMB ch. 6b), tr. 10","The number of plumbing repair jobs performed by Auger's Plumbing Service in the last nine months is
+listed on the right.
+Forecast the number of repair jobs Auger's will perform in December using the least squares method.
+Month Jobs March 353
+April 387
+May 342
+June 374
+July 396
+August 409 September 399 October 412 November 408 Month Jobs
+---
+Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408
+---
+- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+76,E5-076,Trung bình trượt và trung bình trượt có trọng số,"Trong ví dụ Auger's Plumbing Service, tại sao phương pháp trung bình trượt có trọng số lại tạo ra dự báo bị tụt lại phía sau (lagging behind) dữ liệu đang thay đổi?",Do chuỗi thời gian có thành phần xu thế dương (positive trend component),Do dữ liệu có tính chu kỳ mùa vụ mạnh,Do chọn số thời kỳ k quá lớn (k = 9),Do trọng số đặt vào thời kỳ gần nhất quá nhỏ,A,Kết luận trong tài liệu nêu rõ nguyên nhân là do sự tồn tại của thành phần xu thế dương (positive trend component) trong chuỗi thời gian.,"Forecasting (QMB ch. 6b), tr. 10","- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+77,E5-077,Trung bình trượt và trung bình trượt có trọng số,"Theo kết luận trong tài liệu, ngay cả khi đặt trọng số cao (0,6) vào thời kỳ hiện tại, phương pháp trung bình trượt có trọng số vẫn gặp hạn chế gì khi chuỗi có xu thế dương?",Dự báo vượt xa giá trị xu thế thực tế,Tạo ra kết quả dự báo tụt lại phía sau sự biến đổi của dữ liệu,Làm mất hoàn toàn tính ngẫu nhiên của chuỗi,Không thể tính toán được sai số bình phương trung bình,B,"Tài liệu chỉ ra rằng trung bình trượt có trọng số, ngay cả khi đặt trọng số lớn (0,6) cho thời kỳ hiện tại, vẫn tạo ra dự báo bị tụt lại phía sau dữ liệu đang thay đổi.","Forecasting (QMB ch. 6b), tr. 10","- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+78,E5-078,Trung bình trượt và trung bình trượt có trọng số,"Trong bảng số liệu của Auger's Plumbing Service, số công việc sửa chữa thực tế của tháng 9 (dữ liệu cũ nhất trong mô hình 3 thời kỳ dự báo cho tháng 12) là bao nhiêu?",396,409,399,412,C,"Theo bảng số liệu trong tài liệu, số công việc thực hiện trong tháng 9 (September) là 399.","Forecasting (QMB ch. 6b), tr. 6; Forecasting (QMB ch. 6b), tr. 9","The number of plumbing repair jobs performed by Auger's Plumbing Service in the last nine months is
+listed on the right.
+Forecast the number of repair jobs Auger's will perform in December using the least squares method.
+Month Jobs March 353
+April 387
+May 342
+June 374
+July 396
+August 409 September 399 October 412 November 408 Month Jobs
+---
+Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408",,,,,,,,,,
+79,E5-079,Trung bình trượt và trung bình trượt có trọng số,"Khi tính dự báo trung bình trượt có trọng số cho tháng 12 với k = 3, giá trị thực tế của tháng nào nhận trọng số thấp nhất (0,1)?",Tháng 8,Tháng 9,Tháng 10,Tháng 11,B,"Trọng số 0,1 được gán cho dữ liệu cũ nhất trong ba tháng, tức là tháng 9.","Forecasting (QMB ch. 6b), tr. 9; Forecasting (QMB ch. 6b), tr. 10","Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408
+---
+- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+80,E5-080,Trung bình trượt và trung bình trượt có trọng số,"Khi so sánh dự báo tháng 12 giữa phương pháp ngoại suy xu thế (trend projection) và trung bình trượt có trọng số trong điều kiện có xu thế tăng, kết luận nào sau đây là đúng?",Ngoại suy xu thế tạo ra dự báo phù hợp hơn với xu thế hiện hữu so với trung bình trượt có trọng số,Trung bình trượt có trọng số phản ánh xu thế tăng tốt hơn ngoại suy xu thế,Hai phương pháp cho kết quả dự báo hoàn toàn trùng khớp nhau,Ngoại suy xu thế bị trễ nhịp và tụt lại phía sau nhiều hơn trung bình trượt có trọng số,A,"Tài liệu kết luận phương pháp ngoại suy xu thế tạo ra dự báo phù hợp hơn với xu thế hiện hữu, trong khi trung bình trượt có trọng số bị tụt lại phía sau dữ liệu.","Forecasting (QMB ch. 6b), tr. 10","- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+81,E5-081,Làm trơn hàm mũ,"Theo phương pháp bình phương bé nhất (least squares) trong dự báo xu thế tuyến tính, đường xu thế được xác định nhằm tối thiểu hóa đại lượng nào?",Sai số bình phương trung bình (mean square error) giữa giá trị dự báo và giá trị quan sát thực tế,Độ lệch tuyệt đối trung bình (MAD) giữa giá trị dự báo và giá trị quan sát thực tế,Tổng sai số phần trăm tuyệt đối của toàn bộ chuỗi thời gian,Hệ số góc của phương trình đường xu thế,A,Phương pháp bình phương bé nhất xác định đường xu thế duy nhất giúp cực tiểu hóa sai số bình phương trung bình giữa các dự báo đường xu thế và giá trị quan sát thực tế.,"Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+82,E5-082,Làm trơn hàm mũ,"Trong phương trình dự báo xu thế tuyến tính $T_t = b_0 + b_1 t$, biến độc lập và biến phụ thuộc được xác định như thế nào?",Biến độc lập là khoảng thời gian t và biến phụ thuộc là giá trị quan sát thực tế trong chuỗi thời gian,Biến độc lập là giá trị quan sát thực tế và biến phụ thuộc là khoảng thời gian t,Biến độc lập là hệ số chặn và biến phụ thuộc là hệ số góc,Cả hai biến đều là các biến giả đại diện cho các mùa trong năm,A,"Trong phân tích hồi quy cho đường xu thế, khoảng thời gian (t) đóng vai trò là biến độc lập và giá trị thực tế quan sát được là biến phụ thuộc.","Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+83,E5-083,Làm trơn hàm mũ,"Trong phương trình đường xu thế tuyến tính $T_t = b_0 + b_1 t$, hai tham số $b_0$ và $b_1$ lần lượt biểu diễn các đại lượng nào?",$b_0$ là hệ số chặn trục tung (Y-intercept) và $b_1$ là hệ số góc (slope) của đường xu thế,$b_0$ là hệ số góc và $b_1$ là hệ số chặn trục tung của đường xu thế,$b_0$ là giá trị trung bình và $b_1$ là số lượng chu kỳ quan sát,$b_0$ là sai số ngẫu nhiên và $b_1$ là độ dài mùa vụ,A,"Theo công thức của phương pháp bình phương bé nhất, $b_0$ là điểm cắt trục tung (Y-intercept) và $b_1$ là độ dốc (slope) của đường xu thế.","Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+84,E5-084,Làm trơn hàm mũ,"Khi chuỗi thời gian có thành phần xu thế tăng (positive trend), phương pháp trung bình trượt có trọng số bộc lộ nhược điểm gì so với phương pháp chiếu xu thế?",Tạo ra kết quả dự báo bị trễ (lagging behind) so với dữ liệu đang biến đổi,Luôn tạo ra giá trị dự báo vượt xa xu thế thực tế,Không thể gán trọng số lớn hơn cho giai đoạn gần nhất,Bắt buộc phải loại bỏ các giá trị quan sát của các kỳ trước đó,A,"Do có thành phần xu thế dương, phương pháp chiếu xu thế phản ánh sát xu thế hơn, trong khi trung bình trượt có trọng số dù đặt trọng số lớn ở kỳ gần nhất vẫn cho dự báo bị trễ so với dữ liệu biến đổi.","Forecasting (QMB ch. 6b), tr. 10","- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+85,E5-085,Làm trơn hàm mũ,"Khi áp dụng phương pháp trung bình trượt có trọng số 3 kỳ ($k = 3$) để dự báo cho tháng 12 (tháng thứ 10), dữ liệu của 3 tháng nào ngay trước đó sẽ được sử dụng?","Tháng 9, tháng 10 và tháng 11","Tháng 8, tháng 9 và tháng 10","Tháng 6, tháng 7 và tháng 8","Tháng 7, tháng 8 và tháng 9",A,"Dự báo cho tháng 12 là trung bình có trọng số của 3 tháng ngay trước đó: tháng 9, tháng 10 và tháng 11.","Forecasting (QMB ch. 6b), tr. 9; Forecasting (QMB ch. 6b), tr. 10","Linear Trend Projection
+▪ Example: Auger's Plumbing Service
+Forecast for December (Month 10) using a three - period (k = 3) weighted moving average with
+weights of .6, .3, and .1 for the newest to oldest data, respectively. Then, compare this Month 10 weighted moving average forecast with the Month 10 trend projection forecast.
+Month Jobs
+March 353
+April 387
+May 342
+June 374
+July 396
+Month Jobs
+August 409
+Septem. 399
+October 412
+Novem. 408
+---
+- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+86,E5-086,Làm trơn hàm mũ,"Khi một biến định tính (categorical variable) có $k$ mức đại diện cho các mùa, số lượng biến giả (dummy variables) cần thiết để mô hình hóa là bao nhiêu?",k – 1,k,k + 1,2k,A,"Quy tắc nêu rõ khi một biến định tính có k mức, ta cần k – 1 biến giả để đưa vào mô hình.","Forecasting (QMB ch. 6b), tr. 16","- We will treat the season as a categorical variable.
+- Recall that when a categorical variable has k levels, k – 1 dummy variables are required.
+- If there are four seasons, we need three dummy variables.
+- Qtr1 = 1 if Quarter 1, 0 otherwise
+- Qtr2 = 1 if Quarter 2, 0 otherwise
+- Qtr3 = 1 if Quarter 3, 0 otherwise
+- Example: Umbrella Sales
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model is:
+<!-- formula-not-decoded -->
+- The forecasts of quarterly sales in year 6 are:
+- Quarter 1: Sales = 95 + 29(1) + 57(0) + 26(0) = 124
+- Quarter 2: Sales = 95 + 29(0) + 57(1) + 26(0) = 152
+- Quarter 3: Sales = 95 + 29(0) + 57(0) + 26(1) = 121
+- Quarter 4: Sales = 95 + 29(0) + 57(0) + 26(0) = 95
+Seasonality without Trend",,,,,,,,,,
+87,E5-087,Làm trơn hàm mũ,"Trong bài toán chuỗi thời gian có 4 quý không có xu thế, cần sử dụng bao nhiêu biến giả để mô hình hóa yếu tố mùa vụ?",3 biến giả,4 biến giả,2 biến giả,1 biến giả,A,"Nếu có 4 mùa (quý), áp dụng quy tắc k – 1 mức thì cần 3 biến giả (Qtr1, Qtr2, Qtr3).","Forecasting (QMB ch. 6b), tr. 16","- We will treat the season as a categorical variable.
+- Recall that when a categorical variable has k levels, k – 1 dummy variables are required.
+- If there are four seasons, we need three dummy variables.
+- Qtr1 = 1 if Quarter 1, 0 otherwise
+- Qtr2 = 1 if Quarter 2, 0 otherwise
+- Qtr3 = 1 if Quarter 3, 0 otherwise
+- Example: Umbrella Sales
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model is:
+<!-- formula-not-decoded -->
+- The forecasts of quarterly sales in year 6 are:
+- Quarter 1: Sales = 95 + 29(1) + 57(0) + 26(0) = 124
+- Quarter 2: Sales = 95 + 29(0) + 57(1) + 26(0) = 152
+- Quarter 3: Sales = 95 + 29(0) + 57(0) + 26(1) = 121
+- Quarter 4: Sales = 95 + 29(0) + 57(0) + 26(0) = 95
+Seasonality without Trend",,,,,,,,,,
+88,E5-088,Làm trơn hàm mũ,"Đối với chuỗi thời gian có tính mùa vụ nhưng không có xu thế (seasonality without trend), ngoài việc sử dụng hồi quy biến giả, có thể lập dự báo cho các quý năm tiếp theo bằng cách đơn giản nào?",Tính giá trị trung bình của từng quý qua các năm đã có,Lấy giá trị quý tương ứng của năm đầu tiên,Tính trung bình trượt 2 kỳ cho toàn bộ chuỗi dữ liệu,Cộng dồn tất cả các quý rồi chia cho tổng số năm,A,Tài liệu cho biết có thể thu được các dự báo theo quý cho năm tiếp theo bằng cách tính trung bình số lượng bán được trong từng quý.,"Forecasting (QMB ch. 6b), tr. 18","| Year | Quarter 1 | Quarter 2 | Quarter 3 | Quarter 4 |
+|---------|--------------|--------------|--------------|-------------|
+| 1 | 125 | 153 | 106 | 88 |
+| 2 | 118 | 161 | 133 | 102 |
+| 3 | 138 | 144 | 113 | 80 |
+| 4 | 109 | 137 | 125 | 109 |
+| 5 | 130 | 165 | 128 | 96 |
+| Average | 124 | 152 | 121 | 95 |
+- We could have obtained the quarterly forecasts for next year by simply computing the average number of umbrellas sold in each quarter.",,,,,,,,,,
+89,E5-089,Làm trơn hàm mũ,"Trong ví dụ chuỗi thời gian bán hàng theo quý không có xu thế dài hạn, đồ thị chuỗi thời gian cho thấy đặc điểm nào về mô hình mùa vụ?","Quý 1 và Quý 3 có doanh số vừa phải, Quý 2 cao nhất, Quý 4 thấp nhất","Quý 1 cao nhất, Quý 2 và Quý 4 vừa phải, Quý 3 thấp nhất",Doanh số của cả 4 quý dao động ngẫu nhiên và không thể hiện tính mùa vụ,Quý 4 luôn đạt doanh số cao nhất trong năm,A,"Quan sát kỹ đồ thị chuỗi thời gian cho thấy quý 1 và quý 3 có mức bán vừa phải, quý 2 có mức bán cao nhất và quý 4 có xu hướng thấp nhất.","Forecasting (QMB ch. 6b), tr. 14","- Example: Umbrella Sales
+- Time Series Plot
+© 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Umbrella Sales
+- The time series plot does not indicate any long-term trend in sales.
+- However, close inspection of the plot does reveal a seasonal pattern.
+- The first and third quarters have moderate sales,
+- the second quarter the highest sales, and
+- the fourth quarter tends to be the lowest quarter in terms of sales.",,,,,,,,,,
+90,E5-090,Làm trơn hàm mũ,"Để mở rộng phương pháp khớp đường cong khi chuỗi thời gian có cả hiệu ứng mùa vụ và xu thế tuyến tính, ta cần thực hiện điều chỉnh nào?",Đưa thêm một biến bổ sung để đại diện cho thời gian,Tăng số lượng biến giả lên thành k biến giả,Loại bỏ hoàn toàn các biến giả mùa vụ,Đặt trọng số bằng nhau cho tất cả các khoảng thời gian,A,"Khi chuỗi thời gian chứa cả hiệu ứng mùa vụ và xu thế tuyến tính, cách tiếp cận được mở rộng bằng cách đưa thêm một biến bổ sung đại diện cho thời gian.","Forecasting (QMB ch. 6b), tr. 19","- We will now extend the curve - fitting approach to include situations where the time series contains both a seasonal effect and a linear trend.
+- We will introduce an additional variable to represent time.
+Seasonality and Trend",,,,,,,,,,
+91,E5-091,Đo sai số dự báo,"Trong phương pháp bình phương bé nhất (least squares) dùng để xác định đường xu hướng tuyến tính, tiêu chí tối thiểu hóa nào được sử dụng giữa các dự báo và giá trị quan sát thực tế?",Tổng sai số tuyệt đối (Mean Absolute Error),Bình phương sai số trung bình (Mean Square Error),Sai số phần trăm tuyệt đối trung bình (MAPE),Độ lệch chuẩn của sai số dự báo,B,"Theo tài liệu, phương pháp bình phương bé nhất xác định đường xu hướng duy nhất giúp tối thiểu hóa bình phương sai số trung bình (mean square error) giữa giá trị dự báo và giá trị quan sát thực tế.","Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+92,E5-092,Đo sai số dự báo,"Khi xác định đường xu hướng tuyến tính bằng phương pháp bình phương bé nhất, biến độc lập và biến phụ thuộc được xác định như thế nào?",Biến độc lập là khoảng thời gian (t) và biến phụ thuộc là giá trị quan sát thực tế.,Biến độc lập là giá trị quan sát thực tế và biến phụ thuộc là khoảng thời gian (t).,Cả hai biến đều là các quan sát thực tế ở các thời kỳ khác nhau.,Biến độc lập là sai số dự báo và biến phụ thuộc là khoảng thời gian (t).,A,Tài liệu nêu rõ: biến độc lập là khoảng thời gian (the time period) và biến phụ thuộc là giá trị quan sát thực tế trong chuỗi thời gian.,"Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+93,E5-093,Đo sai số dự báo,"Trong phương trình dự báo xu hướng tuyến tính Tt = b0 + b1*t, các tham số b0 và b1 đại diện cho những thành phần nào?",b0 là độ dốc (slope) và b1 là hệ số chặn trục Y (Y-intercept),b0 là sai số bình phương trung bình và b1 là số lượng quan sát,b0 là hệ số chặn trục Y (Y-intercept) và b1 là độ dốc (slope) của đường xu hướng,b0 là giá trị trung bình của chuỗi và b1 là trọng số thời gian,C,"Theo công thức trong tài liệu: b0 là Y-intercept của đường xu hướng tuyến tính, và b1 là slope (độ dốc) của đường xu hướng tuyến tính.","Forecasting (QMB ch. 6b), tr. 3","- If a time series exhibits a linear trend, the method of least squares may be used to determine a trend line (projection) for future forecasts.
+- Least squares, also used in regression analysis, determines the unique trend line forecast which minimizes the mean square error between the trend line forecasts and the actual observed values for the time series.
+- The independent variable is the time period and the dependent variable is the actual observed value in the time series.
+- Using the method of least squares, the formula for the trend projection is:
+<!-- formula-not-decoded -->
+where: Tt Tt = linear trend forecast in period t b 0 = Y - intercept of the linear trend line b 1 = slope of the linear trend line t = the time period
+- For the trend projection equation Tt Tt = b 0 + b 1 t",,,,,,,,,,
+94,E5-094,Đo sai số dự báo,"Theo kết luận từ ví dụ Auger's Plumbing Service, tại sao mô hình bình quân di động có trọng số lại tụt lại phía sau (lagging behind) dữ liệu đang biến đổi?",Do chuỗi thời gian tồn tại thành phần tính mùa vụ rất mạnh,Do chuỗi thời gian có thành phần xu hướng dương,"Do trọng số đặt vào giai đoạn gần nhất quá nhỏ (chỉ 0,1)",Do số lượng kỳ dữ liệu quan sát quá ít (dưới 3 kỳ),B,"Tài liệu nêu rõ do thành phần xu hướng dương (positive trend component) trong chuỗi thời gian, bình quân di động có trọng số dù đặt trọng số lớn (0,6) vào kỳ hiện tại vẫn tạo ra dự báo bị tụt lại phía sau dữ liệu.","Forecasting (QMB ch. 6b), tr. 10","- Example: Auger's Plumbing Service
+- Three - Month Weighted Moving Average
+The forecast for December will be the weighted average of the preceding three months: September, October, and November.
+<!-- formula-not-decoded -->
+- Trend Projection
+<!-- formula-not-decoded -->
+- © 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Auger's Plumbing Service
+- Conclusion
+Due to the positive trend component in the time series, the trend projection produced a forecast that is more in line with the trend that exists. The weighted moving average, even with heavy (.6) weight placed on the current period, produced a forecast that is lagging behind the changing data.",,,,,,,,,,
+95,E5-095,Đo sai số dự báo,"Khi mô hình hóa yếu tố mùa vụ dạng biến định tính (categorical variable) có k mức (k levels), cần sử dụng bao nhiêu biến giả (dummy variables)?",k biến giả,k + 1 biến giả,k - 1 biến giả,2k biến giả,C,Tài liệu chỉ ra rằng khi một biến định tính có k mức thì cần sử dụng k - 1 biến giả (dummy variables).,"Forecasting (QMB ch. 6b), tr. 16","- We will treat the season as a categorical variable.
+- Recall that when a categorical variable has k levels, k – 1 dummy variables are required.
+- If there are four seasons, we need three dummy variables.
+- Qtr1 = 1 if Quarter 1, 0 otherwise
+- Qtr2 = 1 if Quarter 2, 0 otherwise
+- Qtr3 = 1 if Quarter 3, 0 otherwise
+- Example: Umbrella Sales
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model is:
+<!-- formula-not-decoded -->
+- The forecasts of quarterly sales in year 6 are:
+- Quarter 1: Sales = 95 + 29(1) + 57(0) + 26(0) = 124
+- Quarter 2: Sales = 95 + 29(0) + 57(1) + 26(0) = 152
+- Quarter 3: Sales = 95 + 29(0) + 57(0) + 26(1) = 121
+- Quarter 4: Sales = 95 + 29(0) + 57(0) + 26(0) = 95
+Seasonality without Trend",,,,,,,,,,
+96,E5-096,Đo sai số dự báo,"Trong ví dụ bán ô (Umbrella Sales) với chuỗi thời gian mang tính mùa vụ không có xu hướng, dự báo doanh số quý cho năm tiếp theo có thể thu được bằng cách nào mà không cần dùng phương trình hồi quy phức tạp?",Lấy giá trị của quý tương ứng ở năm đầu tiên,Tính giá trị trung bình của các quý trong cùng năm gần nhất,Tính doanh số bán ô trung bình ở mỗi quý qua các năm,Lấy doanh số quý lớn nhất trừ đi doanh số quý nhỏ nhất,C,Đoạn [C14] nêu rõ: 'We could have obtained the quarterly forecasts for next year by simply computing the average number of umbrellas sold in each quarter'.,"Forecasting (QMB ch. 6b), tr. 18","| Year | Quarter 1 | Quarter 2 | Quarter 3 | Quarter 4 |
+|---------|--------------|--------------|--------------|-------------|
+| 1 | 125 | 153 | 106 | 88 |
+| 2 | 118 | 161 | 133 | 102 |
+| 3 | 138 | 144 | 113 | 80 |
+| 4 | 109 | 137 | 125 | 109 |
+| 5 | 130 | 165 | 128 | 96 |
+| Average | 124 | 152 | 121 | 95 |
+- We could have obtained the quarterly forecasts for next year by simply computing the average number of umbrellas sold in each quarter.",,,,,,,,,,
+97,E5-097,Đo sai số dự báo,"Trong ví dụ Umbrella Sales, thứ tự mức doanh số giữa các quý được quan sát thấy như thế nào qua đồ thị chuỗi thời gian?","Quý 1 cao nhất, Quý 2 và 3 vừa phải, Quý 4 thấp nhất","Quý 2 cao nhất, Quý 1 và 3 vừa phải, Quý 4 thấp nhất","Quý 4 cao nhất, Quý 2 thấp nhất, Quý 1 và 3 vừa phải","Quý 3 cao nhất, Quý 1 thấp nhất, Quý 2 và 4 vừa phải",B,"Tài liệu chỉ ra: Quý 1 và 3 có doanh số trung bình (moderate), Quý 2 có doanh số cao nhất, và Quý 4 có xu hướng thấp nhất.","Forecasting (QMB ch. 6b), tr. 14","- Example: Umbrella Sales
+- Time Series Plot
+© 2013 Cengage Learning. All Rights Reserved. May not be scanned, copied or duplicated, or posted to a publicly accessible website, in whole or in part.
+- Example: Umbrella Sales
+- The time series plot does not indicate any long-term trend in sales.
+- However, close inspection of the plot does reveal a seasonal pattern.
+- The first and third quarters have moderate sales,
+- the second quarter the highest sales, and
+- the fourth quarter tends to be the lowest quarter in terms of sales.",,,,,,,,,,
+98,E5-098,Đo sai số dự báo,"Khi mở rộng mô hình để xử lý một chuỗi thời gian vừa có tác động mùa vụ vừa có xu hướng tuyến tính, người ta đưa thêm biến nào vào mô hình?",Biến đại diện cho sai số ngẫu nhiên,Biến bổ sung để đại diện cho thời gian,Biến trọng số mũ của kỳ trước,Biến chỉ số giá cả tiêu dùng,B,Đoạn [C15] nêu: 'We will introduce an additional variable to represent time' khi chuỗi chứa cả hiệu ứng mùa vụ và xu hướng tuyến tính.,"Forecasting (QMB ch. 6b), tr. 19","- We will now extend the curve - fitting approach to include situations where the time series contains both a seasonal effect and a linear trend.
+- We will introduce an additional variable to represent time.
+Seasonality and Trend",,,,,,,,,,
+99,E5-099,Đo sai số dự báo,"Trong ví dụ Terry's Tie Shop với 3 mùa trong năm (Giáng sinh, Ngày của Cha, và các thời gian khác), cần xác định bao nhiêu biến giả trong mô hình?",1 biến giả,2 biến giả,3 biến giả,4 biến giả,B,"Đoạn [C18] nêu: 'There are three seasons, so we will need two dummy variables' (Seas1 và Seas2).","Forecasting (QMB ch. 6b), tr. 22","- Example: Terry's Tie Shop
+- There are three seasons, so we will need two dummy variables.
+- Seas1 t = 1 if Season 1 in time period t, 0 otherwise
+- Seas2 t = 1 if Season 2 in time period t, 0 otherwise
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model
+<!-- formula-not-decoded -->
+Seasonality and Trend",,,,,,,,,,
+100,E5-100,Đo sai số dự báo,"Đối với dữ liệu bán ô (Umbrella Sales) ở đoạn [C13], dự báo doanh số cho Quý 4 năm thứ 6 đạt giá trị là bao nhiêu?",124,152,121,95,D,"Theo đoạn [C13], công thức dự báo Quý 4 là: Sales = 95 + 29(0) + 57(0) + 26(0) = 95.","Forecasting (QMB ch. 6b), tr. 16","- We will treat the season as a categorical variable.
+- Recall that when a categorical variable has k levels, k – 1 dummy variables are required.
+- If there are four seasons, we need three dummy variables.
+- Qtr1 = 1 if Quarter 1, 0 otherwise
+- Qtr2 = 1 if Quarter 2, 0 otherwise
+- Qtr3 = 1 if Quarter 3, 0 otherwise
+- Example: Umbrella Sales
+- General Form of the Equation is:
+<!-- formula-not-decoded -->
+- Optimal Model is:
+<!-- formula-not-decoded -->
+- The forecasts of quarterly sales in year 6 are:
+- Quarter 1: Sales = 95 + 29(1) + 57(0) + 26(0) = 124
+- Quarter 2: Sales = 95 + 29(0) + 57(1) + 26(0) = 152
+- Quarter 3: Sales = 95 + 29(0) + 57(0) + 26(1) = 121
+- Quarter 4: Sales = 95 + 29(0) + 57(0) + 26(0) = 95
+Seasonality without Trend",,,,,,,,,,
