@@ -16,10 +16,10 @@ s=$(herdr pane split "$dev" --direction down --ratio 0.5 --no-focus); qc=$(print
 for p in $pm $ba $dev $qc; do herdr pane run "$p" "cd '$ROOT'"; done
 
 # BA chỉ viết docs → mặc định. DEV/QC sửa file nhiều → acceptEdits; lệnh shell được phép khai ở .claude/settings.json
-herdr agent start ba  --kind claude --pane "$ba"
-herdr agent start dev --kind claude --pane "$dev" -- --permission-mode acceptEdits
-herdr agent start qc  --kind claude --pane "$qc"  -- --permission-mode acceptEdits
-herdr agent start pm  --kind claude --pane "$pm"
+herdr agent start ba  --kind omp --pane "$ba"
+herdr agent start dev --kind omp --pane "$dev"
+herdr agent start qc  --kind omp --pane "$qc" 
+herdr agent start pm  --kind omp --pane "$pm"
 
 herdr agent prompt ba  "Bạn là BA. Đọc docs/team/BA.md và CLAUDE.md, rồi trả lời 'BA sẵn sàng' và chờ PM giao việc." --wait --timeout 180000 >/dev/null
 herdr agent prompt dev "Bạn là Dev. Đọc docs/team/DEV.md và CLAUDE.md, rồi trả lời 'Dev sẵn sàng' và chờ PM giao việc." --wait --timeout 180000 >/dev/null
