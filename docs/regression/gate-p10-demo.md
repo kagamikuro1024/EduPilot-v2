@@ -353,3 +353,12 @@ Không tạo / không đổi: mã tham gia lớp, mật khẩu, tài khoản, b�
 | Ngày | Phase vừa xong | Bước xa nhất chạy thật | Tổng thời gian | Tầng | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
 | 2026-11-25 | Gate P10 (main 23c97510) | Bước 8 (đủ 8 bước) | không đo được trọn kịch bản (xem mục 2); chuẩn bị #3 ≈ 12–13 phút | Tầng 2 (LLM giả) | Bước 7 đỏ với embedding giả; 4 phát hiện giao diện; 7 điều kiện seed chưa đủ (mục 5) |
+
+## L2.7 Dò lại sau sửa (ep-qc, HEAD sprint/11-p10-eval 7ad0d062)
+
+Rebuild ep-qc gateway + worker + frontend lên 7ad0d062 (từng service, RAM ≥ 2500 MB; migrate: 0 mới, version 29). Lớp QC `QD10Q` (không 761987/88; thêm 1 buổi hôm nay bằng SQL vào ep-qc, bật «Điểm danh bằng mã», sv36 quét QR, GV Đóng → Đánh vắng → Lưu).
+
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| GP10-06 (810c16fe): `/me` hàng «Điểm danh lúc hh:mm» cho buổi «Có mặt» | **P** | sv36 `/me` ở 1440 và 375 px: «Bạn có mặt 1/1 buổi, vắng 0.» + «Buổi 1 · 25/11 — Có mặt · Điểm danh lúc 07:20»; `evidence-gp10-06/me-1440.png`, `me-375.png` |
+| GP10-08 (7ad0d062): cụm 0 câu mẫu không gửi LLM đặt tên | **P** | `go test ./internal/insight -run TestKnowledgeGap -count=1` xanh (cả `TestKnowledgeGapNameZeroSample` PASS) từ worktree 7ad0d062 |
