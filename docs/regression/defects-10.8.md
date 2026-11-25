@@ -61,4 +61,4 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 - Bước tái hiện: `adb shell settings put system font_scale 2.0` → mở `/checkin` (màn nhập mã)
 - Kỳ vọng (CL-4): không cắt chữ, dock không che lỗi, nút chạm được · Thực tế: dock «Điểm danh» 699..752 px, thanh điều hướng 728..816 px ⇒ **đè 24/53 px (45 %)** chiều cao nút; nhãn nav xuống 2 dòng. Ở 1,3× không đè (dock 708..752, nav 759..816)
 - Bằng chứng: `docs/regression/evidence-mobile-android/shots/{CL-4-font-2.0-measure,CL-4-font-2.0,CL-4-font-1.3-measure}.png`
-- Trạng thái: MỞ
+- Trạng thái: ĐÓNG — sửa f6113582, qc2 chạy lại 26/11 trên VPS f6113582: dock 695..748, nav 756..816 (không đè, gap 8 px), nhãn nav một dòng. Còn quan sát: nhãn nav rút gọn ellipsis ở 2,0×.

@@ -100,3 +100,13 @@ Lượt chạy dừng vì hai chặn kỹ thuật của emulator, ghi rõ ở §
 - **Vẫn chưa kết luận:** GEO-03 (GEO_OUT) và GEO-05 (GEO_WEAK) vì phiên app rơi về `/login` giữa lượt (đăng nhập lại bị 429 sau nhiều lần thử). Cần dev nới rate-limit IP Mac hoặc cho tôi một phiên dài.
 - **TalkBack:** chưa bật (cần phiên ổn định để vào `/checkin`).
 - **DEF-R10.8-07** đã được dev sửa f6113582; PM sẽ báo khi VPS cập nhật để tôi chạy lại CL-4 (chưa chạy lại).
+
+## 9. Lượt 5 (26/11, VPS f6113582, rate-limit đã nới)
+
+Tổng sau lượt: **34 TC = 28 P, 0 F, 6 N.**
+
+- **TC-MOB-CL-4 chạy lại: P.** Cỡ chữ 2,0×: dock 695..748, nav 756..816 (không đè, gap 8 px), nhãn nav một dòng; DEF-R10.8-07 ĐÓNG (sửa f6113582). Còn quan sát: nhãn nav bị ellipsis («Hôm …», «Luyệ…»).
+- **TC-MOB-GEO-03: P.** Mock 21,1000/105,9000 + geofence 21,0285/105,8542 r200: `GEO_OUT`, `geo_distance_m`=9263, accuracy 5, channel CODE; kèm cờ `GEO_MOCK` (đúng US-AS-12 AC5 — mockNow nhận ra vị trí giả).
+- **TC-MOB-GEO-05: N.** Mock hết hạn giữa lượt ⇒ geolocation timeout, lượt treo ở dòng thông báo vị trí, không có dòng DB. Cần mock tự làm mới suốt lượt; chạy lại lượt sau.
+- **Chưa chạy trong lượt 5:** SCN, SAF-04…10, THM-02…08, NAV-02/03/05…12, PRM-02…10, LIF, A11 (TalkBack), DEV, CL-3/5…12/14…16, INS-08/13.
+- **Cách làm đã chốt để lượt sau chạy nhanh:** form login trong WebView; mock vị trí `adb root` + test provider gửi lặp 1 s; đổi geofence bằng PUT teacher (nhớ trả lại); DB chỉ đọc qua `ssh edupilot-vps docker exec edupilot-postgres-1 psql`.

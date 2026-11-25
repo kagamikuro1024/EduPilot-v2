@@ -8,10 +8,10 @@
 
 | Trạng thái | Số mã |
 |---|---|
-| ĐÓNG | 203 |
+| ĐÓNG | 204 |
 | ĐÃ SỬA, CHỜ XÁC NHẬN | 0 |
 | RÚT (không phải lỗi sản phẩm) | 8 |
-| MỞ | 1 |
+| MỞ | 0 |
 | Nợ PR | 0 |
 | **Tổng** | **212** |
 
@@ -283,7 +283,7 @@ Lấy từ trường «Hồi quy do sprint sau?» hoặc chữ «Không phải h
 | 10.8 | DEF-R10.8-04 | Thấp | TC-AS11-07 | ĐÓNG | sửa b3c039c0 | lọt sprint gốc | nút «Quét mã điểm danh» hiện cả khi qr_code không được hỗ trợ |
 | 10.8 | DEF-R10.8-05 | Trung bình | TC-AS11-17=F | ĐÓNG | sửa dea5f197 (qc2 xác nhận 26/11: AC7(a) Back đóng khung quét, ở lại app) | không ghi | Back khi đang quét QR đưa cả app Android ra launcher thay vì đóng khung quét |
 | 10.8 | DEF-R10.8-06 | Cao | TC-AS11-17=F | ĐÓNG | sửa e8b2162d | không ghi | gateway không nhận APP_PUBLIC_URL: qr_url / join_url / feed lịch dựng từ https://localhost |
-| 10.8 | DEF-R10.8-07 | Thấp | TC-MOB-CL-4=F | MỞ | — (cỡ chữ 2,0×: dock bị nav đè 45 %) | không rõ | cỡ chữ hệ thống 2,0× làm dock «Điểm danh» bị thanh điều hướng đè trên /checkin |
+| 10.8 | DEF-R10.8-07 | Thấp | TC-MOB-CL-4=F | ĐÓNG | sửa f6113582 (qc2 xác nhận: dock không còn bị nav đè) | không rõ | cỡ chữ hệ thống 2,0× làm dock «Điểm danh» bị thanh điều hướng đè trên /checkin |
 | opencode-go | DEF-OC-SI-01 | Thấp | TC-OC-70 | ĐÓNG | sửa 55664e51 | không ghi | log structured_invalid còn chép một phần nội dung đầu ra của mô hình |
 
 TC ghi riêng mã: mặc định dòng cuối là P; `=LT` là TC lỗi thời đã xoá có nguồn (không còn dòng trong smoke).
