@@ -677,19 +677,43 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-ENT-20 | P | «Hôm nay» 390: hàng buổi + liên kết không tràn ngang | run1/shots/ENT-06-10-today-390.png |
 | TC-MOB-A11-01 | P | axe /checkin Chromium 390: 0 vi phạm (0 critical/serious) | — |
 | TC-MOB-A11-16 | P | /checkin: lang=vi, title «Điểm danh · EduPilot» | — |
-| TC-MOB-A11-09 | — | Chưa đo đúng: lần chạy đầu đọc nhầm trang «Hôm nay» (không có ô mã). Chạy lại ở lượt sau | — |
 | TC-MOB-SEC-01 | P | Luồng token 63 ký tự: 0/31 request chứa token; hash rỗng sau khi tải | run1/shots/SEC-01-token-flow.png |
 | TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
 | TC-MOB-SEC-18 | P | localStorage không có token (chỉ ep_demo_state/ep_returning); document.cookie không thấy ep_rt | — |
 | TC-MOB-NAV-12 | P | Token flow: 1 POST /checkins; Back/Forward không gửi lại, không lặp lỗi | run1/shots/NAV-12-back-forward.png |
+| TC-MOB-THM-06 | P | `color-scheme: dark` (Chromium): nền body vẫn rgb(255,255,255), color-scheme=light; axe WCAG AA 0 vi phạm | run1/shots/THM-06-dark.png |
+| TC-MOB-PRM-10 | P | QC3M1 geo_check=false: không dòng «Lớp này kiểm tra vị trí…», 0 request định vị | — |
+| TC-MOB-NAV-02 | P | Token flow: Back/Forward sau «Đã điểm danh» không gửi lại (POST=1), không hiện lỗi cũ | run1/shots/NAV-02-back.png |
+| TC-MOB-NAV-03 | P | Mở liên kết khi chưa đăng nhập → /login → tự gửi 1 lần → «Đã điểm danh»; Back về «/» (không vòng /login) | run1/shots/NAV-03-login-back.png |
+| TC-MOB-PRF-07 | P | POST→phản hồi 12 ms; phản hồi→«Đã điểm danh» 12 ms (VPS, ngưỡng QC ≤ 2000 ms) | — |
+| TC-MOB-A11-09 | P | Ô «Mã điểm danh» có nhãn thật «Mã điểm danh» (h1 «Điểm danh»); 18 svg, 0 svg không aria-hidden | run1/shots/A11-09-label.png |
+| TC-MOB-DAT-07 | P | `bash scripts/ui-antipatterns.sh` trên VPS: toàn bộ phép ✓ (0 vi phạm) | — |
+| TC-MOB-DAT-03 | P | `e2e/attendance-checkin.spec.ts` dự án `mobile` trên VPS: **14/14 passed** (22,0 s) — gồm 429 đếm ngược, lớp kiểm tra vị trí, chưa đăng nhập, giảng viên bị chặn | — |
+| TC-MOB-NAV-11 | P | Mở / → /calendar → /checkin: Back 1 = /calendar, Back 2 = / (ngăn xếp đúng, không vòng) | run1/shots/NAV-11-stack.png |
+| TC-MOB-PRF-04 | P | Mobile 4G chậm (1,6 Mbps, RTT 150 ms) + CPU 4× bằng CDP trên Chromium (giữ phiên đăng nhập — lhci không mang được Bearer): LCP=780 ms (trần 2500), CLS=0,000 (trần 0,1), long task=0 (TBT≈0, trần 200), load=653 ms | run1/shots/PRF-04-throttled.png |
+| TC-MOB-DAT-01 | N | Chưa có stack test riêng có seed trên VPS trong lượt này: demo `edupilot` bị cấm đụng, `ep-eval-*` thuộc đợt eval của người khác, `docker exec` vào đó sẽ đổi dữ liệu. Cần dev3 cấp stack test riêng (hoặc chạy trên CI) rồi lặp lại | — |
+| TC-MOB-DAT-02 | N | Như DAT-01: `gateway admin purge-checkins` phải chạy trong stack test riêng; không có trong lượt này | — |
+| TC-MOB-DAT-04 | — | `k6` KHÔNG có trên VPS (`which k6` → không có) ⇒ để CI (kịch bản `benchmarks/load/checkin.js` chạy ở pipeline tải) | — |
 
-**Chưa chạy trong pha 1** (không tính F): 6.J `THM-01…05,07,08` (thiết bị), `THM-06` (axe chế độ tối — chờ lượt chạy tiếp); 6.L `NAV-01…11` (phần Back trên thiết bị + bàn phím); 6.M `PRM-01…09,11,12` (quyền trên thiết bị); 6.Q `A11-02…08,10…15` (TalkBack/VoiceOver thiết bị); 6.T còn `SEC-02…06,08…17` (logcat/Keystore/APK); 6.V `PRF-01…03,05,06,08` (thiết bị) và `PRF-04,07` (Lighthouse/trace); 6.W `DAT-01…07`.
+**Chưa chạy trong pha 1** (không tính F): 6.J `THM-01…05,07,08` (thiết bị); 6.L `NAV-01…11` (phần Back trên thiết bị + bàn phím); 6.M `PRM-01…09,11,12` (quyền trên thiết bị); 6.Q `A11-02…08,10…15` (TalkBack/VoiceOver thiết bị); 6.T còn `SEC-02…06,08…17` (logcat/Keystore/APK); 6.V `PRF-01…03,05,06,08` (thiết bị); 6.W `DAT-05` (lược đồ) + `DAT-06` (axe — đã P ở A11-01).
 
 **Quan sát (chưa phải lỗi, chờ PM/BA):**
 - Thanh bên 1024 px thu gọn nhãn: mục nav chỉ còn biểu tượng 55×34 px (nhãn nằm ở `aria-label`). Luật DESIGN «điều hướng chính trên desktop luôn có nhãn chữ» — nếu buộc áp cho 1024 thì cần quyết định thiết kế; AC13 chỉ áp 360–430 nên **không** tính F.
 - Bộ chọn lớp không có mục «Tất cả lớp của tôi» (105 mục, đều là lớp cụ thể) trong khi ENT-19 giả định có thể có.
 - `GET /me/today` giới hạn timeline 8 mục: sinh viên nhiều lớp có thể không thấy buổi của lớp cần điểm danh (đã gặp với sv.gioi 9 lớp). AC16(b) không nói tới giới hạn này.
 - `/checkin` không đặt `Referrer-Policy` (chỉ các trang liên kết một lần) — token nằm ở fragment và đã bị xoá nên rủi ro thấp.
+
+
+### 9.2 Pha 2 — Android emulator (qc2, 25–26/11/2026)
+Nguồn: `docs/sprints/10.8/qc/tc-mobile-run-android.md` (qc2; AVD `ep-api36` Android 16/API 36, WebView Chrome 133, APK debug HEAD `cd843318`, `APP_SERVER_URL` = VPS; số mới nhất theo lô 5, qc2 `eb88c798`). **34 TC = 28 P, 0 F, 6 N** — chi tiết từng ca + ảnh ở tệp đó và `docs/regression/evidence-mobile-android/`.
+
+- **Đã đóng sau khi chạy lại (lô 5, VPS `f6113582`):**
+  - `TC-MOB-CL-4` = **P**: cỡ chữ 2,0× dock 695..748, nav 756..816 (không đè, cách 8 px), nhãn nav một dòng ⇒ **DEF-R10.8-07 ĐÓNG** (sửa `f6113582`). Còn quan sát: nhãn nav bị ellipsis («Hôm …», «Luyệ…»).
+  - `TC-MOB-GEO-03` = **P**: mock 21,1000/105,9000 + geofence 21,0285/105,8542 r200 ⇒ `GEO_OUT`, `geo_distance_m`=9263, accuracy 5, `channel=CODE`, kèm `GEO_MOCK` (đúng US-AS-12 AC5).
+- **N (6):** `INS-01`, `INS-02`, `INS-03`, `INS-09`, `INS-13` (chỉ có APK debug, không Gradle/SDK trên VPS, không AVD API 24–28, Chrome chưa qua màn chào), `GEO-05` (mock hết hạn giữa lượt ⇒ geolocation timeout, không có dòng DB; chạy lại lượt sau).
+- **Chưa chạy (chờ lượt sau):** 6.D `SCN-01…16`, 6.E `GEO-01,04,06…13`, 6.H `SAF-04…10`, 6.J `THM-02…08`, 6.L `NAV-02,03,05…12`, 6.M `PRM-02…10`, 6.O `LIF-01…13`, 6.Q `A11-01,02,04…15` (TalkBack chưa bật), 6.U `DEV-01…14`, checklist `CL-3,5…12,14…16`, `INS-08,13`.
+
+**Cộng dồn pha 1 + pha 2 (khử trùng `A11-16`):** 71 TC có kết quả — **63 P, 0 F, 8 N**.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

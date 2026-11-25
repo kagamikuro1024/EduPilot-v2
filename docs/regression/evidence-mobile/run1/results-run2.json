@@ -1,0 +1,27 @@
+[
+ {
+  "tc": "TC-MOB-THM-06",
+  "kq": "P",
+  "note": "colorScheme=dark: nền body=rgb(255, 255, 255), color-scheme=light; axe contrast=0 vi phạm; tổng vi phạm aa=0"
+ },
+ {
+  "tc": "TC-MOB-PRM-10",
+  "kq": "P",
+  "note": "QC3M1 geo_check=false: dòng «Lớp này kiểm tra vị trí…»=false; request định vị=0"
+ },
+ {
+  "tc": "TC-MOB-NAV-02",
+  "kq": "P",
+  "note": "sau «Đã điểm danh»: Back → \"Bỏ qua điều hướng · QC3 mobile QC3M2 Tìm nhanh hoặc đi đến… \"; Forward → \"Bỏ qua điều hướng · QC3 mobile QC3M2 Tìm nhanh hoặc đi đến… \"; POST=1; lỗi cũ=false"
+ },
+ {
+  "tc": "TC-MOB-NAV-03",
+  "kq": "P",
+  "note": "mở liên kết khi chưa đăng nhập: → /login=true; tự gửi 1 lần=true; «Đã điểm danh»=true; sau Back URL=/"
+ },
+ {
+  "tc": "TC-MOB-PRF-07",
+  "kq": "P",
+  "note": "POST→phản hồi 12 ms; phản hồi→«Đã điểm danh» 12 ms (ngưỡng QC đề xuất ≤ 2000 ms trên VPS)"
+ }
+]
