@@ -65,10 +65,12 @@ export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string;
   useEffect(() => {
     let stream: MediaStream | null = null;
     let timer: ReturnType<typeof setInterval> | null = null;
+    let watchdog: ReturnType<typeof setInterval> | null = null;
     let alive = true;
     const stop = () => {
       alive = false;
       if (timer) clearInterval(timer);
+      if (watchdog) clearInterval(watchdog);
       stream?.getTracks().forEach((t) => t.stop());
       stream = null;
     };
@@ -86,6 +88,22 @@ export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string;
         const el = video.current;
         if (!el) return stop();
         el.srcObject = stream;
+        // DEF-MOB-11 (PRM-09): Android 12+ tắt công tắc Camera toàn máy ⇒ getUserMedia vẫn resolve nhưng track không có khung
+        // (videoWidth 0 / muted / ended), khung quét đen mà màn coi là đang chạy. ~3 s không có khung ⇒ camera hỏng: dừng, về ô nhập mã.
+        // Đặt TRƯỚC `play()`: stream không khung có thể làm `play()` không bao giờ resolve.
+        const t0 = Date.now();
+        watchdog = setInterval(() => {
+          if (!alive) return;
+          const live = (stream?.getVideoTracks() ?? []).some((t) => t.readyState === "live" && !t.muted);
+          if (el.videoWidth > 0 && live) {
+            clearInterval(watchdog!);
+            watchdog = null;
+            return;
+          }
+          if (Date.now() - t0 < 3000) return;
+          stop();
+          cb.current.onDenied("failed");
+        }, 250);
         await el.play();
         setReady(true);
         const det = new (window as unknown as { BarcodeDetector: DetectorCtor }).BarcodeDetector({ formats: ["qr_code"] });
