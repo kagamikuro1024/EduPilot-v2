@@ -110,3 +110,27 @@ Tổng sau lượt: **34 TC = 28 P, 0 F, 6 N.**
 - **TC-MOB-GEO-05: N.** Mock hết hạn giữa lượt ⇒ geolocation timeout, lượt treo ở dòng thông báo vị trí, không có dòng DB. Cần mock tự làm mới suốt lượt; chạy lại lượt sau.
 - **Chưa chạy trong lượt 5:** SCN, SAF-04…10, THM-02…08, NAV-02/03/05…12, PRM-02…10, LIF, A11 (TalkBack), DEV, CL-3/5…12/14…16, INS-08/13.
 - **Cách làm đã chốt để lượt sau chạy nhanh:** form login trong WebView; mock vị trí `adb root` + test provider gửi lặp 1 s; đổi geofence bằng PUT teacher (nhớ trả lại); DB chỉ đọc qua `ssh edupilot-vps docker exec edupilot-postgres-1 psql`.
+
+## 10. Lượt 6 (26/11) — SAF/THM/NAV/PRM/LIF/CL/A11
+
+Tổng sau lượt: **46 TC = 39 P, 0 F, 7 N.**
+
+| TC | Kết quả | Ghi chú ngắn |
+|---|---|---|
+| CL-6 | P | chạm ô → bàn phím mở, ô + nút «Điểm danh» cùng thấy, mã tự viết hoa, không mất |
+| CL-14 | P | mã sai ở QCMOB1: «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» |
+| CL-15 | P | «Thêm» có mục «Điểm danh»; «Hôm nay» có chuỗi «Điểm danh» (P-11-137 đã hiệu lực) |
+| LIF-03 | P | khoá/mở màn: mã đã gõ còn nguyên |
+| LIF-05 | P | `am kill` khi ở nền: mở lại còn phiên, không màn trắng |
+| SAF-04 | P | ngang 819×384 + cutout tall: không cuộn ngang, h1 y=101, nav trong khung |
+| PRM-10 | P | lớp không geofence: không dòng vị trí, không xin quyền, không cờ GEO_* |
+| THM-07 | P | thanh trạng thái đọc được ở cả hai chế độ |
+| A11-02 | P | TalkBack: h1 «Điểm danh» đầu vùng nội dung, thứ tự đúng nhìn |
+| A11-03 | P | ô có nhãn thật «Mã điểm danh» |
+| A11-04 | P | nút/mục đều có tên đọc được |
+| A11-12 | P | thanh dưới: mỗi mục có tên chữ + content-desc, nhóm «Điều hướng chính» |
+| DEV-06 | N | emulator luôn NOT_APP (không chứng thực được) — không phân biệt được trong-app |
+
+**Còn lại:** SCN (cần poster QR + shim), SAF-05…10 (iOS/PWA → pha 3), THM-02/03/05/06/08, NAV-02/03/05/06/08/10/11/12, PRM-02…09/11, LIF-01/02/04/06…13, CL-3/5/7/8/9/10/11/12/16, DEV-01…05/07…14, INS-08/13, GEO-05.
+
+**Ghi chú kỹ thuật:** TalkBack chỉ đọc được khi bật `enabled_accessibility_services` và bấm «Allow» hộp thông báo của Accessibility Suite; cây trợ năng (`uiautomator dump`) khi đó mới lộ nội dung WebView. Lỗi geofence làm nghẽn mọi ca trên lớp có geofence (app chờ định vị) ⇒ dùng lớp QCMOB1 cho ca chữ lỗi.
