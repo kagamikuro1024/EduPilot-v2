@@ -180,7 +180,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | Mã | Kết quả | Lý do / bằng chứng |
 | --- | --- | --- |
 | TGT-01 | **P** | 360 và 430: mọi button/a/input trong main, topbar, thanh dưới ≥ 44×44 |
-| TGT-02 | **F** | /checkin 360: min 8 px, 0 cặp <8 → đạt. /attendance 360: **7 cặp 4 px** — nút mở hàng `.mHead` ↔ nút ghi phát biểu `.mPlus` (gap `--ep-space-1` = 4 px) → **DEF-MOB-05** |
+| TGT-02 | **F** | /checkin 360: min 8 px, 0 cặp <8 → đạt. /attendance 360: **7 cặp 4 px** — nút mở hàng `.mHead` ↔ nút ghi phát biểu `.mPlus` (gap `--ep-space-1` = 4 px) → **DEF-MOB-06** |
 | TGT-03 | **P** | dock đáy 683 = mép trên thanh dưới 683 (không đè); dock 61 px, thanh dưới 57 px |
 | TGT-04 | **N** | uiautomator dump (native) |
 | TGT-05 | **P** | /attendance 375 (GV): mọi nút/hàng ≥ 44×44 |
@@ -191,7 +191,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | Mã | Kết quả | Lý do / bằng chứng |
 | --- | --- | --- |
 | ATT-01 | **P** | 375: mở được buổi, cửa sổ, có «Mở màn chiếu», không cuộn ngang |
-| ATT-02 | **F** | 44×44 ĐẠT ở 375; nhưng TC còn đòi «hai điều khiển kề ≥ 8 px»: trên /attendance 360, `.mHead` ↔ `.mPlus` cách **4 px** (7 cặp) → **DEF-MOB-05** (cùng gốc TGT-02) |
+| ATT-02 | **F** | 44×44 ĐẠT ở 375; nhưng TC còn đòi «hai điều khiển kề ≥ 8 px»: trên /attendance 360, `.mHead` ↔ `.mPlus` cách **4 px** (7 cặp) → **DEF-MOB-06** (cùng gốc TGT-02) |
 | ATT-03 | **P** | TA 360: lưới cuộn trong khung riêng, trang không cuộn ngang |
 | ATT-04 | **N** | safe-area (native) |
 | ATT-05 | **N** | cỡ chữ 2,0× (native) |
@@ -218,7 +218,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | SES-14 | N | **P** | khoá thiết bị (IndexedDB) sống qua đăng xuất; lượt thứ hai cùng `device_id` |
 | ERR-09 | N | **P** | 429 ở lần sai thứ 6 + `Retry-After: 60`, đếm ngược, ô mã bị gỡ, hết giờ về ô nhập |
 | MSG-06 | N | **P** | «Thử lại sau {n} giây.» đếm ngược |
-| TGT-02 | N | **F** | /checkin đạt; /attendance kề 4 px (`.mHead` ↔ `.mPlus`) → DEF-MOB-05 |
+| TGT-02 | N | **F** | /checkin đạt; /attendance kề 4 px (`.mHead` ↔ `.mPlus`) → DEF-MOB-06 |
 | MSG-15 | N | **P** | 6 trạng thái: 0 chuỗi cấm, 0 mã HTTP |
 
 ## Tổng (phần qc)
@@ -244,7 +244,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | DEF-MOB-01 | ~~Thấp~~ **ĐÃ SỬA** (578e809e, nghiệm lại ae069d85: «Lớp này đã được lưu trữ.») | Lớp đã lưu trữ hiện «Lớp này không điểm danh bằng mã.» thay vì câu về lớp lưu trữ (FLW-13) | Máy chủ: lớp ARCHIVED trả `attendance.self_checkin=false`; giao diện chỉ có nhánh "tắt điểm danh" |
 | DEF-MOB-02 | ~~Trung bình~~ **ĐÃ SỬA** (ae069d85: có `Thử lại`, mã giữ nguyên, retry xong `checked_in=1`) | Mất mạng khi gửi **mã ngắn**: có «Chưa có mạng.» nhưng **không có nút `Thử lại`** (đường token thì có) (NET-02, MSG-07) | `CheckinScreen.describe` → `viaCode` chỉ đặt lỗi dưới ô, không gắn `retry` |
 | DEF-MOB-03 | ~~Trung bình~~ **ĐÃ SỬA** (ae069d85: sau 16 s có «Chưa có mạng.», về `entry`) | Máy chủ trả lời POST chậm 20 s: sau 16 s vẫn «đang gửi», không có «Chưa có mạng.» / hết giờ (NET-07) | Gọi `apiClient.post` không có hạn giờ; chỉ đổi trạng thái khi promise kết thúc |
-| DEF-MOB-05 | Thấp | `/attendance` dọc: nút mở hàng `.mHead` và nút ghi phát biểu `.mPlus` cách **4 px** (< 8 px) ở 360 px — 7 cặp (TGT-02, ATT-02) | `AttendanceGrid.module.css` `.mTop { gap: var(--ep-space-1) }` = 4 px |
+| DEF-MOB-06 | Thấp | `/attendance` dọc: nút mở hàng `.mHead` và nút ghi phát biểu `.mPlus` cách **4 px** (< 8 px) ở 360 px — 7 cặp (TGT-02, ATT-02) | `AttendanceGrid.module.css` `.mTop { gap: var(--ep-space-1) }` = 4 px |
 | DEF-MOB-04 | **RÚT** (P-11-143) | Mạng 400 kbit/s + RTT 2 s: khung 5 360 ms — **TC đặt ngưỡng 3 s không neo AC nên TC sai**, không phải lỗi sản phẩm; số đo giữ ở dòng NET-01 làm tham chiếu | — |
 
 ## Ghi chú
