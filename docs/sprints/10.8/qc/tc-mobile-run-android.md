@@ -239,4 +239,4 @@ Tổng: **68 TC = 58 P, 0 F, 10 N.**
 - Quyền vị trí đã reset (`pm clear`): `ACCESS_FINE_LOCATION granted=false`, `ACCESS_COARSE_LOCATION granted=false`.
 - Gửi mã QCMOB2 → **«Đã điểm danh 04:17»** mà KHÔNG hiện hộp quyền.
 - **Nguyên nhân:** settings QCMOB2 = `attendance: require WEB, self_checkin true, late_after_min 15, rotate_seconds 10` — **không có cấu hình geofence**, nên app không gọi geolocation ⇒ không có hộp «Chính xác / Gần đúng». Cần lớp bật geofence rồi chạy lại.
-- Ghi nhận a11y: mục lớp trong sheet «Chọn lớp» là `div`, không phải `button`/`role=option` ⇒ trình đọc màn hình không nhận là lựa chọn.
+- ĐÍNH CHÍNH (PM): mục lớp KHÔNG phải div — `shared/ui/Menu.tsx:110-113` render `<li role=none><button role=menuitem|menuitemradio>`; click JS hỏng do trúng `span` con/thời điểm popover, không phải lỗi a11y. Không báo dev.
