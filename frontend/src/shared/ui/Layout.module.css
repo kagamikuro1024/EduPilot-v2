@@ -38,15 +38,15 @@
 .review { grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); } /* 55 / 45 */
 .splitMain, .splitAside { min-width: 0; }
 /* half + fill: hai panel cao đúng phần còn lại của màn, mỗi panel cuộn riêng (duyệt bài: bài làm | chấm) */
-.split[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 12rem); min-height: 28rem; align-items: stretch; }
+.split[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar-safe) - 12rem); min-height: 28rem; align-items: stretch; }
 .split[data-ep-split-fill] > * { min-height: 0; display: grid; }
 .split[data-ep-split-fill] [data-ep-panel] { overflow-y: auto; min-height: 0; }
 .split[data-ep-split-fill] .splitAside { position: static; }
-.splitAside { position: sticky; top: calc(var(--ep-topbar) + var(--ep-space-6)); }
+.splitAside { position: sticky; top: calc(var(--ep-topbar-safe) + var(--ep-space-6)); }
 
 /* list-detail: một panel sát mép (Panel tự bỏ đệm nhờ :has), danh sách 380 px + chi tiết. `fill` cao đúng phần còn lại của màn; hai ngăn cuộn riêng. */
 .listDetail { display: grid; grid-template-columns: 380px minmax(0, 1fr); min-height: 0; }
-.listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 12rem); min-height: 28rem; }
+.listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar-safe) - 12rem); min-height: 28rem; }
 .listDetail[data-list-collapsed] { grid-template-columns: minmax(0, 1fr); }
 .listDetail[data-list-collapsed] .ldList { display: none; }
 .listDetail[data-pending] > * { visibility: hidden; }
@@ -65,7 +65,7 @@
   .split:not(.review)[data-ep-split-fill] { height: auto; min-height: 0; } /* xếp chồng: mỗi panel cao theo nội dung */
   .split:not(.review)[data-ep-split-fill] [data-ep-panel] { overflow-y: visible; }
   .listDetail { grid-template-columns: 1fr; }
-  .listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 10rem); }
+  .listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar-safe) - 10rem); }
   .ldList { border-right: 0; }
   .listDetail[data-detail-open] .ldList, .listDetail:not([data-detail-open]) .ldDetail { display: none; }
 }
@@ -92,8 +92,7 @@
   .split[data-only="main"] > .splitAside, .split[data-only="aside"] > .splitMain { display: none; } /* chỉ một ngăn: màn có tab */
   .wide { display: none; }
   .dockedOnly { display: none; } /* chỉ có nút chính và nút đó ở thanh dính đáy: không để hàng nút rỗng */
-  .lead { order: -1; flex: 1; }
-  .lead > *, .lead > div, .lead button, .lead a { flex: 1; width: 100%; justify-content: center; }
+  .lead { order: -1; } /* nút phụ duy nhất giữ chiều rộng tự nhiên, căn trái; chỉ nút chính rộng cả màn (§23.2, M13) */
   .narrow { display: inline-flex; }
   .dlRow { grid-template-columns: 1fr; gap: var(--ep-space-1); }
   /* công tắc / trạng thái xuống hàng riêng, không đè ô nào (02-AC15) */

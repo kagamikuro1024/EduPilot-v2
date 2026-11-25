@@ -38,6 +38,22 @@ test("list on mobile: < 720 px mặc định Danh sách; chọn kiểu khác th�
   await expect(page.getByRole("radio", { name: "Tháng" })).toBeChecked();
 });
 
+// M8 + M13 (techlead-ui 2026-11-25): nút phụ duy nhất không rộng cả màn; chế độ Danh sách không lặp tiêu đề «Sắp tới» (control đã nói); hàng sự kiện gọn, không chấm.
+test("M8 @375: «Thêm vào lịch» rộng tự nhiên, không tiêu đề «Sắp tới», hàng sự kiện gọn không chấm", async ({ page, context }, info) => {
+  test.skip(info.project.name === "desktop", "chỉ ca hẹp");
+  await open(page, context, "student", { [`GET ${C}`]: pageOf([exam({ starts_at: at(60), ends_at: at(61) }), item(), session()]) });
+  const w = (await page.getByRole("button", { name: "Thêm vào lịch" }).boundingBox())!.width;
+  expect(w).toBeLessThan(260); // không kéo cả màn (khung 390 − lề)
+  await expect(page.getByRole("radio", { name: "Danh sách" })).toBeChecked();
+  expect(await page.locator("main").innerText()).not.toContain("Sắp tới");
+  const rows = page.locator("[data-ep-action-list] > li");
+  await expect(rows).toHaveCount(3);
+  for (const h of await rows.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeLessThanOrEqual(100); // trước M8: ≈ 115 px
+  const li = (await rows.nth(1).boundingBox())!;
+  const title = (await rows.nth(1).locator("span").first().boundingBox())!;
+  expect(title.x - li.x).toBeLessThanOrEqual(16); // không chấm ở đầu hàng (hàng không phải bài thi sắp tới)
+});
+
 test("month: lưới 7 cột, chip sự kiện, chuyển tháng", async ({ page, context }, info) => {
   test.skip(info.project.name !== "desktop", "đo một lần");
   const calls = await open(page, context, "student");

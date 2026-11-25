@@ -1,0 +1,7 @@
+# Handoff qc2 (2026-11-18, tắt máy)
+Thứ tự cặp 1: 8 → 9.1 → 9.5 → 3 → 4 → 6 → 7 → 5 → 5.5 → 9 → 10 → 10.5 → 10.6 → ca X sprint 1/2.
+- **Sprint 8: 443P / 2F / 67N (tổng 512).** F: TC-05-37 (DEF-R8-A4, dev đã sửa 22387b06, chưa rebuild/chạy lại), TC-05-42 (DEF-R8-A5 Thấp). Còn N: SEED-01..12,14,15,17..19,21,22,24..37 (cần ep-sd đã seed xong), S8-UI (23), 04-05/29/30/31/34, 06-31, 09-23/30/32/33/46. 09-32 và 05-37 chạy lại sau khi rebuild ep-r ở HEAD có 22387b06.
+- **ep-sd (stack tạm, đã docker stop, volume còn):** `docker compose -p ep-sd --env-file .env.local -f docker-compose.local.yml --profile ingest start` (đặt COMPOSE_PROJECT_NAME=ep-sd EP_PORT_OFFSET=1500). Seed dừng ở bước 11 vì docling: tài liệu «Network Security Threats» đang PROCESSING (đã retry qua API). Cần seed lại: `COMPOSE_PROJECT_NAME=ep-sd API_URL=https://localhost:1943/api/v1 MAILPIT_URL=http://localhost:9525 NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/seed.mjs`. Phát hiện chưa ghi thành F: `pnpm dev` mặc định không bật profile ingest nên seed tự chạy dừng ở bước 11/20 (docling) → TC-SEED-21 sẽ F (bằng chứng /tmp/qc2-sd-up.out, có thể đã mất; chạy lại để lấy).
+- Phát hiện: qc3 từng đổi route CHAT sang fake trong cửa sổ khoá; ca LLM thật phải chạy bằng `evidence-8/scripts/s8r-locked.py <script>` (lấy khoá + kiểm route).
+- SmkP: sprint 3 còn 45 N (HANDOFF-smk3-4.md), sprint 4 chưa chạy (244 N+). SmkQ: xem dòng cuối smoke-9.1.md / smoke-9.5.md.
+- Chưa gửi dev lô lỗi sprint 8 cuối (DEF-R8-A5) và chưa đối soát defects-closed.md (nợ PM).

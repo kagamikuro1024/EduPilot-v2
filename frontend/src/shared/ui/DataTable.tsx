@@ -22,6 +22,9 @@ type VirtualProps<T> = {
 const VirtualTable = lazy(() => import("./DataTableVirtual")) as unknown as <T>(props: VirtualProps<T>) => ReactNode;
 
 /** Phân trang con trỏ cho bảng ảo hoá: `onLoadMore(nextCursor)` gọi đúng MỘT lần cho mỗi con trỏ; `nextCursor: null` = hết. */
+/** Ô số kèm đơn vị («436 ms», «Bật ở 1/2 lớp»): chuỗi / số ngắn có chữ số thì không xuống dòng (một chỗ cho mọi bảng). */
+const isShortNumeric = (v: unknown) => (typeof v === "number" || (typeof v === "string" && v.length <= 24 && /\d/.test(v)));
+
 export type Pagination = {
   nextCursor: string | null;
   onLoadMore: (cursor: string) => void;
@@ -230,16 +233,19 @@ export function DataTable<T>({
                     <input type="checkbox" aria-label="Chọn hàng" checked={selection.selected.has(key)} onChange={() => toggle(key)} />
                   </td>
                 )}
-                {columns.map((c) => (
-                  <td
-                    key={c.key}
-                    style={{ textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}
-                    className={[c.frozen ? s.frozen : "", c.nowrap ? s.nowrap : ""].filter(Boolean).join(" ") || undefined}
-                    data-part={c.part}
-                  >
-                    {c.render(row)}
-                  </td>
-                ))}
+                {columns.map((c) => {
+                  const v = c.render(row);
+                  return (
+                    <td
+                      key={c.key}
+                      style={{ textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}
+                      className={[c.frozen ? s.frozen : "", c.nowrap || isShortNumeric(v) ? s.nowrap : ""].filter(Boolean).join(" ") || undefined}
+                      data-part={c.part}
+                    >
+                      {v}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

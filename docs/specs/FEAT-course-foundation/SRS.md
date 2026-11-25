@@ -218,7 +218,7 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 `Overdue` do Provider đặt (P2: `JOIN_REQUEST` có yêu cầu cũ nhất > 48 giờ).
 
 **Khuôn phản hồi:**
-- Sinh viên: `{"no_course":bool,"email_verified":bool,"recommended":Item|null,"timeline":[{at,ends_at,title,place,state:"NOW|NEXT|DONE",course}],"continue":[]}`. `recommended` = mục đầu tiên theo khoá xếp trong các Kind của Sinh viên; `timeline` = buổi hôm nay (`Asia/Ho_Chi_Minh`) + buổi kế trong 7 ngày (tối đa 8).
+- Sinh viên: `{"no_course":bool,"email_verified":bool,"recommended":Item|null,"timeline":[{at,ends_at,title,place,state:"NOW|NEXT|DONE",course,checkin_link:bool}],"continue":[]}`. `recommended` = mục đầu tiên theo khoá xếp trong các Kind của Sinh viên; `timeline` = buổi hôm nay (`Asia/Ho_Chi_Minh`) + buổi kế trong 7 ngày (tối đa 8).
 - Giảng viên / TA: `{"count":n,"actions":[Item],"attention":[],"upcoming":[{at,title,place,course}]}`.
 - Admin: `{"count":n,"actions":[Item]}`.
 - Mọi phản hồi có `ETag` (băm thân) và `Cache-Control: private, no-cache`.

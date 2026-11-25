@@ -1,11 +1,11 @@
 {
   "meta": {
-    "commit": "5233fa86",
-    "timestamp": "2026-11-15T23:05:20.661Z",
+    "commit": "74622a8b",
+    "timestamp": "2026-11-25T14:17:43.783Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
-      "stack": "ep-qc",
+      "stack": "ep-qc (sinh) → ep-eval (duyệt)",
       "model": "QC 9router/ag/gemini-3.8-flash",
       "via": "9router",
       "plan": [
@@ -52,18 +52,22 @@
       ]
     }
   },
-  "status": "WAITING_HUMAN",
-  "reason": "Giảng viên (chủ dự án) mới duyệt 0/100 câu; AC7: ghi cỡ mẫu thật, không nội suy.",
+  "status": "OK",
+  "reason": null,
   "generated": 100,
   "skipped_by_reason": {},
   "review": {
-    "unchanged": 0,
-    "edited": 0,
-    "rejected": 0,
-    "pending": 100
+    "unchanged": 30,
+    "edited": 15,
+    "rejected": 55,
+    "pending": 0
   },
-  "n_reviewed": 0,
-  "rates": null,
+  "n_reviewed": 100,
+  "rates": {
+    "unchanged": 0.3,
+    "edited": 0.15,
+    "rejected": 0.55
+  },
   "llm_calls": 10,
   "latency_ms": {
     "n": 10,
@@ -101,9 +105,9 @@
       "t1": "2026-11-15T21:58:53.869Z",
       "gen_stats": {
         "unchanged": 0,
-        "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "edited": 6,
+        "rejected": 4,
+        "pending": 0
       },
       "audit": [
         {
@@ -147,10 +151,10 @@
       "error": null,
       "t1": "2026-11-15T21:59:25.853Z",
       "gen_stats": {
-        "unchanged": 0,
+        "unchanged": 9,
         "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "rejected": 1,
+        "pending": 0
       },
       "audit": [
         {
@@ -194,10 +198,10 @@
       "error": null,
       "t1": "2026-11-15T21:59:54.917Z",
       "gen_stats": {
-        "unchanged": 0,
+        "unchanged": 2,
         "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "rejected": 8,
+        "pending": 0
       },
       "audit": [
         {
@@ -242,9 +246,9 @@
       "t1": "2026-11-15T22:00:24.429Z",
       "gen_stats": {
         "unchanged": 0,
-        "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "edited": 1,
+        "rejected": 9,
+        "pending": 0
       },
       "audit": [
         {
@@ -289,9 +293,9 @@
       "t1": "2026-11-15T22:01:00.130Z",
       "gen_stats": {
         "unchanged": 0,
-        "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "edited": 4,
+        "rejected": 6,
+        "pending": 0
       },
       "audit": [
         {
@@ -335,10 +339,10 @@
       "error": null,
       "t1": "2026-11-15T22:01:33.880Z",
       "gen_stats": {
-        "unchanged": 0,
+        "unchanged": 9,
         "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "rejected": 1,
+        "pending": 0
       },
       "audit": [
         {
@@ -382,10 +386,10 @@
       "error": null,
       "t1": "2026-11-15T22:01:50.498Z",
       "gen_stats": {
-        "unchanged": 0,
-        "edited": 0,
+        "unchanged": 8,
+        "edited": 2,
         "rejected": 0,
-        "pending": 10
+        "pending": 0
       },
       "audit": [
         {
@@ -429,10 +433,10 @@
       "error": null,
       "t1": "2026-11-15T22:02:15.765Z",
       "gen_stats": {
-        "unchanged": 0,
-        "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "unchanged": 2,
+        "edited": 2,
+        "rejected": 6,
+        "pending": 0
       },
       "audit": [
         {
@@ -480,8 +484,8 @@
       "gen_stats": {
         "unchanged": 0,
         "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "rejected": 10,
+        "pending": 0
       },
       "audit": [
         {
@@ -529,8 +533,8 @@
       "gen_stats": {
         "unchanged": 0,
         "edited": 0,
-        "rejected": 0,
-        "pending": 10
+        "rejected": 10,
+        "pending": 0
       },
       "audit": [
         {
@@ -557,5 +561,58 @@
       "code": "RATE_LIMITED",
       "message": "Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
     }
-  ]
+  ],
+  "rejected_by_reason": {
+    "LAC_DE": 38,
+    "TRUNG_LAP": 14,
+    "KHO_DE_BAT_THUONG": 3
+  },
+  "usable_rate": 0.45,
+  "findings_data": {
+    "answer_key_A": 72,
+    "citation_marker_in_text": 34,
+    "n": 100,
+    "cited_pages": {
+      "lo01": [
+        2,
+        50
+      ],
+      "lo02": [
+        12,
+        50
+      ],
+      "lo03": [
+        2,
+        46
+      ],
+      "lo04": [
+        2,
+        50
+      ],
+      "lo05": [
+        13,
+        50
+      ],
+      "lo06": [
+        2,
+        43
+      ],
+      "lo07": [
+        3,
+        23
+      ],
+      "lo08": [
+        6,
+        10
+      ],
+      "lo09": [
+        3,
+        19
+      ],
+      "lo10": [
+        3,
+        22
+      ]
+    }
+  }
 }

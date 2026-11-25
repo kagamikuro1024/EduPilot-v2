@@ -61,6 +61,9 @@ type Gateway struct {
 
 var _ Client = (*Gateway)(nil)
 
+// RouteSignature là chữ ký tuyến hiện hành của các tác vụ (xem Registry.Signature).
+func (g *Gateway) RouteSignature(tasks ...Task) string { return g.o.Registry.Signature(tasks...) }
+
 // New dựng Gateway.
 func New(o Options) *Gateway {
 	if o.Now == nil {

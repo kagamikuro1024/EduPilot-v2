@@ -83,6 +83,7 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
   const a = data.assignment;
   const key = resumeKey(courseId, id);
   const picker = useRef<HTMLInputElement>(null);
+  const drop = useRef<HTMLDivElement>(null);
   const busy = useRef(false);
   const idem = useRef<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -207,6 +208,7 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
           </InlineNotice>
         )}
         <div
+          ref={drop}
           className={[s.drop, over ? s.over : ""].join(" ")}
           data-part="dropzone"
           role="group"
@@ -234,7 +236,7 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
             }}
           />
           <Button onClick={() => picker.current?.click()}>Chọn tệp</Button>
-          <p className={s.pick} data-part="picked">{file ? file.name : "Kéo thả tệp vào đây"}</p>
+          <p className={s.pick} data-part="picked">{file ? file.name : <span className={s.hint}>Kéo thả tệp vào đây</span>}</p>
         </div>
         {fileError && (
           <p className={s.error} role="alert" data-part="file-error">
@@ -264,6 +266,20 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
           {status}
         </p>
       </PanelSection>
+      <div className={s.dock} data-part="submit-dock" data-ep-header-dock>
+        <Button
+          variant="primary"
+          loading={sending}
+          onClick={() => {
+            if (file) return send();
+            drop.current?.scrollIntoView({ block: "center" });
+            picker.current?.click();
+          }}
+        >
+          {sub ? "Nộp lại" : "Nộp bài"}
+        </Button>
+      </div>
+      <div className={s.dockSpacer} aria-hidden />
     </>
   );
 }

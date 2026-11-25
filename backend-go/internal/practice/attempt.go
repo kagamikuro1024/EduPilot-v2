@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/quiz"
 	"github.com/edupilot/backend-go/internal/store"
@@ -165,7 +166,7 @@ func feedbackOf(sn snapshot, key json.RawMessage, correct *bool) *FeedbackView {
 	if len(c) == 0 {
 		c = json.RawMessage(`[]`)
 	}
-	return &FeedbackView{Correct: correct, Key: key, Explanation: sn.Explanation, Citations: c}
+	return &FeedbackView{Correct: correct, Key: key, Explanation: exam.StripCiteMarkersPtr(sn.Explanation), Citations: c} // câu AI sinh lưu từ trước có thể còn mã đoạn «[C18]»: làm sạch lúc đọc
 }
 
 func itemView(att store.PracticeAttempt, id uuid.UUID, pos int32, optionOrder, key, question json.RawMessage, answer json.RawMessage, correct, locked *bool, ver *int32) (ItemView, error) {
@@ -182,10 +183,10 @@ func itemView(att store.PracticeAttempt, id uuid.UUID, pos int32, optionOrder, k
 	opts := make([]OptionView, 0, len(order))
 	for _, id := range order {
 		if o, ok := byID[id]; ok {
-			opts = append(opts, OptionView(o))
+			opts = append(opts, OptionView{ID: o.ID, Body: exam.StripCiteMarkers(o.Body)})
 		}
 	}
-	v := ItemView{ID: id, Position: int(pos), Question: QuestionView{Type: sn.Type, Topic: sn.Topic, Stem: sn.Stem, Options: opts}}
+	v := ItemView{ID: id, Position: int(pos), Question: QuestionView{Type: sn.Type, Topic: sn.Topic, Stem: exam.StripCiteMarkers(sn.Stem), Options: opts}}
 	if ver != nil {
 		v.Answer = &AnswerView{Answer: answer, Version: int(*ver), Locked: locked != nil && *locked}
 	}

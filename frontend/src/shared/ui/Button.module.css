@@ -32,7 +32,8 @@
 .text { background: transparent; color: var(--ep-red); padding: var(--ep-space-1); min-height: 30px; }
 @media (hover: hover) and (pointer: fine) { .text:hover:not(:disabled, [aria-disabled="true"]) { color: var(--ep-red-hover); text-decoration: underline; text-underline-offset: 3px; } }
 
-.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; }
+/* khoá = nền trung tính, không đỏ mờ (đỏ chỉ mang nghĩa; M6, 11/2026) */
+.btn:disabled, .btn[aria-disabled="true"] { background: var(--ep-surface-subtle); color: var(--ep-ink-3); border-color: var(--ep-rule); }
 .btn[aria-disabled="true"] { cursor: not-allowed; }
 
 /* Lý do nút bị khoá (US-03): hiện khi rê chuột / focus bàn phím; ở màn cảm ứng hiện khi chạm và còn ~3 s sau khi nhả. Chỉ `opacity`. */

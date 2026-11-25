@@ -281,7 +281,7 @@ def md(o, prov, pack):
     L += [f"| {s['a']} | {s['n']} | {f(s['qwk'])} | {f(s['mae'])} | {f(s['pearson'])} |" for s in o["appendix_simulated_teacher"]]
     L += ["", "## Giới hạn", "",
           "- Dữ liệu mô phỏng (D44): 60 bài do `ag/gemini-3.8-flash-medium` sinh theo hồ sơ chất lượng; chưa kiểm chứng trên bài làm thật của sinh viên. Bài sinh và model chấm P1 cùng họ gemini-3.8-flash.",
-          "- E3 chấm tay: **chủ dự án** (chưa thực hiện). Chưa có người chấm độc lập thứ hai nên chưa có mốc QWK người–người.",
+          f"- E3 chấm tay: {lib.LABELER}, 60/60 bài, gán mù (gói không có điểm AI). Chưa có người chấm độc lập thứ hai nên chưa có mốc QWK người–người. P2r1 chỉ có 24/60 bài nên số so với người của P2 tính trên 24 bài.",
           "- QWK tính trên điểm tổng làm tròn về bậc 0,5 (21 hạng). Spearman với «hồ sơ thiết kế» đo việc model tách được tầng chất lượng do người viết đề đặt, không phải điểm chấm.",
           "- Đính chính 9.5 (P-11-26): mẫu S7 của R3 (AI 10,0 so với nhãn giảng viên 8,00) là một điểm lệch lớn của chấm BT03, ghi lại ở đây; R3 «8,0 vs 4,5» là hàng seed bị tính nhầm, không phải AI bị dắt.",
           "- Số đo qua 9router (thuê bao): độ trễ gồm cả proxy; mỗi bài 2 lượt gọi (chấm hai lượt)."]

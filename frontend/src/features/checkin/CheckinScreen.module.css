@@ -5,9 +5,18 @@
 .form { display: grid; gap: var(--ep-space-3); width: min(100%, 320px); text-align: start; justify-items: stretch; }
 .geo { margin: 0; color: var(--ep-ink-2); font-size: var(--ep-text-body); }
 .scanner { display: grid; gap: var(--ep-space-3); width: 100%; justify-items: center; }
-.video { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: var(--ep-canvas); border-radius: var(--ep-radius-md); }
+.video { width: min(100%, max(8rem, calc(100dvh - var(--ep-topbar-safe) - 56px - 15rem))); aspect-ratio: 1 / 1; object-fit: cover; background: var(--ep-canvas); border-radius: var(--ep-radius-md); }
 .dock { display: none; }
 @media (max-width: 719px) {
-  .dock { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) var(--ep-space-4); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+  .dock { position: fixed; inset: auto 0 var(--ep-bottom-h) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) max(var(--ep-space-4), env(safe-area-inset-right, 0px)) var(--ep-space-2) max(var(--ep-space-4), env(safe-area-inset-left, 0px)); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
   .dock button { min-height: 44px; width: 100%; }
+}
+
+/* Ngang, màn thấp (US-AS-15 AC2): khung quét lấp vùng giữa thanh trên và thanh dưới, camera vuông theo chiều cao khả dụng, «Thoát» bên cạnh; không tràn, không bị thanh dưới che */
+@media (orientation: landscape) and (max-height: 500px) {
+  .scanner { position: fixed; inset: var(--ep-topbar-safe) env(safe-area-inset-right, 0px) 0 calc(var(--side, 0px) + env(safe-area-inset-left, 0px)); z-index: calc(var(--ep-z-topbar) - 1); display: flex; justify-content: center; align-items: center; gap: var(--ep-space-4); padding: var(--ep-space-2); background: var(--ep-surface); }
+  .video { width: auto; height: 100%; max-width: 70%; }
+}
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse), (orientation: landscape) and (max-height: 500px) and (max-width: 719px) {
+  .scanner { inset: var(--ep-topbar-safe) env(safe-area-inset-right, 0px) var(--ep-bottom-h) env(safe-area-inset-left, 0px); }
 }

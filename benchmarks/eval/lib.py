@@ -186,7 +186,8 @@ def pct(xs):
 # ---- ghi báo cáo -------------------------------------------------------------------------------------------------------------
 def git_commit():
     try:
-        return subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip() or "unknown"
+        # VPS chạy trên bản rsync không có .git (ep-vps-test): người chạy truyền EVAL_COMMIT = sha worktree
+        return os.environ.get("EVAL_COMMIT") or subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip() or "unknown"
     except OSError:
         return "unknown"
 
@@ -223,9 +224,26 @@ def build_of(image=None, at=None):
     return f"`{hit[0]['sha']}`" if hit else "chưa ghi"
 
 
+LABELER = "`giaovien` (người gán nhãn do chủ dự án chỉ định, từ 2026-11-25)"
+# BA phán mẫu bất đồng E1 (7c717d0b, benchmarks/pii/LABELING.md): id mẫu → nhãn cuối (True = CHẶN)
+E1_ADJUDICATED = {"S6-13": True, "S6-01": True, "S6-26": True, "S6-38": True}
+
+
+def kappa(pairs):
+    """Cohen κ cho cặp nhãn (a, b) bất kỳ loại; None khi kỳ vọng ngẫu nhiên = 1 (một lớp duy nhất)."""
+    n = len(pairs)
+    if not n:
+        return None
+    cats = {x for p in pairs for x in p}
+    po = sum(a == b for a, b in pairs) / n
+    pe = sum((sum(a == c for a, _ in pairs) / n) * (sum(b == c for _, b in pairs) / n) for c in cats)
+    return None if pe == 1 else round((po - pe) / (1 - pe), 4)
+
+
 def human_review(kind):
-    """Bản soát nhãn chủ dự án đã điền: benchmarks/eval/human/e1_soat.csv (gán mù cột 4 CHẶN / CHO QUA; so với nhãn bộ dữ liệu qua raw/e1-soat-map.json)
-    hoặc e2_soat.csv (cột 9 Đúng / Sai nhãn / Câu hỏi mơ hồ). Đủ khi E1 ≥ 50 mẫu (≥ 25 dương, ≥ 25 âm), E2 đủ 24 mục."""
+    """Bản soát nhãn đã điền: benchmarks/eval/human/e1_soat.csv (gán mù cột 4 CHẶN / CHO QUA; so với nhãn bộ dữ liệu qua raw/e1-soat-map.json)
+    hoặc e2_soat.csv (cột 9 Đúng / Sai nhãn / Câu hỏi mơ hồ). Đủ khi E1 ≥ 50 mẫu (≥ 25 dương, ≥ 25 âm), E2 đủ 24 mục.
+    E1: đồng ý thô + κ (người gán – nhãn bộ dữ liệu) trước phán; nhãn cuối = nhãn người gán, mẫu bất đồng lấy phán của BA (E1_ADJUDICATED)."""
     import csv
     p = HERE / f"human/{kind}_soat.csv"
     if not p.exists():
@@ -240,13 +258,18 @@ def human_review(kind):
         pos = sum(truth[i] for i, _ in done)
         dis = [i for i, lab in done if lab != truth[i]]
         ok = len(done) >= 50 and pos >= 25 and len(done) - pos >= 25
-        out = {"n": len(done), "positive": pos, "negative": len(done) - pos, "agree": len(done) - len(dis), "disagree": dis}
+        final = {i: E1_ADJUDICATED.get(i, lab) if lab != truth[i] else lab for i, lab in done}
+        out = {"n": len(done), "positive": pos, "negative": len(done) - pos, "agree": len(done) - len(dis), "disagree": dis,
+               "kappa": kappa([(lab, truth[i]) for i, lab in done]),
+               "adjudicated": {i: E1_ADJUDICATED[i] for i in dis if i in E1_ADJUDICATED},
+               "final_agree": sum(final[i] == truth[i] for i, _ in done), "final_kappa": kappa([(final[i], truth[i]) for i, _ in done])}
     else:
         done = [r for r in rows if norm(r[8]) in ("đúng", "sai nhãn", "câu hỏi mơ hồ")]
         dis = [r[1] for r in done if norm(r[8]) != "đúng"]
         ok = len(done) >= 24
         out = {"n": len(done), "agree": len(done) - len(dis), "disagree": dis}
-    out["status"] = ("SOÁT" if ok else "WAITING_HUMAN") + f" ({out['agree']}/{out['n']} đồng ý; bất đồng → BA phán: {', '.join(dis) or 'không'})"
+    out["status"] = ("SOÁT" if ok else "WAITING_HUMAN") + f" ({out['agree']}/{out['n']} đồng ý; bất đồng → BA phán: {', '.join(dis) or 'không'}" + \
+        (f"; nhãn cuối sau phán {out['final_agree']}/{out['n']} khớp)" if "final_agree" in out else ")")
     return out
 
 

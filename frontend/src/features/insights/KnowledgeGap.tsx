@@ -59,15 +59,17 @@ export function KnowledgeGap({ courseId }: { courseId: string }) {
         primary={data?.has_new_data ? create : undefined}
         secondary={data && !data.has_new_data ? [create] : undefined}
         more={more}
-        meta={data ? [`Báo cáo ${dmy(data.report.created_at)}, ${hm(data.report.created_at)}`, `${data.report.payload.counts.questions} câu hỏi · ${data.report.payload.counts.students} sinh viên`, "Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy"] : undefined}
+        meta={data ? [`Báo cáo ${dmy(data.report.created_at)}, ${hm(data.report.created_at)}`, `${data.report.payload.counts.questions} câu hỏi · ${data.report.payload.counts.students} sinh viên`] : undefined}
       />
 
+      <div className={s.period}>
       <SegmentedControl
         label="Kỳ báo cáo"
         value={String(period) as `${Period}`}
         onChange={(v) => setPeriod(Number(v) as Period)}
         options={[{ value: "7", label: "7 ngày" }, { value: "14", label: "14 ngày" }, { value: "30", label: "30 ngày" }, { value: "120", label: "Toàn kỳ", title: "120 ngày gần nhất" }]}
       />
+      </div>
 
       {running && (
         <Section title="Đang tạo báo cáo">

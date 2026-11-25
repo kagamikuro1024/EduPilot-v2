@@ -56,6 +56,19 @@ test("bảng theo cổng: tên đúng bảng, cổng tắt hiện «—», số 
   await expect(page.locator("[data-part=obs-today]")).not.toContainText(/Quyết định|đường nhanh/i);
 });
 
+// techlead-ui 2026-11-25: ô số kèm đơn vị («426 ms», «Bật ở 3/12 lớp») không xuống dòng ở bất kỳ bề rộng nào (sửa ở primitive DataTable).
+for (const w of [375, 1440]) {
+  test(`ô số + đơn vị không xuống dòng @${w}`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: 900 });
+    await openObs(page, { [`GET ${OBS}`]: [{ body: body() }] });
+    const t = page.locator("[data-part=decision-observability]").getByRole("table", { name: "Quyết định nhanh theo cổng" });
+    for (const text of ["426 ms", "682 ms", "Bật ở 3/12 lớp"]) {
+      const ws = await t.locator("td", { hasText: text }).first().evaluate((e) => getComputedStyle(e).whiteSpace);
+      expect(ws, text).toBe("nowrap");
+    }
+  });
+}
+
 test("chọn cửa sổ 24 giờ / 7 ngày gọi lại với window; chưa có lời gọi → một dòng", async ({ page }) => {
   await openObs(page, { [`GET ${OBS}`]: [{ body: body() }, { body: { gates: [row("CHAT_ROUTING"), row("INJECTION_FLAG"), row("THREADS_PRECHECK")] } }] });
   const sec = page.locator("[data-part=decision-observability]");

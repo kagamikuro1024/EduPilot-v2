@@ -16,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/llm"
@@ -147,7 +148,7 @@ func explainContext(sn snapshot, key, answer json.RawMessage) string {
 	fmt.Fprintf(&b, "ĐÁP ÁN ĐÚNG: %s\n", describe(sn, key))
 	fmt.Fprintf(&b, "SINH VIÊN CHỌN: %s\n", describe(sn, answer))
 	if sn.Explanation != nil && strings.TrimSpace(*sn.Explanation) != "" {
-		fmt.Fprintf(&b, "LỜI GIẢI CÓ SẴN: %s\n", strings.TrimSpace(*sn.Explanation))
+		fmt.Fprintf(&b, "LỜI GIẢI CÓ SẴN: %s\n", strings.TrimSpace(exam.StripCiteMarkers(*sn.Explanation))) // không đưa mã đoạn nội bộ vào prompt để AI khỏi lặp lại
 	}
 	var cites []struct {
 		Quote string `json:"quote"`

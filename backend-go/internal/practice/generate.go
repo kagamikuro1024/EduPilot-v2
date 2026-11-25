@@ -2,10 +2,14 @@ package practice
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"math/rand/v2"
 	"net/http"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/google/uuid"
@@ -254,17 +258,20 @@ func (w *Worker) generate(ctx context.Context, j jobs.JobCtx) (any, error) {
 			skip("CITATION_REQUIRED") // câu không dẫn nguồn thật trong các đoạn được cấp: không lưu
 			continue
 		}
-		in := exam.QuestionIn{Type: a.Type, Title: titleOf(a.Stem), Topic: p.Topic, Difficulty: p.Difficulty, Stem: strings.TrimSpace(a.Stem), Value: a.Value}
-		if e := strings.TrimSpace(a.Explanation); e != "" {
+		// mã đoạn nguồn nội bộ ([C18]) chỉ thuộc `sources`: bỏ khỏi chữ người học đọc (E5: 34/100 lời giải lọt mã)
+		stem := strings.TrimSpace(exam.StripCiteMarkers(a.Stem))
+		in := exam.QuestionIn{Type: a.Type, Title: titleOf(stem), Topic: p.Topic, Difficulty: p.Difficulty, Stem: stem, Value: a.Value}
+		if e := strings.TrimSpace(exam.StripCiteMarkers(a.Explanation)); e != "" {
 			in.Explanation = &e
 		}
 		if a.Type != exam.TypeTrueFalse {
 			for k, o := range a.Options {
-				in.Options = append(in.Options, exam.OptionIn{Body: strings.TrimSpace(o.Body)})
+				in.Options = append(in.Options, exam.OptionIn{Body: strings.TrimSpace(exam.StripCiteMarkers(o.Body))})
 				if o.Correct {
 					in.Correct = append(in.Correct, k)
 				}
 			}
+			in.Options, in.Correct = shuffleOptions(stemKey(stem), in.Options, in.Correct) // E5: 72/100 đáp án đúng nằm ở A
 		}
 		c, errs, _ := exam.Validate(in)
 		if len(errs) > 0 {
@@ -308,4 +315,26 @@ func (w *Worker) generate(ctx context.Context, j jobs.JobCtx) (any, error) {
 		}
 	}
 	return res, nil
+}
+
+// shuffleOptions xáo phương án của câu AI sinh (LLM hay đặt đáp án đúng đầu tiên: E5 thấy 72/100 ở A) và ánh xạ lại chỉ số đáp án đúng (tăng dần).
+// Hạt giống = băm `key` (khoá nội dung của câu): tất định, cùng câu → cùng thứ tự; id câu chưa có ở bước này. Có phương án ghim cuối hoặc < 2 phương án thì giữ nguyên.
+func shuffleOptions(key string, opts []exam.OptionIn, correct []int) ([]exam.OptionIn, []int) {
+	if len(opts) < 2 || slices.ContainsFunc(opts, func(o exam.OptionIn) bool { return o.PinnedLast }) {
+		return opts, correct
+	}
+	sum := sha256.Sum256([]byte(key))
+	rng := rand.New(rand.NewPCG(binary.BigEndian.Uint64(sum[:8]), binary.BigEndian.Uint64(sum[8:16])))
+	perm := rng.Perm(len(opts)) // perm[new] = old
+	out := make([]exam.OptionIn, len(opts))
+	where := make([]int, len(opts)) // old → new
+	for n, o := range perm {
+		out[n], where[o] = opts[o], n
+	}
+	moved := make([]int, 0, len(correct))
+	for _, c := range correct {
+		moved = append(moved, where[c])
+	}
+	slices.Sort(moved)
+	return out, moved
 }

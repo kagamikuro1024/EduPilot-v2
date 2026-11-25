@@ -47,8 +47,13 @@ func (k redisKV) SetString(ctx context.Context, key, val string, ttlSec int) err
 	return nil
 }
 
-// EmbedTTL là hạn cache nhúng `ep:emb:{sha256(chuẩn hoá(chữ thô))}` — giá trị là vectơ nên KHÔNG chứa chữ (SRS 5.7).
+// EmbedTTL là hạn cache nhúng `ep:emb:{chữ ký tuyến}:{sha256(chuẩn hoá(chữ thô))}` — giá trị là vectơ nên KHÔNG chứa chữ (SRS 5.7).
 const EmbedTTL = 10 * time.Minute
+
+// routeSigner là phần của llm.Gateway cho biết tuyến hiện hành (khoá cache theo tuyến, luật 15); Client khác không có = một không gian.
+type routeSigner interface {
+	RouteSignature(tasks ...llm.Task) string
+}
 
 // NewEmbedder trả hàm nhúng một câu hỏi: làn INTERACTIVE, qua cổng llm (hook che chạy ở đó), cache theo băm chữ thô. rdb nil = không cache.
 // Cùng khoá dùng cho worker AI Threads để không nhúng lần hai (TLR-16).
@@ -57,7 +62,11 @@ func NewEmbedder(gw llm.Client, rdb *appredis.Client) func(ctx context.Context, 
 	return func(ctx context.Context, text string) ([]float32, error) {
 		norm := strings.Join(strings.Fields(auth.Fold(text)), " ")
 		sum := sha256.Sum256([]byte(norm))
-		key := appredis.Key("emb", hex.EncodeToString(sum[:]))
+		sig := "0"
+		if rs, ok := gw.(routeSigner); ok {
+			sig = rs.RouteSignature(llm.TaskEmbedding) // đổi tuyến EMBEDDING = không gian vectơ khác: không dùng lại vectơ cũ
+		}
+		key := appredis.Key("emb", sig, hex.EncodeToString(sum[:]))
 		if rdb != nil {
 			if raw, err := rdb.Get(ctx, key).Bytes(); err == nil && len(raw) == 4*llm.EmbedDims {
 				return decodeVec(raw), nil

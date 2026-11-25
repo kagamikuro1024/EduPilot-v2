@@ -287,6 +287,40 @@ func TestGenerateCitations(t *testing.T) {
 	require.Equal(t, "NOT_FOUND", code(t, err))
 }
 
+// E5: câu AI sinh lọt mã đoạn «[C18]» vào stem / phương án / lời giải ⇒ bỏ lúc LƯU; phương án xáo (đáp án đúng không luôn ở đầu) mà chỉ số đáp án vẫn trỏ đúng phương án.
+func TestGenerateStripsMarkersAndShuffles(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.staff()
+	q := func(i int) map[string]any {
+		return map[string]any{"type": "MCQ_SINGLE", "stem": fmt.Sprintf("Giao thức số %d làm gì [C1]?", i), "value": nil, "explanation": "Theo tài liệu [C1, C2] thì đúng [C2].", "sources": []string{"C1"},
+			"options": []map[string]any{{"body": "Đúng [C1]", "correct": true}, {"body": "Sai một", "correct": false}, {"body": "Sai hai", "correct": false}, {"body": "Sai ba", "correct": false}}}
+	}
+	var qs []any
+	for i := range 10 {
+		qs = append(qs, q(i))
+	}
+	stub := &fakeStructured{reply: func(_, _ string) string { b, _ := json.Marshal(map[string]any{"questions": qs}); return string(b) }}
+	w := &practice.Worker{Pool: r.pool, Exam: r.ex, LLM: stub}
+	lecture := r.doc("LECTURE", "Bài giảng", "Đoạn một về mạng máy tính.", "Đoạn hai về giao thức.")
+	status, raw, ec := r.runJob(w, r.teacher, practice.KindGenerate, practice.GeneratePayload{CourseID: r.course, GenerateIn: practice.GenerateIn{DocumentIDs: []uuid.UUID{lecture}, Topic: "Mạng", Difficulty: "MEDIUM", Count: 10}})
+	require.Equal(t, "SUCCEEDED", status, ec)
+	var res practice.ExtractResult
+	require.NoError(t, json.Unmarshal(raw, &res))
+	require.Len(t, res.Created, 10, "%v", res.Skipped)
+	var marked, first int
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*) from question_bank qb where course_id = $1 and origin = 'GENERATED' and (stem ~ '\[C[0-9]' or explanation ~ '\[C[0-9]' or exists (select 1 from question_options o where o.question_id = qb.id and o.body ~ '\[C[0-9]'))`, r.course).Scan(&marked))
+	require.Zero(t, marked, "không còn mã đoạn trong stem / lời giải / phương án đã lưu")
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*) from question_bank qb join question_options o on o.question_id = qb.id and o.position = 1 where qb.course_id = $1 and qb.origin = 'GENERATED' and (qb.answer_key -> 'option_ids') ? o.id::text`, r.course).Scan(&first))
+	require.Less(t, first, 10, "đáp án đúng không luôn ở vị trí đầu")
+	var okKey int
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*) from question_bank qb join question_options o on o.question_id = qb.id and (qb.answer_key -> 'option_ids') ? o.id::text where qb.course_id = $1 and qb.origin = 'GENERATED' and o.body = 'Đúng'`, r.course).Scan(&okKey))
+	require.Equal(t, 10, okKey, "chỉ số đáp án sau xáo vẫn trỏ đúng phương án «Đúng»")
+	var ex string
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select explanation from question_bank where id = $1`, res.Created[0]).Scan(&ex))
+	require.Equal(t, "Theo tài liệu thì đúng.", ex)
+}
+
 // approvedPending tạo một câu PENDING không có trích dẫn với origin cho trước.
 func (r *rig) approvedPending(t *testing.T, origin string) uuid.UUID {
 	t.Helper()

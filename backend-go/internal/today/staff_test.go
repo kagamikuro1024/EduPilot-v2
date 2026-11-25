@@ -601,11 +601,12 @@ func TestTodayRedisDownFailsOpen(t *testing.T) {
 	r.pending(c, 1, time.Hour, "")
 	logs := &bytes.Buffer{}
 	svc := today.NewService(r.pool, r.rdb, r.clk, slog.New(slog.NewTextHandler(logs, nil)), nil)
-	require.NoError(t, r.rdb.Close()) // mọi lệnh Redis lỗi
+	svc.Agg.Timeout = 10 * time.Second // test này khoá Redis fail-open, không khoá hạn 150 ms của Provider: CI tải nặng làm Provider staff (nhiều truy vấn) quá 150 ms ⇒ bị bỏ ⇒ thiếu JOIN_REQUEST (P-11-131)
+	require.NoError(t, r.rdb.Close())  // mọi lệnh Redis lỗi
 	for range 5 {
 		body, err := svc.Get(t.Context(), u.ID, today.RoleTeacher, today.Scope{})
 		require.NoError(t, err, "Redis chết: tính trực tiếp")
-		require.Contains(t, string(body), "JOIN_REQUEST")
+		require.Contains(t, string(body), "JOIN_REQUEST", logs.String())
 	}
 	require.Equal(t, 1, strings.Count(logs.String(), "Redis lỗi"), "log ≤ 1 dòng / 30 s")
 }

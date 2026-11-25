@@ -232,6 +232,7 @@ export function RealChat({ courseId }: { courseId: string }) {
       <Split
         ratio="list-detail"
         fill
+        barePanel
         detailOpen
         listCollapsed={collapsed || noSessions || sessions.isError}
         pending={sessions.isPending}

@@ -121,10 +121,12 @@ test("TEACHER: chỉ tổng hợp 7 ngày của lớp mình, không bảng yêu 
 });
 
 // DEF-R10.7-01 (khung §23): ADMIN — mọi mục cách nhau 48 px; GV — meta không lặp lớp đang chọn, lớp chưa có yêu cầu dùng EmptyState.
-test("ADMIN: các mục kề nhau cách đều 48 px (mục → mục), dòng «24 giờ qua» nằm trong mục 7 ngày (DEF-R10.7-01)", async ({ page }) => {
+test("ADMIN: các mục kề nhau cách đều 48 px (mục → mục), số «24 giờ qua» và bảng «7 ngày qua» là hai mục riêng (DEF-R10.7-01, P-11-128)", async ({ page }) => {
   await openAdmin(page);
   await expect(page.getByRole("heading", { name: "Yêu cầu", level: 2 })).toBeVisible();
   await expect(page.locator("[data-part=obs-today]")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "24 giờ qua", level: 2 })).toBeVisible();
+  await expect(page.locator("[data-ep-header-meta]")).toHaveCount(0); // «Toàn hệ thống» lặp bộ chọn lớp ở topbar
   const gaps = await page.locator("main [data-ep-section]").evaluateAll((els) => els.slice(1).map((e, i) => Math.round(e.getBoundingClientRect().top - els[i].getBoundingClientRect().bottom)));
   expect(gaps.length).toBeGreaterThanOrEqual(3);
   expect(gaps).toEqual(gaps.map(() => 48));
@@ -147,4 +149,12 @@ test("TEACHER: meta đầu trang không lặp lớp đang chọn; lớp chưa c�
   await expect(page.locator("main [data-ep-empty]")).toHaveCount(1);
   await expect(page.locator("main [data-ep-empty]")).toContainText("Chưa có yêu cầu AI nào");
   await expect(page.locator("[data-ep-header-meta]")).toHaveCount(0); // bộ chọn lớp ở topbar đã nêu lớp; đầu trang không lặp lại
+});
+
+// QC VPS: tiêu đề «Thư chưa gửi được» không kèm dòng chú lặp chữ «Thư chưa gửi được, mới nhất trước»
+test("ADMIN: mục «Thư chưa gửi được» không lặp chữ tiêu đề trong dòng chú", async ({ page }) => {
+  await openAdmin(page, { "GET /api/v1/admin/observability/failed-mail": [{ body: { items: [{ id: "00000000-0000-7000-8000-0000000000f1", template: "verify_email", to_masked: "n***@example.com", attempts: 3, last_error: "SMTP", updated_at: "2026-10-29T02:00:00Z" }], next_cursor: null } }] });
+  await expect(page.getByRole("heading", { name: "Thư chưa gửi được", level: 2 })).toBeVisible();
+  const text = await page.locator("main").innerText();
+  expect(text.match(/Thư chưa gửi được/g)?.length ?? 0).toBe(1);
 });

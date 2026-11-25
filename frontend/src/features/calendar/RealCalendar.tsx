@@ -69,7 +69,7 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
   };
 
   const monthName = new Date(monthFirst);
-  const title = view === "month" ? `Tháng ${monthName.getUTCMonth() + 1} năm ${monthName.getUTCFullYear()}` : view === "week" ? `Tuần ${fmtDM(weekStart)} – ${fmtDM(weekStart + 6 * DAY)}` : "Sắp tới";
+  const title = view === "month" ? `Tháng ${monthName.getUTCMonth() + 1} năm ${monthName.getUTCFullYear()}` : view === "week" ? `Tuần ${fmtDM(weekStart)} – ${fmtDM(weekStart + 6 * DAY)}` : "";
   const edit = staff ? (e: CalItem) => setForm(e) : undefined;
   const del = staff ? (e: CalItem) => { if (pending) commitDelete(); setPending(e); } : undefined;
 
@@ -122,7 +122,7 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
           }}
           options={[{ value: "week", label: "Tuần" }, { value: "month", label: "Tháng" }, { value: "list", label: "Danh sách" }]}
         />
-        <span className={s.range}>{title}</span>
+        {view !== "list" && <span className={s.range}>{title}</span>}
       </Toolbar>
       {pending && <UndoLine message="Đã xoá sự kiện" onUndo={() => { cancelled.current = true; setPending(null); }} onDone={commitDelete} />}
       {m.remove.isError && <ApiErrorNotice error={m.remove.error} />}
@@ -233,11 +233,11 @@ function ListView({ items, now, onEdit, onDelete }: { items: CalItem[]; now: num
           return (
             <ActionRow
               key={e.id}
-              tone={isSoonExam(e, now) ? "red" : "neutral"}
+              tone="red"
+              noDot={!isSoonExam(e, now)}
               href={e.href ?? undefined}
               title={e.title}
-              context={`${fmtLong(e.starts_at)}${e.ends_at ? `–${fmtHM(e.ends_at)}` : ""}${e.location ? ` · ${e.location}` : ""}`}
-              meta={<>{TYPE_LABEL[e.type]}{running && <> · <StatusText tone="green">Đang diễn ra</StatusText></>}{e.personal_state ? ` · ${STATE_LABEL[e.personal_state]}` : ""}</>}
+              meta={<>{fmtLong(e.starts_at)}{e.ends_at ? `–${fmtHM(e.ends_at)}` : ""}{e.location ? ` · ${e.location}` : ""} · {TYPE_LABEL[e.type]}{running && <> · <StatusText tone="green">Đang diễn ra</StatusText></>}{e.personal_state ? ` · ${STATE_LABEL[e.personal_state]}` : ""}</>}
               action={<ItemMenu e={e} onEdit={onEdit} onDelete={onDelete} />}
             />
           );

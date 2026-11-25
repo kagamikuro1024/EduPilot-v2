@@ -848,13 +848,14 @@ func (q *Queries) TodayStaffPending(ctx context.Context, arg TodayStaffPendingPa
 }
 
 const todayStudentFeed = `-- name: TodayStudentFeed :many
-select kind, course_id, class_code, course_name, session_no, starts_at, ends_at, room, chat_id, chat_title from (
-  (select 'S'::text as kind, s.course_id, c.class_code, c.name as course_name, s.session_no, s.starts_at, s.ends_at, s.room, null::uuid as chat_id, ''::text as chat_title
+select kind, course_id, class_code, course_name, session_no, starts_at, ends_at, room, chat_id, chat_title, self_checkin from (
+  (select 'S'::text as kind, s.course_id, c.class_code, c.name as course_name, s.session_no, s.starts_at, s.ends_at, s.room, null::uuid as chat_id, ''::text as chat_title,
+          coalesce((c.settings -> 'attendance' ->> 'self_checkin')::boolean, false)::boolean as self_checkin
    from class_sessions s join courses c on c.id = s.course_id
    where s.course_id = any($1::text[]::uuid[]) and s.ends_at > $2::timestamptz and s.starts_at < $3::timestamptz
    order by s.starts_at, s.id limit 60)
   union all
-  (select 'C'::text, ch.course_id, c.class_code, ''::text, 0, ch.last_message_at, ch.last_message_at, null::text, ch.id, coalesce(ch.title, '')::text
+  (select 'C'::text, ch.course_id, c.class_code, ''::text, 0, ch.last_message_at, ch.last_message_at, null::text, ch.id, coalesce(ch.title, '')::text, false::boolean
    from chat_sessions ch join courses c on c.id = ch.course_id
    where ch.user_id = $4 and ch.course_id = any($1::text[]::uuid[]) and ch.channel = 'PRIVATE' and ch.deleted_at is null
      and ch.last_message_at >= $5::timestamptz
@@ -872,20 +873,21 @@ type TodayStudentFeedParams struct {
 }
 
 type TodayStudentFeedRow struct {
-	Kind       string
-	CourseID   uuid.UUID
-	ClassCode  string
-	CourseName string
-	SessionNo  int32
-	StartsAt   time.Time
-	EndsAt     time.Time
-	Room       *string
-	ChatID     *uuid.UUID
-	ChatTitle  string
+	Kind        string
+	CourseID    uuid.UUID
+	ClassCode   string
+	CourseName  string
+	SessionNo   int32
+	StartsAt    time.Time
+	EndsAt      time.Time
+	Room        *string
+	ChatID      *uuid.UUID
+	ChatTitle   string
+	SelfCheckin bool
 }
 
 // Sinh viên: buổi học (như TodaySessions) VÀ tối đa 3 phiên chat RIÊNG của CHÍNH người xem có ≥ 1 tin trong 7 ngày, chưa xoá, mới nhất trước
-// (US-P3-08 AC3) trong MỘT truy vấn để giữ ngân sách ≤ 5 truy vấn. `kind` = 'S' (buổi học) | 'C' (phiên chat).
+// (US-P3-08 AC3) trong MỘT truy vấn để giữ ngân sách ≤ 5 truy vấn. `kind` = 'S' (buổi học) | 'C' (phiên chat). `self_checkin` (buổi học): lớp bật điểm danh bằng mã — nguồn cờ `checkin_link` (P-11-137), không thêm truy vấn.
 func (q *Queries) TodayStudentFeed(ctx context.Context, arg TodayStudentFeedParams) ([]TodayStudentFeedRow, error) {
 	rows, err := q.db.Query(ctx, todayStudentFeed,
 		arg.CourseIds,
@@ -912,6 +914,7 @@ func (q *Queries) TodayStudentFeed(ctx context.Context, arg TodayStudentFeedPara
 			&i.Room,
 			&i.ChatID,
 			&i.ChatTitle,
+			&i.SelfCheckin,
 		); err != nil {
 			return nil, err
 		}

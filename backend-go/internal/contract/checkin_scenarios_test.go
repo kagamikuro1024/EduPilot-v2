@@ -2,6 +2,7 @@ package contract
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"strings"
 
@@ -128,7 +129,15 @@ func (r *runner) checkinScenarios(db *pgxpool.Pool, c2, gv, ta, svIn, admin stri
 	dc := "/api/v1/me/devices/challenge"
 	r.must(call{method: "POST", path: dc}, 401)
 	r.must(call{method: "POST", path: dc, token: gv}, 403)
-	r.must(call{method: "POST", path: dc, token: svIn}, 200)
+	_, nb := r.must(call{method: "POST", path: dc, token: svIn}, 200)
+	// openapi DeviceChallenge.nonce = «32 byte, base64url»; app Kotlin giải bằng URL_SAFE | NO_PADDING: base64 chuẩn («+», «/», «=») làm ~75 % nonce hỏng (TC-AS11-17)
+	var ch struct{ Nonce string }
+	if err := json.Unmarshal(nb, &ch); err != nil {
+		t.Fatalf("nonce: %v", err)
+	}
+	if raw, err := base64.RawURLEncoding.DecodeString(ch.Nonce); err != nil || len(raw) != 32 {
+		t.Fatalf("nonce %q không phải 32 byte base64url không đệm (len %d): %v", ch.Nonce, len(raw), err)
+	}
 	r.exhaust(call{method: "POST", path: dc, token: svIn})
 	dv := "/api/v1/me/devices"
 	r.must(call{method: "POST", path: dv, body: `{}`}, 401)

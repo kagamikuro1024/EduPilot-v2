@@ -20,10 +20,13 @@ if (u.protocol !== "https:") {
 }
 mkdirSync("www", { recursive: true });
 writeFileSync("www/index.html", `<!doctype html><meta charset="utf-8"><title>EduPilot</title>`);
+// Trang lỗi WebView: nền / chữ / nút theo token sáng của web (D59: --ep-canvas #FFFFFF, --ep-ink #231F20, --ep-red #CE1628); color-scheme chỉ-sáng để WebView ép tối không đổi màu.
+// «Thử lại» là liên kết (href đã escape), không phải onclick: JSON.stringify trong thuộc tính "…" làm gãy thuộc tính và nút không chạy.
+const href = u.href.replaceAll("&", "&amp;");
 writeFileSync(
   "www/error.html",
-  `<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EduPilot</title>
-<style>body{font:16px system-ui;margin:0;min-height:100vh;display:grid;place-content:center;gap:16px;justify-items:center;color:#1a1a1a}button{min-height:44px;padding:0 24px;font:inherit;border:0;border-radius:8px;background:#CE1628;color:#fff}</style>
-<p>Không kết nối được máy chủ.</p><button onclick="location.href=${JSON.stringify(url)}">Thử lại</button></html>`,
+  `<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>EduPilot</title>
+<style>html{color-scheme:light;background:#FFFFFF}body{font:16px system-ui;margin:0;min-height:100vh;display:grid;place-content:center;gap:16px;justify-items:center;background:#FFFFFF;color:#231F20}a{display:grid;place-items:center;min-height:44px;padding:0 24px;border-radius:8px;background:#CE1628;color:#FFFFFF;text-decoration:none}</style>
+<p>Không kết nối được máy chủ.</p><a href="${href}">Thử lại</a></html>`,
 );
 console.log(`www/ sẵn sàng cho ${u.origin}`);

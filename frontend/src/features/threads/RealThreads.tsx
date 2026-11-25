@@ -113,7 +113,7 @@ function Row({ t, hideLabel }: { t: ThreadRow; hideLabel: boolean }) {
   return (
     <div className={r.row}>
       <Link href={`/threads/${t.id}`} prefetch={false} className={r.rowLink}>
-        <span className={r.rowTitle}>{t.pinned && <Pin className={r.pin} aria-label="Đã ghim" />}{t.title}</span>
+        <span className={r.rowTitle}>{t.pinned && <Pin className={r.pin} aria-label="Đã ghim" />}<span>{t.title}</span></span>
         {preview && <p className={r.preview}>{preview}</p>}
       </Link>
       <div className={r.meta}>

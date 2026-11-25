@@ -1,0 +1,814 @@
+{
+ "meta": {
+  "commit": "74622a8b",
+  "timestamp": "2026-11-25T14:17:42.372Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "e5-apply.json"
+  }
+ },
+ "items": {
+  "E5-001": {
+   "question_id": "01a1e138-640f-7f76-9aaa-863c71f259ca",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.078Z"
+  },
+  "E5-002": {
+   "question_id": "01a1e138-6450-79fe-a5c4-e3300d6c266c",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.097Z"
+  },
+  "E5-003": {
+   "question_id": "01a1e138-645a-720b-b1ff-2ecda79b232a",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.112Z"
+  },
+  "E5-004": {
+   "question_id": "01a1e138-6462-7f15-bd86-7d3c7d19ddad",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.125Z"
+  },
+  "E5-005": {
+   "question_id": "01a1e138-646b-7e9f-9989-f5d27ab77f9a",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.133Z"
+  },
+  "E5-006": {
+   "question_id": "01a1e138-6474-7a5c-8d52-9360917b053f",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.142Z"
+  },
+  "E5-007": {
+   "question_id": "01a1e138-6478-79c6-bfb3-53787c6c4c98",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.157Z"
+  },
+  "E5-008": {
+   "question_id": "01a1e138-647e-7075-bb5e-3a7f3605db69",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.165Z"
+  },
+  "E5-009": {
+   "question_id": "01a1e138-6485-71ba-b8e8-e6500d35d22b",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.181Z"
+  },
+  "E5-010": {
+   "question_id": "01a1e138-6489-7c82-a62c-1e200f7ec1c0",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.195Z"
+  },
+  "E5-011": {
+   "question_id": "01a1e138-e28a-7311-af71-492ec476bb59",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.209Z"
+  },
+  "E5-012": {
+   "question_id": "01a1e138-e2a0-79fb-b520-fead8d94569c",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.218Z"
+  },
+  "E5-013": {
+   "question_id": "01a1e138-e2aa-7fff-b0a1-4e67a5e8fefd",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.231Z"
+  },
+  "E5-014": {
+   "question_id": "01a1e138-e2ba-76f6-aa22-881c34c9c005",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.242Z"
+  },
+  "E5-015": {
+   "question_id": "01a1e138-e2cb-7a07-be09-10716dad960d",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.253Z"
+  },
+  "E5-016": {
+   "question_id": "01a1e138-e2d5-7a40-8770-0a7ea1e37562",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.263Z"
+  },
+  "E5-017": {
+   "question_id": "01a1e138-e2dc-749b-a423-39459c2f1155",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.276Z"
+  },
+  "E5-018": {
+   "question_id": "01a1e138-e2e4-7621-8643-57803e62bfe9",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.287Z"
+  },
+  "E5-019": {
+   "question_id": "01a1e138-e2eb-7bac-870b-912d68785cb2",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.300Z"
+  },
+  "E5-020": {
+   "question_id": "01a1e138-e2f1-7099-bf19-1b13bd41928c",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.311Z"
+  },
+  "E5-021": {
+   "question_id": "01a1e139-576d-7ecb-b65e-6595257517fc",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.322Z"
+  },
+  "E5-022": {
+   "question_id": "01a1e139-5787-7285-93e0-2c5f151d5994",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.335Z"
+  },
+  "E5-023": {
+   "question_id": "01a1e139-5792-7aee-b56a-68981d4d1294",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.349Z"
+  },
+  "E5-024": {
+   "question_id": "01a1e139-579a-75bc-be20-f6e0227338a4",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.364Z"
+  },
+  "E5-025": {
+   "question_id": "01a1e139-579f-7cb0-a036-cc4ec833c8fc",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.377Z"
+  },
+  "E5-026": {
+   "question_id": "01a1e139-57ab-7bf0-a9a3-377d74da8b13",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.388Z"
+  },
+  "E5-027": {
+   "question_id": "01a1e139-57b6-7cfd-a9f1-75b141305b0e",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.404Z"
+  },
+  "E5-028": {
+   "question_id": "01a1e139-57c4-7916-9d5b-1481e0ac736d",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.418Z"
+  },
+  "E5-029": {
+   "question_id": "01a1e139-57ca-775b-a1f9-432a8eb33d28",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.432Z"
+  },
+  "E5-030": {
+   "question_id": "01a1e139-57ce-70c3-bf6b-e61dce484227",
+   "decision": "BO",
+   "reason": "KHO_DE_BAT_THUONG",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.452Z"
+  },
+  "E5-031": {
+   "question_id": "01a1e139-c692-7efa-9add-93e58e1f5922",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.469Z"
+  },
+  "E5-032": {
+   "question_id": "01a1e139-c6a6-7a20-bdec-416c38937437",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.479Z"
+  },
+  "E5-033": {
+   "question_id": "01a1e139-c6ac-7c99-89ef-b39e2cfb2485",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.487Z"
+  },
+  "E5-034": {
+   "question_id": "01a1e139-c6b3-76f8-9540-f1cb67634410",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.500Z"
+  },
+  "E5-035": {
+   "question_id": "01a1e139-c6c4-7d83-91cb-cc4845939d2a",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.512Z"
+  },
+  "E5-036": {
+   "question_id": "01a1e139-c6c8-7c4f-9dfb-a5dfb15ee6e2",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.531Z"
+  },
+  "E5-037": {
+   "question_id": "01a1e139-c6d3-7238-a8b2-0f3cdc62e782",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.554Z"
+  },
+  "E5-038": {
+   "question_id": "01a1e139-c6d6-7a4c-ac43-c2b52657e26c",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.567Z"
+  },
+  "E5-039": {
+   "question_id": "01a1e139-c6da-7c2b-9698-d4c5e6107b2d",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.578Z"
+  },
+  "E5-040": {
+   "question_id": "01a1e139-c6de-7631-aa69-b7accd899c65",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.593Z"
+  },
+  "E5-041": {
+   "question_id": "01a1e13a-528e-72ad-ad3b-82dbead728de",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.607Z"
+  },
+  "E5-042": {
+   "question_id": "01a1e13a-5299-7838-b789-ee3e8c2ae3b1",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.619Z"
+  },
+  "E5-043": {
+   "question_id": "01a1e13a-529d-790a-86a5-5bbde442830c",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.636Z"
+  },
+  "E5-044": {
+   "question_id": "01a1e13a-52a9-7238-ae7b-8bd266dfa72d",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.651Z"
+  },
+  "E5-045": {
+   "question_id": "01a1e13a-52ad-715b-9f67-7d748c08249d",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.662Z"
+  },
+  "E5-046": {
+   "question_id": "01a1e13a-52ae-747c-b272-934de69e7f79",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.672Z"
+  },
+  "E5-047": {
+   "question_id": "01a1e13a-52af-72d1-9f3a-02ddaeb78e14",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.687Z"
+  },
+  "E5-048": {
+   "question_id": "01a1e13a-52b0-7c80-970a-d422d4f246b3",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.698Z"
+  },
+  "E5-049": {
+   "question_id": "01a1e13a-52b6-7823-a374-9992a723514f",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.718Z"
+  },
+  "E5-050": {
+   "question_id": "01a1e13a-52bb-7369-8e99-9513c101f375",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.730Z"
+  },
+  "E5-051": {
+   "question_id": "01a1e13a-d716-755a-adb9-d3deedb36736",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.739Z"
+  },
+  "E5-052": {
+   "question_id": "01a1e13a-d71f-7bf0-a2f9-503ff0306501",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.751Z"
+  },
+  "E5-053": {
+   "question_id": "01a1e13a-d720-7f73-be00-35306ea0ede3",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.761Z"
+  },
+  "E5-054": {
+   "question_id": "01a1e13a-d722-7bfa-b9e0-ad6443079e41",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.779Z"
+  },
+  "E5-055": {
+   "question_id": "01a1e13a-d725-7c5b-9b30-e4ed958052e4",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.793Z"
+  },
+  "E5-056": {
+   "question_id": "01a1e13a-d729-7b66-af85-9a7abc36d332",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.804Z"
+  },
+  "E5-057": {
+   "question_id": "01a1e13a-d72d-7987-8fd4-55a8f15e5464",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.818Z"
+  },
+  "E5-058": {
+   "question_id": "01a1e13a-d72f-7b0d-ad05-54d6fb3c327a",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.830Z"
+  },
+  "E5-059": {
+   "question_id": "01a1e13a-d730-7a5e-ae29-d95c52c01b39",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.843Z"
+  },
+  "E5-060": {
+   "question_id": "01a1e13a-d731-7d56-af72-e864c4a38084",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.860Z"
+  },
+  "E5-061": {
+   "question_id": "01a1e13b-18c0-7662-9100-9a931d35f006",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.873Z"
+  },
+  "E5-062": {
+   "question_id": "01a1e13b-18c7-750b-b547-5f00f75fc060",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.889Z"
+  },
+  "E5-063": {
+   "question_id": "01a1e13b-18c9-7ab6-91dc-979dd7927abd",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.903Z"
+  },
+  "E5-064": {
+   "question_id": "01a1e13b-18ca-7fc7-bb07-411cffc67a95",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.919Z"
+  },
+  "E5-065": {
+   "question_id": "01a1e13b-18cc-72b5-b666-a8f5a7d7099f",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.932Z"
+  },
+  "E5-066": {
+   "question_id": "01a1e13b-18cd-732e-b8cd-2e012a5b132d",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:41.951Z"
+  },
+  "E5-067": {
+   "question_id": "01a1e13b-18ce-7305-9976-588f7ff07859",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:41.978Z"
+  },
+  "E5-068": {
+   "question_id": "01a1e13b-18cf-724c-b288-43c2d76c36db",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:42.000Z"
+  },
+  "E5-069": {
+   "question_id": "01a1e13b-18d0-7217-b5e2-cc48f687adbc",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.018Z"
+  },
+  "E5-070": {
+   "question_id": "01a1e13b-18d1-7b82-b5e0-c1c747122f90",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.033Z"
+  },
+  "E5-071": {
+   "question_id": "01a1e13b-80de-7f88-a934-c7c71fa3c601",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:42.053Z"
+  },
+  "E5-072": {
+   "question_id": "01a1e13b-80eb-737f-b368-db8ada468921",
+   "decision": "SUA",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 3,
+   "at": "2026-11-25T14:17:42.076Z"
+  },
+  "E5-073": {
+   "question_id": "01a1e13b-80ee-7504-8d0a-1256fcead793",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.086Z"
+  },
+  "E5-074": {
+   "question_id": "01a1e13b-80f5-7da4-8ada-d3c3eb0dc0b3",
+   "decision": "BO",
+   "reason": "KHO_DE_BAT_THUONG",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.096Z"
+  },
+  "E5-075": {
+   "question_id": "01a1e13b-80fa-77bf-be7e-6010aec96e12",
+   "decision": "DUYET",
+   "reason": null,
+   "status": "APPROVED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.105Z"
+  },
+  "E5-076": {
+   "question_id": "01a1e13b-80fe-7e16-80ac-8ba33f5c9a34",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.120Z"
+  },
+  "E5-077": {
+   "question_id": "01a1e13b-8101-7545-9729-522a0620a488",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.129Z"
+  },
+  "E5-078": {
+   "question_id": "01a1e13b-8104-77c8-8825-891647e6ae3a",
+   "decision": "BO",
+   "reason": "KHO_DE_BAT_THUONG",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.141Z"
+  },
+  "E5-079": {
+   "question_id": "01a1e13b-8106-7d7c-be98-09efddfc740b",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.151Z"
+  },
+  "E5-080": {
+   "question_id": "01a1e13b-8109-719d-a845-b5b7dec35f0f",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.168Z"
+  },
+  "E5-081": {
+   "question_id": "01a1e171-3b77-7df9-a234-6b0698e34691",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.175Z"
+  },
+  "E5-082": {
+   "question_id": "01a1e171-3b7e-7bdd-8022-b0a137850d9d",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.188Z"
+  },
+  "E5-083": {
+   "question_id": "01a1e171-3b81-7d2b-8cd9-c1669885f749",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.198Z"
+  },
+  "E5-084": {
+   "question_id": "01a1e171-3b83-7521-8b5b-a422b843d241",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.206Z"
+  },
+  "E5-085": {
+   "question_id": "01a1e171-3b84-7ddd-92db-cfe9891ad627",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.218Z"
+  },
+  "E5-086": {
+   "question_id": "01a1e171-3b86-7576-b971-b297d28fa8e6",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.226Z"
+  },
+  "E5-087": {
+   "question_id": "01a1e171-3b87-7dbd-bced-7b9dde7efe75",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.235Z"
+  },
+  "E5-088": {
+   "question_id": "01a1e171-3b89-7144-9276-190e294194cc",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.247Z"
+  },
+  "E5-089": {
+   "question_id": "01a1e171-3b8a-7f33-9abe-88666c45cc56",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.261Z"
+  },
+  "E5-090": {
+   "question_id": "01a1e171-3b8c-7003-972e-11be1859272c",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.269Z"
+  },
+  "E5-091": {
+   "question_id": "01a1e171-8fd4-7388-b396-a3cb2f0f0a04",
+   "decision": "BO",
+   "reason": "TRUNG_LAP",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.279Z"
+  },
+  "E5-092": {
+   "question_id": "01a1e171-8fd7-79d4-a3b0-d91fe3700e4e",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.287Z"
+  },
+  "E5-093": {
+   "question_id": "01a1e171-8fd9-7361-b55d-528679657e2a",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.297Z"
+  },
+  "E5-094": {
+   "question_id": "01a1e171-8fda-77f5-a35a-47587205d7e7",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.306Z"
+  },
+  "E5-095": {
+   "question_id": "01a1e171-8fdb-76b1-998c-882c1f2ff18f",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.314Z"
+  },
+  "E5-096": {
+   "question_id": "01a1e171-8fdc-79a6-9e09-e7468eca9726",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.329Z"
+  },
+  "E5-097": {
+   "question_id": "01a1e171-8fdd-7835-88b5-f2ec1c3e4091",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.340Z"
+  },
+  "E5-098": {
+   "question_id": "01a1e171-8fde-7906-bcd6-ad495fd2a5b5",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.350Z"
+  },
+  "E5-099": {
+   "question_id": "01a1e171-8fdf-7673-ab0a-5b37ffb24b28",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.363Z"
+  },
+  "E5-100": {
+   "question_id": "01a1e171-8fe0-72f1-9af2-3f7dffed065c",
+   "decision": "BO",
+   "reason": "LAC_DE",
+   "status": "REJECTED",
+   "version": 2,
+   "at": "2026-11-25T14:17:42.372Z"
+  }
+ }
+}

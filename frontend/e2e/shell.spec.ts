@@ -117,7 +117,7 @@ test("active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền �
 
 type Row = [string, string];
 const NAV: Record<string, Row[]> = {
-  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Bài tập", "/assignments"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
+  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Bài tập", "/assignments"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Điểm danh", "/checkin"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
   "student-no-course": [["Hôm nay", "/"]],
   ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Hỏi đáp công khai", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Lỗ hổng kiến thức", "/insights"], ["Số liệu lớp học", "/analytics"]],
   teacher: [],
@@ -198,7 +198,7 @@ test("topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài k
   await expect(page.getByRole("menuitem", { name: "Đăng xuất" })).toBeVisible();
 });
 
-test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV không thấy Điểm danh", async ({ page, context }) => {
+test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV chỉ thấy «Điểm danh» của mình (/checkin)", async ({ page, context }) => {
   mockOnly();
   await asDemo(context, "teacher");
   await page.goto("/");
@@ -236,11 +236,14 @@ test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV kh�
   await page.waitForTimeout(300); // chờ hydrate trước khi bấm phím tắt
   await page.keyboard.press("Control+k");
   await page.getByRole("combobox").fill("diem danh");
-  await expect(page.getByRole("option")).toHaveCount(0);
+  await expect(page.getByRole("option")).toHaveCount(1); // P-11-137: mục «Điểm danh» của sinh viên → /checkin (không phải của staff → /attendance)
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/checkin$/);
+  await page.keyboard.press("Control+k");
   await page.getByRole("combobox").fill("zzzz");
   await expect(page.getByText("Không thấy mục nào khớp.")).toBeVisible();
   await page.getByRole("combobox").fill("");
-  await expect(page.getByRole("option")).toHaveCount(9);
+  await expect(page.getByRole("option")).toHaveCount(10);
 });
 
 test("notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần", async ({ page }) => {
@@ -582,9 +585,9 @@ test("bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; b�
   for (const h of await sheet.locator("a").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().height))) expect(h, "mục ≥ 48 px").toBeGreaterThanOrEqual(48);
 });
 
-test("route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi", async () => {
+test("route access: số mục nav 10 / 13 / 16 / 7 theo vai; canOpen không đổi", async () => {
   const count = (r: DemoRole) => navFor(r === "student" ? "student" : r, true).flatMap((g) => g.items).length;
-  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([9, 13, 16, 7]);
+  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([10, 13, 16, 7]);
 });
 
 // BUG-S9-01 (proposals sprint 9 #12): nhãn bản mô phỏng chỉ thuộc về bản D51, không được hiện ở màn thật.
@@ -606,4 +609,36 @@ test("demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng ·
   await demoPage.goto("/");
   await expect(demoPage.getByText(label).first()).toBeVisible();
   await demoCtx.close();
+});
+
+// M17 + M18 (techlead-ui 2026-11-25): mất mạng rồi bấm thanh đáy không được rời app sang trang lỗi của trình duyệt; dải chỉ một câu.
+async function offlineAtHome(page: Page, context: Parameters<typeof asDemo>[0]) {
+  await asDemo(context, "student");
+  await size(page, 375, 800);
+  await page.goto("/");
+  await page.locator("main:not([aria-busy]) h1").first().waitFor();
+  await context.setOffline(true);
+}
+
+test("M18: mất mạng — dải chỉ «Mất kết nối mạng.»", async ({ page, context }) => {
+  mockOnly();
+  await offlineAtHome(page, context);
+  await expect(page.locator("[data-part=offline-banner] [role=status]")).toHaveText("Mất kết nối mạng.");
+});
+
+test("M17: mất mạng — bấm thanh đáy giữ trang hiện tại; có mạng lại thì điều hướng được", async ({ page, context }) => {
+  mockOnly();
+  await offlineAtHome(page, context);
+  const banner = page.locator("[data-part=offline-banner] [role=status]");
+  await expect(banner).toBeVisible();
+  await page.locator("[data-part=bottom-nav]").getByRole("link", { name: "Luyện đề" }).click();
+  await page.waitForTimeout(1200);
+  expect(page.url()).not.toMatch(/^chrome-error:/);
+  expect(new URL(page.url()).pathname).toBe("/");
+  await expect(page.locator("main")).toBeVisible(); // trang lỗi của trình duyệt không có <main>
+  await expect(banner).toBeVisible();
+  await context.setOffline(false);
+  await expect(banner).toHaveCount(0, { timeout: 5000 });
+  await page.locator("[data-part=bottom-nav]").getByRole("link", { name: "Luyện đề" }).click();
+  await expect(page).toHaveURL(/\/practice/);
 });

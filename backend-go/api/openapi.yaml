@@ -13000,7 +13000,7 @@ components:
           type: array
           items:
             type: object
-            required: [at, ends_at, title, place, state, course]
+            required: [at, ends_at, title, place, state, course, checkin_link]
             additionalProperties: false
             properties:
               at:
@@ -13018,6 +13018,9 @@ components:
                 enum: [NOW, NEXT, DONE]
               course:
                 $ref: "#/components/schemas/TodayCourse"
+              checkin_link:
+                type: boolean
+                description: Hàng có liên kết «Điểm danh» (lớp bật điểm danh bằng mã, buổi hôm nay, từ 15 phút trước giờ bắt đầu đến hết giờ); theo khung giờ, không theo cửa sổ điểm danh (P-11-137)
         continue:
           type: array
           maxItems: 3

@@ -122,6 +122,26 @@ test("student today: continue learning — tối đa 3 phiên chat, mở đúng 
   await expect(main(page)).toContainText("Lớp 761988");
 });
 
+// P-11-137 (US-AS-15 AC16b): hàng buổi hôm nay có liên kết «Điểm danh» khi máy chủ bật cờ checkin_link (khung giờ, lớp bật); không cờ thì không có liên kết.
+test("student today: hàng buổi có checkin_link ⇒ liên kết «Điểm danh» → /checkin?course=…; không cờ ⇒ không có", async ({ page }, info) => {
+  const row = (no: number, over: Json) => ({ at: "2026-10-15T02:00:00Z", ends_at: "2026-10-15T04:30:00Z", title: `Buổi ${no} · An ninh mạng`, place: `P.30${no}`, state: "NOW", course: c1, ...over });
+  await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () => student({ timeline: [row(1, { checkin_link: true }), row(2, { checkin_link: false }), row(3, {})] }));
+  const links = main(page).getByRole("link", { name: "Điểm danh", exact: true });
+  await expect(links).toHaveCount(1);
+  await expect(links).toHaveAttribute("href", `/checkin?course=${C1}`);
+  if (info.project.name === "mobile") {
+    expect((await links.boundingBox())!.height).toBeGreaterThanOrEqual(44); // vùng chạm ở 375
+    // < 720 px nút xuống DƯỚI dòng meta, không đứng cạnh tiêu đề làm tiêu đề xuống dòng
+    const li = main(page).locator("[data-ep-action-list] > li").first();
+    const link = (await links.boundingBox())!;
+    const meta = (await li.getByText("Đang diễn ra").boundingBox())!;
+    expect(link.y).toBeGreaterThanOrEqual(meta.y + meta.height - 1);
+    const title = li.getByText("Buổi 1 · An ninh mạng");
+    expect((await title.boundingBox())!.height).toBeLessThan(30); // một dòng
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
 test("student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11)", async ({ page }) => {
   const chat = (id: string, title: string, at: string, course = c1) => ({ kind: "CHAT", id, title, href: `/chat?session=${id}`, course, at });
   await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () =>
@@ -348,4 +368,23 @@ test("staff attention block: không có AT_RISK thì không hiện khối", asyn
   await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([]));
   await expect(main(page).getByText("Bạn đã xử lý hết việc")).toBeVisible();
   await expect(main(page).getByRole("heading", { name: "Lớp cần chú ý" })).toHaveCount(0);
+});
+
+// M11 (mobile review 25/11): nút chính là động từ, không bao giờ lặp tiêu đề việc
+for (const [kind, label] of [["EXAM_RESULT", "Xem kết quả"], ["KIND_CHUA_BIET", "Mở"]] as const) {
+  test(`student today: việc loại ${kind} ⇒ nút «${label}», không lặp tiêu đề`, async ({ page }) => {
+    const title = "Điểm bài thi Kiểm tra tuần 9 — Mật mã đã công bố";
+    await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () => student({ recommended: item(kind, title, "Đã công bố", { href: "/exams" }) }));
+    const act = main(page).locator("[data-part=primary-action]");
+    await expect(act).toHaveText(label);
+  });
+}
+
+// M20 (mobile review 25/11): việc không có ngữ cảnh ⇒ không có dòng ngữ cảnh rỗng trước nút
+test("staff today @375: việc không có lý do không chừa dòng ngữ cảnh rỗng", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([item("SESSION_UNMARKED", "Buổi 4 chưa điểm danh", "", { href: "/attendance", course: c1 })]));
+  const row = main(page).locator("li[data-kind=SESSION_UNMARKED]");
+  await expect(row).toBeVisible();
+  await expect(row.locator('span[class*="context"]')).toHaveCount(0);
 });

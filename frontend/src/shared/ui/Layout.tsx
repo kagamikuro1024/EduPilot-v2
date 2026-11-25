@@ -232,6 +232,7 @@ export function Split({
   listCollapsed = false,
   pending = false,
   only,
+  barePanel = false,
 }: {
   main: ReactNode;
   aside: ReactNode;
@@ -246,10 +247,12 @@ export function Split({
   pending?: boolean;
   /** `main-aside` / `half` dưới 1100 px: chỉ hiện một ngăn (màn có tab «Bài làm / Chấm») */
   only?: "main" | "aside";
+  /** `list-detail`: bỏ khung Panel ở màn hẹp + cảm ứng (vùng toàn cột, vd `/chat`) */
+  barePanel?: boolean;
 }) {
   if (ratio === "list-detail") {
     return (
-      <Panel>
+      <Panel bareMobile={barePanel}>
         <div className={s.listDetail} data-ep-split="list-detail" data-ep-split-fill={fill ? "" : undefined} data-detail-open={detailOpen ? "" : undefined} data-list-collapsed={listCollapsed ? "" : undefined} data-pending={pending ? "" : undefined}>
           <div className={s.ldList}>{main}</div>
           <div className={s.ldDetail}>{aside}</div>

@@ -841,7 +841,7 @@ Primary job: a student is marked present in one action, within 3 s of scanning, 
 Role: STUDENT. TA / TEACHER / ADMIN get the standard blocked screen with no API call.
 
 Frame (§23): inside the app shell, kind `read`, `h1` `Điểm danh`, no header meta (the course is in the top bar), one `Panel`.
-- The route is not in `nav.ts`, so `frame.spec.ts` lists it explicitly (P-108-8).
+- The route is a student item in `nav.ts` (`Điểm danh`, one of the 10 student items: sidebar, «Thêm» on mobile, «Tìm nhanh»), so `frame.spec.ts` covers it through the nav list like any other route (P-11-137).
 - Route group `app/(checkin)/checkin/`. Its layout runs BEFORE `AuthGate`:
   1. Store `{c, token, at}` in `sessionStorage` (`ep.checkin`, ≤ 60 s).
   2. Clear the hash with `history.replaceState`.
@@ -865,6 +865,7 @@ States (one panel, content centred in the read column):
 - Only facts. No sentence explaining how check-in works, no install prompt, no tips.
 - The success check is the only red on the screen. Errors use the standard danger notice.
 - Scanner:
+  - "With `BarcodeDetector`" means more than the API and `qr_code` being listed: one trial `detect()` on a sample QR drawn in place must return a result; an error, zero results, or no answer within 3 s counts as no detector, and the screen shows only the `Mã điểm danh` field (P-11-131).
   - `getUserMedia({video: {facingMode: "environment"}})` + `BarcodeDetector({formats: ["qr_code"]})`, about 5 frames per second.
   - Accept only: `origin` = the app's origin, path `/checkin`, `c` a UUID, a non-empty hash. Other codes are ignored silently.
   - `track.stop()` on accept, `Thoát`, leaving the route, and `visibilitychange` to hidden.

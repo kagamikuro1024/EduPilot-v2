@@ -11,3 +11,11 @@ test("history rỗng: có nút Luyện ngay về /practice", async ({ page, cont
   await page.getByRole("link", { name: "Luyện ngay" }).click();
   await expect(page).toHaveURL(/\/practice$/);
 });
+
+// M7 (techlead-ui 2026-11-25, DESIGN §23.4): nút trong EmptyState luôn secondary, không phải nút đỏ.
+test("history rỗng: nút «Luyện ngay» là secondary", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  await practiceApi(page);
+  await page.goto("/practice/history");
+  await expect(page.getByRole("link", { name: "Luyện ngay" })).toHaveAttribute("data-variant", "secondary");
+});
