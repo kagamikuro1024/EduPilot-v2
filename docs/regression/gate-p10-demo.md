@@ -388,3 +388,17 @@ Dữ liệu QC tạo trên ep-qc: 2 lượt thi (sv36 CLOSED, sv.gioi TIMEOUT) �
 | LCP `/assignments/[id]` và `/practice/[attemptId]` trên ep-qc ở ac0f52b9 (THAM KHẢO — kết luận chấm trên sha mới của dev2) | xem dưới | Lighthouse devtools 3 lượt, đăng nhập sv.kha, «Đã hiểu» đã bấm (`auth-qc.cjs`) |
 
 LCP (ms, 3 lượt): `/assignments/<id>?course=` devtools 1905/1905/1901 (trung vị 1905, TBT ≤ 46, CLS 0,028); `/practice/<id>?course=` devtools 1915/1924/1912 (1915, TBT ≤ 60, CLS 0). URL trần (tham khảo, không chấm): `/assignments/<id>` 1516/1545/1534; `/practice/<id>` **5485/5457/5423** (phần tử LCP = `h1.ep-page-title`). Simulate với `?course=`: assignments 2814/2741/2564; practice 3010/3007/2485.
+
+## L2.10 Chấm chính thức TC-08-02 + TC-12-17 (ep-qc frontend ở f2ffcff7)
+
+Lighthouse devtools, 3 lượt/route, trung vị, build production, đăng nhập sv.kha (27 lớp, không lớp nhớ), «Đã hiểu» đã bấm (`auth-qc.cjs`), URL CÓ `?course=`.
+
+| Route | 3 lượt LCP (ms) | Trung vị | ≤ 2.500 | TBT | CLS | Script (truyền) |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/assignments/<id>?course=` (TC-08-02) | 1922 / 1909 / 1907 | **1909** | **P** | ≤ 50 | 0,028 | 214 KB |
+| `/practice/<attemptId>?course=` (TC-12-17) | 1909 / 1908 / 1924 | **1909** | **P** | ≤ 46 | 0 | 220 KB (≤ 256) |
+
+URL trần (tham khảo, không chấm; giới hạn đã biết): `/assignments/<id>` 1543/1496/1512; `/practice/<id>` 5493/5443/5478 (LCP = `h1.ep-page-title`). Ngưỡng Lighthouse không đổi (cấu hình `lighthouserc*.json` không đụng).
+
+Soát tay (Chromium headless, 1440 + 375; ảnh `evidence-gate-p10-r3/`): chữ không nhảy lúc thay khung bằng nội dung thật, không trùng chữ, dấu tiếng Việt đúng phông Be Vietnam Pro, không cuộn ngang (scrollWidth = innerWidth). Network `/assignments/<id>?course=`: **đúng 1** `GET …/assignments/<id>/mine` (+ refresh, events, notifications, me/courses). → **P**.
+Quan sát (không chấm): (1) `/practice/<id>?course=` gọi `GET …/practice/attempts/<id>` **2 lần**; (2) tiêu đề thanh trên hiện lớp mặc định «761987 · An ninh mạng» khoảng 20 ms rồi đổi sang lớp của `?course=` («QD105A» / «QD10C»); (3) mô tả bài tập hiện nguyên dấu `#`/`##` của markdown («# Bài tập 03…», «## Đề bài»), cả bản sớm lẫn bản cuối như nhau.
