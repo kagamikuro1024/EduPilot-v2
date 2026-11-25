@@ -119,7 +119,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
-| NET-01 | **F (Thấp)** | 400 kbit/s + RTT 2 s (CDP): khung **5 360 ms** (ngưỡng 3 000), nội dung 5 364 ms, không cuộn ngang → **DEF-MOB-04** (môi trường giả lập, ghi rõ) |
+| NET-01 | **N** | Đo được 400 kbit/s + RTT 2 s (CDP): khung 5 360 ms, nội dung 5 364 ms, không cuộn ngang. **DEF-MOB-04 RÚT** theo P-11-143 (TC đặt ngưỡng 3 s không neo AC) — số đo giữ làm tham chiếu, không tính F |
 | NET-02 | **F (Trung bình)** | Offline khi gửi mã: hiện «Chưa có mạng.», mã giữ nguyên, **KHÔNG có nút `Thử lại`** (đường mã chỉ hiện câu lỗi dưới ô) → **DEF-MOB-02** |
 | NET-03 | **P** | Có mạng lại: bấm `Điểm danh` lần nữa → «Đã điểm danh», `checked_in=1`, không tải lại trang |
 | NET-07 | **F (Trung bình)** | POST chậm 20 s: sau **16 s vẫn «đang gửi»**, không có «Chưa có mạng.» (TC: trong 15 s) → **DEF-MOB-03** |
@@ -160,10 +160,10 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | 6.G UIW | 16 | 0 | 6 |
 | 6.I TXT | 1 | 0 | 7 |
 | 6.K KBD | 6 | 0 | 6 |
-| 6.N NET | 1 | 3 | 8 |
+| 6.N NET | 0 | 3 | 9 |
 | 6.R TGT | 3 | 0 | 3 |
 | 6.X ATT | 7 | 0 | 4 |
-| **Cộng** | **73** | **5** | **61** |
+| **Cộng** | **72** | **4** | **62** |
 
 ## DEF mới
 
@@ -172,7 +172,6 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | DEF-MOB-01 | Thấp | Lớp đã lưu trữ hiện «Lớp này không điểm danh bằng mã.» thay vì câu về lớp lưu trữ (FLW-13) | Máy chủ: lớp ARCHIVED trả `attendance.self_checkin=false`; giao diện chỉ có nhánh "tắt điểm danh" |
 | DEF-MOB-02 | Trung bình | Mất mạng khi gửi **mã ngắn**: có «Chưa có mạng.» nhưng **không có nút `Thử lại`** (đường token thì có) (NET-02, MSG-07) | `CheckinScreen.describe` → `viaCode` chỉ đặt lỗi dưới ô, không gắn `retry` |
 | DEF-MOB-03 | Trung bình | Máy chủ trả lời POST chậm 20 s: sau 16 s vẫn «đang gửi», không có «Chưa có mạng.» / hết giờ (NET-07) | Gọi `apiClient.post` không có hạn giờ; chỉ đổi trạng thái khi promise kết thúc |
-| DEF-MOB-04 | Thấp | Mạng 400 kbit/s + RTT 2 s: khung 5 360 ms (ngưỡng PVC 3 000) (NET-01) | Đo bằng CDP trên Chromium giả lập — môi trường khác thiết bị thật |
 
 ## Ghi chú
 
