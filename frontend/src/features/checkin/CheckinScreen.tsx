@@ -95,11 +95,13 @@ export function CheckinScreen() {
   // Lớp không bật điểm danh bằng mã (US-AS-15 AC16d): biết TRƯỚC khi sinh viên gõ gì; không ô nhập, không gọi POST. Chính sách do máy chủ trả cho mọi thành viên (US-AS-01 AC6).
   const policy = useQuery({
     queryKey: ["course-policy", course],
-    queryFn: ({ signal }) => apiClient.get<{ attendance?: { self_checkin?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
+    queryFn: ({ signal }) => apiClient.get<{ status?: string; attendance?: { self_checkin?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
     enabled: role === "student" && course !== "" && !stash,
     staleTime: 30_000,
   });
-  const disabled = !stash && view.k === "entry" && policy.data?.attendance?.self_checkin === false;
+  // Lớp đã LƯU TRỮ (DEF-MOB-01, SRS `COURSE_ARCHIVED`): nói đúng nguyên nhân, không lẫn với lớp tắt điểm danh bằng mã.
+  const archived = !stash && policy.data?.status === "ARCHIVED";
+  const disabled = !stash && !archived && view.k === "entry" && policy.data?.attendance?.self_checkin === false;
   const checking = !stash && view.k === "entry" && policy.isPending && policy.fetchStatus !== "idle"; // đang hỏi chính sách lớp: khung xương, chưa vẽ ô nhập
 
   const submit = useCallback(
@@ -226,7 +228,7 @@ export function CheckinScreen() {
   }
 
   let primary: HeaderAction | undefined;
-  if (disabled || checking) {
+  if (archived || disabled || checking) {
     primary = undefined;
   } else if (view.k === "entry") {
     primary = canScan && !codeMode ? { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true } : { label: "Điểm danh", onClick: sendCode, disabled: code.trim() === "" || !course, docked: true };
@@ -266,8 +268,9 @@ export function CheckinScreen() {
             />
           )}
           {checking && <Skeleton lines={2} />}
+          {archived && <p data-part="checkin-archived">Lớp này đã được lưu trữ.</p>}
           {disabled && <p data-part="checkin-disabled">Lớp này không điểm danh bằng mã.</p>}
-          {view.k === "entry" && !disabled && !checking && (canScan && !codeMode ? (
+          {view.k === "entry" && !archived && !disabled && !checking && (canScan && !codeMode ? (
             <Button variant="ghost" onClick={() => setCodeMode(true)}>Nhập mã</Button>
           ) : (
             <form

@@ -12,7 +12,7 @@ export const item = (id: string, code: string, role = "STUDENT") => ({ course: {
 export type Post = { url: string; headers: Record<string, string>; body: Record<string, unknown> };
 type Handler = (r: Route, n: number) => Promise<void> | void;
 
-export async function checkinApi(page: Page, context: BrowserContext, o: { role?: DemoRole; geoCheck?: boolean; selfCheckin?: boolean; post?: Handler } = {}) {
+export async function checkinApi(page: Page, context: BrowserContext, o: { role?: DemoRole; geoCheck?: boolean; selfCheckin?: boolean; status?: string; post?: Handler } = {}) {
   await asDemo(context, o.role ?? "student");
   await page.route("**/api/v1/me/courses**", (r) => r.fulfill(json({ items: [item(COURSE, "761988")], next_cursor: null })));
   const log = { posts: [] as Post[], urls: [] as string[], headers: [] as string[], course: 0 };
@@ -23,7 +23,7 @@ export async function checkinApi(page: Page, context: BrowserContext, o: { role?
   });
   await page.route(`**/api/v1/courses/${COURSE}`, (r) => {
     log.course++;
-    return r.fulfill(json({ id: COURSE, class_code: "761988", attendance: { self_checkin: o.selfCheckin ?? true, require: "WEB", geo_check: o.geoCheck ?? false } }));
+    return r.fulfill(json({ id: COURSE, class_code: "761988", status: o.status ?? "ACTIVE", attendance: { self_checkin: o.selfCheckin ?? true, require: "WEB", geo_check: o.geoCheck ?? false } }));
   });
   await page.route(`**/api/v1/courses/${COURSE}/checkins`, (r, ) => {
     const req = r.request();

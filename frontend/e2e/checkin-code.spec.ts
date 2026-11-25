@@ -88,3 +88,26 @@ test("checkin code: cỡ chữ thường 360/375/390 → nhãn thanh điều hư
     expect(cut, `${w}px`).toEqual([]);
   }
 });
+
+// DEF-MOB-01 (qc FLW-13): lớp đã LƯU TRỮ ⇒ báo đúng nguyên nhân, dùng câu có sẵn của SRS (`COURSE_ARCHIVED`: «Lớp này đã được lưu trữ.»),
+// không rơi nhánh «Lớp này không điểm danh bằng mã.» (gateway trả self_checkin=false cho lớp lưu trữ).
+test("checkin code: lớp đã lưu trữ → «Lớp này đã được lưu trữ.», không ô nhập, không nút Điểm danh", async ({ page, context }) => {
+  const log = await checkinApi(page, context, { status: "ARCHIVED", selfCheckin: false });
+  await page.goto("/checkin");
+  await expect(page.getByText("Lớp này đã được lưu trữ.")).toBeVisible();
+  await expect(page.getByText("Lớp này không điểm danh bằng mã.")).toHaveCount(0);
+  await expect(page.getByLabel("Mã điểm danh")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Điểm danh", exact: true })).toHaveCount(0);
+  expect(log.posts).toHaveLength(0);
+});
+
+// DEF-MOB-01 (US-AS-15 AC18): lớp bị lưu trữ GIỮA LÚC mở màn (409 COURSE_ARCHIVED khi gửi) ⇒ cùng câu «Lớp này đã được lưu trữ.»
+test("checkin code: gửi mã mà lớp vừa bị lưu trữ (409 COURSE_ARCHIVED) → «Lớp này đã được lưu trữ.»", async ({ page, context }) => {
+  const log = await checkinApi(page, context, { post: (r) => r.fulfill(json({ code: "COURSE_ARCHIVED", message: "Lớp này đã được lưu trữ.", trace_id: "c".repeat(32) }, 409)) });
+  await page.goto("/checkin");
+  const field = page.getByLabel("Mã điểm danh");
+  await field.fill("ABC123");
+  await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
+  await expect(page.getByText("Lớp này đã được lưu trữ.")).toBeVisible();
+  expect(log.posts).toHaveLength(1);
+});
