@@ -198,3 +198,29 @@ func TestAnswerIdempotentKey(t *testing.T) {
 	c3, _ := call(h, gv, "POST", url, `{"body":"Nội dung khác"}`, "Idempotency-Key", key)
 	require.Equal(t, 422, c3, "cùng khoá, thân khác")
 }
+
+// FLOWS F2: ticket theo phạm vi LỚP — giảng viên nhận lớp SAU khi ticket tạo thấy ticket đang mở của lớp ở hàng chờ; giảng viên chỉ ở lớp khác thì không.
+func TestNewTeacherSeesOpenTicketsOfCourse(t *testing.T) {
+	r := newRig(t, escalation.Config{})
+	h := r.api(t)
+	id := r.ticket("Hỏi trước khi GV mới vào lớp")
+
+	newGV := who{r.user("GV mới", "TEACHER"), "TEACHER"}
+	otherGV := who{r.user("GV lớp khác", "TEACHER"), "TEACHER"}
+	r.exec(`update enrollments set status = 'REMOVED', removed_at = now() where course_id = $1 and user_id = $2`, r.course, r.teacher) // mỗi lớp một giảng viên: đổi giữa kỳ
+	r.enroll(r.course, newGV.id, "TEACHER", "ACTIVE")                                                                                  // sau khi ticket đã tạo
+	r.enroll(r.newCourse("ACTIVE"), otherGV.id, "TEACHER", "ACTIVE")
+
+	code, body := call(h, newGV, "GET", "/me/tickets?status=OPEN", "")
+	require.Equal(t, http.StatusOK, code, body)
+	require.Contains(t, body, id.String(), "GV mới thấy ticket OPEN của lớp trong hàng chờ")
+	code, body = call(h, newGV, "GET", "/courses/"+r.course.String()+"/tickets?status=OPEN", "")
+	require.Equal(t, http.StatusOK, code, body)
+	require.Contains(t, body, id.String())
+
+	code, body = call(h, otherGV, "GET", "/me/tickets?status=OPEN", "")
+	require.Equal(t, http.StatusOK, code, body)
+	require.NotContains(t, body, id.String(), "GV lớp khác không thấy ticket của lớp này")
+	code, _ = call(h, otherGV, "GET", "/courses/"+r.course.String()+"/tickets?status=OPEN", "")
+	require.Equal(t, http.StatusForbidden, code, "không phải thành viên lớp: guard chặn")
+}
