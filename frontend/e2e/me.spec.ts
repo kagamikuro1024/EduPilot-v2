@@ -168,6 +168,23 @@ test("me 375: một cột, không tràn ngang, chữ Việt dài không vỡ", a
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
 
+// DEF-GP10-06 (SRS FEAT-attendance-selfcheck §/me): buổi có `checked_in_at` hiện «Điểm danh lúc hh:mm» kể cả «Có mặt»; buổi Có mặt do giảng viên ghi tay (không có lượt) vẫn không liệt kê.
+for (const [w, h] of [[1440, 900], [375, 812]] as const) test(`me @${w}: buổi Có mặt có giờ tự điểm danh hiện «Điểm danh lúc», Có mặt ghi tay thì không`, async ({ page }) => {
+  await page.setViewportSize({ width: w, height: h });
+  await api(page, COURSE, { attendance: () => att({ sessions: [
+    { session_no: 10, starts_at: "2026-10-08T02:00:00Z", status: "PRESENT", checked_in_at: "2026-10-08T02:05:00Z" },
+    { session_no: 9, starts_at: "2026-10-01T02:00:00Z", status: "PRESENT" },
+    { session_no: 8, starts_at: "2026-09-24T02:00:00Z", status: "LATE", checked_in_at: "2026-09-24T02:37:00Z" },
+  ] }) });
+  await page.goto("/me");
+  const sec = page.locator("section", { has: page.getByRole("heading", { name: "Chuyên cần" }) });
+  await expect(sec.getByText("Buổi 10 · 08/10")).toBeVisible();
+  await expect(sec.getByText(/^Có mặt · Điểm danh lúc \d{2}:\d{2}$/)).toHaveCount(1);
+  await expect(sec.getByText(/^Muộn · Điểm danh lúc \d{2}:\d{2}$/)).toHaveCount(1);
+  await expect(sec.getByText(/Buổi 9 ·/)).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
 // ---- US-P6-09: khối Điểm trên /me ------------------------------------------------------------------------------------------------------------
 const comp = (key: string, name: string, weight: string, score?: string) => ({ key, name, weight, status: score ? "PUBLISHED" : "PENDING", ...(score ? { score } : {}) });
 const inProgress = (over: Record<string, unknown> = {}) => ({
