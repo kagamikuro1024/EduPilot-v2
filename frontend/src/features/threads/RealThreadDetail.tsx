@@ -33,12 +33,14 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
           <div className={r.detail}>
             <Panel>
               <div className={r.question} data-part="thread-question">
-                <div className={r.head}>
-                  <span className={r.who}>{q.data.thread.author.full_name}</span>
-                  <span>{formatWhen(q.data.thread.created_at)}</span>
-                  {q.data.thread.week_no !== null && <span>Tuần {q.data.thread.week_no}</span>}
-                  {q.data.thread.tags.map((t) => <span key={t}>#{t}</span>)}
-                  {q.data.thread.edited && <span>đã sửa</span>}
+                <div className={r.headRow}>
+                  <div className={r.headMeta}>
+                    <span className={r.who}>{q.data.thread.author.full_name}</span>
+                    <span>{formatWhen(q.data.thread.created_at)}</span>
+                    {q.data.thread.week_no !== null && <span>Tuần {q.data.thread.week_no}</span>}
+                    {q.data.thread.tags.map((t) => <span key={t}>#{t}</span>)}
+                    {q.data.thread.edited && <span>đã sửa</span>}
+                  </div>
                   {th && (
                     <PostMenu
                       courseId={courseId}
@@ -58,7 +60,7 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
                 {editing && th ? (
                   <EditForm courseId={courseId} target={{ kind: "thread", id, version: th.version ?? 1 }} title={th.title} body={th.body} canChat={role === "student"} onDone={() => setEditing(false)} onCancel={() => setEditing(false)} />
                 ) : (
-                  <p className={r.body}>{q.data.thread.body}</p>
+                  <Markdown source={q.data.thread.body} />
                 )}
                 {staff && q.data.thread.ai_state === "SKIPPED" && <p className={r.collapsed}>AI chưa trả lời: {SKIP_LABEL[q.data.thread.ai_skip_reason ?? ""] ?? "không đủ tin cậy"}</p>}
               </div>
@@ -91,15 +93,17 @@ function HumanPost({ courseId, p, staff, canChat }: { courseId: string; p: Threa
   const target = { kind: "post" as const, id: p.id, version: p.version };
   return (
     <div className={r.post}>
-      <div className={r.head}>
-        <span className={r.who}>{p.author?.full_name}</span>
-        {p.author && p.author.role !== "STUDENT" && <span>{p.author.role === "TEACHER" ? "Giảng viên" : p.author.role === "TA" ? "Trợ giảng" : ""}</span>}
-        <span>{formatWhen(p.created_at)}</span>
-        {p.edited && <span>đã sửa</span>}
+      <div className={r.headRow}>
+        <div className={r.headMeta}>
+          <span className={r.who}>{p.author?.full_name}</span>
+          {p.author && p.author.role !== "STUDENT" && <span>{p.author.role === "TEACHER" ? "Giảng viên" : p.author.role === "TA" ? "Trợ giảng" : ""}</span>}
+          <span>{formatWhen(p.created_at)}</span>
+          {p.edited && <span>đã sửa</span>}
+        </div>
         <PostMenu courseId={courseId} target={target} mine={p.author?.is_me ?? false} staff={staff} hidden={p.hidden} canEdit onEdit={() => setEditing(true)} />
       </div>
       {p.hidden && <HiddenNotice hidden={p.hidden} staff={staff} />}
-      {editing ? <EditForm courseId={courseId} target={target} body={p.body} canChat={canChat} onDone={() => setEditing(false)} onCancel={() => setEditing(false)} /> : <p className={r.body}>{p.body}</p>}
+      {editing ? <EditForm courseId={courseId} target={target} body={p.body} canChat={canChat} onDone={() => setEditing(false)} onCancel={() => setEditing(false)} /> : <Markdown source={p.body} />}
     </div>
   );
 }

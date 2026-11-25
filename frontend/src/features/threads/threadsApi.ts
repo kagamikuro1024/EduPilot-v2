@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, useCursorList } from "@/shared/data";
+import { stripComments } from "@/shared/lib/markdown";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/courses/{id}/threads*`, `/posts/{id}/*`).
 export type Author = { full_name: string; role: string; is_me: boolean };
@@ -39,7 +40,7 @@ export const ANSWER_LABEL: Record<string, { tone: "amber" | "green" | "neutral";
 
 /** Đoạn trích của danh sách (US-UX91-19 AC1): bỏ ký tự đầu dòng markdown (`-`, `·`, `*`, `#`, `>`), gộp xuống dòng thành khoảng trắng, tổng ≤ 140 ký tự kèm `…`. Rỗng thì không hiện dòng. */
 export function cleanExcerpt(s: string | null | undefined): string {
-  const t = (s ?? "").split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*·#>]+\s*)+/, "")).join(" ").replace(/\s+/g, " ").trim();
+  const t = stripComments(s ?? "").split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*·#>]+\s*)+/, "")).join(" ").replace(/\s+/g, " ").trim();
   return t.length > 140 ? `${t.slice(0, 139).trimEnd()}…` : t;
 }
 export const SKIP_LABEL: Record<string, string> = { NO_CONTEXT: "Không có tài liệu liên quan", LOW_SCORE: "Tài liệu chưa đủ sát", LLM_UNAVAILABLE: "AI đang gián đoạn" };

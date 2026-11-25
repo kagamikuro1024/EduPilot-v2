@@ -39,7 +39,7 @@ async function loadOrCreate(): Promise<Rec> {
     const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, false, ["sign", "verify"]);
     const rec: Rec = { id: ID, privateKey: pair.privateKey, publicKey: b64(await crypto.subtle.exportKey("spki", pair.publicKey)) };
     await tx(db, "readwrite", (s) => s.put(rec));
-    void navigator.storage?.persist?.().catch(() => undefined); // giữ khoá khi trình duyệt thiếu bộ nhớ (iOS: cài vào Màn hình chính giữ quá 7 ngày)
+    void navigator.storage?.persist?.().catch(() => undefined); // giữ khoá khi trình duyệt thiếu bộ nhớ (iOS: chỉ khoá tạo TRONG PWA cài vào Màn hình chính giữ quá 7 ngày; khoá tạo ở Safari là kho khác, có thể bị xoá sau 7 ngày không mở — P-11-137)
     return rec;
   } finally {
     db.close();

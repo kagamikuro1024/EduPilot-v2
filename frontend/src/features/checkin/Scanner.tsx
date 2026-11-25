@@ -10,8 +10,9 @@ type DetectorCtor = new (o: { formats: string[] }) => Detector;
 export const hasBarcodeDetector = () => typeof window !== "undefined" && "BarcodeDetector" in window;
 
 /**
- * Quét QR chạy được thật? `BarcodeDetector` có mà không đọc `qr_code` (danh sách định dạng rỗng / thiếu, hàm dựng ném lỗi) thì không hiện nút quét:
- * bấm vào chỉ rơi sang «từ chối camera» (DEF-R10.8-04). Bản không có `getSupportedFormats` (cũ) coi là có hỗ trợ.
+ * Quét QR chạy được thật? Có `BarcodeDetector` + `qr_code` chưa đủ: máy thiếu module GMS (emulator, một số máy Android) báo có nhưng `detect()` ném lỗi
+ * («not operational»). Nên thử đọc MỘT mã QR mẫu vẽ tại chỗ: ném lỗi / không ra kết quả / quá 3 giây = không hỗ trợ, chỉ hiện ô nhập mã (US-AS-11 AC3a, DEF-R10.8-04).
+ * Bản không có `getSupportedFormats` (cũ) vẫn được thử.
  */
 export async function canScanQr(): Promise<boolean> {
   if (!hasBarcodeDetector()) return false;
@@ -19,8 +20,20 @@ export async function canScanQr(): Promise<boolean> {
   try {
     const formats = await C.getSupportedFormats?.();
     if (Array.isArray(formats) && !formats.includes("qr_code")) return false;
-    new C({ formats: ["qr_code"] });
-    return true;
+    const det = new C({ formats: ["qr_code"] });
+    const { encode } = await import("uqr");
+    const { data } = encode("https://edupilot.invalid/checkin", { ecc: "L", border: 4 });
+    const scale = 4;
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = data.length * scale;
+    const g = cv.getContext("2d");
+    if (!g) return false;
+    g.fillStyle = "white";
+    g.fillRect(0, 0, cv.width, cv.height);
+    g.fillStyle = "black";
+    data.forEach((row, y) => row.forEach((on, x) => on && g.fillRect(x * scale, y * scale, scale, scale)));
+    const found = await Promise.race([det.detect(cv as unknown as HTMLVideoElement), new Promise<never[]>((r) => setTimeout(() => r([]), 3000))]);
+    return found.length > 0;
   } catch {
     return false;
   }
@@ -41,7 +54,7 @@ export function parseCheckinQr(raw: string): { c: string; token: string } | null
 }
 
 /** Camera sau + `BarcodeDetector` ~5 khung/giây. `track.stop()` khi nhận mã, `Thoát`, rời route, ẩn tab. */
-export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string; token: string }) => void; onExit: () => void; onDenied: () => void }) {
+export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string; token: string }) => void; onExit: () => void; onDenied: (why: "denied" | "failed") => void }) {
   const video = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
   const cb = useRef({ onCode, onExit, onDenied });
@@ -90,9 +103,13 @@ export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string;
             /* khung không đọc được: thử khung sau */
           }
         }, 200);
-      } catch {
+      } catch (e) {
+        const wasAlive = alive; // đã thoát / rời màn lúc đang khởi động (Back nhanh): `play()` bị huỷ không phải lỗi camera
         stop();
-        cb.current.onDenied();
+        if (!wasAlive) return;
+        // quyền bị từ chối ≠ camera hỏng / đang bị app khác dùng (US-AS-15 AC14): hai câu khác nhau, không bao giờ lộ tên lỗi
+        const n = (e as { name?: string } | null)?.name;
+        cb.current.onDenied(n === "NotAllowedError" || n === "SecurityError" || n === "PermissionDeniedError" ? "denied" : "failed");
       }
     })();
     return () => {

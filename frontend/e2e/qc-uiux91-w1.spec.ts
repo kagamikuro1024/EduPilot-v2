@@ -148,7 +148,9 @@ test("TC-UX03-1..4,12 /dev/ui: nút khoá có lý do (DOM, tooltip, click, opaci
   const id = (await btn.getAttribute("aria-describedby"))!;
   const reason = (await page.evaluate((i) => document.getElementById(i.split(" ")[0])?.textContent ?? "", id)).trim();
   expect(reason.length).toBeGreaterThan(3);
-  expect(await btn.evaluate((e) => getComputedStyle(e).opacity)).toBe("0.45");
+  // M6 (P-11-133): khoá = nền trung tính, không còn «đỏ mờ» opacity .45
+  expect(await btn.evaluate((e) => getComputedStyle(e).opacity)).toBe("1");
+  expect(await btn.evaluate((e) => { const c = document.createElement("canvas"); c.width = c.height = 1; const g = c.getContext("2d")!; g.fillStyle = getComputedStyle(e).backgroundColor; g.fillRect(0, 0, 1, 1); const d = g.getImageData(0, 0, 1, 1).data; return d[0] - d[1]; })).toBeLessThan(40); // đổi mọi màu (rgb / lab) về RGB
   await btn.hover();
   await expect(page.getByRole("tooltip")).toContainText(reason);
   await page.mouse.move(0, 0);

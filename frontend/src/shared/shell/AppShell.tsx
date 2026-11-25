@@ -3,7 +3,7 @@
 import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { lazy, Suspense, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
 import { ALL_COURSES } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
@@ -31,7 +31,8 @@ const CommandPalette = lazy(() => import("@/shared/ui/CommandPalette").then((m) 
 const DemoShellExtras = lazy(() => import("./DemoShellExtras").then((m) => ({ default: m.DemoShellExtras })));
 
 const subscribeNever = () => () => {};
-const NARROW = "(max-width: 719px)";
+// điện thoại: hẹp HOẶC xoay ngang (thấp) trên máy cảm ứng ⇒ khung dưới đáy, không thanh bên chỉ-icon (M2)
+const NARROW = "(max-width: 719px), (max-height: 500px) and (pointer: coarse)";
 const MID = "(max-width: 1099px)";
 function useMedia(query: string) {
   return useSyncExternalStore(
@@ -96,7 +97,51 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setPaletteTick((n) => n + 1);
   };
   const [more, setMore] = useState(false);
-  const [askLogout, setAskLogout] = useState(0); // số thay đổi chưa lưu khi bấm Đăng xuất (0 = không hỏi)
+  const [askLogout, setAskLogout] = useState(0);
+  // DEF-R10.8-07: dock / thanh dính đáy đặt TRÊN thanh điều hướng theo chiều cao THẬT (chữ hệ thống lớn làm thanh cao hơn 56 px).
+  const navRef = useRef<HTMLElement | null>(null);
+  // M21 (US-PU-04 AC1): thanh bên thu gọn — nhãn mục hiện thành chip bên phải thanh khi rê chuột / focus bàn phím.
+  const sideRef = useRef<HTMLElement | null>(null);
+  const [navTip, setNavTip] = useState<{ label: string; top: number } | null>(null);
+  const pointTip = (target: EventTarget | null) => {
+    const a = target instanceof Element ? target.closest("a[href]") : null;
+    const side = sideRef.current;
+    if (!collapsed || !a || !side) return setNavTip(null);
+    const r = a.getBoundingClientRect();
+    setNavTip({ label: a.getAttribute("aria-label") ?? "", top: r.top - side.getBoundingClientRect().top + r.height / 2 });
+  };
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const apply = () => {
+      const h = el.getBoundingClientRect().height;
+      const root = document.documentElement.style;
+      if (h > 0) root.setProperty("--ep-bottom-h", `${Math.round(h)}px`);
+      else root.removeProperty("--ep-bottom-h"); // desktop (thanh ẩn): về mặc định 56 px
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty("--ep-bottom-h");
+    };
+  }, []); // số thay đổi chưa lưu khi bấm Đăng xuất (0 = không hỏi)
+
+  // M17: mất mạng thì Next không lấy được dữ liệu route và tải cả trang ⇒ trình duyệt rời app sang trang lỗi (kẹt cả khi có mạng lại).
+  // Link nội bộ của khung (thanh đáy, «Thêm», thanh bên) giữ trang hiện tại; dải mất mạng là phản hồi.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (navigator.onLine || !(e.target instanceof Element)) return;
+      const a = e.target.closest("a[href]");
+      if (a instanceof HTMLAnchorElement && a.origin === location.origin && !a.target && !a.hasAttribute("download") && a.pathname + a.search !== location.pathname + location.search) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -175,7 +220,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <span className={s.courseCode} title="Tất cả lớp của tôi">Tất cả lớp của tôi</span>
                 ) : (
                   <>
-                    <span className={s.courseCode} title={realPicked?.class_code ?? course.code}>{realPicked?.class_code ?? course.code}</span>
+                    <span className={`${s.courseCode} ${s.courseId}`} title={realPicked?.class_code ?? course.code}>{realPicked?.class_code ?? course.code}</span>
                     {" "}
                     <span className={s.courseName} title={courseTitle}>
                       · {realPicked?.name ?? course.name}
@@ -313,13 +358,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {!narrow && (
-      <aside className={s.sidebar} data-part="sidebar" data-collapsed={collapsed || undefined}>
+      <aside ref={sideRef} className={s.sidebar} data-part="sidebar" data-collapsed={collapsed || undefined}>
         <Link href="/" prefetch={false} className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={32} className={collapsed ? s.logoMark : s.logo} />
         </Link>
 
-        <nav className={s.nav} id="sidebar-nav" aria-label="Điều hướng chính">
+        <nav
+          className={s.nav}
+          id="sidebar-nav"
+          aria-label="Điều hướng chính"
+          onMouseOver={(e) => pointTip(e.target)}
+          onMouseOut={() => setNavTip(null)}
+          onFocus={(e) => pointTip(e.target)}
+          onBlur={() => setNavTip(null)}
+          onScroll={() => setNavTip(null)}
+        >
           {groups.map((g, gi) => (
             <div key={gi} className={s.group}>
               {g.label && !collapsed && <p className={s.groupLabel}>{g.label}</p>}
@@ -333,6 +387,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </nav>
+
+        {collapsed && navTip?.label && (
+          <span className={s.navTip} data-part="nav-tip" aria-hidden="true" style={{ top: navTip.top }}>
+            {navTip.label}
+          </span>
+        )}
 
         <div className={s.sideFoot}>
           {demo && !collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}
@@ -370,7 +430,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {narrow && (
         <>
-          <nav className={s.bottomNav} data-part="bottom-nav" aria-label="Điều hướng chính">
+          <nav ref={navRef} className={s.bottomNav} data-part="bottom-nav" aria-label="Điều hướng chính">
             {mobilePrimary.map((item) => (
               <BottomLink key={item.href} item={item} active={isActive(item.href)} badge={item.badgeKey ? badges[item.badgeKey] : 0} />
             ))}
@@ -387,7 +447,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     ) : null,
                   )}
                 </span>
-                <span>Thêm</span>
+                <span className={s.bottomLabel}>Thêm</span>
               </button>
             )}
           </nav>
@@ -459,7 +519,7 @@ function BottomLink({ item, active, badge }: { item: NavItem; active: boolean; b
           </span>
         ) : null}
       </span>
-      <span>{item.short ?? item.label}</span>
+      <span className={s.bottomLabel}>{item.short ?? item.label}</span>
     </Link>
   );
 }

@@ -4,6 +4,8 @@
 .md h3 { font-size: var(--ep-text-item); }
 .md h4 { font-size: var(--ep-text-label); }
 .md ul, .md ol { margin: 0; padding-left: var(--ep-space-5); display: grid; gap: var(--ep-space-1); }
+.md ul { list-style: disc; }
+.md ol { list-style: decimal; } /* base.css đặt list-style: none cho mọi ul / ol: danh sách trong Markdown phải còn dấu đầu dòng */
 .md code { font-size: var(--ep-text-meta); padding: 0 var(--ep-space-1); border-radius: var(--ep-radius-sm); background: var(--ep-surface-subtle); }
 .pre { margin: 0; padding: var(--ep-space-3); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); overflow-x: auto; font-size: var(--ep-text-meta); line-height: 1.5; white-space: pre; }
 .tableWrap { overflow-x: auto; }

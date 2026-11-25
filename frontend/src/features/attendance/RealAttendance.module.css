@@ -1,8 +1,8 @@
 .picker { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-1) var(--ep-space-2); }
 .picker select { min-width: 190px; }
 @media (max-width: 719px) {
-  .picker { flex: 1; }
-  .picker select { flex: 1; }
+  .picker { flex: 1; flex-direction: column; align-items: stretch; } /* nhãn «Buổi» trên ô chọn: ô chọn đủ bề rộng, nhãn «Chưa điểm danh» không bị cắt (QC VPS) */
+  .picker select { width: 100%; min-width: 0; }
 }
 .longText { display: inline; }
 .shortText { display: none; }
@@ -13,7 +13,7 @@
   .shortText { display: inline; }
   .warnAction { margin-block: calc(var(--ep-space-2) * -1); } /* vùng chạm 44 px không làm khối cảnh báo cao thêm: ≤ 56 px (AC7) */
   /* thanh lưu dính trên thanh điều hướng đáy (56 px), không che hàng cuối nhờ .sheet có đệm (US-UX91-12 AC4) */
-  .saveBar { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) var(--ep-space-4); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+  .saveBar { position: fixed; inset: auto 0 var(--ep-bottom-h) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) var(--ep-space-4); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
   .saveBar button { min-height: 44px; width: 100%; }
 }
 
@@ -24,3 +24,4 @@
   .lineButtons { flex-basis: 100%; margin-inline-start: 0; }
   .lineButtons > * { min-height: 44px; }
 }
+.schemeNotice { margin-block: var(--ep-space-3); }

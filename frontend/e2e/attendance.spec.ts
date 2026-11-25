@@ -19,13 +19,13 @@ const radio = (page: Page, i: number, label: string) => row(page, i).getByRole("
 const bodyOf = (c: { body: string }) => JSON.parse(c.body) as { records: Array<{ student_id: string; status: string; version?: number }>; complete: boolean };
 const desktopOnly = (info: { project: { name: string } }) => test.skip(info.project.name !== "desktop", "đo một lần");
 
-test("attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa, ?session= chọn buổi", async ({ page, context }, info) => {
+test("attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa điểm danh, ?session= chọn buổi", async ({ page, context }, info) => {
   desktopOnly(info);
   const list = [sessionRow(1, { attendance: { done_at: "2026-10-05T04:40:00Z", has_records: true } }), sessionRow(2), sessionRow(3)];
   await open(page, context, { sessions: list });
   const sel = page.locator("[data-part=att-session-select]");
   await expect(sel).toHaveValue(sessionRow(2).id);
-  await expect(sel.locator("option")).toHaveText(["Buổi 3 · 09/10 · Chưa", "Buổi 2 · 07/10 · Chưa", "Buổi 1 · 05/10 · Đã điểm danh"]);
+  await expect(sel.locator("option")).toHaveText(["Buổi 3 · 09/10 · Chưa điểm danh", "Buổi 2 · 07/10 · Chưa điểm danh", "Buổi 1 · 05/10 · Đã điểm danh"]);
   await page.goto(`/attendance?session=${sessionRow(1).id}`);
   await expect(page.locator("[data-part=att-session-select]")).toHaveValue(sessionRow(1).id);
 });
@@ -157,6 +157,17 @@ test("attendance complete không có thay đổi vẫn gửi complete:true cho c
   await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 0")).toBeVisible();
   expect(bodyOf(api.puts()[0]).records.every((r) => r.status === "PRESENT")).toBe(true);
   expect(bodyOf(api.puts()[0]).records).toHaveLength(30);
+});
+
+// techlead-ui 2026-11-25: nút «+ phát biểu» không được ẩn chờ rê chuột (cảm ứng không có hover; /attendance dùng ở 375 px): luôn hiện, không cần rê.
+test("attendance speak visible without hover: nút ghi phát biểu hiện sẵn (opacity 1) mà chưa rê vào hàng", async ({ page, context }, info) => {
+  await open(page, context);
+  await page.mouse.move(0, 0);
+  // ≥ 720 px: bảng (cột «Phát biểu»); < 720 px: hàng thu gọn có nút «+» riêng
+  const speak = (info.project.name === "desktop" ? row(page, 6) : page.locator(`[data-part=att-row][data-student-id="${sid(6)}"]`)).getByRole("button", { name: /^Ghi phát biểu/ });
+  await expect(speak).toBeVisible();
+  expect(await speak.evaluate((e) => getComputedStyle(e).opacity)).toBe("1");
+  expect((await speak.boundingBox())!.width).toBeGreaterThanOrEqual(44);
 });
 
 test("attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE", async ({ page, context }, info) => {
@@ -377,4 +388,40 @@ test("attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px", 
   const box = await page.getByRole("status").filter({ hasText: "Công thức" }).boundingBox();
   expect(box!.height).toBeLessThanOrEqual(56);
   expect((await page.getByRole("link", { name: "Xem công thức" }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+});
+
+// QC L2.10: dòng cảnh báo công thức không dính ô chọn Buổi và đầu bảng (khoảng thở ≥ 8 px mỗi phía)
+test("attendance notice: dòng cảnh báo công thức cách ô chọn Buổi và đầu bảng ≥ 8 px", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  await page.clock.setFixedTime(NOW);
+  await attApi(page);
+  await page.route("**/api/v1/courses/*/grade-scheme/status", (r) =>
+    r.fulfill(json({ state: "NO_POLICY", unclear_count: 0, has_policy: false, pending_draft: false, gradebook: { status: "OPEN", snapshot_version: 0 } })));
+  await page.goto("/attendance");
+  await expect(page.getByRole("link", { name: "Xem công thức" })).toBeVisible();
+  const sel = (await page.locator("[data-part=att-session-select]").boundingBox())!;
+  const note = (await page.getByRole("status").filter({ hasText: "Công thức" }).boundingBox())!;
+  const table = (await page.getByLabel(/Bảng điểm danh/).boundingBox())!;
+  expect(note.y - (sel.y + sel.height)).toBeGreaterThanOrEqual(8);
+  expect(table.y - (note.y + note.height)).toBeGreaterThanOrEqual(8);
+});
+
+// QC VPS: 375 px nhãn ô chọn Buổi không bị cắt giữa từ («…Chưa điểm danl»)
+test("attendance @375: ô chọn Buổi đủ rộng cho nhãn dài nhất, không cắt chữ", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "mobile", "đo ở di động");
+  await asDemo(context, "teacher");
+  await page.clock.setFixedTime(NOW);
+  await attApi(page, { sessions: [sessionRow(1), sessionRow(2), sessionRow(3)] });
+  await page.goto("/attendance");
+  const sel = page.locator("[data-part=att-session-select]");
+  await expect(sel).toBeVisible();
+  const m = await sel.evaluate((e: HTMLSelectElement) => {
+    const cs = getComputedStyle(e);
+    const c = document.createElement("canvas").getContext("2d")!;
+    c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const text = Math.max(...[...e.options].map((o) => c.measureText(o.textContent ?? "").width));
+    const room = e.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 28; // 28: mũi tên chọn
+    return { text: Math.round(text), room: Math.round(room) };
+  });
+  expect(m.text).toBeLessThanOrEqual(m.room);
 });

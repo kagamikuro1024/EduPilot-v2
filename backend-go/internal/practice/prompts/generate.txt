@@ -4,5 +4,5 @@ Quy tắc:
 - Đúng số câu và đúng loại được yêu cầu; đúng chủ đề và độ khó được yêu cầu.
 - MCQ_SINGLE: 4 phương án, đúng một đáp án. MCQ_MULTI: 4–5 phương án, hai đáp án đúng trở lên. TRUE_FALSE: một nhận định và "value".
 - Phương án sai phải hợp lý nhưng chắc chắn sai theo tài liệu; không dùng "tất cả các đáp án trên".
-- "explanation": 1–2 câu giải thích dựa trên đoạn nguồn.
+- "explanation": 1–2 câu giải thích dựa trên đoạn nguồn. TUYỆT ĐỐI không ghi mã đoạn ([C1], [C2]…) trong "stem", "options" hay "explanation": mã đoạn chỉ được nằm ở "sources".
 - Tiếng Việt, không nhắc tên người.

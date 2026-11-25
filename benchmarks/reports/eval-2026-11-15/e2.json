@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "5233fa86",
-    "timestamp": "2026-11-15T23:05:11.663Z",
+    "commit": "b76148bc",
+    "timestamp": "2026-11-25T14:10:57.801Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
@@ -43,9 +43,14 @@
     }
   },
   "status": "OK",
-  "labels": "WAITING_HUMAN",
-  "human_review": null,
-  "labels_note": "Nhãn do BA soạn; chủ dự án soát 20 % (24 mục): gói e2-soat-nhan.csv → benchmarks/eval/human/e2_soat.csv.",
+  "labels": "SOÁT (24/24 đồng ý; bất đồng → BA phán: không)",
+  "human_review": {
+    "n": 24,
+    "agree": 24,
+    "disagree": [],
+    "status": "SOÁT (24/24 đồng ý; bất đồng → BA phán: không)"
+  },
+  "labels_note": "Nhãn do BA soạn; `giaovien` (người gán nhãn do chủ dự án chỉ định, từ 2026-11-25) soát 20 % (24 mục): gói e2-soat-nhan.csv → benchmarks/eval/human/e2_soat.csv.",
   "thresholds": [
     0.3,
     0.35,

@@ -246,6 +246,18 @@ test("calculation linear: phép tính từng dòng cùng thứ tự, Căn cứ m
   await expect(page.locator("main [role=progressbar], main progress")).toHaveCount(0);
 });
 
+// M14 (techlead-ui 2026-11-25): «Căn cứ · tr. N» và «Chi tiết» cao 19 px — vùng chạm phải ≥ 44 px (đo hộp bấm), chữ giữ cỡ.
+for (const w of [375, 1440]) {
+  test(`calculation @${w}: nút «Chi tiết» / «Căn cứ» có vùng chạm ≥ 44 px`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: 812 });
+    await api(page, COURSE, { grades: () => inProgress() });
+    await page.goto("/me");
+    const btns = page.locator("[data-part=grade-calculation] button");
+    await expect(btns.first()).toBeVisible();
+    for (const h of await btns.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(44);
+  });
+}
+
 test("what if inline: gõ số → tính tại chỗ bằng máy chủ, ngoài thang báo tại ô và không gọi, mạng lỗi giữ số đã gõ", async ({ page }) => {
   let down = false;
   const bodies: string[] = [];

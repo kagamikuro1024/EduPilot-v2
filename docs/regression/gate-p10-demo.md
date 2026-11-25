@@ -418,32 +418,3 @@ Quan sát (không chấm): (1) `/practice/<id>?course=` gọi `GET …/practice/
 Quan sát (không chấm): nội dung do NGƯỜI viết trong thread (câu hỏi, bình luận) hiện chữ thường — `## …` nguyên văn (`<p>`; chỉ bài AI đi qua bộ render Markdown); mô tả bài tập seed có «Đề bài» hai lần (tiêu đề khối + «## Đề bài» trong nội dung).
 
 (e) LCP devtools, 3 lượt, sv.kha, `?course=`: `/assignments/<id>` 1919 / 1917 / 1918 → **1918 ms** (TBT ≤ 42; script 214 KB) **P**; `/practice/<id>` 1919 / 1932 / 1933 → **1932 ms** (TBT ≤ 47; script 220 KB) **P**. Ngưỡng 2.500 không đổi.
-
-## L2.12 Soát read-only 8 sửa UI P-11-128 + TC-05-18 trên VPS (LLM giả; 1440 + 375; không thao tác ghi)
-
-VPS `https://v2202609419695521098.happysrv.de`, GV `teacher@`, Admin `admin@`. ep-qc local đã stop. Ảnh `evidence-vps-p11128/`.
-
-| # | Sửa | Kết quả | Chứng cứ |
-| --- | --- | --- | --- |
-| 1 | `/attendance` dòng cảnh báo công thức có khoảng thở | **P** | 1440 + 375: «Công thức điểm chưa xác nhận» + «Xem công thức» có khoảng cách trên/dưới, không dính bảng |
-| 2 | Ô chọn Buổi «Chưa điểm danh» (không còn «Chưa») | **P** | «Buổi 2 · 25/11 · Chưa điểm danh» (cả 5 buổi) |
-| 3 | Meta «Buổi N» dưới tiêu đề | **P** | «Buổi 2 · Hôm nay, 00:05–23:50» |
-| 4 | `/insights` dải kỳ cách tiêu đề | **P** (trạng thái trống) | dải 7/14/30/Toàn kỳ cách tiêu đề ≈ 50 px ở 1440; chưa có báo cáo nào ở 6 lớp (QCVPSA–D, 761987/88) |
-| 5 | TC-05-18: bỏ meta ẩn danh | **P** | 0 dòng chữ «ẩn danh» trên trang (1440 + 375) — chỉ ở trạng thái trống; bản có báo cáo **K-VPS** |
-| 6 | «Nên làm» không đỏ mọi hàng | **K-VPS** | cần báo cáo insights (tạo báo cáo = ghi + LLM thật cho tên cụm) |
-| 7 | `/observability` bỏ meta «Toàn hệ thống» | **P** | Admin: không còn dòng «Toàn hệ thống» trong nội dung (topbar giữ «Toàn hệ thống · INT1006» — nhãn phạm vi, không phải meta trang); GV: «Chưa có yêu cầu AI nào» |
-| 8 | «24 giờ qua» mục riêng, nhãn khớp dữ liệu | **P** | Admin 1440 + 375: «24 giờ qua» (62 yêu cầu · p95 2,6 s…) và «7 ngày qua» (bảng theo ngày) là hai mục có tiêu đề riêng; không còn tiền tố «24 giờ qua:» |
-
-Không cuộn ngang ở cả ba trang (scrollWidth ≤ innerWidth). Quan sát (không chấm): (a) `/attendance` 375: nhãn ô Buổi bị cắt «…Chưa điểm danl» (bề ngang ô); (b) `/observability` Admin: tiêu đề «Thư chưa gửi được» rồi dòng chú «Thư chưa gửi được, mới nhất trước» lặp chữ.
-
-### L2.12b Chấm nốt (4)(5)(6) trên VPS — báo cáo insights ở 761987 (PM đồng ý, 1 lần bấm «Tạo báo cáo mới»)
-
-QCVPSD không đủ câu hỏi («Chưa đủ câu hỏi để gom (cần ≥ 20)»); báo cáo tạo ở `761987`: «Báo cáo 25/11/2026, 20:34 · 27 câu hỏi · 11 sinh viên» (kỳ 14 ngày, LLM giả). Ảnh `ins-761987-1440.png`, `ins-761987-375.png`.
-
-| # | Kết quả | Chứng cứ |
-| --- | --- | --- |
-| 4 dải kỳ cách tiêu đề (có báo cáo) | **P** | 1440: cách tiêu đề 68 px; 375: dải 7/14/30/Toàn kỳ xuống dòng riêng sau «Tạo báo cáo mới», không cuộn ngang |
-| 5 TC-05-18 (có báo cáo) | **P** | 0 chữ «ẩn danh» trên trang ở 1440 + 375; dòng duy nhất dưới tiêu đề là «Báo cáo <ngày> · 27 câu hỏi · 11 sinh viên» |
-| 6 «Nên làm» không đỏ | **P** (CSS) / hàng thực **K-VPS** | không hàng nào có nhãn «Nên làm» (nhãn chỉ hiện khi LLM đặt khuyến nghị; cụm LLM giả «Chưa đặt được tên chủ đề» không có khuyến nghị); CSS đã triển khai: `.actionLabel { color: var(--ep-ink); font-weight: 600 }` — không đỏ; không có chữ đỏ nào trong `main` |
-
-Dữ liệu QC tạo thêm trên VPS: 1 báo cáo insights ở 761987 (kỳ 14 ngày).

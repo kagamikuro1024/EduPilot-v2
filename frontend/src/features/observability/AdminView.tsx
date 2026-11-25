@@ -57,10 +57,11 @@ export function AdminView() {
     <>
       <FailedMail />
       <PageState query={summary} isEmpty={() => (summary.data?.totals.requests ?? 0) === 0 && (summary.data?.days.length ?? 0) === 0} loading={<Skeleton lines={8} />} empty={<EmptyState title="Chưa có yêu cầu nào" />}>
-        <Section title="7 ngày qua">
+        {(t || g) && (
+        <Section title="24 giờ qua">
           {t && (
             <p className={s.today} data-part="obs-today">
-              {`24 giờ qua: ${t.requests.toLocaleString("vi-VN")} yêu cầu · p95 ${secs(t.p95_ms)} · lỗi ${pct(t.error_rate)} · dự phòng ${pct(t.fallback_rate)} · chi phí ${money(t.cost)}`}
+              {`${t.requests.toLocaleString("vi-VN")} yêu cầu · p95 ${secs(t.p95_ms)} · lỗi ${pct(t.error_rate)} · dự phòng ${pct(t.fallback_rate)} · chi phí ${money(t.cost)}`}
             </p>
           )}
           {g && (
@@ -68,6 +69,9 @@ export function AdminView() {
               {`Chấm bài: ${g.queue_depth.toLocaleString("vi-VN")} chờ · ${g.jobs_total.RUNNING.toLocaleString("vi-VN")} đang chạy · ${g.dead_total.toLocaleString("vi-VN")} lỗi hết lượt thử · p95 ${secs(g.duration_p95_s * 1000)}`}
             </p>
           )}
+        </Section>
+        )}
+        <Section title="7 ngày qua">
           <DataTable caption="Số liệu theo ngày" columns={DAY_COLUMNS} rows={summary.data?.days ?? []} rowKey={(d) => d.day} dense />
         </Section>
         <DecisionTable />

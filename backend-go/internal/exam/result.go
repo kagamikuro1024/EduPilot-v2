@@ -120,7 +120,7 @@ func (s *Service) resultItems(ctx context.Context, q *store.Queries, e store.Exa
 	}
 	optsOf := map[uuid.UUID][]OptionView{}
 	for _, o := range opts {
-		optsOf[o.QuestionID] = append(optsOf[o.QuestionID], OptionView{ID: o.ID, Body: o.Body})
+		optsOf[o.QuestionID] = append(optsOf[o.QuestionID], OptionView{ID: o.ID, Body: StripCiteMarkers(o.Body)})
 	}
 	saved, err := q.AnswersList(ctx, store.AnswersListParams{CourseID: a.CourseID, AttemptID: a.ID})
 	if err != nil {
@@ -164,7 +164,7 @@ func (s *Service) resultItems(ctx context.Context, q *store.Queries, e store.Exa
 		if earned == "" {
 			earned = "0"
 		}
-		it := ResultItemView{ItemID: m.ItemID, Position: int(m.Position), Type: string(m.Type), Stem: m.Stem, Options: []OptionView{}, Earned: decimalFixed(earned), Max: max, Overridden: ov.Void || len(ov.AnswerKey) > 0, Samples: []ResultSampleView{}}
+		it := ResultItemView{ItemID: m.ItemID, Position: int(m.Position), Type: string(m.Type), Stem: StripCiteMarkers(m.Stem), Options: []OptionView{}, Earned: decimalFixed(earned), Max: max, Overridden: ov.Void || len(ov.AnswerKey) > 0, Samples: []ResultSampleView{}}
 		if m.Type == store.QuestionTypeCODE {
 			it.fillCode(b.Code, sampleOf, finalOf[m.ItemID])
 			out = append(out, it)
@@ -184,7 +184,7 @@ func (s *Service) resultItems(ctx context.Context, q *store.Queries, e store.Exa
 			if len(ov.AnswerKey) > 0 {
 				key = ov.AnswerKey
 			}
-			it.Answer, it.Explanation = cleanAnswer(key), m.Explanation
+			it.Answer, it.Explanation = cleanAnswer(key), StripCiteMarkersPtr(m.Explanation)
 		}
 		out = append(out, it)
 	}

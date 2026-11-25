@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "5233fa86",
-    "timestamp": "2026-11-15T23:05:13.574Z",
+    "commit": "b76148bc",
+    "timestamp": "2026-11-25T14:10:58.042Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
@@ -53,7 +53,15 @@
           "false_ticket_rate": 0.0988,
           "catch_rate": 0.9821
         },
-        "e3_vs_human": "WAITING_HUMAN",
+        "e3_vs_human": {
+          "a": "P1r1",
+          "b": "người chấm",
+          "n": 60,
+          "qwk": 0.5289,
+          "mae": 1.1958,
+          "pearson": 0.8248,
+          "kind": "độ chính xác so với người"
+        },
         "e3_stability": {
           "a": "P1r1",
           "b": "P1r2",
@@ -101,7 +109,15 @@
           "false_ticket_rate": 0.1625,
           "catch_rate": 0.9655
         },
-        "e3_vs_human": "WAITING_HUMAN",
+        "e3_vs_human": {
+          "a": "P2r1",
+          "b": "người chấm",
+          "n": 24,
+          "qwk": 0.6565,
+          "mae": 0.6875,
+          "pearson": 0.8515,
+          "kind": "độ chính xác so với người"
+        },
         "e3_stability": {
           "a": "P1r1",
           "b": "P2r1",

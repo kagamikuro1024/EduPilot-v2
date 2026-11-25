@@ -62,12 +62,13 @@ func asgBody(code string) string {
 func TestCreateIdempotent(t *testing.T) {
 	c := tAsgCourse(t)
 	path, key := "/api/v1/courses/"+c.id+"/assignments", tIdemKey(t)
-	first := tDo(t, http.MethodPost, path, c.tTok, asgBody("BT03"), "Idempotency-Key", key)
+	body := asgBody("BT03") // MỘT thân cho cả hai lần: due_at tính từ time.Now() (độ chính xác giây), gọi asgBody hai lần mà qua ranh giới giây thì request_hash khác ⇒ 422 (đúng luật, nhưng làm test chập chờn)
+	first := tDo(t, http.MethodPost, path, c.tTok, body, "Idempotency-Key", key)
 	if first.StatusCode != http.StatusCreated {
 		t.Fatalf("lần 1 → %d: %s", first.StatusCode, tBody(t, first))
 	}
 	id1 := tJSON(t, first)["id"]
-	second := tDo(t, http.MethodPost, path, c.tTok, asgBody("BT03"), "Idempotency-Key", key)
+	second := tDo(t, http.MethodPost, path, c.tTok, body, "Idempotency-Key", key)
 	if second.StatusCode != http.StatusCreated || tJSON(t, second)["id"] != id1 {
 		t.Fatalf("lần 2 phải phát lại đúng phản hồi (status %d)", second.StatusCode)
 	}

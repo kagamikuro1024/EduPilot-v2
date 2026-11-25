@@ -251,6 +251,7 @@ services:
       TEAMS_SYNC_TIMEOUT: ${TEAMS_SYNC_TIMEOUT:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-} # gốc của qr_url điểm danh, join_url, feed lịch; thiếu thì gateway dùng https://localhost
       # Thông tin hỗ trợ trong câu mẫu khủng hoảng (giá trị MÔ PHỎNG, D44); ≤ 300 ký tự, rỗng → câu mặc định.
       SUPPORT_RESOURCES_VI: ${SUPPORT_RESOURCES_VI:-Phòng Công tác sinh viên, phòng 101 nhà A1, giờ hành chính}
       ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-}

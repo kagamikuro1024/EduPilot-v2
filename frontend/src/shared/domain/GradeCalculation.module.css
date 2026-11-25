@@ -5,7 +5,7 @@
 .label { min-width: 120px; font-size: var(--ep-text-label); color: var(--ep-ink-2); }
 .expr { font-size: var(--ep-text-label); font-variant-numeric: tabular-nums; color: var(--ep-ink-2); }
 .value { margin-left: auto; font-size: var(--ep-text-item); font-weight: 600; font-variant-numeric: tabular-nums; }
-.cite { justify-self: start; padding: 0; border: 0; background: none; font-size: var(--ep-text-meta); color: var(--ep-ink-3); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.cite { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; margin-block: -12px; padding: 0 var(--ep-space-1); border: 0; background: none; font-size: var(--ep-text-meta); color: var(--ep-ink-3); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
 @media (hover: hover) and (pointer: fine) { .cite:hover { color: var(--ep-red); } }
 .quote { margin: 0; padding-left: var(--ep-space-4); border-left: 2px solid var(--ep-rule); font-size: var(--ep-text-label); color: var(--ep-ink-2); line-height: 1.6; }
 .aside { display: contents; }

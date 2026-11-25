@@ -384,7 +384,7 @@ func (h *Handler) deviceChallenge(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	noStore(w)
-	httpx.WriteJSON(w, http.StatusOK, map[string]string{"nonce": base64.StdEncoding.EncodeToString(nonce)})
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{"nonce": base64.RawURLEncoding.EncodeToString(nonce)})
 }
 
 type registerBody struct {

@@ -62,7 +62,7 @@ def report():
     leak_total = sum(lk["hits"].values()) if lk else None
     obj = {"meta": lib.meta({"stack": "ep-qc", "dataset": "benchmarks/pii/e1_dataset.jsonl (200)", "runs": {t: r["run"]["embedding"] for t, r in runs.items()}}, runs=len(runs)),
            "status": "OK", "labels": (lib.human_review("e1") or {}).get("status", "WAITING_HUMAN"), "human_review": lib.human_review("e1"),
-           "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); chủ dự án gán mù ≥ 50 mẫu phân tầng (P-11-3): gói e1-soat-nhan.csv → benchmarks/eval/human/e1_soat.csv.",
+           "labels_note": f"200 nhãn do agent viết (benchmarks/pii/LABELING.md); {lib.LABELER} gán mù 57 mẫu phân tầng (P-11-3): gói e1-soat-nhan.csv → benchmarks/eval/human/e1_soat.csv; bất đồng do BA phán (7c717d0b).",
            "main_run": main_tag, "channel": {**m["metrics"], **m["counts"]}, "targets": {"f1_channel": ">= 0.90 (mục tiêu)", "payload_leak": "= 0 (mục tiêu)"},
            "by_pii_type_recall": m["by_pii_type"], "by_stratum": m["by_stratum"], "channel_confusion": m["channel_confusion"],
            "payload_leak": lk and {"rows_scanned": lk["payload_rows"], "hits": lk["hits"], "total": leak_total, "by_task": lk["by_task"]},
@@ -71,7 +71,8 @@ def report():
                  ["recall / F1 / tỉ lệ"], f"E1 — tường lửa PII ({runs[main_tag]['run']['embedding'][:40]})", "tỉ lệ", ymax=1.0)
     f = lambda x: f"{x:.3f}".replace(".", ",")  # noqa: E731
     c = obj["channel"]
-    L = ["# E1 — tường lửa PII của Threads", "", f"Trạng thái: **OK** · nhãn: **{obj['labels']}** (nhãn máy; chủ dự án gán mù ≥ 50 mẫu — P-11-3, `HUONG-DAN-CHU-DU-AN.md`). Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}.", "",
+    hr = obj["human_review"]
+    L = ["# E1 — tường lửa PII của Threads", "", f"Trạng thái: **OK** · nhãn: **{obj['labels']}** (nhãn bộ dữ liệu; {lib.LABELER} gán mù — P-11-3, `HUONG-DAN-CHU-DU-AN.md`). Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}.", "",
          f"Lượt chính `{main_tag}` ({runs[main_tag]['run']['embedding']}): kênh **P {f(c['precision'])} · R {f(c['recall'])} · F1 {f(c['f1'])}** (mục tiêu F1 ≥ 0,90), chặn nhầm {f(c['false_block'])}; TP {c['tp']} · FP {c['fp']} · FN {c['fn']} · TN {c['tn']}.",
          f"Rò rỉ payload LLM: **{leak_total if leak_total is not None else 'chưa quét'}** lần trúng tên / MSSV / email roster trên {lk['payload_rows'] if lk else '–'} payload đã che (mục tiêu = 0).", "",
          "![](e1.svg)", "", "## Theo lượt", "", "| lượt | nhúng | P | R | F1 | chặn nhầm | TP | FP | FN | TN |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
@@ -86,7 +87,16 @@ def report():
               "Theo tác vụ: " + ", ".join(f"{x['task']} {x['n']}" for x in lk["by_task"]) + "."]
     if repro:
         L += ["", f"Tái lập (AC11): hai lượt nhúng giả `{repro['tags'][0]}`, `{repro['tags'][1]}` → TP/FP/FN/TN **{'bằng nhau' if repro['identical_counts'] else 'KHÁC nhau'}** (sai số cho phép: {repro['tolerance']})."]
-    L += ["", "## Giới hạn", "", "- Dữ liệu mô phỏng (D44): 200 câu do agent soạn; chưa kiểm chứng trên bài đăng thật của sinh viên. Nhãn là nhãn máy (`WAITING_HUMAN`).",
+    if hr and "final_agree" in hr:
+        L += ["", "## Soát nhãn người (P-11-3)", "",
+              f"- Gán mù {hr['n']} mẫu phân tầng ({hr['positive']} dương, {hr['negative']} âm theo nhãn bộ dữ liệu), người gán {lib.LABELER}, theo định nghĩa trong `HUONG-DAN-CHU-DU-AN.md` lúc gán.",
+              f"- Đồng ý thô với nhãn bộ dữ liệu: **{hr['agree']}/{hr['n']}** (Cohen κ = {f(hr['kappa']) if hr['kappa'] is not None else '–'}).",
+              f"- {len(hr['disagree'])} bất đồng ({', '.join(hr['disagree'])}) đều thuộc nhóm S6 «hỏi điểm / chuyên cần / thi lại / phúc khảo của chính mình»: người gán `CHO QUA`, bộ dữ liệu `CHẶN`. "
+              "Nguyên nhân: định nghĩa `CHẶN` trong hướng dẫn gán chỉ nêu «lộ dữ liệu cá nhân của một người cụ thể», thiếu vế Q4 (PRD M1: câu hỏi cá nhân không bao giờ lưu công khai).",
+              f"- BA phán theo spec (7c717d0b, `benchmarks/pii/LABELING.md`): cả {len(hr['adjudicated'])} mẫu = `CHẶN` ⇒ nhãn cuối khớp nhãn bộ dữ liệu **{hr['final_agree']}/{hr['n']}**. PM quyết không cho gán lại (đã thấy bất đồng = mất tính mù); vế Q4 thêm vào hướng dẫn SAU lượt gán.",
+              "- Độ phủ / F1 ở trên tính trên nhãn bộ dữ liệu (200 mẫu); nhãn cuối của mẫu soát trùng nhãn bộ dữ liệu ở mọi mẫu nên số không đổi."]
+    L += ["", "## Giới hạn", "", "- Dữ liệu mô phỏng (D44): 200 câu do agent soạn; chưa kiểm chứng trên bài đăng thật của sinh viên. Nhãn soát mù trên 57/200 mẫu (một người gán).",
+          "- Nhóm S6 chỉ có 4 mẫu trong gói soát và cả 4 lệch do định nghĩa, nên chưa đo được độ nhất quán của người gán trên nhóm này.",
           "- Tường lửa không có NER (D46): tên người ngoài roster không kèm tín hiệu khác (S7) không được bảo vệ.",
           "- Rò rỉ chỉ quét những tác vụ có ghi `llm_request_payloads` trong cửa sổ đo và chỉ với roster seed; precheck Threads không gọi LLM sinh chữ (0 lời gọi)."]
     lib.write_report("e1", obj, L)

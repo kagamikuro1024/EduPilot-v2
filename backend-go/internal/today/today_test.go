@@ -334,3 +334,48 @@ func uuidsIn(body string) []string {
 	}
 	return out
 }
+
+// P-11-137 (US-AS-15 AC16b): hàng buổi HÔM NAY của lớp bật điểm danh bằng mã có cờ `checkin_link` từ 15 phút trước giờ bắt đầu đến hết giờ buổi — theo KHUNG GIỜ, không theo cửa sổ điểm danh (Q-A-7);
+// lớp không bật, buổi ngày khác, ngoài khung ⇒ false. Cùng truy vấn timeline, không thêm truy vấn.
+func TestTimelineCheckinFlag(t *testing.T) {
+	r := newRig(t)
+	on, off := r.klass("761988"), r.klass("761987")
+	r.exec(`update courses set settings = settings || '{"attendance":{"self_checkin":true}}'::jsonb where id = $1`, on.id)
+	u, s := r.person(store.UserRoleSTUDENT, true)
+	r.enrollAt(on, u, "STUDENT", "ACTIVE", "", time.Hour)
+	r.enrollAt(off, u, "STUDENT", "ACTIVE", "", time.Hour)
+	noon := r.clk.Now() // JWT cấp theo giờ thật nên không dời đồng hồ; tránh sát nửa đêm ICT (các buổi phải cùng một ngày)
+	if l := noon.In(time.FixedZone("ICT", 7*3600)); l.Hour() == 23 && l.Minute() >= 15 || l.Hour() == 0 && l.Minute() < 30 {
+		t.Skip("sát nửa đêm ICT: các buổi tương đối không còn cùng ngày")
+	}
+	for no, st := range map[int]time.Time{
+		1: noon.Add(-4 * time.Hour),    // đã kết thúc (hoặc từ hôm qua nếu chạy buổi sáng sớm: không vào timeline)
+		2: noon.Add(-30 * time.Minute), // đang diễn ra
+		3: noon.Add(10 * time.Minute),  // trong 15 phút trước giờ bắt đầu
+		4: noon.Add(20 * time.Minute),  // còn hơn 15 phút
+		5: noon.Add(26 * time.Hour),    // ngày mai
+	} {
+		r.session(on, no, st, 2*time.Hour, "P.30"+fmt.Sprint(no))
+	}
+	r.session(off, 1, noon.Add(-30*time.Minute), 2*time.Hour, "P.401") // lớp không bật
+	flag := map[string]bool{}
+	for _, c := range []cls{on, off} {
+		res := r.tget(s, "/courses/"+c.sid()+"/today")
+		require.Equal(t, 200, res.code, string(res.body))
+		for _, e := range res.json()["timeline"].([]any) {
+			m := e.(map[string]any)
+			v, ok := m["checkin_link"].(bool)
+			require.True(t, ok, "timeline[] phải có cờ boolean checkin_link: %v", m)
+			flag[fmt.Sprintf("%s|%s", m["course"].(map[string]any)["class_code"], m["place"])] = v
+		}
+	}
+	want := map[string]bool{"761988|P.301": false, "761988|P.302": true, "761988|P.303": true, "761988|P.304": false, "761988|P.305": false, "761987|P.401": false}
+	for k, v := range want {
+		if got, ok := flag[k]; ok {
+			require.Equal(t, v, got, k)
+		} else {
+			require.Equal(t, "761988|P.301", k, "chỉ buổi đã kết thúc từ hôm qua được phép vắng khỏi timeline: %s", k)
+		}
+	}
+	require.True(t, flag["761988|P.302"] && flag["761988|P.303"], "đang diễn ra và sắp bắt đầu ≤ 15 phút phải có liên kết: %v", flag)
+}

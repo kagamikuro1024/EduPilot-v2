@@ -1,0 +1,61 @@
+stt,ma_bai,tep_bai,c1 Luận điểm rõ (0–2.5),c2 Dẫn chứng / tình huống cụ thể (0–2.5),c3 Lập luận và biện pháp khả thi (0–2.5),"c4 Trình bày, thuật ngữ (0–2.5)",ghi_chu
+1,kc005,benchmarks/guidance/kc/data/bt-a/KC106005.txt,1.0,2.0,2.5,2.0,"Mở bài chung chung, không nêu nguyên nhân cốt lõi; xếp TOTP vào MFA kháng phishing là sai"
+2,kc020,benchmarks/guidance/kc/data/bt-a/KC106020.txt,2.0,2.5,2.0,2.0,"Biện pháp bám nguyên nhân nhưng không xếp ưu tiên, không bàn chi phí"
+3,kc053,benchmarks/guidance/kc/data/bt-a/KC106053.txt,1.0,2.0,2.0,1.5,"Mở bài mơ hồ, không có nhận định chính; văn phổ thông, né thuật ngữ"
+4,kc011,benchmarks/guidance/kc/data/bt-a/KC106011.txt,1.5,2.5,0.5,2.0,"Zero Trust toàn bộ, SOC 24/7, DLP đa lớp quá sức công ty 70 người, không xử lý S3 / phpMyAdmin; khẳng định an toàn tuyệt đối"
+5,kc021,benchmarks/guidance/kc/data/bt-a/KC106021.txt,1.5,2.5,2.5,0.5,"Nội dung tốt nhưng văn nói, thuật ngữ phiên âm (meo, sờ-quýt, răn-som-que, bắc-úp), câu dài không ngắt"
+6,kc016,benchmarks/guidance/kc/data/bt-a/KC106016.txt,2.5,2.5,2.5,2.5,
+7,kc010,benchmarks/guidance/kc/data/bt-a/KC106010.txt,2.0,2.5,2.5,2.5,Ngắn nhưng đủ ý
+8,kc007,benchmarks/guidance/kc/data/bt-a/KC106007.txt,1.5,1.5,1.5,1.0,"Tình huống còn ""gì đó"", ""con virus""; biện pháp là danh sách chung; văn khẩu ngữ"
+9,kc047,benchmarks/guidance/kc/data/bt-a/KC106047.txt,2.0,1.0,2.0,2.5,"Không có số liệu nào về doanh nghiệp; chi phí chỉ nêu, chưa giải quyết"
+10,kc049,benchmarks/guidance/kc/data/bt-a/KC106049.txt,2.0,1.5,2.5,2.5,Tình huống thiếu số liệu
+11,kc042,benchmarks/guidance/kc/data/bt-a/KC106042.txt,2.5,2.5,1.0,2.5,"Biện pháp không xử lý MFA / phân đoạn mạng đã phân tích; SIEM, DLP, Zero Trust toàn diện nêu chung"
+12,kc003,benchmarks/guidance/kc/data/bt-a/KC106003.txt,2.0,2.0,2.5,2.5,
+13,kc013,benchmarks/guidance/kc/data/bt-a/KC106013.txt,2.0,1.5,1.5,2.5,"Biện pháp chung, không ưu tiên, không bàn nguồn lực"
+14,kc035,benchmarks/guidance/kc/data/bt-a/KC106035.txt,1.5,2.0,1.5,2.5,"Danh sách công cụ doanh nghiệp lớn (SIEM, NGFW, DLP), không bàn chi phí"
+15,kc038,benchmarks/guidance/kc/data/bt-a/KC106038.txt,2.0,1.5,2.5,2.5,Tình huống thiếu số liệu
+16,kc052,benchmarks/guidance/kc/data/bt-a/KC106052.txt,2.5,2.5,0.5,2.0,"Biện pháp không chạm nguyên nhân (VPN một yếu tố, S3 sai quyền); ""hiện đại nhất"", ""ngăn chặn tuyệt đối"""
+17,kc041,benchmarks/guidance/kc/data/bt-a/KC106041.txt,1.5,2.5,2.5,2.0,"Nhận định bị chính câu sau làm mờ; ""giao thức AES-256"" sai thuật ngữ"
+18,kc015,benchmarks/guidance/kc/data/bt-a/KC106015.txt,2.5,2.0,2.5,2.0,"Lỗi gõ (""chgiỉ"", ""ả mạo"")"
+19,kc060,benchmarks/guidance/kc/data/bt-a/KC106060.txt,2.5,1.5,0,2.0,"Cấm internet cả công ty, phạt tiền, người ngồi xem từng gói tin, bỏ qua cấu hình: phi thực tế và phản tác dụng"
+20,kc004,benchmarks/guidance/kc/data/bt-a/KC106004.txt,1.5,1.5,2.5,2.0,"Đoạn đầu mơ hồ, nguyên nhân để ""hoặc""; đoạn biện pháp rất tốt"
+21,kc036,benchmarks/guidance/kc/data/bt-a/KC106036.txt,1.5,2.0,2.0,2.5,Không có câu chốt nguyên nhân chính
+22,kc050,benchmarks/guidance/kc/data/bt-a/KC106050.txt,1.5,2.5,1.0,2.5,"Tình huống rất cụ thể nhưng biện pháp không chạm nguyên nhân (lộ khoá trên GitHub, IAM quá quyền)"
+23,kc048,benchmarks/guidance/kc/data/bt-a/KC106048.txt,2.0,1.0,1.5,2.5,Nhiều thuật ngữ nhưng không có chi tiết nào của doanh nghiệp
+24,kc009,benchmarks/guidance/kc/data/bt-a/KC106009.txt,1.5,1.5,1.5,2.5,
+25,kc022,benchmarks/guidance/kc/data/bt-a/KC106022.txt,2.0,1.0,1.0,1.5,Nêu điểm yếu là kiểm soát truy cập nhưng không có biện pháp nào cho nó
+26,kc001,benchmarks/guidance/kc/data/bt-a/KC106001.txt,2.0,2.5,2.5,2.5,
+27,kc018,benchmarks/guidance/kc/data/bt-a/KC106018.txt,1.5,2.5,1.0,1.0,"Dẫn chứng rất chi tiết; biện pháp không bám nguyên nhân (NAS, macro), chọn thiết bị đắt; văn khẩu ngữ"
+28,kc037,benchmarks/guidance/kc/data/bt-a/KC106037.txt,2.5,1.0,2.0,2.5,Không có số liệu nào về doanh nghiệp
+29,kc045,benchmarks/guidance/kc/data/bt-a/KC106045.txt,2.0,1.5,2.0,2.5,
+30,kc032,benchmarks/guidance/kc/data/bt-a/KC106032.txt,1.0,2.5,1.5,2.5,"Nhận định nguyên nhân chung chung; có quét mã nguồn và đặc quyền tối thiểu đúng chỗ, nhưng SOC liên tục quá sức"
+31,kc057,benchmarks/guidance/kc/data/bt-a/KC106057.txt,2.0,2.0,2.5,2.5,
+32,kc034,benchmarks/guidance/kc/data/bt-a/KC106034.txt,2.5,0.5,0.5,2.0,"Tự nhận kịch bản chưa rõ cơ chế, lượng dữ liệu; ""chỉ cần sao lưu là an toàn trước mọi xâm nhập"""
+33,kc058,benchmarks/guidance/kc/data/bt-a/KC106058.txt,2.0,1.5,1.0,2.5,"Nêu phân vùng mạng, PoLP là nguyên nhân nhưng biện pháp lại là danh sách công cụ đắt tiền"
+34,kc031,benchmarks/guidance/kc/data/bt-a/KC106031.txt,1.5,1.0,0.5,1.5,"Nguyên nhân để ""có thể... hoặc""; cấm internet, cập nhật hằng ngày, ""an toàn tuyệt đối""; dùng ""tuân thủ tam giác CIA"" không đúng"
+35,kc039,benchmarks/guidance/kc/data/bt-a/KC106039.txt,2.5,2.5,1.5,2.0,Tự nhận biện pháp còn chung chung và chưa rõ tính khả thi
+36,kc028,benchmarks/guidance/kc/data/bt-a/KC106028.txt,2.0,2.0,2.0,2.5,"NGFW, EDR chưa bàn chi phí"
+37,kc006,benchmarks/guidance/kc/data/bt-a/KC106006.txt,2.5,1.0,1.5,2.5,"Luận điểm rõ nhưng tình huống không có chi tiết, biện pháp là danh sách cơ bản"
+38,kc014,benchmarks/guidance/kc/data/bt-a/KC106014.txt,2.0,1.0,2.5,2.5,Không có số liệu nào về doanh nghiệp
+39,kc023,benchmarks/guidance/kc/data/bt-a/KC106023.txt,2.0,2.0,2.5,2.5,
+40,kc046,benchmarks/guidance/kc/data/bt-a/KC106046.txt,1.5,1.0,2.0,2.5,"Nhận định còn nước đôi; DLP, EDR chưa bàn chi phí"
+41,kc040,benchmarks/guidance/kc/data/bt-a/KC106040.txt,1.0,0.5,0,1.5,"""Lỗ hổng chưa xác định""; tường lửa lượng tử, cấm email và điện thoại, ""an toàn 100%"": phi thực tế"
+42,kc025,benchmarks/guidance/kc/data/bt-a/KC106025.txt,1.5,2.5,2.0,1.0,"Tình huống rất cụ thể, biện pháp bám nguyên nhân; văn kể chuyện, né thuật ngữ"
+43,kc019,benchmarks/guidance/kc/data/bt-a/KC106019.txt,2.5,1.0,1.5,2.5,Không có số liệu; danh sách công cụ không bàn chi phí
+44,kc055,benchmarks/guidance/kc/data/bt-a/KC106055.txt,2.0,1.5,2.0,2.5,"Chi phí chỉ nêu, chưa giải quyết"
+45,kc030,benchmarks/guidance/kc/data/bt-a/KC106030.txt,2.0,1.5,2.5,2.5,Tự nhận chi tiết kỹ thuật chưa xác định
+46,kc008,benchmarks/guidance/kc/data/bt-a/KC106008.txt,2.0,1.0,2.0,2.5,Thiếu giám sát được nêu là nguyên nhân nhưng không có biện pháp
+47,kc056,benchmarks/guidance/kc/data/bt-a/KC106056.txt,1.5,1.0,1.5,2.0,"Nguyên nhân để ""dường như""; nêu mạng phẳng nhưng không đề xuất phân đoạn; MFA không chống được credential dumping"
+48,kc059,benchmarks/guidance/kc/data/bt-a/KC106059.txt,2.5,2.5,0.5,1.5,"Đoạn phân tích tốt; đoạn biện pháp ""chỉ cần nhắc nhở"", ""xịn nhất"", ""an toàn tuyệt đối"", không chạm khoá bị lộ"
+49,kc033,benchmarks/guidance/kc/data/bt-a/KC106033.txt,1.5,2.5,1.0,2.5,"Tình huống rất kỹ thuật nhưng biện pháp (Zero Trust, SOC liên tục, DLP) quá sức công ty 50 người, không nhắc VLAN / macro"
+50,kc054,benchmarks/guidance/kc/data/bt-a/KC106054.txt,1.5,2.5,2.0,2.5,"Không có câu chốt nguyên nhân chính; chi phí chỉ nêu, chưa giải quyết"
+51,kc044,benchmarks/guidance/kc/data/bt-a/KC106044.txt,2.0,2.0,2.5,2.5,
+52,kc051,benchmarks/guidance/kc/data/bt-a/KC106051.txt,2.0,2.5,1.0,2.0,"Biện pháp không chạm MySQL lỗi thời, thiếu VLAN, dữ liệu plaintext; ""an toàn tuyệt đối"""
+53,kc026,benchmarks/guidance/kc/data/bt-a/KC106026.txt,2.0,1.0,2.0,2.5,Không có số liệu nào về doanh nghiệp
+54,kc029,benchmarks/guidance/kc/data/bt-a/KC106029.txt,1.5,2.0,0.5,2.0,"""Tiên tiến nhất"", SOC liên tục, ""chỉ cần mua sắm đầy đủ là bảo vệ tuyệt đối"""
+55,kc043,benchmarks/guidance/kc/data/bt-a/KC106043.txt,2.0,2.0,2.5,2.5,
+56,kc012,benchmarks/guidance/kc/data/bt-a/KC106012.txt,2.5,2.0,2.0,2.5,
+57,kc027,benchmarks/guidance/kc/data/bt-a/KC106027.txt,1.0,2.5,2.0,2.5,Mở bài và câu chốt đều chung chung dù tình huống rất cụ thể
+58,kc002,benchmarks/guidance/kc/data/bt-a/KC106002.txt,2.0,2.0,2.5,2.0,"""Mã độc nội gián"" dùng sai"
+59,kc017,benchmarks/guidance/kc/data/bt-a/KC106017.txt,2.0,2.0,2.0,2.5,
+60,kc024,benchmarks/guidance/kc/data/bt-a/KC106024.txt,2.0,1.0,2.5,2.5,Không có số liệu nào về doanh nghiệp

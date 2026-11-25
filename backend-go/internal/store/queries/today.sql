@@ -272,14 +272,15 @@ limit sqlc.arg(lim);
 
 -- name: TodayStudentFeed :many
 -- Sinh viên: buổi học (như TodaySessions) VÀ tối đa 3 phiên chat RIÊNG của CHÍNH người xem có ≥ 1 tin trong 7 ngày, chưa xoá, mới nhất trước
--- (US-P3-08 AC3) trong MỘT truy vấn để giữ ngân sách ≤ 5 truy vấn. `kind` = 'S' (buổi học) | 'C' (phiên chat).
+-- (US-P3-08 AC3) trong MỘT truy vấn để giữ ngân sách ≤ 5 truy vấn. `kind` = 'S' (buổi học) | 'C' (phiên chat). `self_checkin` (buổi học): lớp bật điểm danh bằng mã — nguồn cờ `checkin_link` (P-11-137), không thêm truy vấn.
 select * from (
-  (select 'S'::text as kind, s.course_id, c.class_code, c.name as course_name, s.session_no, s.starts_at, s.ends_at, s.room, null::uuid as chat_id, ''::text as chat_title
+  (select 'S'::text as kind, s.course_id, c.class_code, c.name as course_name, s.session_no, s.starts_at, s.ends_at, s.room, null::uuid as chat_id, ''::text as chat_title,
+          coalesce((c.settings -> 'attendance' ->> 'self_checkin')::boolean, false)::boolean as self_checkin
    from class_sessions s join courses c on c.id = s.course_id
    where s.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and s.ends_at > sqlc.arg(from_at)::timestamptz and s.starts_at < sqlc.arg(to_at)::timestamptz
    order by s.starts_at, s.id limit 60)
   union all
-  (select 'C'::text, ch.course_id, c.class_code, ''::text, 0, ch.last_message_at, ch.last_message_at, null::text, ch.id, coalesce(ch.title, '')::text
+  (select 'C'::text, ch.course_id, c.class_code, ''::text, 0, ch.last_message_at, ch.last_message_at, null::text, ch.id, coalesce(ch.title, '')::text, false::boolean
    from chat_sessions ch join courses c on c.id = ch.course_id
    where ch.user_id = sqlc.arg(user_id) and ch.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and ch.channel = 'PRIVATE' and ch.deleted_at is null
      and ch.last_message_at >= sqlc.arg(since)::timestamptz

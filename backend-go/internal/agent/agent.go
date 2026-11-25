@@ -308,7 +308,9 @@ type AnswerCache struct {
 	Redis RedisKV
 	// Version trả phiên bản tri thức của lớp (`ep:rag:ver:{course}`); đổi khi tài liệu đổi nên khoá cũ không trúng.
 	Version func(ctx context.Context, course uuid.UUID) (int64, error)
-	TTL     int // giây; 0 = 3600
+	// Route trả chữ ký tuyến CHAT + EMBEDDING hiện hành; đổi tuyến thì khoá cũ không trúng. nil = không phân biệt.
+	Route func() string
+	TTL   int // giây; 0 = 3600
 }
 
 // CachedAnswer là giá trị cache.
@@ -339,7 +341,11 @@ func (c *AnswerCache) Key(ctx context.Context, course uuid.UUID, in Input) strin
 		scope = in.DocumentID.String()
 	}
 	sum := sha256.Sum256([]byte(scope + "|" + norm))
-	return fmt.Sprintf("ep:ans:%s:%d:%s", course, ver, hex.EncodeToString(sum[:]))
+	route := "0"
+	if c.Route != nil {
+		route = c.Route()
+	}
+	return fmt.Sprintf("ep:ans:%s:%d:%s:%s", course, ver, route, hex.EncodeToString(sum[:]))
 }
 
 // Get đọc cache; lỗi Redis coi như trượt.

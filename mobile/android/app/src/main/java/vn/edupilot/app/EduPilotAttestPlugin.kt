@@ -106,7 +106,9 @@ class EduPilotAttestPlugin : Plugin() {
     }
 
     private fun mockNow(ctx: Context): Boolean {
-        if (ctx.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return false
+        // «Xấp xỉ» chỉ cấp COARSE: vẫn đọc được vị trí cuối của nhà cung cấp mạng; nhà cung cấp GPS ném SecurityException và bị runCatching bỏ qua.
+        val granted = listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).any { ctx.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
+        if (!granted) return false
         val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val best: Location? = lm.getProviders(true).mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }.maxByOrNull { it.time }
         best ?: return false

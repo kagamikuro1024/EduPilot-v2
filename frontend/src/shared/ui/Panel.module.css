@@ -25,6 +25,10 @@
   .panel, .lg { padding: var(--ep-space-4); }
   .none { padding: 0; }
 }
+/* Màn hẹp + cảm ứng: bỏ khung (M9 /chat) — vùng làm việc toàn cột, không hộp */
+@media (max-width: 719px), (max-height: 500px) and (pointer: coarse) {
+  .bareMobile { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+}
 @media (forced-colors: active) {
   .panel { border-color: CanvasText; }
 }

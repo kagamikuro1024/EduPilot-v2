@@ -77,12 +77,10 @@ Bộ ca đầy đủ ở `tc-mobile-app.md` (mã `TC-MOB-*`); bảng dưới là
 | **CL-12** | AC12 | Bật TalkBack / VoiceOver; duyệt `/checkin` mọi trạng thái; quét; gây lỗi; gây 429 | `h1` đọc đầu; ô có nhãn; nút có tên; thứ tự đọc đúng; «Đang gửi» / «Đã điểm danh» đọc một lần; lỗi (`alert`); 429 không đọc mỗi giây | A11-01…16 |
 | **CL-13** | AC13 | `uiautomator dump` hoặc đo Playwright ở 360 và 430 | mọi điều khiển ≥ 44 × 44 px, kề nhau ≥ 8 px; dock không đè thanh dưới | TGT-01…06, ATT-02 |
 | **CL-14** | AC14 | Gây mọi lỗi: hết hạn, sai, đóng, tắt, lớp khác, 429, mất mạng, từ chối camera, camera lỗi, WebView không tải; quét chuỗi cấm trong chữ hiển thị | 100 % tiếng Việt có dấu, một câu; 0 mã kỹ thuật / JSON / `undefined` / trang lỗi tiếng Anh | MSG-01…16, INS-10, SCN-12 |
-| **CL-15** | AC16 | SV có lớp bật / tắt điểm danh (QCMOB1, QCMOB5, QCMOB2) và `sv.moi`, GV, TA, Admin: đọc thanh điều hướng, «Thêm», «Tìm nhanh», «Hôm nay» (buổi ở 5 mốc giờ); vào `/checkin` từ mục | SV có lớp: mục `Điểm danh` ở cả ba nơi, không lộ trạng thái cửa sổ, không báo «đang mở»; liên kết ở «Hôm nay» từ 15 phút trước giờ đến hết giờ buổi, chỉ lớp bật; app có nút quét, PWA chỉ ô mã; lớp tắt → «Lớp này không điểm danh bằng mã.»; chưa có lớp và Staff không có mục | ENT-01…22 |
-| **CL-16** | AC17 | iPhone: điểm danh trong PWA (ô mã), lần sau trong PWA, rồi bằng QR camera hệ thống (Safari); Staff xem lưới | khoá PWA tạo ở lượt đầu trong PWA, `DEVICE_NEW` một lần; lượt sau cùng `device_id`; Safari khoá khác, `DEVICE_NEW` một lần; không `DEVICE_SHARED`; cờ không chặn | PWA-10, 13, 17…23 |
 
 ### Kết quả US-AS-15 (điền khi chạy)
 | Mã | Máy / bản Android / WebView / iOS | Kết quả | Ghi chú / ảnh |
 | --- | --- | --- | --- |
-| CL-1 … CL-16 | | | |
+| CL-1 … CL-14 | | | |
 
 Ghi chú: AC15 (phân quyền, không đổi) kiểm bằng ERR-05/07/08, SES-05/06, ATT-08 trong `tc-mobile-app.md`. Ca chỉ máy thật / điều kiện đặc biệt ghi **KHÔNG KIỂM ĐƯỢC** (không tính FAIL) kèm lý do, theo P-108-12.

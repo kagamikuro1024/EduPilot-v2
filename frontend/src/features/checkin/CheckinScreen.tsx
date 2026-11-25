@@ -1,10 +1,12 @@
 "use client";
 
 import { Check } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, apiClient } from "@/shared/data";
 import { fmtHM } from "@/features/calendar/calendarApi";
 import { useSession } from "@/shared/session/session";
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, Field, InlineNotice, Input, Page, PageHeader, Panel, Skeleton, StatusText, type HeaderAction } from "@/shared/ui";
 import { signWithDeviceKey } from "./deviceKey";
 import { hasAttestPlugin, nativeMockLocation, signNative } from "./nativeDevice";
@@ -26,7 +28,7 @@ type Input = { course: string; token: string } | { course: string; code: string 
 type View =
   | { k: "sending" }
   | { k: "done"; at: string }
-  | { k: "entry"; error?: string; denied?: boolean }
+  | { k: "entry"; error?: string; cam?: "denied" | "failed" }
   | { k: "scanning" }
   | { k: "error"; message: string; offline?: boolean; retry?: () => void }
   | { k: "limited"; until: number; retry?: () => void };
@@ -90,6 +92,15 @@ export function CheckinScreen() {
   const uid = identity?.sub ?? "";
   const course = realCourseId && realCourseId !== "all" ? realCourseId : "";
   const classCode = realCourses?.find((c) => c.id === course)?.class_code ?? "";
+  // Lớp không bật điểm danh bằng mã (US-AS-15 AC16d): biết TRƯỚC khi sinh viên gõ gì; không ô nhập, không gọi POST. Chính sách do máy chủ trả cho mọi thành viên (US-AS-01 AC6).
+  const policy = useQuery({
+    queryKey: ["course-policy", course],
+    queryFn: ({ signal }) => apiClient.get<{ attendance?: { self_checkin?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
+    enabled: role === "student" && course !== "" && !stash,
+    staleTime: 30_000,
+  });
+  const disabled = !stash && view.k === "entry" && policy.data?.attendance?.self_checkin === false;
+  const checking = !stash && view.k === "entry" && policy.isPending && policy.fetchStatus !== "idle"; // đang hỏi chính sách lớp: khung xương, chưa vẽ ô nhập
 
   const submit = useCallback(
     async (inp: Input) => {
@@ -169,6 +180,38 @@ export function CheckinScreen() {
     return () => clearInterval(t);
   }, [view]);
 
+  // Back / vuốt quay lại khi đang quét: thoát khung quét về ô nhập mã, không rời /checkin (US-AS-15 AC7a). Vào khung quét đẩy một mục lịch sử; thoát bằng cách lùi mục đó.
+  const scanning = view.k === "scanning";
+  useEffect(() => {
+    if (!scanning) return;
+    window.history.pushState({ ...(window.history.state as object | null), epScan: true }, "");
+    const onPop = () => setView((v) => (v.k === "scanning" ? { k: "entry" } : v));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [scanning]);
+  const leaveScan = () => {
+    if ((window.history.state as { epScan?: boolean } | null)?.epScan) window.history.back(); // popstate đưa về ô nhập mã
+    else setView((v) => (v.k === "scanning" ? { k: "entry" } : v));
+  };
+
+  // Quyền camera đã cấp lại ở Cài đặt hệ thống: khi trang hiện lại, trả nút «Quét mã điểm danh» và bỏ dòng từ chối, không xin quyền lặp (AC8)
+  const camIssue = view.k === "entry" && view.cam !== undefined;
+  useEffect(() => {
+    if (!camIssue) return;
+    const onShow = () => {
+      if (document.visibilityState !== "visible") return;
+      const back = () => {
+        setCodeMode(false);
+        setView((v) => (v.k === "entry" && v.cam ? { k: "entry" } : v));
+      };
+      const q = navigator.permissions?.query({ name: "camera" as PermissionName });
+      if (!q) return back();
+      q.then((p) => p.state !== "denied" && back(), back);
+    };
+    document.addEventListener("visibilitychange", onShow);
+    return () => document.removeEventListener("visibilitychange", onShow);
+  }, [camIssue]);
+
   if (role !== "student") return null;
 
   const norm = normalizeCode(code);
@@ -179,10 +222,13 @@ export function CheckinScreen() {
   }
   function onScanned(v: { c: string; token: string }) {
     begin({ course: v.c, token: v.token });
+    leaveScan();
   }
 
   let primary: HeaderAction | undefined;
-  if (view.k === "entry") {
+  if (disabled || checking) {
+    primary = undefined;
+  } else if (view.k === "entry") {
     primary = canScan && !codeMode ? { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true } : { label: "Điểm danh", onClick: sendCode, disabled: code.trim() === "" || !course, docked: true };
   } else if (view.k === "error") {
     if (view.retry) primary = { label: "Thử lại", onClick: view.retry, docked: true };
@@ -194,8 +240,9 @@ export function CheckinScreen() {
   return (
     <Page kind="read">
       <PageHeader title="Điểm danh" primary={primary} />
+      {!stash && policy.isError && <ApiErrorNotice error={policy.error} showTechnical={false} onRetry={() => void policy.refetch()} />}
       <Panel>
-        <div className={s.body} data-part="checkin" data-state={view.k}>
+        <div className={s.body} data-part="checkin" data-state={view.k} aria-live="polite">
           {view.k === "sending" && (
             <>
               {geoLine && <p className={s.geo} data-part="geo-line">{GEO_LINE}</p>}
@@ -211,14 +258,16 @@ export function CheckinScreen() {
           {view.k === "scanning" && (
             <Scanner
               onCode={onScanned}
-              onExit={() => setView({ k: "entry" })}
-              onDenied={() => {
+              onExit={leaveScan}
+              onDenied={(cam) => {
                 setCodeMode(true);
-                setView({ k: "entry", denied: true });
+                setView({ k: "entry", cam });
               }}
             />
           )}
-          {view.k === "entry" && (canScan && !codeMode ? (
+          {checking && <Skeleton lines={2} />}
+          {disabled && <p data-part="checkin-disabled">Lớp này không điểm danh bằng mã.</p>}
+          {view.k === "entry" && !disabled && !checking && (canScan && !codeMode ? (
             <Button variant="ghost" onClick={() => setCodeMode(true)}>Nhập mã</Button>
           ) : (
             <form
@@ -249,7 +298,7 @@ export function CheckinScreen() {
                 )}
               </Field>
               {classCode && <p className="ep-meta">Lớp {classCode}</p>}
-              {view.denied && <StatusText tone="amber">Chưa cấp quyền camera.</StatusText>}
+              {view.cam && <StatusText tone="amber">{view.cam === "denied" ? "Chưa cấp quyền camera." : "Không mở được camera."}</StatusText>}
             </form>
           ))}
           {view.k === "error" && <InlineNotice tone="danger" compact>{view.message}</InlineNotice>}

@@ -15,4 +15,10 @@ module.exports = {
     errorPath: "error.html", // WebView không tải được server.url → trang lỗi cục bộ có «Thử lại»
   },
   android: { allowMixedContent: false },
+  plugins: {
+    // targetSdk 36 ⇒ edge-to-edge bắt buộc: "css" = decor view được đệm theo thanh trạng thái / điều hướng / cắt góc / bàn phím (trang không có viewport-fit=cover);
+    // style LIGHT = nền sáng ⇒ biểu tượng thanh trạng thái và thanh điều hướng màu tối.
+    // initialViewportFitValueHint: trang đặt viewport-fit=cover (layout.tsx) ⇒ plugin khỏi chờ onPageCommitVisible mới biết, không giật bố cục khung hình đầu.
+    SystemBars: { insetsHandling: "css", style: "LIGHT", initialViewportFitValueHint: "cover" },
+  },
 };

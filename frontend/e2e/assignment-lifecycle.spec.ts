@@ -404,6 +404,32 @@ test("assignment page 375: một cột, vùng nộp ≥ 48 px, nút đủ rộng
   await expect(statusLine(page)).toHaveAttribute("aria-live", "polite");
 });
 
+// M15 (techlead-ui 2026-11-25): trên điện thoại chỗ nộp ở y ≈ 2000 px ⇒ nút «Nộp bài» / «Nộp lại» nằm ở thanh đáy (data-ep-header-dock, §23.2); pointer coarse bỏ chữ kéo thả + viền đứt.
+test.describe("M15", () => {
+test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true }); // điện thoại thật: (pointer: coarse)
+test("assignment page 375 (M15): «Nộp bài» ở thanh đáy mở chọn tệp, có tệp thì nộp; pointer coarse không còn «Kéo thả» và viền đứt", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openStudent(page, context);
+  const dock = page.locator("[data-part=submit-dock]");
+  await expect(dock).toBeVisible();
+  await expect(dock).toHaveAttribute("data-ep-header-dock");
+  const box = (await dock.boundingBox())!;
+  expect(box.y + box.height).toBeGreaterThan(812 - 56 - 12); // ngay trên thanh điều hướng dưới 56 px
+  expect(box.y + box.height).toBeLessThanOrEqual(812 - 56 + 1);
+  await expect(page.getByRole("button", { name: "Nộp bài" })).toHaveCount(1); // nút trong thân trang bị ẩn dưới 720 px
+  const chooser = page.waitForEvent("filechooser");
+  await dock.getByRole("button", { name: "Nộp bài" }).click(); // chưa có tệp: bấm thì mở chọn tệp
+  await chooser;
+  await expect(page.getByText("Kéo thả tệp vào đây")).toBeHidden();
+  expect(await page.locator("[data-part=dropzone]").evaluate((e) => getComputedStyle(e).borderTopStyle)).not.toBe("dashed");
+  await picker(page).setInputFiles(PDF);
+  await expect(page.locator("[data-part=picked]")).toHaveText("bt03.pdf");
+  await dock.getByRole("button", { name: "Nộp bài" }).click(); // có tệp: nộp
+  await expect(statusLine(page)).toHaveText("Đã nhận bài lúc 08:10 Thứ Sáu, 23/10");
+  expect(api.submits()).toHaveLength(1);
+});
+});
+
 // ---- US-P7-04: tab `Chưa khớp` ---------------------------------------------------------------------------------------------
 const UNMATCHED_URL = "/grading?tab=unmatched";
 const uRows = (page: Page) => page.locator("[data-part=unmatched-row]");

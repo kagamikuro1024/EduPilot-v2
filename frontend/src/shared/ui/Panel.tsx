@@ -8,16 +8,18 @@ type PanelProps = {
   fault?: ReactNode;
   as?: "div" | "section";
   "aria-label"?: string;
+  /** bỏ khung (viền / bo góc / bóng / nền) ở màn hẹp + cảm ứng: màn làm việc tràn cột toàn màn, panel chỉ còn là vùng (vd `/chat` dưới 720 px, M9) */
+  bareMobile?: boolean;
   children: ReactNode;
   className?: never;
 };
 
 /** Một vùng làm việc = một Panel trên nền `--ep-canvas`. Tiêu đề vùng (`h2`) nằm NGOÀI panel; nhóm bên trong tách bằng `PanelSection`. */
-export function Panel({ as: Tag = "div", children, fault, ...rest }: PanelProps) {
+export function Panel({ as: Tag = "div", children, fault, bareMobile, ...rest }: PanelProps) {
   // lỗi tải cả vùng (§23.5): MỘT dòng thay chỗ vùng, rộng bằng cột — không nằm trong khung panel (nên không có đệm thừa)
   if (fault) return <>{fault}</>;
   return (
-    <Tag className={s.panel} data-ep-panel aria-label={rest["aria-label"]}>
+    <Tag className={bareMobile ? `${s.panel} ${s.bareMobile}` : s.panel} data-ep-panel aria-label={rest["aria-label"]}>
       {children}
     </Tag>
   );

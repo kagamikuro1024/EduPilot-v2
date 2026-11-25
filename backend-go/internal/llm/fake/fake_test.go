@@ -276,3 +276,15 @@ func TestGenerateNullableAndOptions(t *testing.T) {
 		t.Fatalf("sinh sai: %s", raw)
 	}
 }
+
+// Tin user của agent mở bằng khối <ngữ_cảnh> («khoá: giá trị» tiếng Anh): câu trả lời giả chỉ nhắc câu hỏi, không bao giờ để lộ khối đó (demo sạch chữ kỹ thuật).
+func TestAnswerNeverEchoesContextBlock(t *testing.T) {
+	t.Parallel()
+	p := fake.New(fake.NewController(fake.Settings{}), "")
+	user := "<ngữ_cảnh>\nattendance_rate: 0.9\nabsences: 2\n</ngữ_cảnh>\n\nCâu hỏi: Điểm chuyên cần của em thế nào?"
+	r, err := p.Chat(t.Context(), provider.ChatOpts{Model: "fake-chat", MaxTokens: 100, Messages: []provider.Message{
+		{Role: "system", Content: "quy tắc"}, {Role: "user", Content: user}}})
+	if err != nil || r.Text != "Đây là câu trả lời giả lập cho: Điểm chuyên cần của em thế nào?" {
+		t.Fatalf("text=%q err=%v", r.Text, err)
+	}
+}

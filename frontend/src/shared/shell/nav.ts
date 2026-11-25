@@ -16,6 +16,7 @@ import {
   MessagesSquare,
   NotebookPen,
   Plug,
+  ScanLine,
   SlidersHorizontal,
   ScrollText,
   UserRound,
@@ -40,6 +41,7 @@ const STUDENT: NavGroup[] = [
       { href: "/assignments", label: "Bài tập", icon: ClipboardCheck },
       { href: "/practice", label: "Luyện đề", icon: CircleHelp },
       { href: "/exams", label: "Bài thi", icon: ClipboardList },
+      { href: "/checkin", label: "Điểm danh", icon: ScanLine }, // mọi SV có lớp, không lộ cửa sổ đang mở (P-11-137, US-AS-15 AC16a)
       { href: "/library", label: "Thư viện", icon: Library },
       { href: "/calendar", label: "Lịch", icon: CalendarDays },
       { href: "/me", label: "Kết quả của tôi", icon: ChartColumn },
@@ -158,7 +160,7 @@ const ACCESS: Array<[string, Role[]]> = [
   ["/settings", ["student", "ta", "teacher", "admin"]], // Tài khoản và bảo mật: mọi vai, chỉ tác động chính mình
   ["/admin", ["admin"]],
   ["/chat", ["student"]],
-  ["/checkin", ["student"]], // điểm danh bằng mã (10.8): chỉ sinh viên; route ngoài thanh điều hướng, mở từ QR / camera hệ thống
+  ["/checkin", ["student"]], // điểm danh bằng mã (10.8): chỉ sinh viên; mục «Điểm danh» của thanh điều hướng + mở từ QR / camera hệ thống (P-11-137)
   ["/practice", ["student"]],
   ["/library", ["student"]],
   ["/me", ["student"]],

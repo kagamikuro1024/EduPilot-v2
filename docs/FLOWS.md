@@ -163,7 +163,7 @@ Dải trạng thái → bảng yêu cầu → Drawer chi tiết → trace Jaeger
 - **E2E:** `audit.spec.ts` (`/admin/audit`); Go: `TestAuditRBAC`.
 
 ### F17. Báo cáo lỗ hổng kiến thức
-Như PRD M13-B. Bổ sung: báo cáo chỉ dùng câu hỏi của lớp đang chọn; thông báo quyền riêng tư nói rõ câu hỏi (đã ẩn danh) được dùng để cải thiện giảng dạy; chủ đề có dưới 3 sinh viên hỏi không hiện câu mẫu (tránh suy ngược ra cá nhân).
+Như PRD M13-B. Bổ sung: báo cáo chỉ dùng câu hỏi của lớp đang chọn; trang không có câu giải thích về quyền riêng tư (luật chữ UI, P-11-128): quyền riêng tư nằm ở dữ liệu, báo cáo chỉ chứa câu đã che; chủ đề có dưới 3 sinh viên hỏi không hiện câu mẫu (tránh suy ngược ra cá nhân).
 - **E2E:** `insights.spec.ts`; Go: `TestKnowledgeGap`.
 
 ### F18. Kết thúc học kỳ

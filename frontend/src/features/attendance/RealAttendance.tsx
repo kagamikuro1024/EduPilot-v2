@@ -58,7 +58,7 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
       <Select data-part="att-session-select" value={current.id} onChange={(e) => router.replace(`/attendance?session=${e.target.value}`)}>
         {sessions.map((x) => (
           <option key={x.id} value={x.id}>
-            {`Buổi ${x.session_no} · ${fmtDM(dayLabel(x.starts_at))} · ${x.attendance?.done_at ? "Đã điểm danh" : "Chưa"}`}
+            {`Buổi ${x.session_no} · ${fmtDM(dayLabel(x.starts_at))} · ${x.attendance?.done_at ? "Đã điểm danh" : "Chưa điểm danh"}`}
           </option>
         ))}
       </Select>
@@ -297,7 +297,7 @@ function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate,
     <div className={s.sheet}>
       <PageHeader
         title="Điểm danh"
-        meta={[`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`]}
+        meta={[`Buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`]}
         primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: locked, onClick: () => void complete(), docked: true }}
         secondary={[selfCheckin && !hasWindow ? { label: "Mở điểm danh", onClick: () => void openWindow(), busy: acts.open.isPending } : undefined]}
         more={moreActions}
@@ -348,10 +348,12 @@ function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate,
         )}
         {actionError && <InlineNotice tone="warning" compact>{actionError}</InlineNotice>}
         {scheme && scheme.state !== "CONFIRMED" && (
+          <div className={s.schemeNotice}>
           <InlineNotice tone="warning" compact action={<span className={s.warnAction}><ButtonLink href={`/gradebook/scheme?course=${courseId}`} size="sm" aria-label="Xem công thức"><span className={s.longText}>Xem công thức</span><span className={s.shortText}>Xem</span></ButtonLink></span>}>
             <span className={s.longText}>Công thức điểm chưa xác nhận</span>
             <span className={s.shortText}>Công thức chưa xác nhận</span>
           </InlineNotice>
+          </div>
         )}
         {a.conflicts.length > 0 && (
           <InlineNotice tone="warning" compact>

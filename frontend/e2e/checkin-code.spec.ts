@@ -44,11 +44,47 @@ test("checkin code: mã sai → lỗi tại ô (một câu), chữ đã gõ gi�
   expect(log.posts).toHaveLength(1); // không gửi
 });
 
-test("checkin code: lớp không bật điểm danh bằng mã → «Lớp này không điểm danh bằng mã.» (không gọi POST)", async ({ page, context }) => {
+// P-11-137 (US-AS-15 AC16d): biết lớp không bật TRƯỚC khi sinh viên gõ: màn «Lớp này không điểm danh bằng mã.», không ô nhập, không nút Điểm danh, không gọi POST.
+test("checkin code: lớp không bật điểm danh bằng mã → màn «Lớp này không điểm danh bằng mã.» (không ô nhập, không gọi POST)", async ({ page, context }) => {
   const log = await checkinApi(page, context, { selfCheckin: false });
   await page.goto("/checkin");
-  await page.getByLabel("Mã điểm danh").fill("ABC123");
-  await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
   await expect(page.getByText("Lớp này không điểm danh bằng mã.")).toBeVisible();
+  await expect(page.getByLabel("Mã điểm danh")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Điểm danh", exact: true })).toHaveCount(0);
   expect(log.posts).toHaveLength(0);
+});
+
+// DEF-R10.8-07 (TC-MOB-CL-4): cỡ chữ hệ thống 2,0× (≈ 30 px) — thanh dock «Điểm danh» phải nằm TRÊN thanh điều hướng theo chiều cao THẬT,
+// nhãn thanh điều hướng một dòng (không xuống 2 dòng làm thanh cao thêm).
+test("checkin code: chữ 2,0× (30 px) ở 375 → dock không bị thanh điều hướng đè, nhãn nav một dòng", async ({ page, context }) => {
+  await checkinApi(page, context);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.addInitScript(() => document.addEventListener("DOMContentLoaded", () => {
+    const st = document.createElement("style");
+    st.textContent = "html{font-size:30px}";
+    document.head.appendChild(st);
+  }));
+  await page.goto("/checkin");
+  await expect(page.locator("[data-part=checkin-dock]")).toBeVisible();
+  const nav = await page.locator("[data-part=bottom-nav]").boundingBox();
+  const dock = await page.locator("[data-part=checkin-dock]").boundingBox();
+  expect(nav).not.toBeNull();
+  expect(dock!.y + dock!.height).toBeLessThanOrEqual(nav!.y + 1); // đáy dock không lọt vào thanh điều hướng
+  // M21 hồi quy (PM): nhãn thanh đáy ĐƯỢC xuống 2 dòng khi chữ lớn — bỏ vế «một dòng» vì chiều cao thanh giờ đo thật (--ep-bottom-h), dock vẫn đúng như khẳng định trên.
+});
+
+// M21 hồi quy (PM): cỡ chữ thường ở 360 / 375 / 390 → nhãn thanh điều hướng KHÔNG bị cắt (không ellipsis, không nowrap ép).
+test("checkin code: cỡ chữ thường 360/375/390 → nhãn thanh điều hướng không bị cắt", async ({ page, context }) => {
+  await checkinApi(page, context);
+  for (const w of [360, 375, 390]) {
+    await page.setViewportSize({ width: w, height: 812 });
+    await page.goto("/checkin");
+    const cut = await page.locator("[data-part=bottom-nav] a, [data-part=bottom-nav] button").evaluateAll((els) =>
+      els
+        .map((el) => el.lastElementChild as HTMLElement)
+        .filter((label) => label.scrollWidth > label.clientWidth + 1 || getComputedStyle(label).textOverflow === "ellipsis")
+        .map((label) => label.textContent ?? ""),
+    );
+    expect(cut, `${w}px`).toEqual([]);
+  }
 });

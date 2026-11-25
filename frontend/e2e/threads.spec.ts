@@ -51,6 +51,24 @@ test("US-UX91-19 đoạn trích sạch: bỏ ký tự đầu dòng, gộp dòng,
   expect(texts[2].endsWith("…")).toBe(true);
 });
 
+// M16 (techlead-ui 2026-11-25): dấu ghim là biểu tượng phụ (--ep-ink-3, không đỏ: đỏ không mang nghĩa nào ở đây) và đứng CÙNG dòng đầu của tiêu đề.
+test("M16 @375: dấu ghim không đỏ, cùng dòng với tiêu đề", async ({ page, context }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await openList(page, context, { [`GET ${T}`]: json({ items: [row({ id: "n1", title: "Bài thường" })], pinned: [row({ id: "g1", title: "Quy định chung của lớp học phần năm học 2026 cần đọc trước", pinned: true })], next_cursor: null }) });
+  const pinned = page.locator("[data-part=pinned-row]");
+  const pin = pinned.locator("svg[aria-label=\"Đã ghim\"]");
+  await expect(pin).toBeVisible();
+  const color = await pin.evaluate((e) => getComputedStyle(e).color);
+  const red = await page.evaluate(() => { const d = document.createElement("i"); d.style.color = "var(--ep-red)"; document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; });
+  expect(color).not.toBe(red);
+  const title = (await pinned.locator("a > span").first().boundingBox())!;
+  const box = (await pin.boundingBox())!;
+  expect(box.y - title.y).toBeLessThan(10); // cùng dòng đầu, không hàng riêng
+  expect(box.x - title.x).toBeLessThan(4); // đầu dòng
+  const line = await pinned.locator("a > span").first().evaluate((e) => parseFloat(getComputedStyle(e).lineHeight) || 24);
+  expect(title.height).toBeLessThan(line * 4 + 8);
+});
+
 test("US-UX91-19 nhãn lặp: trạng thái đa số (≥ 80 %) nêu một lần ở đầu danh sách, chỉ hàng khác trạng thái mang nhãn", async ({ page, context }) => {
   const pending = Array.from({ length: 5 }, (_, i) => row({ id: `p${i}`, title: `Chờ ${i}` }));
   await openList(page, context, { [`GET ${T}`]: list([...pending, row({ id: "v1", title: "Đã xong", answer_state: "VERIFIED" })]) });
@@ -216,6 +234,34 @@ test("student detail: nhãn AI + Chờ xác nhận, nguồn mở tại chỗ, KH
   await expect(page.getByText(/Độ tin cậy/)).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Xác nhận" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Thi lại mấy lần" })).toBeVisible();
+});
+
+// M5 (techlead-ui 2026-11-25): thân bài và bình luận là Markdown như bản nháp AI; chú thích HTML của docling không lộ; «⋯» cuối hàng meta (không rơi xuống hàng riêng).
+const MD = "Các bước:\n- Mã hoá\n- Giải mã\n<!-- formula-not-decoded -->\n\nKết luận **quan trọng**";
+for (const [w, h] of [[1440, 900], [375, 812]] as const) {
+  test(`thread detail @${w}: thân bài + bình luận render Markdown, không lộ «<!--»; ⋯ cùng hàng với tên tác giả`, async ({ page, context }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await asDemo(context, "student", { person: "sv-2" });
+    const human = { id: "p9", kind: "HUMAN", author: { full_name: "Lê Thị Bình", role: "STUDENT", is_me: false }, body: MD, version: 1, created_at: "2026-10-11T01:30:00Z", citations: [] };
+    await threadApi(page, { [`GET ${T}/${TID}`]: json(view([human], { body: MD, tags: ["quy-che", "tuan-3", "mat-ma"] })), [`GET ${T}/${TID}/similar`]: json({ items: [] }) });
+    await page.goto(`/threads/${TID}`);
+    const q = page.locator("[data-part=thread-question]");
+    await expect(q.getByRole("listitem")).toHaveCount(2);
+    await expect(q.locator("strong")).toHaveText("quan trọng");
+    const c = page.locator("[data-part=thread-posts]");
+    await expect(c.locator("[data-part=markdown] li")).toHaveCount(2);
+    const text = await page.locator("main").innerText();
+    expect(text).not.toMatch(/<!--|formula-not-decoded|^- /m);
+    expect(await q.locator("[data-part=markdown] ul").evaluate((e) => getComputedStyle(e).listStyleType)).toBe("disc"); // base.css reset list-style: danh sách phải còn dấu đầu dòng
+    const who = await q.getByText("Ngô Ngọc Cẩm").boundingBox();
+    const menu = await q.getByRole("button", { name: "Tuỳ chọn bài" }).boundingBox();
+    expect(Math.abs(menu!.y + menu!.height / 2 - (who!.y + who!.height / 2))).toBeLessThan(24); // cùng hàng với tên tác giả
+  });
+}
+
+test("list preview: chú thích HTML của docling không lộ ở đoạn trích", async ({ page, context }) => {
+  await openList(page, context, { [`GET ${T}`]: list([row({ id: "c1", title: "T1", preview: "- Mã hoá đối xứng\n<!-- formula-not-decoded -->\nKhoá chung" })]) });
+  await expect(page.locator("[data-part=thread-list] p")).toHaveText("Mã hoá đối xứng Khoá chung");
 });
 
 test("staff review: Xác nhận / Chỉnh sửa / Loại cạnh bản nháp, độ tin cậy 0,72", async ({ page, context }) => {

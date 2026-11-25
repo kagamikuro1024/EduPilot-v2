@@ -58,7 +58,8 @@ def main():
     row("E2 đúng (câu trả lời được)", lambda r: f(r["quality"]["e2_accuracy_answerable"]))
     row("E2 bịa (câu không trả lời được)", lambda r: f(r["quality"]["e2_fabrication_unanswerable"]))
     row("E2 ở ngưỡng 0,80: escalate / lỗi lọt", lambda r: f"{f((r['quality']['e2_at_080'] or {}).get('escalate_rate'))} / {f((r['quality']['e2_at_080'] or {}).get('error_rate'))}")
-    row("E3 so với người", lambda r: "WAITING_HUMAN" if r["quality"]["e3_vs_human"] == "WAITING_HUMAN" else f(r["quality"]["e3_vs_human"]["qwk"]))
+    row("E3 so với người: QWK / MAE (n bài)", lambda r: "WAITING_HUMAN" if r["quality"]["e3_vs_human"] == "WAITING_HUMAN" else
+        f"{f(r['quality']['e3_vs_human']['qwk'])} / {f(r['quality']['e3_vs_human']['mae'])} ({r['quality']['e3_vs_human']['n']})")
     row("E3 ổn định (QWK)", lambda r: f(r["quality"]["e3_stability"]["qwk"]) + f" ({r['quality']['e3_stability']['a']}–{r['quality']['e3_stability']['b']})" if r["quality"]["e3_stability"] else "–")
     row("Lời gọi CHAT (lỗi)", lambda r: f"{r['calls']} ({r['errors']})")
     row("Độ trễ LLM p50 / p95 (ms)", lambda r: f"{r['latency_llm_ms'].get('p50')} / {r['latency_llm_ms'].get('p95')}")
@@ -67,7 +68,9 @@ def main():
     row("Giá niêm yết USD / 1M (vào / ra)", lambda r: f"{r['price_usd_per_1m']['in']} / {r['price_usd_per_1m']['out']}")
     row("Chi phí quy đổi / 100 yêu cầu (USD, token đo qua 9router)", lambda r: f(r["cost_usd_per_100_measured"], 4))
     row("Chi phí ước tính / 100 yêu cầu khi gọi thẳng (USD)", lambda r: f(r["cost_usd_per_100_direct_est"], 4))
-    L += ["", "![](e4.svg)", "", "## Giới hạn", "", "- Dữ liệu mô phỏng (D44), cùng bộ 140 câu của E2; E3 chưa có điểm người (`WAITING_HUMAN`), nên chất lượng chấm chỉ có độ ổn định.",
+    e3_note = "E3 chưa có điểm người (`WAITING_HUMAN`), nên chất lượng chấm chỉ có độ ổn định" if (e3r or {}).get("status") != "OK" else \
+        f"E3 so với điểm người chấm ({lib.LABELER}); P2 chỉ chấm xong 24/60 bài nên hai cột E3 không cùng tập bài"
+    L += ["", "![](e4.svg)", "", "## Giới hạn", "", f"- Dữ liệu mô phỏng (D44), cùng bộ 140 câu của E2; {e3_note}.",
           "- Độ trễ đo **qua 9router** (gồm cả proxy và hàng đợi của 9router), làn NEAR_REALTIME của Threads; không phải độ trễ API gốc của nhà cung cấp.",
           "- Chi phí là quy đổi theo giá niêm yết ngày 2026-11-15 (Gemini 3.8 Flash: giá giới thiệu tới 31/12/2026, từ 01/01/2027 gấp đôi); 9router là thuê bao nên chi phí biên thực bằng 0.",
           "- Nhà cung cấp: Google (gemini-3.8-flash) và Anthropic (claude-sonnet-4-6), đều qua 9router `ag/`; ngày đo ghi ở `meta`."]

@@ -215,7 +215,7 @@ def report():
         comb["current_per_provider"] = {t: v["current_at_t0"] for t, v in res.items()}
     obj = {"meta": lib.meta({"stack": "ep-qc", "providers": prov, "embedding": embed, "constants_at_run": {"RAG_SIM_FLOOR": FLOOR0, "RAG_SIM_CEIL": CEIL0, "w_retr": W0, "escalation_threshold": T0}}),
            "status": status, "labels": (lib.human_review("e2") or {}).get("status", "WAITING_HUMAN"), "human_review": lib.human_review("e2"),
-           "labels_note": "Nhãn do BA soạn; chủ dự án soát 20 % (24 mục): gói e2-soat-nhan.csv → benchmarks/eval/human/e2_soat.csv.",
+           "labels_note": f"Nhãn do BA soạn; {lib.LABELER} soát 20 % (24 mục): gói e2-soat-nhan.csv → benchmarks/eval/human/e2_soat.csv.",
            "thresholds": THRESHOLDS, "recommendation": comb, "by_provider": {t: {k: v for k, v in r.items() if k != "rows"} for t, r in res.items()}}
     lib.save_raw("e2-rows.json", {t: r["rows"] for t, r in res.items()})
     xs = THRESHOLDS
@@ -236,7 +236,7 @@ def fmt(x, d=3):
 
 def md(obj, res, prov):
     L = ["# E2 — ngưỡng escalation và hiệu chỉnh độ tin cậy", "",
-         f"Trạng thái: **{obj['status']}** · nhãn: **{obj['labels']}** (BA soạn; chủ dự án soát 24 mục, `HUONG-DAN-CHU-DU-AN.md`). Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. "
+         f"Trạng thái: **{obj['status']}** · nhãn: **{obj['labels']}** (BA soạn; {lib.LABELER} soát 24 mục, `HUONG-DAN-CHU-DU-AN.md`). Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. "
          f"Nhúng: {obj['meta']['config']['embedding']}. Hằng số lúc đo: RAG_SIM_FLOOR 0,25 · RAG_SIM_CEIL 0,65 · conf = 0,6·retr + 0,4·ground · ngưỡng lớp 0,80. "
          "Bảng theo ngưỡng tính trên câu vàng; bảng trước–sau và đề xuất tính trên câu vàng + 20 câu ngoài chủ đề.", ""]
     rc = obj["recommendation"]
@@ -284,8 +284,10 @@ def md(obj, res, prov):
           "- **escalate-rate** = escalate / tổng; **lỗi lọt** (error-rate) = bad không escalate / số câu hiện cho sinh viên; **ticket giả trong tài liệu** = good bị escalate / good; **bắt câu sai** = bad bị escalate / bad.",
           "- Độ tin cậy giả định: retr = clamp((cos − floor) / (ceil − floor)); ground suy ngược = (conf − 0,6·retr₀) / 0,4 với retr₀ ở 0,25 / 0,65; conf′ = w·retr′ + (1 − w)·ground. Không gọi lại LLM.", "",
           "## Giới hạn", "",
-          "- Dữ liệu mô phỏng (D44): câu hỏi do BA soạn từ tài liệu seed lớp 1, chưa kiểm chứng trên câu hỏi thật của sinh viên. Nhãn **chưa có người ngoài đội soát** (`WAITING_HUMAN`).",
-          "- Chấm `must_contain` so chuỗi: câu đúng diễn đạt khác biến thể bị tính sai — sai số thuộc phép đo (README E2), không sửa nhãn cho vừa kết quả.",
+          "- Dữ liệu mô phỏng (D44): câu hỏi do BA soạn từ tài liệu seed lớp 1, chưa kiểm chứng trên câu hỏi thật của sinh viên. Nhãn soát 24/120 câu vàng (một người gán, không có người thứ hai).",
+          "- Chấm `must_contain` so chuỗi: câu đúng diễn đạt khác biến thể bị tính sai — sai số thuộc phép đo (README E2), không sửa nhãn cho vừa kết quả. "
+          "Người soát ghi: E2-095 `phai_chua` chặt với câu diễn đạt lại; E2-060 biến thể «0.6» lỏng (đúng số nhưng sai kỳ vẫn qua); E2-035, E2-085 thiếu biến thể dấu phẩy («65,535», «0,25», «1,0») "
+          "— không ảnh hưởng: `norm` của `check_golden.py` đổi dấu phẩy giữa hai chữ số thành dấu chấm trước khi so (cả 4 mục đều `good` ở P1 và P2), nên không đổi bộ vàng.",
           "- cos_top1 đọc từ DB chỉ-đọc (API không trả cos): max cos trên mọi đoạn sinh viên được thấy, có thể lệch nhẹ với `BestCosine(hits)` của top-K sau RRF; mục lệch được đếm ở trên.",
           "- Hiệu chỉnh khớp trên chính bộ 140 mục: kiểm chéo nửa–nửa ở bảng trên cho thấy độ ổn định; đề xuất là **số cấu hình** cho dev áp (env, không viết cứng — P-11-19), cần đo lại sau khi áp.",
           "- Số đo LLM qua 9router (thuê bao): độ trễ gồm cả proxy. Câu Threads chạy làn NEAR_REALTIME, một lời gọi sinh chữ mỗi câu (D47)."]
