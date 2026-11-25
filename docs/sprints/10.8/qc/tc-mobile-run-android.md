@@ -248,3 +248,14 @@ Tổng: **68 TC = 59 P, 0 F, 9 N.**
 - Bật geofence QCMOB2 qua `PUT /api/v1/courses/{id}/settings` (đúng route UI teacher dùng): body `{version, attendance:{self_checkin,require,rotate_seconds,late_after_min,geofence:{lat:10.7769,lng:106.7009,radius_m:200}}}` → `geo_check=true`. Đã **trả lại cấu hình cũ** sau khi xong (`geo_check=false`).
 - `pm clear` (chưa cấp quyền vị trí) + mock GPS thật (`test provider gps`, lặp 1 s) + gửi mã QCMOB2 → **hộp quyền hiện đủ hai lựa chọn**: «Precise» / «Approximate» + «While using the app» / «Only this time» / «Don't allow» (`shots/GEO-05-perm-geofence-round1.png`).
 - Đã chạm «Approximate» rồi «While using the app»: app hiện «Lớp này kiểm tra vị trí khi điểm danh.», lượt chưa hoàn tất (lần đầu báo «Chưa có mạng.», DB 0 dòng) vì emulator không có fix «gần đúng» thật (chỉ có test provider `gps`). Phần `GEO_WEAK`/`GEO_OK` chưa chấm được — cần test provider `network`/`fused` hoặc máy thật.
+
+## 25. Lượt 21 (26/11) — GEO-05 chạy lại trên bản sửa DEF-MOB-08 = P
+
+Tổng: **68 TC = 59 P, 0 F, 9 N.**
+
+- VPS: commit `bed486d8` (21:31:53Z), frontend build `21:33:39Z` (StartedAt 21:33:45Z), có `GEO_CAP_MS = 10_000` + `getGeoWithin()`; dev xác nhận blob khớp và URL /checkin 200.
+- Bật lại geofence QCMOB2 (`geo_check=true`), `rotate_seconds=60` **trong lúc chạy** (để 10 s thì mã hết hạn ngay trong hộp quyền vị trí), `pm clear` trước mỗi lượt, mock GPS thật 10.7769/106.7009 lặp 1 s.
+- **Lượt 1 — Approximate + While using the app:** «Đã điểm danh 04:37»; DB **1 dòng**: distance 2326 m, acc 2000 m, assurance 1, flags `{DEVICE_NEW,GEO_OUT,GEO_WEAK,GEO_MOCK}` (`shots/GEO-05-fix-round1-approximate*.png`).
+- **Lượt 2 — Precise + While using the app:** «Đã điểm danh»; DB **1 dòng**: distance 0, acc 100 m, assurance 2, flags `{DEVICE_NEW,GEO_MOCK}` (`shots/GEO-05-fix-round2-precise*.png`).
+- Không còn «Chưa có mạng.» ở cả hai lượt ⇒ DEF-MOB-08 đóng từ phía QC.
+- Đã trả lại cấu hình lớp: `rotate_seconds=10`, `geo_check=false`.
