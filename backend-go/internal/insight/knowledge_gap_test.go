@@ -292,6 +292,10 @@ func TestKnowledgeGapNameGuard(t *testing.T) {
 			p := r.report()
 			require.NotEmpty(t, p.Topics)
 			for _, tp := range p.Topics {
+				if len(tp.Examples) == 0 { // không câu mẫu → không gửi LLM, tên «Chủ đề N» (DEF-GP10-08); khoá chỉ còn nghĩa với chủ đề do LLM đặt tên
+					require.Equal(t, fmt.Sprintf("Chủ đề %d", tp.Rank), tp.Name)
+					continue
+				}
 				if c.replaced {
 					require.Equal(t, fmt.Sprintf("Chủ đề %d", tp.Rank), tp.Name)
 					require.Equal(t, "fallback", tp.NamedBy)
@@ -404,13 +408,14 @@ func TestKnowledgeGap(t *testing.T) {
 	require.LessOrEqual(t, len(p.Topics[0].Examples), insight.MaxExamples)
 	var c *insight.Topic
 	for i := range p.Topics {
-		if p.Topics[i].Name == "Chủ đề Docker" {
+		if p.Topics[i].Signals.Students == 2 {
 			c = &p.Topics[i]
 		}
 	}
 	require.NotNil(t, c)
 	require.True(t, c.FewAsked)
 	require.Empty(t, c.Examples)
+	require.Equal(t, fmt.Sprintf("Chủ đề %d", c.Rank), c.Name, "không câu mẫu → không gọi LLM đặt tên (DEF-GP10-08)")
 
 	// ngoài tài liệu: 10 tin = 3 nhóm (3 SV / 4 SV / 1 SV × 3) → hiện 2 nhóm (4 lần trước, 3 lần sau), nhóm 1 sinh viên không có
 	require.Len(t, p.Uncovered, 2)
@@ -530,7 +535,7 @@ func TestKnowledgeGapCourseIsolation(t *testing.T) {
 	a.seed()
 	b := newRig(t, 13)
 	for k := range 25 {
-		b.ask(k%6, fmt.Sprintf("Docker volume là gì, câu %d?", k), false, false)
+		b.ask(k%6, "Docker volume là gì?", false, false) // một câu do ≥ 3 sinh viên hỏi → có câu mẫu để LLM đặt tên
 	}
 	_, err := b.svc.RunNow(t.Context(), b.teacher, b.course, 30)
 	require.NoError(t, err)
@@ -642,4 +647,42 @@ func TestKnowledgeGapChapterFloor(t *testing.T) {
 	require.Equal(t, 3, *tcp.Week)
 	require.Nil(t, sql.Chapter, "cụm SQL vuông góc với đoạn duy nhất: không gán chương")
 	require.Nil(t, sql.Week)
+}
+
+// TestKnowledgeGapNameZeroSample — DEF-GP10-08: cụm KHÔNG có câu mẫu (dưới k) không được gửi cho LLM (nó bịa «Nhóm chưa có câu hỏi»): tên «Chủ đề {hạng}», không khuyến nghị, named_by=fallback;
+// cụm có câu mẫu vẫn do LLM đặt tên. Mọi cụm đều 0 mẫu → không có lời gọi đặt tên nào.
+func TestKnowledgeGapNameZeroSample(t *testing.T) {
+	r := seedLeakRig(t) // SQL: 5 sinh viên, mỗi câu một người (0 mẫu); TCP: có câu mẫu
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	var zero, ok int
+	for _, tp := range r.report().Topics {
+		if len(tp.Examples) == 0 {
+			zero++
+			require.Equal(t, fmt.Sprintf("Chủ đề %d", tp.Rank), tp.Name)
+			require.Equal(t, "fallback", tp.NamedBy)
+			require.Empty(t, tp.Recommendation)
+			require.NotContains(t, strings.Join(r.llm.seen, "\n"), fmt.Sprintf("Nhóm %d (", tp.Rank), "cụm 0 mẫu không vào lời nhắc")
+			continue
+		}
+		ok++
+		require.Equal(t, "llm", tp.NamedBy)
+		require.NotEmpty(t, tp.Recommendation)
+	}
+	require.Equal(t, 1, zero)
+	require.Equal(t, 1, ok)
+
+	only := newRig(t, 13) // mọi câu do một người hỏi → không cụm nào có câu mẫu
+	for k := range 5 {
+		only.ask(k, fmt.Sprintf("Viết SQL join hai bảng thế nào, em %d", k), false, false)
+	}
+	for k := range 4 {
+		only.ask(5+k, fmt.Sprintf("Docker compose dùng ra sao, em %d", k), false, false)
+	}
+	for k := range 21 { // đủ MinQuestions
+		only.ask(k%13, fmt.Sprintf("TCP bắt tay ba bước là gì, em %d lần %d", k%13, k), false, false)
+	}
+	_, err = only.svc.RunNow(t.Context(), only.teacher, only.course, 30)
+	require.NoError(t, err)
+	require.Zero(t, only.llm.structured, "không cụm nào có câu mẫu → không gọi LLM đặt tên")
 }
