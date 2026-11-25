@@ -56,6 +56,22 @@
 .badge { font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-red); font-variant-numeric: tabular-nums; }
 .collapsed .navItem { justify-content: center; padding: 0; }
 .collapsed .navLabel { display: none; }
+/* M21 (US-PU-04 AC1): 720–1099 px thu gọn — chip nhãn vẽ ở <aside> (ngoài khung cuộn của nav, vốn cắt mọi thứ tràn ngang), toạ độ theo mục đang trỏ */
+.navTip {
+  position: absolute;
+  left: calc(100% + var(--ep-space-2));
+  z-index: var(--ep-z-topbar);
+  transform: translateY(-50%);
+  padding: var(--ep-space-1) var(--ep-space-2);
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-panel-border);
+  border-radius: var(--ep-radius-md);
+  color: var(--ep-ink);
+  font-size: var(--ep-text-label);
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+}
 .collapsed .badge { position: absolute; top: 7px; right: 12px; width: 7px; height: 7px; border-radius: var(--ep-radius-pill); background: var(--ep-red); font-size: 0; }
 
 .sideFoot { flex: none; display: grid; gap: var(--ep-space-2); padding: var(--ep-space-3) var(--ep-space-4) var(--ep-space-4); border-top: 1px solid var(--ep-rule); }
@@ -200,8 +216,8 @@
   }
   .bottomItem { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; padding: var(--ep-space-1) 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-meta); font-weight: 500; line-height: 1.2; }
   .bottomItem svg { width: 20px; height: 20px; stroke-width: 1.8; }
-  /* DEF-R10.8-07: chữ hệ thống lớn (2,0×) không làm nhãn xuống 2 dòng → thanh điều hướng không cao thêm */
-  .bottomLabel { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* DEF-R10.8-07 + M21 hồi quy: KHÔNG cắt nhãn; nhãn xuống 2 dòng khi chữ lớn — thanh cao thêm là đúng, dock đặt theo --ep-bottom-h (đo thật) */
+  .bottomLabel { max-width: 100%; }
   .bottomIcon { position: relative; }
   .bottomBadge { position: absolute; top: -4px; right: -10px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; line-height: 16px; text-align: center; }
   .bottomActive { color: var(--ep-ink); font-weight: 600; }
