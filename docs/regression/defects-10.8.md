@@ -54,3 +54,11 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 2. `backend-go/internal/attendance/token.go:65,88` còn chú thích tên cũ `TOKEN_INVALID`/`TOKEN_EXPIRED` (mã chạy đúng `CHECKIN_TOKEN_*`).
 3. Go: `TestAttestRealChains`, `TestCheckinFlow`, `TestCheckinFlags`, `TestPurgeKeepsRecords`, `TestMeAttendanceCheckedAtAndTodayReview` hết hạn / trượt khi máy tải 30+; chạy lại khi tải thấp: toàn bộ PASS (`go-attendance3.log`, `go-attest3.log`, `-race` ok). `go test ./internal/contract` cần `-tags testroutes` (Makefile:17).
 4. Android emulator: chỉ quyền Xấp xỉ mà provider mạng chưa có vị trí thì `getCurrentPosition` hết 8 s ⇒ `GEO_DENIED` (máy thật ⇒ `GEO_WEAK`); hộp «Chính xác / Gần đúng» của Android 12+ làm trễ lượt (có thể `TOKEN_LATE`).
+
+### DEF-R10.8-07 — Cỡ chữ hệ thống 2,0×: dock «Điểm danh» bị thanh điều hướng đè trên /checkin
+- Mức: Thấp · Sprint gốc: 10.8 · TC gốc: TC-MOB-CL-4 (android-checklist AC4) · Hồi quy do sprint sau?: KHÔNG RÕ
+- Môi trường: AVD `ep-api36` (Android 16, 412 dp), APK debug HEAD cd843318, SV `sv.qc2`, `/checkin`
+- Bước tái hiện: `adb shell settings put system font_scale 2.0` → mở `/checkin` (màn nhập mã)
+- Kỳ vọng (CL-4): không cắt chữ, dock không che lỗi, nút chạm được · Thực tế: dock «Điểm danh» 699..752 px, thanh điều hướng 728..816 px ⇒ **đè 24/53 px (45 %)** chiều cao nút; nhãn nav xuống 2 dòng. Ở 1,3× không đè (dock 708..752, nav 759..816)
+- Bằng chứng: `docs/regression/evidence-mobile-android/shots/{CL-4-font-2.0-measure,CL-4-font-2.0,CL-4-font-1.3-measure}.png`
+- Trạng thái: MỞ

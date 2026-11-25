@@ -1,6 +1,6 @@
 # Trạng thái lỗi (qc2, 25/11/2026)
 
-**Cách đếm.** Một dòng cho mỗi mã `DEF-*` có mục riêng trong `defects-<sprint>.md` (tiêu đề `###`/`##`, dòng bảng hoặc dòng `- **DEF-…**`) và `defects-opencode-go.md`; mã chỉ được nhắc tới trong mục khác không tính. Tổng **211** mã (132 là số tiêu đề `###`; còn lại là dòng bảng ở defects-9/10/10.5/10.6, tiêu đề `##` ở defects-4/10.5, dòng `- **DEF-…**` ở defects-4). `defects.md` (16/11, 72 ca) và bản `defects-status.md` cũ (19/11, 111 mã) là số của ngày đó, thay bằng tệp này.
+**Cách đếm.** Một dòng cho mỗi mã `DEF-*` có mục riêng trong `defects-<sprint>.md` (tiêu đề `###`/`##`, dòng bảng hoặc dòng `- **DEF-…**`) và `defects-opencode-go.md`; mã chỉ được nhắc tới trong mục khác không tính. Tổng **212** mã (132 là số tiêu đề `###`; còn lại là dòng bảng ở defects-9/10/10.5/10.6, tiêu đề `##` ở defects-4/10.5, dòng `- **DEF-…**` ở defects-4). `defects.md` (16/11, 72 ca) và bản `defects-status.md` cũ (19/11, 111 mã) là số của ngày đó, thay bằng tệp này.
 
 **Trạng thái cuối** lấy theo thứ tự: (1) `~/.config/edupilot-team/fixes.tsv` (đóng / rút, đã bung dải mã như `R10S-04..07`); (2) nếu fixes.tsv không có mã đó: mọi TC của DEF có dòng cuối là P trong `smoke-*.md` (đếm bằng `env/qc2-count.py`) hoặc TC lỗi thời đã xoá có nguồn; (3) sha lấy từ fixes.tsv → `env/def-sha.tsv` → chữ trong mục DEF. Mục DEF viết lúc mới phát hiện (ví dụ «Trạng thái: MỞ» ở DEF-R105S-06) có thể cũ hơn: tệp này thắng.
 
@@ -11,9 +11,9 @@
 | ĐÓNG | 203 |
 | ĐÃ SỬA, CHỜ XÁC NHẬN | 0 |
 | RÚT (không phải lỗi sản phẩm) | 8 |
-| MỞ | 0 |
+| MỞ | 1 |
 | Nợ PR | 0 |
-| **Tổng** | **211** |
+| **Tổng** | **212** |
 
 DEF-R10.8-05 (Back native Android) đã ĐÓNG 26/11: qc2 chạy lại AC7(a) trên ep-api36 — khung quét đóng khi Back, app không thoát. Nợ PR: không còn; DEF-R6-01 (vai DB siêu quyền) từng là nợ PR, đã sửa ở 3f332fb3 + ea0cf217 (migration 00030) và TC-P3-01-49 chạy lại P.
 
@@ -283,6 +283,7 @@ Lấy từ trường «Hồi quy do sprint sau?» hoặc chữ «Không phải h
 | 10.8 | DEF-R10.8-04 | Thấp | TC-AS11-07 | ĐÓNG | sửa b3c039c0 | lọt sprint gốc | nút «Quét mã điểm danh» hiện cả khi qr_code không được hỗ trợ |
 | 10.8 | DEF-R10.8-05 | Trung bình | TC-AS11-17=F | ĐÓNG | sửa dea5f197 (qc2 xác nhận 26/11: AC7(a) Back đóng khung quét, ở lại app) | không ghi | Back khi đang quét QR đưa cả app Android ra launcher thay vì đóng khung quét |
 | 10.8 | DEF-R10.8-06 | Cao | TC-AS11-17=F | ĐÓNG | sửa e8b2162d | không ghi | gateway không nhận APP_PUBLIC_URL: qr_url / join_url / feed lịch dựng từ https://localhost |
+| 10.8 | DEF-R10.8-07 | Thấp | TC-MOB-CL-4=F | MỞ | — (cỡ chữ 2,0×: dock bị nav đè 45 %) | không rõ | cỡ chữ hệ thống 2,0× làm dock «Điểm danh» bị thanh điều hướng đè trên /checkin |
 | opencode-go | DEF-OC-SI-01 | Thấp | TC-OC-70 | ĐÓNG | sửa 55664e51 | không ghi | log structured_invalid còn chép một phần nội dung đầu ra của mô hình |
 
 TC ghi riêng mã: mặc định dòng cuối là P; `=LT` là TC lỗi thời đã xoá có nguồn (không còn dòng trong smoke).
