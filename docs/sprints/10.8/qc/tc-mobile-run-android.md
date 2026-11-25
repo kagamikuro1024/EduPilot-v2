@@ -304,3 +304,14 @@ Tổng: **97 TC = 69 P, 0 F, 28 N.**
 - **SCN-01 = P**: `pm reset-permissions` → bấm quét: hộp quyền hiện đúng một lần (While using the app / Only this time / Don't allow); cấp quyền → khung camera vuông 354,7 × 354,7 CSS px (= bề rộng panel), tiêu đề «Điểm danh» + «Thoát».
 - **SCN-02 = P**: poster đúng → nhận sau 2,3 s, «Đã điểm danh 05:30», DB 1 dòng.
 - **SCN-03 = P**: 6 poster sai (URL lạ, khác origin, khác path, `c` không UUID, thiếu fragment, chữ thường) giữ 4,5 s mỗi cái → bỏ qua im lặng, không câu lỗi, vẫn ở khung quét, DB 0 dòng; đổi sang poster đúng → nhận sau 0,9 s, DB 1 dòng.
+
+## 30. Lượt 26 (26/11) — lô 2: PRM + SCN trên AVD Play Store
+
+Tổng: **97 TC = 72 P, 1 F, 24 N.**
+
+- **PRM-02 = P**: đang ở «Chưa cấp quyền camera.»; cấp quyền camera trong Cài đặt; Home → mở lại app (không đăng nhập lại, không tải lại trang): dòng nhắc biến mất, nút «Quét mã điểm danh» trở lại ~1,8 s, quét mở được.
+- **PRM-03 = P**: `pm reset-permissions`, bấm quét 10 lần: hộp quyền chỉ hiện **một** lần; sau khi từ chối, không hỏi lại, màn hình hiện «Chưa cấp quyền camera.», nút quét ẩn, ô nhập mã vẫn dùng, không treo/vòng lặp.
+- **PRM-09 = F (defect mới)**: bật công tắc quyền riêng tư camera toàn máy (`cmd sensor_privacy enable 0 camera`), bấm «Quét mã điểm danh» → app vẫn vào khung quét (có `Thoát`) nhưng `video` 0×0 `readyState 0`, **không hiện «Không mở được camera.»** và không chuyển sang ô nhập mã sau 20 s; bấm `Thoát` vẫn về màn nhập mã (không crash, không đăng xuất). Thiếu đúng câu lỗi + fallback mà TC yêu cầu.
+- **SCN-04 = P**: poster token đã qua vòng → «Mã đã hết hạn. Quét lại mã trên màn chiếu.», nút quét ở lại, không đăng xuất, DB 0 dòng.
+- **LIF-11 = N**: bật `low_power=1` rồi quét lại thì app báo «Không mở được camera.» trong 0,8 s (camera còn bị phiên trước giữ) — không đo được nhịp khung ≥3 khung/giây nên không kết luận.
+- Còn N: SCN-05/06/08/09/10/12/13/14/15 (chưa dựng ổn định được cảnh: cửa sổ đóng/lớp khác/hai QR/nền/mạng chậm/xoay) — sẽ chạy tiếp.
