@@ -26,7 +26,7 @@ test("@real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/
   for (const t of rep.payload.topics.slice(0, 3)) await expect.soft(page.getByText(t.name, { exact: false }).first(), `chủ đề «${t.name}» khớp payload`).toBeVisible();
   await shot(page, "ins-1440");
   const body = await page.locator("main").innerText();
-  expect.soft(body.match(/Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy/g)?.length ?? 0, "TC-05-18: đúng một dòng meta").toBe(1);
+  expect.soft(body.match(/Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy/g)?.length ?? 0, "TC-05-18 (P-11-128): không còn dòng meta").toBe(0);
   expect.soft(await page.getByRole("button", { name: "Tạo báo cáo mới" }).count(), "một nút Tạo báo cáo mới").toBe(1);
   const moreTopics = await page.getByText("Chủ đề khác").count();
   const shown = await page.locator("main").getByRole("button", { name: /Tạo thread ghim/ }).filter({ visible: true }).count();

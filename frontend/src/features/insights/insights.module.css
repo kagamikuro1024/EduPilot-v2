@@ -29,7 +29,7 @@
 .samples ul { display: grid; gap: var(--ep-space-2); margin-top: var(--ep-space-2); padding-left: var(--ep-space-4); border-left: 2px solid var(--ep-red-soft); max-width: 68ch; color: var(--ep-ink-2); line-height: 1.5; list-style: none; }
 
 .action { margin-left: var(--ep-space-8); max-width: 68ch; font-size: var(--ep-text-label); margin-top: 0; }
-.actionLabel { font-weight: 600; color: var(--ep-red); }
+.actionLabel { font-weight: 600; color: var(--ep-ink); }
 .actionLabel::after { content: ":"; }
 
 .topicActions { display: flex; gap: var(--ep-space-2); margin-left: var(--ep-space-8); flex-wrap: wrap; }
@@ -58,3 +58,4 @@
   .samples, .action { padding-left: var(--ep-space-4); }
   .gap { flex-direction: column; gap: var(--ep-space-1); }
 }
+.period { margin-block: var(--ep-space-6); }

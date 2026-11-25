@@ -35,7 +35,7 @@ test("có báo cáo: chủ đề xếp hạng, câu mẫu gập, «Ít người 
   await expect(page.getByRole("heading", { name: "Bắt tay ba bước TCP" })).toBeVisible();
   const names = await page.locator("h3.ep-item-title").allTextContents();
   expect(names).toEqual(["Bắt tay ba bước TCP", "Truy vấn SQL nhiều bảng", "Docker compose"]);
-  await expect(page.getByText("Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy")).toBeVisible();
+  await expect(page.getByText("Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy")).toHaveCount(0);
   // câu mẫu: gập; chủ đề < 3 sinh viên: nhãn, không mục gập
   await expect(page.getByText("Bắt tay ba bước TCP là gì?")).toBeHidden();
   await page.getByText("Câu hỏi mẫu (3)").first().click();
@@ -284,3 +284,17 @@ test("LLM đặt tên lỗi: báo cáo vẫn ra, mọi chủ đề mang tên t�
   await expect(page.getByText("Chưa đặt được tên chủ đề")).toHaveCount(3);
   await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0);
 });
+
+// QC L2.10 (P-11-128): dải kỳ báo cáo cách tiêu đề khối bên dưới ≥ 24 px; nhãn «Nên làm» không đỏ (đỏ chỉ là tín hiệu)
+for (const [name, width] of [["1440", 1440], ["375", 375]] as const) {
+  test(`insights @${name}: dải kỳ cách «Chủ đề nên dạy lại» ≥ 24 px, «Nên làm» không đỏ`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, REPORT);
+    const seg = await page.getByRole("radiogroup", { name: "Kỳ báo cáo" }).boundingBox();
+    const h2 = await page.getByRole("heading", { name: "Chủ đề nên dạy lại" }).boundingBox();
+    expect(h2!.y - (seg!.y + seg!.height)).toBeGreaterThanOrEqual(24);
+    const label = page.locator("main span", { hasText: /^Nên làm$/ }).first();
+    await expect(label).toBeVisible();
+    expect(await label.evaluate((e) => getComputedStyle(e).color)).not.toBe(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--ep-red")));
+  });
+}
