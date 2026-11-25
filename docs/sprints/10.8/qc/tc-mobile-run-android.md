@@ -171,3 +171,10 @@ Tổng: **56 TC = 46 P, 0 F, 10 N.**
 Tổng: **57 TC = 46 P, 0 F, 11 N.**
 
 - **THM-02 = N**: lượt đo chỉ bật `cmd uimode night yes` (app báo `scheme=false`, nền #fff, chữ #231f20). TC yêu cầu cờ Chrome «Auto Dark Mode for Web Contents» + mở `/checkin` bằng `am start VIEW` — chưa dựng đúng, cần chạy lại.
+
+## 15. Lượt 11 (26/11) — LIF-02 P (đăng nhập lại trước ca)
+
+Tổng: **57 TC = 47 P, 0 F, 10 N.**
+
+- **LIF-02 = P**: login form ngay trước ca; mạng chậm 3 s; gửi mã rồi giáo viên đóng cửa sổ tức thì (close 200) → «Đã điểm danh 00:54», DB đúng 1 dòng, không màn trắng, phiên không rơi.
+- Giới hạn: biến thể «gửi vào cửa sổ đã đóng trước khi bấm» chưa dựng được vì SV đã điểm danh nên ô nhập ẩn (cần SV khác hoặc cửa sổ mới + đóng trước).
