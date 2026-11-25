@@ -228,14 +228,14 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | 6.B Phiên, vai, tài khoản | 8 | 0 | 6 | 14 |
 | 6.C Luồng điểm danh chính | 11 | 0 | 7 | 18 |
 | 6.F Nhánh lỗi (ERR) | 15 | 0 | 5 | 20 |
-| 6.S Câu chữ (MSG) | 11 | 0 | 5 | 16 |
+| 6.S Câu chữ (MSG) | 12 | 0 | 4 | 16 |
 | 6.G Độ rộng, xoay ngang, khung app | 16 | 0 | 6 | 22 |
 | 6.I Cỡ chữ, phóng | 1 | 0 | 7 | 8 |
 | 6.K Bàn phím che ô nhập (phần web) | 6 | 0 | 6 | 12 |
 | 6.N Mạng yếu, mất mạng | 4 | 0 | 8 | 12 |
 | 6.R Vùng chạm ≥ 44 px | 3 | 1 | 2 | 6 |
 | 6.X Staff trên điện thoại — /attendance | 6 | 1 | 4 | 11 |
-| **Cộng** | **81** | **2** | **56** | **139** |
+| **Cộng** | **82** | **2** | **55** | **139** |
 
 ## DEF mới
 
@@ -251,5 +251,5 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 
 - Quan sát tĩnh §5 của `tc-mobile-app.md` không chấm ở pha 1 trừ ca W tương ứng.
 - Mọi ca dựng trạng thái bằng `page.route` (gửi/đã gửi/lỗi/429) chỉ đo bố cục, không tạo lượt trong DB.
-- Số đếm đúng của phần qc là **139 mã = 81 P · 2 F · 56 N** sau khi chạy bù 6 mã thiếu dữ kiện (trước đó 78 P/0 F/61 N; lượt đầu báo 77 P do cột 6.N ghi 1 P trong khi thực tế có 4).
+- Số đếm đúng của phần qc là **139 mã = 82 P · 2 F · 55 N** sau khi chạy bù 6 mã thiếu dữ kiện (trước đó 78 P/0 F/61 N; lượt đầu báo 77 P do cột 6.N ghi 1 P trong khi thực tế có 4).
 - Cách dựng cho 6 mã chạy bù: `e2e/qc-mob-pha1-gap.spec.ts` (SES/ERR/TGT/MSG-15) + `e2e/qc-mob-pha1-err09api.spec.ts` (429/Retry-After qua API); SQL đối chiếu trên Postgres VPS (chỉ đọc).
