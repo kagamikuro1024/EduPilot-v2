@@ -732,21 +732,20 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 | TC-MOB-THM-04 | P | `simctl ui appearance dark`: trang vẫn SÁNG ở cả Safari và PWA (chữ đen trên nền trắng), thanh trạng thái PWA đọc được (chữ đen, nền trắng `theme_color`) |
 | TC-MOB-THM-07 | P | Ảnh: giờ/pin/sóng màu đen trên nền trắng — đọc rõ. `theme_color` đang dùng `#FFFFFF` (không phải BRAND.red); đối chiếu US-AS-15 AC11/D59: nền sáng, ghi nhận là quan sát |
 
-### 9.4 Soát tổng theo MÃ TC (26/11/2026 — cập nhật theo TSV từng mã của qc)
+### 9.4 Soát tổng theo MÃ TC (26/11/2026 — gộp TSV từng mã của qc + `results.jsonl` của qc2)
 
 Đếm theo mã, một mã một lần, lấy kết quả MỚI NHẤT; N của lượt trước mà lượt sau đã P thì tính P.
 
 | Nguồn | Mã | P | F | N |
 |---|---|---|---|---|
 | qc3 — pha 1 web + DAT `ep-dat` + pha 3 iOS lô A | 47 | 47 | 0 | 0 |
-| qc2 — pha 2 Android (34 TC, số của qc2) | 34 | 28 | 0 | 6 |
-| qc — pha 1 (TSV `tc-mobile-run-qc.tsv` @`513840e2`) | 139 | 78 | 0 | 61 |
-| **Hợp theo mã** (trừ `A11-16` trùng qc3∩qc2) | **219** | **152** | **0** | **67** |
+| qc2 — Android, lô 14 (`results.jsonl` @`90b9b2fd`) | 65 | 54 | 0 | 11 |
+| qc — pha 1 (`tc-mobile-run-qc.tsv` @`513840e2`) | 139 | 78 | 0 | 61 |
+| **Hợp theo mã** | **241** | **169** | **0** | **72** |
 
-- qc ∩ qc3 = 0; qc ∩ qc2 = 0; trùng duy nhất `A11-16` (qc3 pha 1 và qc2).
-- Bản trước ghi 171 mã vì chỉ đọc dòng kết quả của qc, chưa có TSV từng mã; số đúng là **219**.
-- Đã trừ `CL-4` (F → P sau `f6113582`, `DEF-R10.8-07` đóng) và `GEO-03` (N → P).
-- **N native còn lại (67):** 61 của qc (camera, `adb`/`simctl`, bàn phím thật, TalkBack/VoiceOver, WebView, geofence, thiếu dữ kiện) + 6 của qc2 (`INS-01/02/03/09/13`, `GEO-05`).
+- Trùng đã khử: `Flw-13`, `MSG-07`, `NET-02`, `NET-03`, `NET-07` (qc ∩ qc2) và `A11-16`, `NAV-02`, `NAV-11`, `PRM-10`, `THM-07` (qc2 ∩ qc3) ⇒ 10 mã.
+- Đã tính `CL-4` = P (`f6113582`, `DEF-R10.8-07` đóng) và `GEO-03` = P.
+- **N còn lại (72):** 61 của qc (camera, `adb`/`simctl`, bàn phím thật, TalkBack/VoiceOver, WebView, geofence, thiếu dữ kiện) + 11 của qc2.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
