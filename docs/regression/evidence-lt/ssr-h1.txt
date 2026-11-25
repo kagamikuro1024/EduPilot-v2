@@ -1,0 +1,7 @@
+/ h1=2 "" p=35 bytes=492122
+/chat h1=1 "Chat riêng" p=1 bytes=439389
+/threads h1=1 "Hỏi đáp công khai" p=0 bytes=439116
+/inbox h1=1 "Hộp thư hỗ trợ" p=0 bytes=439101
+/gradebook h1=1 "Sổ điểm" p=0 bytes=472844
+/me h1=1 "Kết quả của tôi" p=0 bytes=439095
+/settings/llm h1=1 "Cấu hình LLM" p=0 bytes=476592

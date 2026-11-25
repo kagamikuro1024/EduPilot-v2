@@ -1,0 +1,75 @@
+=== RUN   TestSetHold
+=== PAUSE TestSetHold
+=== RUN   TestAdjustScore
+=== PAUSE TestAdjustScore
+=== RUN   TestOverrideRecomputes
+=== PAUSE TestOverrideRecomputes
+=== RUN   TestRegradeFlow
+=== PAUSE TestRegradeFlow
+=== RUN   TestAdjustKeepsAutoScore
+=== PAUSE TestAdjustKeepsAutoScore
+=== RUN   TestAdjustAudit
+=== PAUSE TestAdjustAudit
+=== RUN   TestAppealAnswerUpheld
+=== PAUSE TestAppealAnswerUpheld
+=== RUN   TestAppealAnswerAdjustedAppliesScore
+=== PAUSE TestAppealAnswerAdjustedAppliesScore
+=== RUN   TestAIDraftNeverAutoApproved
+=== PAUSE TestAIDraftNeverAutoApproved
+=== RUN   TestReviewAudit
+=== PAUSE TestReviewAudit
+=== RUN   TestScheduleEffects
+=== PAUSE TestScheduleEffects
+=== RUN   TestScheduleIdempotent
+=== PAUSE TestScheduleIdempotent
+=== RUN   TestUnscheduleRules
+=== PAUSE TestUnscheduleRules
+=== RUN   TestExtendOnlyLater
+=== PAUSE TestExtendOnlyLater
+=== RUN   TestSimilarityReviewStates
+=== PAUSE TestSimilarityReviewStates
+=== CONT  TestSetHold
+=== CONT  TestAIDraftNeverAutoApproved
+=== CONT  TestSimilarityReviewStates
+=== CONT  TestScheduleIdempotent
+=== CONT  TestScheduleEffects
+=== CONT  TestReviewAudit
+=== CONT  TestAdjustKeepsAutoScore
+=== CONT  TestAppealAnswerAdjustedAppliesScore
+=== CONT  TestAppealAnswerUpheld
+=== CONT  TestAdjustAudit
+=== CONT  TestOverrideRecomputes
+2026/11/25 19:18:20 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0d327b5d26b03f7d681525988569e39110fefe7e6f61e87657083be595fcabf7
+  Test ProcessID: 8e024e60-a106-4e4d-9990-7d1a7998e8f3
+2026/11/25 19:18:20 ✅ Container started: 68f6ff853df5
+2026/11/25 19:18:20 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/25 19:18:20 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAIDraftNeverAutoApproved (2.46s)
+=== CONT  TestRegradeFlow
+--- PASS: TestReviewAudit (2.50s)
+=== CONT  TestAdjustScore
+--- PASS: TestScheduleEffects (2.51s)
+=== CONT  TestExtendOnlyLater
+--- PASS: TestAppealAnswerUpheld (2.51s)
+=== CONT  TestUnscheduleRules
+--- PASS: TestAdjustKeepsAutoScore (2.53s)
+--- PASS: TestAdjustAudit (2.53s)
+--- PASS: TestOverrideRecomputes (2.53s)
+--- PASS: TestSetHold (2.53s)
+--- PASS: TestScheduleIdempotent (2.54s)
+--- PASS: TestSimilarityReviewStates (2.57s)
+--- PASS: TestAppealAnswerAdjustedAppliesScore (2.57s)
+--- PASS: TestExtendOnlyLater (1.14s)
+--- PASS: TestUnscheduleRules (1.25s)
+--- PASS: TestAdjustScore (1.29s)
+--- PASS: TestRegradeFlow (1.37s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	4.506s
