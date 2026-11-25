@@ -199,3 +199,10 @@ Tổng: **65 TC = 54 P, 0 F, 11 N.**
 
 - **NET-07, FLW-13 = P**: PM chốt phủ bởi pha 1 (qc) trên VPS ae069d85, cùng mã WebView — `tc-mobile-run-qc.md` @34e8fa3b; không dựng lại. Ghi nhận riêng ở emulator: QCMOB4 `archived_at=2026-11-25 16:00:06`, QCMOB5 `SELF_CHECKIN_DISABLED`.
 - **LIF-07 = P**: `dumpsys deviceidle force-idle` 30 s → unforce → mở lại: vẫn `/checkin`, vẫn đăng nhập, không màn trắng, không rơi `/login`. Không gửi lượt mới được vì SV đã điểm danh trong ngày; không đếm được đúng một `POST /auth/refresh`.
+
+## 19. Lượt 15 (26/11) — CL-10 N (nửa ca)
+
+Tổng: **65 TC = 54 P, 0 F, 11 N.**
+
+- **CL-10 = N**: SV sv.qc2b (lớp QCMOB1, chưa điểm danh hôm nay). Đang gửi với mạng trễ 5 s rồi Home → quay lại: vẫn `/checkin`, phiên còn, không màn trắng, DB 0 dòng (lần gửi bị huỷ, không có lượt hai). `am kill` rồi mở lại: vẫn `/checkin`, phiên còn, DB 0 dòng. Nhánh «camera tắt khi ra nền» + nút «Quét mã điểm danh» trở lại KHÔNG kiểm được trên emulator (không có camera) ⇒ cần máy thật.
+- Ghi chú: `pm clear` + đăng nhập sv.qc2b để có SV chưa điểm danh trong ngày (sv.qc2 đã điểm danh ở NET-07).
