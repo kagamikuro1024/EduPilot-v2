@@ -259,3 +259,14 @@ Tổng: **68 TC = 59 P, 0 F, 9 N.**
 - **Lượt 2 — Precise + While using the app:** «Đã điểm danh»; DB **1 dòng**: distance 0, acc 100 m, assurance 2, flags `{DEVICE_NEW,GEO_MOCK}` (`shots/GEO-05-fix-round2-precise*.png`).
 - Không còn «Chưa có mạng.» ở cả hai lượt ⇒ DEF-MOB-08 đóng từ phía QC.
 - Đã trả lại cấu hình lớp: `rotate_seconds=10`, `geo_check=false`.
+
+## 26. Lượt 22 (26/11) — GEO-05 trên DEF-MOB-09 (xin quyền ngay khi mở /checkin) = P
+
+Tổng: **68 TC = 59 P, 0 F, 9 N.**
+
+- VPS: commit `36fbf68d` (21:44:56Z), build `21:46:36Z`, StartedAt `21:46:42Z`; dev xác nhận blob `CheckinScreen.tsx` khớp, `/checkin` 200.
+- Bật geofence QCMOB2, **giữ `rotate_seconds=10` mặc định**, `pm clear`, mở `/checkin`:
+  - Hộp quyền hiện **NGAY ở màn nhập mã** (câu «Lớp này kiểm tra vị trí khi điểm danh.» có sẵn trong trang trước khi nhập) — `shots/GEO-05-def09-dialog-at-open.png`.
+  - Chọn **Precise** + **While using the app**, nhập mã đang hiện → «Đã điểm danh 04:49», DB **1 dòng**: `{DEVICE_NEW,GEO_MOCK}`, dist 0, acc 100 m (`shots/GEO-05-def09-fast-precise.png`).
+- **Ghi nhận (không chặn):** lượt chạy trước thao tác chậm (~10 s vì hai lần `uiautomator dump`) vẫn «Đã điểm danh» + 1 dòng nhưng cờ `{DEVICE_NEW,GEO_DENIED}`, không có toạ độ — trần định vị 10 s tính cả thời gian hộp quyền đang mở (`shots/GEO-05-def09-done.png`). Trên máy thật, người dùng đọc hộp quyền lâu cũng sẽ bị gắn `GEO_DENIED` dù đã cấp quyền; đề nghị PM cân nhắc (không phải lỗi chặn AC).
+- Đã trả lại cấu hình lớp: `rotate_seconds=10`, `geo_check=false`.
