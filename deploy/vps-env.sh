@@ -14,7 +14,7 @@ set_kv() { # set_kv KEY VALUE — thay dòng KEY=… (hoặc thêm cuối)
 }
 set_kv POSTGRES_PASSWORD "$PG"
 set_kv DATABASE_URL "postgres://edupilot:$PG@postgres:5432/edupilot?sslmode=disable"
-set_kv PGBOUNCER_URL "postgres://edupilot:$PG@pgbouncer:6432/edupilot?sslmode=disable"
+set_kv APP_DB_PASSWORD "$(rnd 16)" # mật khẩu vai ứng dụng edupilot_app (gateway / worker), khác vai chủ
 set_kv PGBOUNCER_STATS_PASSWORD "$STATS"
 set_kv JWT_SECRET_KEY "$(rnd 32)"
 set_kv APP_ENCRYPTION_KEY "$(openssl rand -base64 32)"

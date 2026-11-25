@@ -5,8 +5,10 @@
 x-app-env: &app-env
   APP_ENV: ${APP_ENV:-dev}
   LOG_LEVEL: ${LOG_LEVEL:-}
-  DATABASE_URL: ${DATABASE_URL}
-  PGBOUNCER_URL: ${PGBOUNCER_URL}
+  # Gateway / worker nối bằng vai ứng dụng edupilot_app (migration 00030; không superuser, không chủ bảng — TC-P3-01-49). Mật khẩu: APP_DB_PASSWORD, bỏ trống = dùng POSTGRES_PASSWORD
+  # (volume cũ nâng bằng build + up, không sửa .env.local). DATABASE_URL / PGBOUNCER_URL trong .env.local là của vai CHỦ và chỉ migrate dùng.
+  DATABASE_URL: postgres://edupilot_app:${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+  PGBOUNCER_URL: postgres://edupilot_app:${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}@pgbouncer:6432/${POSTGRES_DB}?sslmode=disable
   REDIS_URL: ${REDIS_URL}
   DB_MAX_CONNS: ${DB_MAX_CONNS:-}
   DB_SLOW_QUERY_MS: ${DB_SLOW_QUERY_MS:-}
@@ -129,7 +131,7 @@ services:
     image: edoburu/pgbouncer:v1.26.0-p0
     environment:
       AUTH_TYPE: scram-sha-256
-      DATABASE_URLS: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB},postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@postgres:5432/
+      DATABASE_URLS: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB},postgres://edupilot_app:${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}@postgres:5432/${POSTGRES_DB},postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@postgres:5432/
       PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
       PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
     volumes: ["./deploy/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro"]
@@ -218,6 +220,7 @@ services:
       APP_ENV: ${APP_ENV:-dev}
       LOG_LEVEL: ${LOG_LEVEL:-}
       DATABASE_URL: ${DATABASE_URL}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:-${POSTGRES_PASSWORD}}
     restart: "no"
     read_only: true
     tmpfs: ["/tmp"]
