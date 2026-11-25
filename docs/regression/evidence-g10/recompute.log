@@ -1,0 +1,10 @@
+QC tính lại: {'b0': {'mae_total': '1.8562', 'mae_criterion': '0.4922', 'bias_total': '1.8562'}, 'b1': {'mae_total': '1.2438', 'mae_criterion': '0.4141', 'bias_total': '1.1562'}, 'fix_b0': '80.5', 'fix_b1': '64', 'drop': '0.3299663299663299663299663300', 'noise': '5', 'was_right_now_wrong_r1': '7', 'was_right_now_wrong_avg': '9', 'thr': '7.5'}
+run.py: {'noise_items': 5, 'was_right_now_wrong': 9, 'fix_b0': 74, 'fix_b1': 62, 'better': 37, 'worse': 2} {'b0': {'mae_total': '1.85625', 'mae_criterion': '0.49218', 'bias_total': '1.85625'}, 'b1': {'mae_total': '1.24375', 'mae_criterion': '0.41406', 'bias_total': '1.15625'}}
+b0.mae_total: QC 1.8562 vs run.py 1.8562 chênh 0.00000 OK
+b0.mae_criterion: QC 0.4922 vs run.py 0.4922 chênh 0.00000 OK
+b0.bias_total: QC 1.8562 vs run.py 1.8562 chênh 0.00000 OK
+b1.mae_total: QC 1.2438 vs run.py 1.2438 chênh 0.00000 OK
+b1.mae_criterion: QC 0.4141 vs run.py 0.4141 chênh 0.00000 OK
+b1.bias_total: QC 1.1562 vs run.py 1.1562 chênh 0.00000 OK
+trung bình hai lượt: sửa tay B0=74 B1=62 (run.py 74 / 62); tốt lên=37 xấu đi=2 (run.py 37 / 2); vốn đúng nay sai=9 (run.py 9); nhiễu=5 (run.py 5)
+ngưỡng 1,5 x nhiễu = 7.5; vốn đúng nay sai 9 > 7.5 -> tiêu chí 3 KHÔNG; MAE giảm 33.0% (>= 20%: đạt); |lệch B1| 1.1562 <= |lệch B0| + 0,20 = 2.0562: đạt

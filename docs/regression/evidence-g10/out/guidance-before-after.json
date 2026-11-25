@@ -1,0 +1,147 @@
+{
+  "status": "DONE",
+  "verdict": "Giữ tắt",
+  "checks": {
+    "mae_total_giam_20pct": true,
+    "lech_tb_khong_xau_hon_0.20": true,
+    "von_dung_nay_sai_le_1.5x_co_so": false
+  },
+  "mae_total_drop": "0.3299663299663299663299663300",
+  "label_source": "QC tạm (qc2 chấm theo rubric, không phải nhãn người)",
+  "provider": "không gọi LLM: ảnh chụp nháp b0/b1 của kiểm chứng 14/11 (model chấm 9router ag/gemini-3.8-flash)",
+  "date": "2026-11-25",
+  "n_measure": 40,
+  "guidance_counts": {},
+  "metrics": {
+    "n_a": 40,
+    "n_b": 24,
+    "b0": {
+      "mae_criterion": "0.4921875",
+      "mae_total": "1.85625",
+      "bias_total": "1.85625",
+      "bias_criterion": [
+        "0.45000",
+        "0.765625",
+        "0.534375",
+        "0.10625"
+      ]
+    },
+    "b1": {
+      "mae_criterion": "0.4140625",
+      "mae_total": "1.24375",
+      "bias_total": "1.15625",
+      "bias_criterion": [
+        "0.246875",
+        "0.728125",
+        "0.134375",
+        "0.046875"
+      ]
+    },
+    "b0_runs": {
+      "b0r1": {
+        "n": 40,
+        "mae_criterion": "0.4953125",
+        "mae_total": "1.88125",
+        "bias_total": "1.88125",
+        "bias_criterion": [
+          "0.45625",
+          "0.78125",
+          "0.53125",
+          "0.1125"
+        ]
+      },
+      "b0r2": {
+        "n": 40,
+        "mae_criterion": "0.4890625",
+        "mae_total": "1.83125",
+        "bias_total": "1.83125",
+        "bias_criterion": [
+          "0.44375",
+          "0.75",
+          "0.5375",
+          "0.10"
+        ]
+      }
+    },
+    "b1_runs": {
+      "b1r1": {
+        "n": 40,
+        "mae_criterion": "0.4171875",
+        "mae_total": "1.24375",
+        "bias_total": "1.13125",
+        "bias_criterion": [
+          "0.21875",
+          "0.725",
+          "0.13125",
+          "0.05625"
+        ]
+      },
+      "b1r2": {
+        "n": 40,
+        "mae_criterion": "0.4109375",
+        "mae_total": "1.24375",
+        "bias_total": "1.18125",
+        "bias_criterion": [
+          "0.275",
+          "0.73125",
+          "0.1375",
+          "0.0375"
+        ]
+      }
+    },
+    "bt_b": {
+      "b0r1": {
+        "n": 24,
+        "mae_criterion": "0.3723958333333333333333333333",
+        "mae_total": "0.8854166666666666666666666667",
+        "bias_total": "0.6770833333333333333333333333",
+        "bias_criterion": [
+          "-0.02083333333333333333333333333",
+          "0.4791666666666666666666666667",
+          "0.2916666666666666666666666667",
+          "-0.07291666666666666666666666667"
+        ]
+      },
+      "b0r2": {
+        "n": 24,
+        "mae_criterion": "0.3619791666666666666666666667",
+        "mae_total": "0.90625",
+        "bias_total": "0.7604166666666666666666666667",
+        "bias_criterion": [
+          "0.03125",
+          "0.50",
+          "0.2916666666666666666666666667",
+          "-0.0625"
+        ]
+      },
+      "bt-b-after": {
+        "n": 24,
+        "mae_criterion": "0.3619791666666666666666666667",
+        "mae_total": "0.90625",
+        "bias_total": "0.7604166666666666666666666667",
+        "bias_criterion": [
+          "0.03125",
+          "0.50",
+          "0.2916666666666666666666666667",
+          "-0.0625"
+        ]
+      }
+    },
+    "epsilon": "0.05000",
+    "noise_items": 5,
+    "was_right_now_wrong": 9,
+    "better": 37,
+    "worse": 2,
+    "fix_b0": 74,
+    "fix_b1": 62,
+    "fix_total": 160,
+    "bt_b_isolation_diff": "0.00000",
+    "checks": {
+      "B1_mae_total": true,
+      "B2_bias": true,
+      "B3_was_right_now_wrong": false,
+      "B4_fix_count": true
+    },
+    "verdict": "KHÔNG ĐẠT"
+  }
+}

@@ -1,0 +1,9 @@
+roster: 200
+tài khoản: 60 nhận lời mời / 60
+  bt-a hoc: 20 bài → {"created": 20, "deduped": [], "matched": 20, "rejected": [], "unmatched": 0}
+  bt-a do: 40 bài → {"created": 40, "deduped": [], "matched": 40, "rejected": [], "unmatched": 0}
+  bt-b doichung: 24 bài → {"created": 24, "deduped": [], "matched": 24, "rejected": [], "unmatched": 0}
+bt-a: 60/60 bài MATCHED
+bt-b: 24/24 bài MATCHED
+Lớp KC106 sẵn sàng (cờ GRADING_GUIDANCE bật). Chưa chấm: bước 2 của quy trình do giaovien làm.
+rc=0
