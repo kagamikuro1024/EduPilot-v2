@@ -732,20 +732,21 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 | TC-MOB-THM-04 | P | `simctl ui appearance dark`: trang vẫn SÁNG ở cả Safari và PWA (chữ đen trên nền trắng), thanh trạng thái PWA đọc được (chữ đen, nền trắng `theme_color`) |
 | TC-MOB-THM-07 | P | Ảnh: giờ/pin/sóng màu đen trên nền trắng — đọc rõ. `theme_color` đang dùng `#FFFFFF` (không phải BRAND.red); đối chiếu US-AS-15 AC11/D59: nền sáng, ghi nhận là quan sát |
 
-### 9.4 Soát tổng theo MÃ TC (26/11/2026 — gộp TSV từng mã của qc + `results.jsonl` của qc2)
+### 9.4 Soát tổng theo MÃ TC (26/11/2026 — qc chốt lại `bb052c71`)
 
-Đếm theo mã, một mã một lần, lấy kết quả MỚI NHẤT; N của lượt trước mà lượt sau đã P thì tính P.
+Nguồn từng mã: qc3 iOS 59 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 17 mã trùng (12 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3), không mã nào lệch nhãn trừ `TC-MOB-FLW-02` (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
 
-| Nguồn | Mã | P | F | N |
-|---|---|---|---|---|
-| qc3 — pha 1 web + DAT `ep-dat` + pha 3 iOS lô A | 47 | 47 | 0 | 0 |
-| qc2 — Android, lô 14 (`results.jsonl` @`90b9b2fd`) | 65 | 54 | 0 | 11 |
-| qc — pha 1 (`tc-mobile-run-qc.tsv` @`513840e2`) | 139 | 78 | 0 | 61 |
-| **Hợp theo mã** | **241** | **169** | **0** | **72** |
+| Mã | P | F | N |
+|---|---|---|---|
+| qc3 iOS | 59 | 0 | 0 |
+| qc2 Android | 57 | 0 | 11 |
+| qc pha 1 | 82 | 2 | 55 |
+| **Hợp (khử trùng)** | **176** | **2** | **66** |
+| TC | 345 | | |
 
-- Trùng đã khử: `Flw-13`, `MSG-07`, `NET-02`, `NET-03`, `NET-07` (qc ∩ qc2) và `A11-16`, `NAV-02`, `NAV-11`, `PRM-10`, `THM-07` (qc2 ∩ qc3) ⇒ 10 mã.
-- Đã tính `CL-4` = P (`f6113582`, `DEF-R10.8-07` đóng) và `GEO-03` = P.
-- **N còn lại (72):** 61 của qc (camera, `adb`/`simctl`, bàn phím thật, TalkBack/VoiceOver, WebView, geofence, thiếu dữ kiện) + 11 của qc2.
+2 F của qc: `TC-MOB-TGT-02`, `TC-MOB-ATT-02` — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
+
+**Trùng mã lỗi cần PM đổi số:** qc đặt việc trên là `DEF-MOB-05`, nhưng `DEF-MOB-05` đã dùng cho lỗi stash /checkin của qc3 (đã sửa `ce30065e`+`e039b61f`, PM đóng). Đề nghị đánh số lại thành `DEF-MOB-06`.
 
 ### 9.5 Pha 3 — iOS, lô B (một phần; 26/11/2026)
 
