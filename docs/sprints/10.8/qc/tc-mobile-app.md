@@ -738,10 +738,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 81 | 0 | 0 |
+| qc3 iOS | 82 | 0 | 2 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (288 mã gốc − 41 trùng = 247)** | **190** | **0** | **57** |
+| **Hợp (291 mã gốc − 41 trùng = 250)** | **191** | **0** | **59** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -827,6 +827,17 @@ Máy: `qc3-se3` (375×667), `qc3-iphone15` (390×844), `qc3-iphone15pm` (430×93
 | TC-MOB-KBD-04 | P | Gõ ba dạng trên ô trống (SE3): `abc 123` → **ABC 123**, `ABC-123` → **ABC-123**, `abc123` → **ABC123** — chữ hoa, giữ dấu cách/gạch, không tự sửa (`C-KBD04-f1..f3`). Thuộc tính ô (mã nguồn `CheckinScreen.tsx`): `autoCapitalize="characters"`, `autoComplete="off"`, `autoCorrect="off"`, `spellCheck={false}`, `enterKeyHint="go"`, `inputMode="text"`, `maxLength={12}`, `onChange` đổi `toUpperCase()` |
 
 
+
+### 9.11 Lô D — vị trí / quyền (lớp geofence `QCVPSC`)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-PRM-07 | P | Mở liên kết lần đầu trên Safari: hộp quyền vị trí hiện; chọn «Cho phép khi dùng trang web» → điểm danh xong «Đã điểm danh 04:59» (`D-PRM-07`, log `prompt shown`) |
+| TC-MOB-GEO-07 | **N** | `simctl location` đặt trong geofence (21.0285/105.8542) nhưng `attendance_checkins.geo_distance_m` **NULL** — WebKit trong Simulator không nhận toạ độ; cần máy thật |
+| TC-MOB-GEO-11/12 | **N** | Đặt toạ độ ngoài geofence (10.0/106.0) vẫn điểm danh được vì không có toạ độ gửi lên (cùng gốc: Simulator không cấp geolocation cho WebKit) — không kết luận được đúng/sai nghiệp vụ; cần máy thật |
+| TC-MOB-PRM-08 | **N** | Lần mở sau không hiện lại hộp quyền (reset `privacy … location com.apple.mobilesafari` không xoá quyết định theo origin) nên không dựng được nhánh «Không cho phép» — cần máy thật hoặc xoá dữ liệu website |
+
+**Danh sách máy thật (cần iPhone thật + camera/geolocation):** `GEO-07/11/12`, `PRM-08`, `PWA-13` và `PWA-23` (ITP 7 ngày), `A11-10/11/12` (VoiceOver), cùng các ca quét QR bằng camera (`FLW-03`, `UIW-11` phần `Thoát`, `SAF-10` trạng thái quét).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

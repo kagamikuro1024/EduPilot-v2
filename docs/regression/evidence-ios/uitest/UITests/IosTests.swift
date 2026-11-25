@@ -421,4 +421,28 @@ final class IosTests: XCTestCase {
         savePng(shotName())
         print("zoom_tapped=\(two.exists)")
     }
+
+    /// PRM-07/08 + GEO: xử lý hộp xin quyền vị trí (allow/deny) rồi chụp kết quả.
+    func testGeoPrompt() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let allow = ProcessInfo.processInfo.environment["GEO_ALLOW"] ?? "1"
+        var log: [String] = []
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let allowOnce = spring.buttons.matching(NSPredicate(format: "label IN %@", ["Allow Once", "Cho phép một lần"])).firstMatch
+        let allowWhile = spring.buttons.matching(NSPredicate(format: "label IN %@", ["Allow While Using Websites", "Cho phép khi dùng trang web"])).firstMatch
+        let deny = spring.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "phép")).firstMatch
+        if allowOnce.waitForExistence(timeout: 8) || allowWhile.waitForExistence(timeout: 2) || deny.exists {
+            log.append("prompt shown")
+            if allow == "1" {
+                if allowWhile.exists { allowWhile.tap() } else if allowOnce.exists { allowOnce.tap() }
+            } else if deny.exists { deny.tap() }
+            sleep(2)
+        } else { log.append("no prompt") }
+        sleep(8)
+        log.append("texts=\((web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(10)).joined(separator: " | "))")
+        savePng(shotName())
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(log.joined(separator: " | "))
+    }
 }
