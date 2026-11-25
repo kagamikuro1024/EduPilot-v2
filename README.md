@@ -254,7 +254,7 @@ Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test.
 | Dùng cho | Địa chỉ (`base_url`) | Model | Ghi chú |
 | --- | --- | --- | --- |
 | Sinh chữ (chat, chấm, đặt tên chủ đề, …) | `https://opencode.ai/inference/go/v1` | `deepseek-v4.1-flash` | Gateway nhận ra host `opencode.ai` và tự gửi `User-Agent`, `x-opencode-session`, `reasoning_effort=low`, cộng 4096 vào `max_tokens` (token suy luận tính vào trần; FR-33) |
-| Embedding (tuyến `EMBEDDING`) | `https://opencode.ai/inference/go/openai/v1` | `qwen3-embedding-8b`, loại «Tìm kiếm tài liệu (1536 chiều)» | Nhà cung cấp riêng. Mỗi lời gọi ≈ 11–24 s, có lúc `429` (đo 25/11): cần `KNOWLEDGE_EMBED_TIMEOUT=45s` cho worker (mục 5.2 bước 3) |
+| Embedding (tuyến `EMBEDDING`) | `https://opencode.ai/inference/go/openai/v1` | `qwen3-embedding-8b`, loại «Tìm kiếm tài liệu (1536 chiều)» | Nhà cung cấp riêng. Địa chỉ đã kiểm bằng lời gọi thật ngày 24/11 (`text-embedding-3-small` và `qwen3-embedding-8b`, 1536 chiều); nguồn: cấu hình nhà cung cấp của stack demo ở `/settings/llm`. Mỗi lời gọi ≈ 11–24 s, có lúc `429` (đo 25/11): cần `KNOWLEDGE_EMBED_TIMEOUT=45s` cho worker (mục 5.2 bước 3) |
 | Decision model (D60) | `https://opencode.ai/inference/go/systemone/v1` | `gemini-decision-1` | Gateway gọi `POST {base}/systemone` khi host là `opencode.ai`. Chỉ gọi thật khi `LLM_DECISION_ALLOW_REAL=true` (và trong trần `LLM_DECISION_REAL_DAILY_CAP`, mặc định 300 / ngày); lượt thật cần chủ dự án cho phép (D60 (6)) |
 
 Các bước trên stack demo:
