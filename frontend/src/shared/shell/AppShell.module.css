@@ -15,7 +15,7 @@
   background: var(--ep-surface);
   border-right: 1px solid var(--ep-rule);
 }
-.brand { display: flex; align-items: center; height: var(--ep-topbar); padding: 0 var(--ep-space-5); flex: none; border-bottom: 1px solid var(--ep-rule); }
+.brand { display: flex; align-items: center; height: var(--ep-topbar-safe); padding: 0 var(--ep-space-5); flex: none; border-bottom: 1px solid var(--ep-rule); }
 .logo { height: 32px; width: auto; }
 .logoMark { width: 32px; height: 32px; }
 .collapsed .brand { justify-content: center; padding: 0; }
@@ -71,7 +71,7 @@
   top: 0;
   z-index: var(--ep-z-topbar);
   margin-left: var(--side);
-  height: var(--ep-topbar);
+  height: var(--ep-topbar-safe);
   display: flex;
   align-items: center;
   gap: var(--ep-space-4);
@@ -148,7 +148,7 @@
 /* ---------- SV chưa vào lớp (SRS 4.3.2) ---------- */
 
 /* ---------- main ---------- */
-.main { margin-left: var(--side); min-height: calc(100dvh - var(--ep-topbar) - var(--ep-banner-h, 0px)); outline: none; } /* thu gọn / mở thanh bên đổi bề rộng TỨC THÌ: không animate width / margin (US-04 AC5) */
+.main { margin-left: var(--side); min-height: calc(100dvh - var(--ep-topbar-safe) - var(--ep-banner-h, 0px)); outline: none; } /* thu gọn / mở thanh bên đổi bề rộng TỨC THÌ: không animate width / margin (US-04 AC5) */
 .main:focus-visible { box-shadow: none; } /* ui-allow: vùng nhận focus bằng chương trình, không phải điều khiển */
 
 /* ---------- mobile ---------- */

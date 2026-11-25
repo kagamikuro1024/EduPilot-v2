@@ -26,7 +26,7 @@
   margin: 0;
   line-height: 1.75;
   color: var(--ep-ink);
-  scroll-margin-top: calc(var(--ep-topbar) + var(--ep-space-8));
+  scroll-margin-top: calc(var(--ep-topbar-safe) + var(--ep-space-8));
 }
 
 .para[data-active="true"] {
