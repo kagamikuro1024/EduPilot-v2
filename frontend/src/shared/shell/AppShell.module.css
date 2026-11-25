@@ -203,3 +203,4 @@
   .bottomActive svg { color: var(--ep-red); }
   .bottomActive::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 2px; background: var(--ep-red); }
 }
+.courseWait { display: inline-block; width: 16ch; height: 1em; vertical-align: middle; border-radius: var(--ep-radius-sm); background: var(--ep-surface-subtle); }
