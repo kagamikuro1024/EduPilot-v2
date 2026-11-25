@@ -2,6 +2,8 @@
 // Layout của `/checkin` cất `{c, token, at}` vào sessionStorage (KHÔNG localStorage) rồi xoá fragment khỏi thanh địa chỉ; trang chỉ đọc từ đây và xoá khi dùng (US-AS-09 AC1, AC2).
 
 const KEY = "ep.checkin";
+/** `#token` mới vừa được cất (điều hướng chỉ đổi hash / trang phục hồi từ bfcache): màn `/checkin` đang dựng phải gửi token mới. */
+export const STASH_EVENT = "ep:checkin-stash";
 const MAX_AGE_MS = 60_000;
 
 export type Stash = { c: string; token: string; at: number };
@@ -15,6 +17,7 @@ export function stashFromLocation(): void {
     /* kho bị chặn: không có token, màn rơi về ô nhập mã */
   }
   history.replaceState(history.state, "", location.pathname + location.search);
+  window.dispatchEvent(new Event(STASH_EVENT));
 }
 
 export function readStash(): Stash | null {

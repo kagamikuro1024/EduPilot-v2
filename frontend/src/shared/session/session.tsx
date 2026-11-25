@@ -157,7 +157,8 @@ function useCourseDeepLink(courseIds: string[] | null, setCourse: (id: string) =
     const rest = new URLSearchParams(params.toString());
     rest.delete("course");
     const query = rest.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    // Giữ fragment: liên kết QR `/checkin?c=…#token` mở trong tab đang ở `/checkin?course=…` (DEF-MOB-05) — `replace` không kèm hash sẽ nuốt token.
+    router.replace((query ? `${pathname}?${query}` : pathname) + window.location.hash, { scroll: false });
   }, [wanted, allowed, ready, params, pathname, router, setCourse]);
 }
 

@@ -11,7 +11,7 @@ import { Button, Field, InlineNotice, Input, Page, PageHeader, Panel, Skeleton, 
 import { signWithDeviceKey } from "./deviceKey";
 import { hasAttestPlugin, nativeMockLocation, signNative } from "./nativeDevice";
 import { canScanQr, hasBarcodeDetector, Scanner } from "./Scanner";
-import { clearStash, readStash, stashExpired } from "./stash";
+import { clearStash, readStash, stashExpired, STASH_EVENT } from "./stash";
 import s from "./CheckinScreen.module.css";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -66,7 +66,18 @@ export function CheckinScreen() {
   const [qrOk, setQrOk] = useState<boolean | null>(null);
   const canScan = native && hasBarcodeDetector() && qrOk !== false;
   // token đã cất ở layout (QR): đọc MỘT lần lúc dựng; AuthGate chỉ dựng màn này ở client nên không lệch khi hydrate
-  const [stash] = useState(() => (typeof window === "undefined" ? null : readStash()));
+  const [stash, setStash] = useState(() => (typeof window === "undefined" ? null : readStash()));
+  // DEF-MOB-05: token MỚI trong URL (#token) luôn thắng stash cũ — kể cả khi trang không tải lại (chỉ đổi hash / bfcache).
+  useEffect(() => {
+    const pick = () => {
+      const s = readStash();
+      if (!s || !UUID.test(s.c)) return;
+      if (stashExpired(s)) return clearStash(); // token mới cũng quá hạn: bỏ, không gửi
+      setStash(s);
+    };
+    window.addEventListener(STASH_EVENT, pick);
+    return () => window.removeEventListener(STASH_EVENT, pick);
+  }, []);
   const [view, setView] = useState<View>(() => {
     if (!stash) return { k: "entry" };
     if (!UUID.test(stash.c)) return { k: "error", message: "Liên kết không đúng." };
@@ -92,7 +103,7 @@ export function CheckinScreen() {
   }, [native]);
   const [code, setCode] = useState("");
   const [left, setLeft] = useState(0);
-  const sent = useRef(false);
+  const sent = useRef(new Set<string>()); // token đã gửi (StrictMode chạy effect hai lần: cùng token chỉ gửi một lần)
   const again = useRef<(i: Input) => void>(() => undefined); // gửi lại cùng đầu vào (Thử lại, hết 429)
   const uid = identity?.sub ?? "";
   const course = realCourseId && realCourseId !== "all" ? realCourseId : "";
@@ -167,9 +178,10 @@ export function CheckinScreen() {
   useEffect(() => {
     if (role !== "student" || !uid || !stash || !UUID.test(stash.c) || stashExpired(stash)) return; // lớp lấy từ token đã cất: không chờ /me/courses (bớt một vòng trên đường nóng)
     const t = setTimeout(() => {
-      if (sent.current) return; // tải lại nền của /me/courses làm effect chạy lại: token chỉ dùng một lần
-      sent.current = true;
+      if (sent.current.has(stash.token)) return; // effect chạy lại (tải lại nền / bfcache): mỗi token chỉ dùng một lần
+      sent.current.add(stash.token);
       clearStash();
+      setView({ k: "sending" });
       void submit({ course: stash.c, token: stash.token });
     }, 0);
     return () => clearTimeout(t);
