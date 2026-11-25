@@ -367,4 +367,4 @@ Phát hiện khác: gateway không nhận `APP_PUBLIC_URL` (compose chỉ truy�
 
 | TC | KQ | Ghi chú |
 |---|---|---|
-| TC-AS11-17 | F | Android emulator API 36 + VPS: 15 mục P (AC-0/1/3/3b/4/4b/7/14, a–f, AC-16 3/4); F: US-AS-15 AC7(a) Back khi đang quét thoát cả app (DEF-R10.8-05, dev đang sửa); K: AC-9 (emulator không chứng thực); chưa chạy: AC-15, AC-18, CL-8, AC-2, AC-8. Chạy lại sau khi sửa Back |
+| TC-AS11-17 | F | Android emulator API 36 + VPS: 15 mục P (AC-0/1/3/3b/4/4b/7/14, a–f, AC-16 3/4); F: US-AS-15 AC7(a) Back khi đang quét thoát cả app (DEF-R10.8-05, ĐÃ SỬA dea5f197, chờ qc2 chạy lại trong lượt bộ mobile cuối); K: AC-9 (emulator không chứng thực); chưa chạy: AC-15, AC-18, CL-8, AC-2, AC-8. Chạy lại AC7(a) trong lượt bộ mobile cuối; dòng này giữ F tới lúc đó |

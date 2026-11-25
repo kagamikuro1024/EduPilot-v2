@@ -41,7 +41,7 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 - Kỳ vọng: khung quét đóng, về ô nhập mã · Thực tế: app thoát ra launcher; `history.state` có `epScan:true`, `history.length` 3; `history.back()` qua CDP đóng khung quét đúng ⇒ phía web đúng
 - Nghi ngờ mã: `mobile/android` `MainActivity.java` (vỏ Capacitor, không xử lý Back / không gọi `webView.goBack()`)
 - Bằng chứng: `evidence-10.8/android/ket-qua-android-vps-8302ecca.md`, ảnh `shots-vps/` (AC-16) · Chạy lại lần 2: ổn định
-- Trạng thái: MỞ (dev đang sửa; chạy lại TC-AS11-17 sau khi sửa)
+- Trạng thái: ĐÃ SỬA dea5f197 (MainActivity `OnBackPressedCallback`; dev kiểm tay trên ep-api36: quét → Back đóng khung về ô nhập, Back tiếp lùi trang, Back ở gốc app xuống nền; ảnh `back-1-ve-o-nhap` ở `~/Documents/as-emu-evidence/`). CHỜ XÁC NHẬN: qc2 chạy lại TC-AS11-17 AC7(a) trong lượt chạy bộ mobile cuối
 
 ### DEF-R10.8-06 — gateway không nhận `APP_PUBLIC_URL`: `qr_url` / `join_url` / feed lịch dựng từ `https://localhost`
 - Mức: Cao · Sprint gốc: 10.8 · TC gốc: TC-AS11-17 (AC-3) · Hồi quy do sprint sau?: KHÔNG RÕ
