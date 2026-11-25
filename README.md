@@ -192,7 +192,7 @@ SEED_ON_EMPTY_DB=true COMPOSE_PROFILES=ingest pnpm dev
 | frontend trực tiếp | http://localhost:3000 | Không đăng nhập được (khác site với API, cookie `SameSite=Lax` bị chặn) |
 | Hộp thư giả | http://localhost:8025 | thư xác minh, đặt lại mật khẩu, trả lời của giảng viên |
 | MinIO | http://localhost:9001 | console kho tệp |
-| Postgres / Redis | `localhost:5433` / `localhost:6380` | user và DB `edupilot`; ứng dụng đi qua PgBouncer trong mạng compose |
+| Postgres / Redis | `localhost:5433` / `localhost:6380` | DB `edupilot`, vai chủ `edupilot` (migration, sao lưu). Gateway / worker nối bằng vai `edupilot_app` (không superuser, không chủ bảng; migration 00030) qua PgBouncer trong mạng compose; mật khẩu `APP_DB_PASSWORD`, để trống = `POSTGRES_PASSWORD`, do `gateway migrate` đặt |
 | `/api/v1/healthz`, `/readyz` | https://localhost/api/v1/… | `readyz` kiểm DB + Redis |
 
 Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … `@edupilot.local`; mật khẩu = `SEED_DEFAULT_PASSWORD` trong `.env.local` (mặc định của `.env.example`: `Edupilot#Seed-2026`). Lớp 1 = **761987** (mã tham gia `AN7K2MQ`), lớp 2 = 761988 (`BX4P9TW`). Sandbox chấm code là service `judge` (`go-judge`); trên Colima arm64 chạy với `-no-seccomp` (D58).
@@ -204,6 +204,7 @@ Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … 
    ```bash
    docker compose -p edupilot exec -T postgres pg_dump -U edupilot -d edupilot -Fc > ~/edupilot-$(date +%Y%m%d-%H%M).dump
    # khôi phục: docker compose -p edupilot exec -T postgres pg_restore -U edupilot -d edupilot --clean --if-exists < tệp.dump
+   # bản dump có GRANT cho edupilot_app nhưng vai là đối tượng cấp cụm, không nằm trong dump: volume mới thì chạy `$C up migrate` (bước 4) trước khi khôi phục
    ```
 2. **`.env.local`** phải có `BLOB_PUBLIC_ENDPOINT=localhost` và `BLOB_PUBLIC_USE_SSL=true`. Thiếu hai dòng này, URL tải tệp ký sẵn trỏ `localhost:9000`, CSP chặn, mọi lần tải tệp báo «Không kết nối được».
 3. **Nhà cung cấp thật chậm hơn bản giả**: thêm vào `.env.local` `KNOWLEDGE_EMBED_TIMEOUT=45s` (worker, mặc định 10 s; embedding thật qua mạng ≈ 11–24 s mỗi lời gọi, đo 25/11) và `AI_SUMMARY_TIMEOUT=60s` (gateway, mặc định 20 s, khoảng 5–120 s). Compose chuyển mọi biến `config.go` đọc vào container (`TestComposeEveryEnvReachesAService`), nên đặt trong `.env.local` là đủ; đổi biến thì tạo lại service đó.
