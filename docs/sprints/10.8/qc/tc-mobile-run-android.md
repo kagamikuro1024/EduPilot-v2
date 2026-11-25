@@ -4,7 +4,9 @@ AVD `ep-api36` (Pixel 8, Android 16 / API 36, WebView Chrome 133.0.6943.137), AP
 
 Thư viện: `docs/regression/evidence-mobile-android/{m.py,vps.py}`; kết quả thô `results.jsonl`; ảnh `shots/`.
 
-**Đã chạy 33 TC: 25 P, 1 F, 7 N.**
+**Cập nhật lượt 4: tổng 34 TC = 26 P, 1 F, 7 N.**
+
+Bản cũ: **Đã chạy 33 TC: 25 P, 1 F, 7 N.**
 
 ## 1. P — có bằng chứng
 
@@ -90,3 +92,11 @@ Lượt chạy dừng vì hai chặn kỹ thuật của emulator, ghi rõ ở §
 - **DEF-R10.8-05 (Back native)**: ĐÓNG — xác nhận trên ep-api36.
 - **DEF-R10.8-07 (mới, Thấp)**: cỡ chữ 2,0× làm dock «Điểm danh» bị thanh điều hướng đè 45 % trên `/checkin`.
 
+## 8. Lượt 4 (26/11, sau khi PM chốt (a)+(b))
+
+- **Đăng nhập đúng luồng thật:** form trong WebView bằng CDP (đặt `value` qua native setter + `click()` nút submit) → vào app (`Tài khoản: QC Hai`). `POST /auth/login` từ ngoài WebView không cấp cookie cho WebView (đúng như PM nói).
+- **Vị trí giả:** `adb root` → `cmd location providers add-test-provider gps|network` → `set-test-provider-location … --accuracy 5` **phải gửi lặp mỗi 1 s**; gửi một lần thì hết hạn và `navigator.geolocation` timeout (ERR 3). Khi gửi lặp, WebView trả đúng 21,1/105,9 acc 5.
+- **Kết quả mới:** GEO-06 = **P** (không lấy được vị trí ⇒ lượt vẫn gửi, DB `GEO_DENIED`, không câu lỗi, ~4 s).
+- **Vẫn chưa kết luận:** GEO-03 (GEO_OUT) và GEO-05 (GEO_WEAK) vì phiên app rơi về `/login` giữa lượt (đăng nhập lại bị 429 sau nhiều lần thử). Cần dev nới rate-limit IP Mac hoặc cho tôi một phiên dài.
+- **TalkBack:** chưa bật (cần phiên ổn định để vào `/checkin`).
+- **DEF-R10.8-07** đã được dev sửa f6113582; PM sẽ báo khi VPS cập nhật để tôi chạy lại CL-4 (chưa chạy lại).
