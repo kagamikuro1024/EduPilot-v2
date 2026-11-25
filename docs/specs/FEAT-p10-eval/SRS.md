@@ -13,6 +13,8 @@ Phiên bản 1.15 · 2026-11-16 · Trạng thái: **APPROVED** (PM uỷ quyền;
 
 **v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
 
+**v1.16 (P-11-117):** FR-29 — cụm 0 câu mẫu không gọi LLM, tên «Chủ đề {hạng}», `named_by:"fallback"` (US-P10-04 AC15).
+
 **v1.15 (P-11-44):** FR-1 ghi độ chính xác `summary` toàn hệ thống (đếm chính xác; p50 / p95 xấp xỉ ≤ 5 %), US-P10-01 AC8, openapi `ObsTotals` / `ObsDayRow`.
 
 **v1.14 (P-11-35, chỉnh lại sau 7c459d34):** người ngoài lớp / lớp khác (lớp tồn tại) → `403` `reason=course` theo guard chung; `{id}` sai dạng và (ADMIN) lớp không tồn tại vẫn `404` (§2, §6 #4–#5, NFR, US-P10-01 AC6, US-P10-04 AC12, US-P10-11 AC3); seed làm rõ không đòi ≥ 20 câu trong 7 ngày.
@@ -91,6 +93,7 @@ sequenceDiagram
 | `generate`, < 20 câu hỏi | `409 NOT_ENOUGH_DATA` | «Chưa đủ câu hỏi để gom (cần ≥ 20)» |
 | Báo cáo cũ (`payload.schema` < 2) | `latest` / `export` `404`; `generate` tạo bản mới, không `reused` | Như «chưa có báo cáo» (EmptyState + `Tạo báo cáo mới`) |
 | LLM lỗi khi đặt tên | Tên tạm từ từ khoá cụm, `named_by:"fallback"` | «Chưa đặt được tên chủ đề» |
+| Cụm 0 câu mẫu đạt k ≥ 3 (P-11-117): không gọi LLM | `name` = «Chủ đề {hạng}», `named_by:"fallback"`, `recommendation` = `""` | Hiện «Chủ đề {hạng}», không dòng khuyến nghị |
 | Chữ LLM sinh chứa ≥ 6 từ liên tiếp trùng một câu dưới ngưỡng (P-11-32) | `name` = «Chủ đề N», `named_by:"fallback"`; `why` / `recommendation` = `""` | Hiện «Chủ đề N», không dòng vì sao / khuyến nghị |
 | LLM lỗi trước `NAME` | Job `FAILED`, không bản ghi báo cáo | «Chưa tạo được báo cáo. Thử lại.» |
 | `generate` vượt trần | `429 RATE_LIMITED` + `Retry-After` | Thông báo tại chỗ |
@@ -132,7 +135,7 @@ sequenceDiagram
 | FR-26 | *(chuyển sang FEAT-decision-model)*  Áp cascade cho **ba** cổng: tường lửa Threads (chỉ thêm chặn), cờ chèn lệnh (regex OR `Structured` OR decision), định tuyến chat (ngưỡng; dưới ngưỡng giữ kết quả luật; cổng TTFT); tin khủng hoảng **không bao giờ** tới decision / LLM; **không** cho điểm / rubric / escalate | P10-13 AC4…8 |
 | FR-27 | *(chuyển sang FEAT-decision-model)*  Đo + hiển thị tỉ lệ đường nhanh theo tác vụ (Admin), báo cáo `cascade.md`; cờ mặc định tắt | P10-13 AC9, AC13 |
 | FR-28 | `GET /admin/audit` (ADMIN): lọc AND `entity` / `actor_id` / `from`–`to` (không có cả hai → `[now − 7 ngày, now]`; chỉ `from` → `to = now`; chỉ `to` → `from = to − 7 ngày`; tối đa 90 ngày trên khoảng đã áp dụng; tham số rỗng = bỏ qua như `httpx.ParsePageParams`), phân trang con trỏ `(created_at, id)` giảm dần, `limit` 1–100 (mặc định 30), **cursor gắn dấu vân tay `(entity, actor_id, from, to)` đã chuẩn hoá** (`from` / `to` quy về UTC; `Z` và `+07:00` cùng thời điểm = cùng bộ lọc; `entity` / `actor_id` như đã kiểm; thiếu = thiếu, không quy ra mặc định) — khác bộ lọc → `422 INVALID_CURSOR` (mở rộng `cursorJSON` với trường tuỳ chọn `f`; Q-S11-26, Q-S11-27); trả `{id, at, actor_*, entity, entity_id, action, course_id, trace_id, changed_fields[]}` (`before` / `after` không phải đối tượng → `[]`, không `500`), **không bao giờ** `before` / `after`; trong **một giao dịch** ghi `audit_log(entity='audit_log', entity_id=actor_id, action='VIEW_LIST', after={entity, actor_id, from, to (khoảng đã áp dụng), has_cursor, returned})` rồi mới trả (ghi hỏng → `500`, không trả dữ liệu); `Cache-Control: no-store`; migration `00025_audit_log_indexes` thêm hai chỉ mục `(created_at DESC, id DESC)`, `(entity, created_at DESC, id DESC)` | P10-14 |
-| FR-29 | Bước `NAME` chỉ đưa vào lời nhắc từ khoá cụm + câu đạt ngưỡng k ≥ 3 (FR-13); câu dưới ngưỡng không vào lời nhắc. Báo cáo có `payload.schema < 2` (hoặc thiếu) **không phục vụ**: `latest` / `export` → `404`, `generate` không dùng lại (P-11-34; AC17). Kiểm sau sinh trên `name` / `why` / `recommendation`: ≥ 6 từ liên tiếp trùng câu dưới ngưỡng của lớp trong kỳ (chuẩn hoá `vn_fold`; câu ngắn: chứa nguyên câu, bỏ câu < 4 từ) → `name` = «Chủ đề N», `why` / `recommendation` = `""`; chạy trước lưu và trước `export` (P-11-32) | P10-04 AC15 |
+| FR-29 | Bước `NAME` chỉ đưa vào lời nhắc từ khoá cụm + câu đạt ngưỡng k ≥ 3 (FR-13); câu dưới ngưỡng không vào lời nhắc. Báo cáo có `payload.schema < 2` (hoặc thiếu) **không phục vụ**: `latest` / `export` → `404`, `generate` không dùng lại (P-11-34; AC17). Kiểm sau sinh trên `name` / `why` / `recommendation`: ≥ 6 từ liên tiếp trùng câu dưới ngưỡng của lớp trong kỳ (chuẩn hoá `vn_fold`; câu ngắn: chứa nguyên câu, bỏ câu < 4 từ) → `name` = «Chủ đề N», `why` / `recommendation` = `""`; chạy trước lưu và trước `export` (P-11-32). **Cụm có 0 câu đạt ngưỡng k ≥ 3 (không có câu mẫu để đưa vào lời nhắc) KHÔNG gọi LLM đặt tên:** `name` = «Chủ đề {hạng}» (hạng 1, 2, 3 … theo xếp hạng §4.1), `recommendation` = `""`, `named_by:"fallback"` (P-11-117) | P10-04 AC15 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
 
 ### 4.0 Gắn chương / tuần cho chủ đề (P-11-115)

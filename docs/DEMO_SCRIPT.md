@@ -122,7 +122,7 @@ Nếu hội đồng hỏi: mã cũ hết hạn sau 2 chu kỳ → «Mã đã h�
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 07:30 | Sinh viên B (375 px) | `/assignments/[id]` (Bài tập 03, mở từ `/me`) | Mở | Đã nộp, có dấu thời gian, nhãn nộp muộn; phần điểm ghi đang chấm — **không có điểm nháp** | P7 |
+| 07:30 | Sinh viên B (375 px) | `/assignments/[id]` (Bài tập 03, mở từ `/me`) | Mở | Một dòng trạng thái «Đang chấm · Nộp muộn N ngày» (bài đã nộp, chưa công bố; US-P7-03 AC1); **dấu giờ nộp chỉ thuộc trạng thái «Đã nộp …»** (bài chưa vào chấm), không đòi ở «Đang chấm»; **không có điểm nháp** | P7 |
 | 07:40 | Giảng viên | `/grading` (tab Hàng chờ chấm) | Giữ lọc mặc định `Cần xem kỹ` + `Chưa duyệt` | Bài của Sinh viên B ở đầu, lý do cờ: hai lượt chấm lệch hơn 1 điểm | P7 |
 | 07:55 | Giảng viên | `/grading/[submissionId]` | Đọc bài bên trái, tiêu chí bên phải; sửa điểm tiêu chí bị lệch; sửa một câu nhận xét | Thông báo vàng tại tiêu chí lệch; mỗi tiêu chí có đoạn trích từ bài làm; tổng điểm tính lại ngay | P7 |
 | 08:25 | Giảng viên | `/grading/[submissionId]` | `Duyệt bài` | Trạng thái đã duyệt | P7 |
@@ -151,7 +151,7 @@ Nếu hội đồng hỏi: hai người sửa cùng ô → 409 và chọn giữ 
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 10:30 | Giảng viên | `/insights`, lớp 761987 | Mở trang, chọn kỳ «30 ngày» (báo cáo đã tạo ở chuẩn bị #4; không bấm `Tạo báo cáo mới` lúc trình bày: trần 3 lượt / giờ / lớp, cần mạng) | Danh sách «Chủ đề nên dạy lại» ở kỳ «30 ngày», xếp hạng: chủ đề về quy chế / học vụ và chủ đề về mã độc tống tiền đứng đầu (tên do LLM đặt, không đọc cứng); mỗi chủ đề có số sinh viên hỏi, số câu và gợi ý «Nên làm». **Chỉ trình bày 3 chủ đề đầu, không cuộn xuống** (các chủ đề sau là cụm nhỏ, tên rời rạc) | P10 |
+| 10:30 | Giảng viên | `/insights`, lớp 761987 | Mở trang, chọn kỳ «30 ngày» (báo cáo đã tạo ở chuẩn bị #4; không bấm `Tạo báo cáo mới` lúc trình bày: trần 3 lượt / giờ / lớp, cần mạng) | Danh sách «Chủ đề nên dạy lại» ở kỳ «30 ngày», xếp hạng: chủ đề về quy chế / học vụ và chủ đề về mã độc tống tiền đứng đầu (tên do LLM đặt, không đọc cứng); mỗi chủ đề có số sinh viên hỏi, số câu và gợi ý «Nên làm». **Chỉ trình bày 3 chủ đề đầu, không cuộn xuống** (các chủ đề sau là cụm nhỏ; cụm không có câu mẫu mang tên «Chủ đề {hạng}», không đọc) | P10 |
 | 10:45 | Giảng viên | `/insights` | Mở «Câu hỏi mẫu» của chủ đề về mã độc tống tiền | Các câu mẫu đã ẩn danh, không có tên hay MSSV; **số câu theo thực tế, tối đa 5** (mỗi câu chỉ hiện khi chính câu đó có ≥ 3 sinh viên khác nhau hỏi nguyên văn sau chuẩn hoá, US-P10-04 AC5): ở seed chủ đề về mã độc tống tiền chỉ có **1 câu mẫu**, câu trùng nguyên văn giữa các sinh viên đã gộp thành một; chủ đề dưới 3 sinh viên hỏi («Ít người hỏi») không có câu mẫu | P10 |
 | 11:00 | Giảng viên | `/insights` | `Tạo thread ghim` của chủ đề về mã độc tống tiền → xác nhận ngay tại chỗ | Form mở tại chỗ (không hộp thoại); thread ghim mới xuất hiện ở `/threads` của lớp | P10 (Threads: P4) |
 
