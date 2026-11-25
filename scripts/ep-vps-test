@@ -7,13 +7,15 @@
 # Cần trên VPS: Go (/opt/go), golangci-lint/sqlc/goose (/opt/gotools), node + pnpm (/opt/node), docker. Code chỉ sửa ở worktree Mac; /srv/work/* chỉ là bản rsync.
 set -euo pipefail
 HOST=${EP_VPS:-edupilot-vps}
+SSHO="-o ServerAliveInterval=30 -o ServerAliveCountMax=20" # lệnh dài (e2e vài phút) không bị ngắt vì rỗi
+export RSYNC_RSH="ssh $SSHO"
 SVC_NAMES="edupilot-test-postgres edupilot-test-redis edupilot-test-minio edupilot-test-pgbouncer edupilot-test-mailpit edupilot-test-judge"
 
 if [ "${1:-}" = "--init" ]; then
   # nguồn Dockerfile của judge lấy từ worktree (mặc định thư mục hiện tại)
-  ssh "$HOST" mkdir -p /srv/work/.judge-src && rsync -az --delete "${2:-.}/deploy/judge/" "$HOST:/srv/work/.judge-src/"
+  ssh $SSHO "$HOST" mkdir -p /srv/work/.judge-src && rsync -az --delete "${2:-.}/deploy/judge/" "$HOST:/srv/work/.judge-src/"
   # Tên + cấu hình KHỚP backend-go/internal/testutil (testcontainers Reuse theo tên); cổng chỉ bind 127.0.0.1 (testcontainers mặc định mở 0.0.0.0).
-  ssh "$HOST" bash -s <<'REMOTE'
+  ssh $SSHO "$HOST" bash -s <<'REMOTE'
 set -euo pipefail
 have() { docker inspect -f '{{.State.Running}}' "$1" 2>/dev/null | grep -q true; }
 run() { local n=$1; shift; if have "$n"; then echo "có sẵn: $n"; else docker rm -f "$n" >/dev/null 2>&1 || true; docker run -d --name "$n" --restart unless-stopped "$@" >/dev/null && echo "đã dựng: $n"; fi; }
@@ -46,14 +48,14 @@ WT=$(cd "$WT" && pwd -P); NAME=$(basename "$WT"); DIR=/srv/work/$NAME
 if [ $# -eq 1 ]; then CMD=$1; else CMD=$(printf '%q ' "$@"); fi
 
 # worktree → VPS. node_modules / .next / build giữ lại trên VPS (không --delete-excluded) để lần sau khỏi cài lại.
-ssh "$HOST" "mkdir -p $DIR"
+ssh $SSHO "$HOST" "mkdir -p $DIR"
 rsync -az --delete --exclude .git --exclude node_modules --exclude .next --exclude build --exclude .gradle --exclude test-results --exclude playwright-report \
   "$WT/" "$HOST:$DIR/"
 
 # cổng e2e riêng mỗi worktree (nhiều agent cùng VPS không giẫm cổng): 3500–3898
 P=$(( 3500 + $(printf %s "$NAME" | cksum | cut -d' ' -f1) % 200 * 2 ))
 B64=$(printf %s "$CMD" | base64 | tr -d '\n')
-ssh "$HOST" bash -s -- "$DIR" "$B64" "$P" <<'REMOTE'
+ssh $SSHO "$HOST" bash -s -- "$DIR" "$B64" "$P" <<'REMOTE'
 set -uo pipefail
 DIR=$1; CMD=$(printf %s "$2" | base64 -d); P=$3
 export PATH=/opt/go/bin:/opt/gotools:/opt/node/bin:$PATH GOPATH=/opt/gopath GOCACHE=/srv/work/.gocache GOTOOLCHAIN=local GOFLAGS=-buildvcs=false
