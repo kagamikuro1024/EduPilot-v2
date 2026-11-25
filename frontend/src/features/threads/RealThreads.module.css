@@ -24,6 +24,8 @@
 .ai { border-left: 1px solid var(--ep-rule); padding-left: var(--ep-space-4); }
 .aiOk { border-left-color: var(--ep-green); }
 .head { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-1) var(--ep-space-4); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.headRow { display: flex; align-items: flex-start; gap: var(--ep-space-2); }
+.headMeta { flex: 1; min-width: 0; display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-1) var(--ep-space-4); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .who { font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink); }
 .muted { color: var(--ep-ink-3); }
 .ok { color: var(--ep-green); }
