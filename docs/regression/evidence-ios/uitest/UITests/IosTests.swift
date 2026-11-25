@@ -445,4 +445,53 @@ final class IosTests: XCTestCase {
         try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
         print(log.joined(separator: " | "))
     }
+
+    /// PWA: bấm aA ở thanh dưới (toạ độ) → Share → Add to Home Screen → Add.
+    func testPwaInstall() {
+        safari.activate(); sleep(2)
+        _ = safari.webViews.firstMatch.waitForExistence(timeout: 20)
+        let aa = safari.buttons.matching(NSPredicate(format: "label IN %@", ["aA", "AA", "Page Menu"])).firstMatch
+        if aa.exists { aa.tap() } else { safari.buttons["PageMenuButton"].tap() }
+        sleep(3); savePng(shotName() + "-menu")
+        let share = safari.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Share")).firstMatch
+        if share.exists { share.tap() } else { safari.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Share")).firstMatch.tap() }
+        sleep(6); savePng(shotName() + "-share")
+        var add = safari.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Add to Home Screen")).firstMatch
+        if !add.exists { safari.swipeUp(); sleep(2); add = safari.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Add to Home Screen")).firstMatch }
+        if add.exists { add.tap(); sleep(4); savePng(shotName() + "-sheet") }
+        let addBtn = safari.buttons["Add"]
+        if addBtn.waitForExistence(timeout: 5) { addBtn.tap(); sleep(4) } else {
+            safari.coordinate(withNormalizedOffset: CGVector(dx: 0.91, dy: 0.085)).tap(); sleep(4)
+        }
+        savePng(shotName())
+    }
+
+    /// Mở PWA từ Màn hình chính (web clip), chụp trạng thái standalone.
+    func testPwaOpen() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        let icon = spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch
+        if icon.exists { icon.tap() } else { spring.icons.matching(NSPredicate(format: "label CONTAINS[c] %@", "EduPilot")).firstMatch.tap() }
+        sleep(12)
+        savePng(shotName())
+        print("safari_chrome=\(safari.buttons["PageMenuButton"].exists)")
+    }
+
+    /// NAV: vuốt cạnh trái để quay lại trong PWA, chụp trước/sau.
+    func testNavBack() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        let icon = spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch
+        if icon.exists { icon.tap() } else { spring.icons.matching(NSPredicate(format: "label CONTAINS[c] %@", "EduPilot")).firstMatch.tap() }
+        sleep(8)
+        savePng(shotName() + "-home")
+        let app = XCUIApplication(bundleIdentifier: "com.apple.webapp")
+        let web = app.webViews.firstMatch
+        if web.waitForExistence(timeout: 10) {
+            web.swipeRight(); sleep(3); savePng(shotName() + "-back")
+            web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Điểm danh")).firstMatch.tap()
+            sleep(4); savePng(shotName() + "-checkin")
+            web.swipeRight(); sleep(3); savePng(shotName() + "-back2")
+        }
+    }
 }

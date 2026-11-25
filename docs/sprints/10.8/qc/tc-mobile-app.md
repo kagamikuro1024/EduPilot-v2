@@ -738,10 +738,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 82 | 0 | 2 |
+| qc3 iOS | 84 | 0 | 2 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (291 mã gốc − 41 trùng = 250)** | **191** | **0** | **59** |
+| **Hợp (293 mã gốc − 41 trùng = 252)** | **193** | **0** | **59** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -838,6 +838,26 @@ Máy: `qc3-se3` (375×667), `qc3-iphone15` (390×844), `qc3-iphone15pm` (430×93
 | TC-MOB-PRM-08 | **N** | Lần mở sau không hiện lại hộp quyền (reset `privacy … location com.apple.mobilesafari` không xoá quyết định theo origin) nên không dựng được nhánh «Không cho phép» — cần máy thật hoặc xoá dữ liệu website |
 
 **Danh sách máy thật (cần iPhone thật + camera/geolocation):** `GEO-07/11/12`, `PRM-08`, `PWA-13` và `PWA-23` (ITP 7 ngày), `A11-10/11/12` (VoiceOver), cùng các ca quét QR bằng camera (`FLW-03`, `UIW-11` phần `Thoát`, `SAF-10` trạng thái quét).
+
+### 9.12 Lô E — PWA trên iOS (`40281db4`/`09f2deb3`)
+
+Đã cài được web clip bằng XCUITest: `aA` → **Share** → **Add to Home Screen** → **Add** (Màn hình chính hiện 3 biểu tượng «EduPilot» do 3 lần thử; cần dọn 2 biểu tượng thừa).
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-PWA-04 | P | Mở từ biểu tượng: chạy toàn màn hình, **không** thanh địa chỉ, **không** thanh công cụ Safari (`E-PWA-open`, `G-NAV-home`) |
+| TC-MOB-PWA-05 | P | Thanh trạng thái đọc được (giờ, pin) trên nền sáng, không chồng lên tiêu đề «Chào Ba»/«Việc nên làm tiếp»; không dải trắng/đen lệch (`E-PWA-open`) |
+
+Còn lại của lô E (`PWA-06…12`, `14`, `15`, `17…21`) **N** trong phiên này: cần (a) Web Inspector để đọc `display-mode`, IndexedDB và khoá thiết bị — Apple không mở WebDriver cho Safari/PWA trong Simulator; (b) chuỗi hai vòng điểm danh PWA ↔ Safari để so `device_id`/`DEVICE_*`; (c) dọn biểu tượng thừa trước khi đo «lần mở đầu». Đề nghị chạy tiếp ở phiên sau với Safari Develop mở sẵn.
+
+### 9.13 Lô G — Back/vuốt trong PWA (một phần)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-NAV-02 | P | Ở «Hôm nay» (gốc) vuốt cạnh trái không rời PWA, không lộ thanh Back của trình duyệt (`G-NAV-home` → `G-NAV-back` giữ nguyên màn) |
+| PWA-11 | **N** | Chưa đi được đủ nhiều màn trong PWA để rà «mọi màn có đường quay lại» — nhãn nút điều hướng trong PWA khác Safari nên test tap theo nhãn «Điểm danh» trượt; cần Web Inspector/kiểm tay |
+
+`LIF-09/12`, `PRF-08`, `NAV-03/07/10` chưa chạy trong phiên này.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
