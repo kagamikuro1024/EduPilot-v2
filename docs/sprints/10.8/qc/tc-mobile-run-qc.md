@@ -252,4 +252,5 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 - Quan sát tĩnh §5 của `tc-mobile-app.md` không chấm ở pha 1 trừ ca W tương ứng.
 - Mọi ca dựng trạng thái bằng `page.route` (gửi/đã gửi/lỗi/429) chỉ đo bố cục, không tạo lượt trong DB.
 - Số đếm đúng của phần qc là **139 mã = 82 P · 2 F · 55 N** sau khi chạy bù 6 mã thiếu dữ kiện (trước đó 78 P/0 F/61 N; lượt đầu báo 77 P do cột 6.N ghi 1 P trong khi thực tế có 4).
+- Gộp §9 của qc3 (dedup theo mã): **244 mã = 177 P · 2 F · 65 N**; FLW-02 lấy P của qc3 (pha 3 iOS), phần tôi là N.
 - Cách dựng cho 6 mã chạy bù: `e2e/qc-mob-pha1-gap.spec.ts` (SES/ERR/TGT/MSG-15) + `e2e/qc-mob-pha1-err09api.spec.ts` (429/Retry-After qua API); SQL đối chiếu trên Postgres VPS (chỉ đọc).
