@@ -122,6 +122,17 @@ test("student today: continue learning — tối đa 3 phiên chat, mở đúng 
   await expect(main(page)).toContainText("Lớp 761988");
 });
 
+// P-11-137 (US-AS-15 AC16b): hàng buổi hôm nay có liên kết «Điểm danh» khi máy chủ bật cờ checkin_link (khung giờ, lớp bật); không cờ thì không có liên kết.
+test("student today: hàng buổi có checkin_link ⇒ liên kết «Điểm danh» → /checkin?course=…; không cờ ⇒ không có", async ({ page }, info) => {
+  const row = (no: number, over: Json) => ({ at: "2026-10-15T02:00:00Z", ends_at: "2026-10-15T04:30:00Z", title: `Buổi ${no} · An ninh mạng`, place: `P.30${no}`, state: "NOW", course: c1, ...over });
+  await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () => student({ timeline: [row(1, { checkin_link: true }), row(2, { checkin_link: false }), row(3, {})] }));
+  const links = main(page).getByRole("link", { name: "Điểm danh", exact: true });
+  await expect(links).toHaveCount(1);
+  await expect(links).toHaveAttribute("href", `/checkin?course=${C1}`);
+  if (info.project.name === "mobile") expect((await links.boundingBox())!.height).toBeGreaterThanOrEqual(44); // vùng chạm ở 375
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
 test("student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11)", async ({ page }) => {
   const chat = (id: string, title: string, at: string, course = c1) => ({ kind: "CHAT", id, title, href: `/chat?session=${id}`, course, at });
   await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () =>

@@ -77,6 +77,8 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
                 context={`${formatWhen(t.at)}–${formatTime(t.ends_at)}${t.place ? ` · ${t.place}` : ""}`}
                 meta={<StatusText tone={STATE[t.state].tone}>{STATE[t.state].label}</StatusText>}
                 href="/calendar"
+                inlineAction
+                action={t.checkin_link ? <ButtonLink href={`/checkin?course=${t.course.id}`} variant="secondary" size="sm">Điểm danh</ButtonLink> : undefined}
               />
             ))}
           </ActionList>

@@ -44,11 +44,12 @@ test("checkin code: mã sai → lỗi tại ô (một câu), chữ đã gõ gi�
   expect(log.posts).toHaveLength(1); // không gửi
 });
 
-test("checkin code: lớp không bật điểm danh bằng mã → «Lớp này không điểm danh bằng mã.» (không gọi POST)", async ({ page, context }) => {
+// P-11-137 (US-AS-15 AC16d): biết lớp không bật TRƯỚC khi sinh viên gõ: màn «Lớp này không điểm danh bằng mã.», không ô nhập, không nút Điểm danh, không gọi POST.
+test("checkin code: lớp không bật điểm danh bằng mã → màn «Lớp này không điểm danh bằng mã.» (không ô nhập, không gọi POST)", async ({ page, context }) => {
   const log = await checkinApi(page, context, { selfCheckin: false });
   await page.goto("/checkin");
-  await page.getByLabel("Mã điểm danh").fill("ABC123");
-  await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
   await expect(page.getByText("Lớp này không điểm danh bằng mã.")).toBeVisible();
+  await expect(page.getByLabel("Mã điểm danh")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Điểm danh", exact: true })).toHaveCount(0);
   expect(log.posts).toHaveLength(0);
 });

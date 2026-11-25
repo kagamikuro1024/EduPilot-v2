@@ -232,7 +232,13 @@ type SessionOut struct {
 	Place  string    `json:"place"`
 	State  string    `json:"state"`
 	Course CourseRef `json:"course"`
+	// CheckinLink: hàng này có liên kết «Điểm danh» (P-11-137, US-AS-15 AC16b) — lớp bật điểm danh bằng mã, buổi HÔM NAY, từ 15 phút trước giờ bắt đầu đến hết giờ.
+	// Theo khung giờ, KHÔNG theo trạng thái cửa sổ (Q-A-7: sinh viên không được báo «điểm danh đang mở»).
+	CheckinLink bool `json:"checkin_link"`
 }
+
+// CheckinLead là khoảng trước giờ bắt đầu buổi mà liên kết «Điểm danh» đã hiện.
+const CheckinLead = 15 * time.Minute
 
 // ContinueOut là một mục "Tiếp tục học" (US-P3-08 AC3): phiên chat RIÊNG của chính sinh viên.
 type ContinueOut struct {
@@ -310,7 +316,8 @@ func (s *Service) student(ctx context.Context, v Viewer, scope Scope, items []It
 		case !r.StartsAt.After(v.Now):
 			state = "NOW"
 		}
-		out.Timeline = append(out.Timeline, SessionOut{At: r.StartsAt, EndsAt: r.EndsAt, State: state, Place: deref(r.Room),
+		link := r.SelfCheckin && r.StartsAt.Before(day.AddDate(0, 0, 1)) && !v.Now.Before(r.StartsAt.Add(-CheckinLead)) && v.Now.Before(r.EndsAt)
+		out.Timeline = append(out.Timeline, SessionOut{At: r.StartsAt, EndsAt: r.EndsAt, State: state, Place: deref(r.Room), CheckinLink: link,
 			Title: fmt.Sprintf("Buổi %d · %s", r.SessionNo, r.CourseName), Course: CourseRef{ID: r.CourseID, ClassCode: r.ClassCode}})
 	}
 	return out, nil

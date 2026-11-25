@@ -1,10 +1,12 @@
 "use client";
 
 import { Check } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, apiClient } from "@/shared/data";
 import { fmtHM } from "@/features/calendar/calendarApi";
 import { useSession } from "@/shared/session/session";
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, Field, InlineNotice, Input, Page, PageHeader, Panel, Skeleton, StatusText, type HeaderAction } from "@/shared/ui";
 import { signWithDeviceKey } from "./deviceKey";
 import { hasAttestPlugin, nativeMockLocation, signNative } from "./nativeDevice";
@@ -90,6 +92,15 @@ export function CheckinScreen() {
   const uid = identity?.sub ?? "";
   const course = realCourseId && realCourseId !== "all" ? realCourseId : "";
   const classCode = realCourses?.find((c) => c.id === course)?.class_code ?? "";
+  // Lớp không bật điểm danh bằng mã (US-AS-15 AC16d): biết TRƯỚC khi sinh viên gõ gì; không ô nhập, không gọi POST. Chính sách do máy chủ trả cho mọi thành viên (US-AS-01 AC6).
+  const policy = useQuery({
+    queryKey: ["course-policy", course],
+    queryFn: ({ signal }) => apiClient.get<{ attendance?: { self_checkin?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
+    enabled: role === "student" && course !== "" && !stash,
+    staleTime: 30_000,
+  });
+  const disabled = !stash && view.k === "entry" && policy.data?.attendance?.self_checkin === false;
+  const checking = !stash && view.k === "entry" && policy.isPending && policy.fetchStatus !== "idle"; // đang hỏi chính sách lớp: khung xương, chưa vẽ ô nhập
 
   const submit = useCallback(
     async (inp: Input) => {
@@ -215,7 +226,9 @@ export function CheckinScreen() {
   }
 
   let primary: HeaderAction | undefined;
-  if (view.k === "entry") {
+  if (disabled || checking) {
+    primary = undefined;
+  } else if (view.k === "entry") {
     primary = canScan && !codeMode ? { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true } : { label: "Điểm danh", onClick: sendCode, disabled: code.trim() === "" || !course, docked: true };
   } else if (view.k === "error") {
     if (view.retry) primary = { label: "Thử lại", onClick: view.retry, docked: true };
@@ -227,6 +240,7 @@ export function CheckinScreen() {
   return (
     <Page kind="read">
       <PageHeader title="Điểm danh" primary={primary} />
+      {!stash && policy.isError && <ApiErrorNotice error={policy.error} showTechnical={false} onRetry={() => void policy.refetch()} />}
       <Panel>
         <div className={s.body} data-part="checkin" data-state={view.k} aria-live="polite">
           {view.k === "sending" && (
@@ -251,7 +265,9 @@ export function CheckinScreen() {
               }}
             />
           )}
-          {view.k === "entry" && (canScan && !codeMode ? (
+          {checking && <Skeleton lines={2} />}
+          {disabled && <p data-part="checkin-disabled">Lớp này không điểm danh bằng mã.</p>}
+          {view.k === "entry" && !disabled && !checking && (canScan && !codeMode ? (
             <Button variant="ghost" onClick={() => setCodeMode(true)}>Nhập mã</Button>
           ) : (
             <form

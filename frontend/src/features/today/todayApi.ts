@@ -19,7 +19,7 @@ export type TodayItem = {
   estimate_minutes?: number;
   steps?: TodayStep[];
 };
-export type TodaySession = { at: string; ends_at: string; title: string; place: string; state: "NOW" | "NEXT" | "DONE"; course: TodayCourse };
+export type TodaySession = { at: string; ends_at: string; title: string; place: string; state: "NOW" | "NEXT" | "DONE"; course: TodayCourse; /** lớp bật điểm danh bằng mã, buổi hôm nay, từ 15 phút trước giờ đến hết giờ (theo khung giờ, không theo cửa sổ) */ checkin_link?: boolean };
 /** Phiên chat riêng của chính sinh viên có tin trong 7 ngày (US-P3-08). */
 export type TodayContinue = { kind: "CHAT"; id: string; title: string; href: string; course: TodayCourse; at: string };
 export type StudentToday = { no_course: boolean; email_verified: boolean; recommended: TodayItem | null; timeline: TodaySession[]; continue: TodayContinue[] };
