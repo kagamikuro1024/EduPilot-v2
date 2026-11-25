@@ -125,8 +125,19 @@
 
 /* Điện thoại (M9): cuộc trò chuyện không khung Panel (vẫn trong cột 12 px của khung, quy tắc W3 của frame.spec); ô soạn dính đáy ngay trên thanh điều hướng (bàn phím mở: khung nhìn co lại — viewport `interactive-widget=resizes-content` — ô soạn đi theo) */
 @media (max-width: 719px), (max-height: 500px) and (pointer: coarse) {
-  :global([data-ep-panel]):has(.convo) { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
   .convo { padding: var(--ep-space-2) var(--ep-space-3) 0; }
   .composer { position: fixed; inset: auto 0 var(--ep-bottom-h) 0; z-index: var(--ep-z-topbar); padding: var(--ep-space-2) max(var(--ep-space-3), env(safe-area-inset-right, 0px)) var(--ep-space-2) max(var(--ep-space-3), env(safe-area-inset-left, 0px)); border-top: 1px solid var(--ep-rule); }
   .thread { padding-bottom: 9rem; } /* chữ cuối không nằm dưới ô soạn */
+}
+
+/* Bàn phím mở trên máy cảm ứng (ô soạn đang focus): ẩn thanh điều hướng đáy, ô soạn sát đáy — không bị thanh dưới + bàn phím đẩy lên đè nội dung */
+@media (pointer: coarse) {
+  :global(body):has([data-part=chat-composer] :focus) :global([data-part=bottom-nav]) { display: none; }
+  :global(body):has([data-part=chat-composer] :focus) .composer { bottom: 0; padding-bottom: max(var(--ep-space-2), env(safe-area-inset-bottom, 0px)); }
+  :global(body):has([data-part=chat-composer] :focus) .thread { padding-bottom: 4rem; }
+}
+/* Ngang, màn thấp (techlead-ui da91a410): ô soạn ở CUỐI luồng, không cố định — khung nhìn thấp nên ô cố định đè thanh trên, mất tin */
+@media (max-height: 500px) and (pointer: coarse) {
+  .composer { position: static; inset: auto; padding: var(--ep-space-2) 0; border-top: 0; }
+  .thread { padding-bottom: 0; }
 }

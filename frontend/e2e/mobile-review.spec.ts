@@ -127,11 +127,28 @@ test("M9 @375: Panel không khung, ô soạn dính đáy trên thanh dưới, b�
 });
 test.describe("M9 điện thoại ngang 844×390", () => {
   test.use({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
-  test("ô soạn dính trên thanh dưới, không bị che", async ({ page, context }) => {
+  test("ô soạn ở cuối luồng (không cố định); bàn phím mở (màn thấp) không đè thanh trên", async ({ page, context }) => {
     await openChat(page, context);
-    const g = await geom(page);
-    expect(Math.abs(g.composerBottom - g.navTop)).toBeLessThanOrEqual(1);
-    expect(g.composerTop).toBeGreaterThanOrEqual(0);
+    expect(await page.locator("[data-part=chat-composer]").evaluate((e) => getComputedStyle(e).position)).toBe("static");
+    for (const h of [390, 250]) { // 250: bàn phím ảo chiếm chỗ
+      await page.setViewportSize({ width: 844, height: h });
+      const m = await page.evaluate(() => {
+        const c = document.querySelector("[data-part=chat-composer]")!.getBoundingClientRect();
+        const t = document.querySelector("[data-part=topbar]")!.getBoundingClientRect();
+        return { composerTop: Math.round(c.top), topbarBottom: Math.round(t.bottom), sw: document.documentElement.scrollWidth, iw: innerWidth };
+      });
+      expect(m.composerTop, `khung nhìn ${h}`).toBeGreaterThanOrEqual(m.topbarBottom);
+      expect(m.sw).toBeLessThanOrEqual(m.iw);
+    }
+  });
+  test("ô soạn đang focus trên cảm ứng ⇒ ẩn thanh điều hướng đáy, ô soạn sát đáy", async ({ page, context }) => {
+    await page.setViewportSize({ width: 390, height: 844 }); // dọc: thanh đáy + ô soạn cố định
+    await openChat(page, context);
+    await expect(page.locator("[data-part=bottom-nav]")).toBeVisible();
+    await page.getByRole("textbox", { name: "Câu hỏi của bạn" }).focus();
+    await expect(page.locator("[data-part=bottom-nav]")).toBeHidden();
+    const m = await page.evaluate(() => ({ bottom: Math.round(document.querySelector("[data-part=chat-composer]")!.getBoundingClientRect().bottom), ih: innerHeight }));
+    expect(Math.abs(m.bottom - m.ih)).toBeLessThanOrEqual(1);
   });
 });
 
