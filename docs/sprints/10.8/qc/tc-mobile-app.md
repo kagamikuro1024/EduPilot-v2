@@ -740,11 +740,11 @@ Nguồn từng mã: qc3 iOS 65 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 |---|---|---|---|
 | qc3 iOS | 64 | 1 | 0 |
 | qc2 Android | 57 | 0 | 11 |
-| qc pha 1 | 82 | 2 | 55 |
-| **Hợp (266 mã gốc − 22 trùng = 244)** | **178** | **3** | **63** |
+| qc pha 1 | 84 | 0 | 55 |
+| **Hợp (266 mã gốc − 22 trùng = 244)** | **180** | **1** | **63** |
 | TC | 345 | | |
 
-3 F: `TC-MOB-TGT-02`, `TC-MOB-ATT-02` (qc) và `TC-MOB-ERR-06` (qc3 §9.9 — qc chấm P, qc3 tái hiện F: stash quá 60 s bị xoá im lặng sau đăng nhập, không có câu «Mã đã hết hạn») — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
+1 F: `TC-MOB-ERR-06` (qc3 §9.9). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
 
 **Trùng mã lỗi cần PM đổi số:** qc đặt việc trên là `DEF-MOB-05`, nhưng `DEF-MOB-05` đã dùng cho lỗi stash /checkin của qc3 (đã sửa `ce30065e`+`e039b61f`, PM đóng). Đề nghị đánh số lại thành `DEF-MOB-06`.
 
