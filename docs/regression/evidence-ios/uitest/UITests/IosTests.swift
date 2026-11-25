@@ -361,52 +361,50 @@ final class IosTests: XCTestCase {
         savePng(shotName()); print("\(form) -> \(v)")
     }
 
-    /// KBD-02: ngang SE3, chạm ô, chụp khi bàn phím mở; rồi cuộn tới nút Điểm danh.
-    func testKbdLandscape() {
+    /// KBD-02: ngang + bàn phím mở — isHittable của nút «Điểm danh», tối đa 3 lần vuốt.
+    func testKbd02Strict() {
         XCUIDevice.shared.orientation = .landscapeLeft; sleep(4)
         safari.activate(); sleep(3)
         let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
         let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
         f.tap(); sleep(3)
-        savePng(shotName())
-        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.82)).press(forDuration: 0.1,
-            thenDragTo: safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.18)))
-        sleep(1)
-        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.82)).press(forDuration: 0.1,
-            thenDragTo: safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.18)))
-        sleep(3)
-        savePng(shotName() + "-swipe")
+        let btn = web.buttons.matching(NSPredicate(format: "label == %@", "Điểm danh")).firstMatch
+        var log: [String] = ["btn_exists=\(btn.exists) hit0=\(btn.exists ? String(btn.isHittable) : "n/a")"]
+        savePng(shotName() + "-0")
+        var tries = 0
+        if btn.exists {
+            while !btn.isHittable && tries < 3 {
+                web.swipeUp(); sleep(2); tries += 1
+                log.append("after_swipe\(tries) hit=\(btn.isHittable)")
+                savePng(shotName() + "-\(tries)")
+            }
+        }
+        log.append("final_hit=\(btn.exists ? String(btn.isHittable) : "notfound")")
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
         XCUIDevice.shared.orientation = .portrait; sleep(2)
+        print(log.joined(separator: " | "))
     }
 
-    /// KBD-09: dán từ clipboard (đặt trước bằng simctl pbcopy).
-    func testKbd09() {
+    /// KBD-09 (strict): chạm giữ 1.0 s ⇒ menu Paste/«Dán» ⇒ xử lý «Allow Paste» của SpringBoard.
+    func testKbd09Strict() {
         safari.activate(); sleep(2)
         let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
         let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
-        f.press(forDuration: 1.8); sleep(2)
+        f.tap(); sleep(2)
+        f.press(forDuration: 1.0); sleep(2)
         savePng(shotName() + "-menu")
-        let dán = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Dán")).firstMatch
-        let paste = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Paste")).firstMatch
-        if dán.exists { dán.tap() } else if paste.exists { paste.tap() }
+        var log: [String] = ["menus=\(safari.menuItems.allElementsBoundByIndex.map(\.label).prefix(7))"]
+        let paste = safari.menuItems.matching(NSPredicate(format: "label IN %@", ["Paste", "Dán"])).firstMatch
+        if paste.exists { paste.tap() }
         sleep(2)
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let allow = spring.buttons.matching(NSPredicate(format: "label IN %@", ["Allow Paste", "Cho phép dán"])).firstMatch
+        if allow.waitForExistence(timeout: 4) { allow.tap(); sleep(2); log.append("allow_tapped") }
+        sleep(2)
+        log.append("value=\((f.value as? String) ?? "")")
         savePng(shotName())
-        print("value=\((f.value as? String) ?? "")")
-    }
-    /// TXT-04: Safari aA → phóng trang 200 %.
-    func testTxt04() {
-        safari.activate(); sleep(2)
-        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
-        let aa = safari.buttons.matching(NSPredicate(format: "label IN %@", ["aA", "AA", "Page Menu"])).firstMatch
-        if aa.exists { aa.tap() } else { safari.buttons["PageMenuButton"].tap() }
-        sleep(3)
-        savePng(shotName() + "-menu")
-        for _ in 0..<2 {
-            let big = safari.buttons.matching(NSPredicate(format: "label IN %@", ["Larger Text", "A+", "Increase text size"])).firstMatch
-            if big.exists { big.tap(); sleep(1) } else { break }
-        }
-        sleep(2); safari.tap(); sleep(3)
-        savePng(shotName())
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(log.joined(separator: " | "))
     }
 
     /// TXT-04b: aA → Page Zoom → 200 %.
