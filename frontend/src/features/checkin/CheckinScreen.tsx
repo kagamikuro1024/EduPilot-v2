@@ -41,6 +41,8 @@ type View =
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
 type Geo = { lat: number; lng: number; accuracy_m: number; mock?: boolean } | { denied: true };
+/** Kết quả lấy trước: `timeout` = hết trần 10 s khi hộp quyền còn mở (KHÁC từ chối thật) — DEF-MOB-10. */
+type GeoAhead = Geo | { timeout: true };
 function getGeo(): Promise<Geo> {
   return new Promise((resolve) => {
     if (!navigator.geolocation) return resolve({ denied: true });
@@ -52,10 +54,10 @@ function getGeo(): Promise<Geo> {
   });
 }
 
-/** `getGeo` nhưng không bao giờ treo: quá `GEO_CAP_MS` thì coi như từ chối vị trí (`geo.denied=true`), vẫn gửi điểm danh. */
-async function getGeoWithin(): Promise<Geo> {
-  const { promise, resolve } = Promise.withResolvers<Geo>();
-  const t = setTimeout(() => resolve({ denied: true }), GEO_CAP_MS);
+/** `getGeo` nhưng không bao giờ treo: quá `GEO_CAP_MS` thì trả `timeout` (hộp quyền còn mở), người gọi quyết định gọi lại hay coi như từ chối. */
+async function getGeoWithin(): Promise<GeoAhead> {
+  const { promise, resolve } = Promise.withResolvers<GeoAhead>();
+  const t = setTimeout(() => resolve({ timeout: true }), GEO_CAP_MS);
   try {
     return await Promise.race([getGeo(), promise]);
   } finally {
@@ -94,7 +96,7 @@ export function CheckinScreen() {
     return { k: "sending" };
   });
   const [geoLine, setGeoLine] = useState(false);
-  const [geoAhead, setGeoAhead] = useState<Promise<Geo> | null>(null); // định vị đã xin TRƯỚC khi gửi (DEF-MOB-09): hộp quyền không chen vào lúc mã đang bay
+  const [geoAhead, setGeoAhead] = useState<Promise<GeoAhead> | null>(null); // định vị đã xin TRƯỚC khi gửi (DEF-MOB-09): hộp quyền không chen vào lúc mã đang bay
   const [codeMode, setCodeMode] = useState(!canScan);
   useEffect(() => {
     if (!native || !hasBarcodeDetector()) return;
@@ -168,7 +170,10 @@ export function CheckinScreen() {
         if (policy?.geo_check) {
           setGeoLine(true); // câu thông báo hiện TRƯỚC khi gọi định vị (Luật 91/2025 Đ31 k3)
           await nextFrame();
-          geo = await (geoAhead ?? getGeoWithin()); // đã xin lúc mở màn (DEF-MOB-09): dùng lại, không mở hộp quyền giữa lúc gửi
+          // Đã xin lúc mở màn (DEF-MOB-09); hết trần khi hộp quyền còn mở thì lấy LẠI một lần — quyền đã cấp nên nhanh (DEF-MOB-10)
+          let g: GeoAhead = await (geoAhead ?? getGeoWithin());
+          if ("timeout" in g) g = await getGeoWithin();
+          geo = "timeout" in g ? { denied: true } : g;
           if (hasAttestPlugin() && "lat" in geo) {
             const mock = await nativeMockLocation();
             if (mock !== undefined) geo = { ...geo, mock };
