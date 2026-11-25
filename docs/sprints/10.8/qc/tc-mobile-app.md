@@ -709,7 +709,7 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 Nguồn: `docs/sprints/10.8/qc/tc-mobile-run-android.md` (qc2; AVD `ep-api36` Android 16/API 36, WebView Chrome 133, APK debug HEAD `cd843318`, `APP_SERVER_URL` = VPS; số mới nhất theo lô 5, qc2 `eb88c798`). **34 TC = 28 P, 0 F, 6 N** — chi tiết từng ca + ảnh ở tệp đó và `docs/regression/evidence-mobile-android/`.
 
 - **Đã đóng sau khi chạy lại (lô 5, VPS `f6113582`):**
-  - `TC-MOB-CL-4` = **P**: cỡ chữ 2,0× dock 695..748, nav 756..816 (không đè, cách 8 px), nhãn nav một dòng ⇒ **DEF-R10.8-07 ĐÓNG** (sửa `f6113582`). Còn quan sát: nhãn nav bị ellipsis («Hôm …», «Luyệ…»).
+  - `TC-MOB-CL-4` = **P**: cỡ chữ 2,0× dock 695..748, nav 756..816 (không đè, cách 8 px), nhãn nav một dòng ⇒ **DEF-R10.8-07 ĐÓNG** (sửa `f6113582`). Còn quan sát: nhãn nav bị ellipsis («Hôm …», «Luyệ…») — **đã hết** ở `ffad9d57` (PR #8, nhãn thanh đáy một dòng; xem `docs/design/review/2026-11-25-mobile.md`).
   - `TC-MOB-GEO-03` = **P**: mock 21,1000/105,9000 + geofence 21,0285/105,8542 r200 ⇒ `GEO_OUT`, `geo_distance_m`=9263, accuracy 5, `channel=CODE`, kèm `GEO_MOCK` (đúng US-AS-12 AC5).
 - **N (6):** `INS-01`, `INS-02`, `INS-03`, `INS-09`, `INS-13` (chỉ có APK debug, không Gradle/SDK trên VPS, không AVD API 24–28, Chrome chưa qua màn chào), `GEO-05` (mock hết hạn giữa lượt ⇒ geolocation timeout, không có dòng DB; chạy lại lượt sau).
 - **Chưa chạy (chờ lượt sau):** 6.D `SCN-01…16`, 6.E `GEO-01,04,06…13`, 6.H `SAF-04…10`, 6.J `THM-02…08`, 6.L `NAV-02,03,05…12`, 6.M `PRM-02…10`, 6.O `LIF-01…13`, 6.Q `A11-01,02,04…15` (TalkBack chưa bật), 6.U `DEV-01…14`, checklist `CL-3,5…12,14…16`, `INS-08,13`.
