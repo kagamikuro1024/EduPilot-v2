@@ -1,0 +1,115 @@
+=== RUN   TestRunJudgeDown503
+=== PAUSE TestRunJudgeDown503
+=== RUN   TestSubmitCodeEnqueues
+=== PAUSE TestSubmitCodeEnqueues
+=== RUN   TestSubmissionViewIE
+=== PAUSE TestSubmissionViewIE
+=== RUN   TestStartAttemptNotOpenReasons
+=== PAUSE TestStartAttemptNotOpenReasons
+=== RUN   TestSaveAnswersDiff
+=== PAUSE TestSaveAnswersDiff
+=== RUN   TestSaveAnswersValidation
+=== PAUSE TestSaveAnswersValidation
+=== RUN   TestSaveOtherUsersAttempt404
+=== PAUSE TestSaveOtherUsersAttempt404
+=== RUN   TestSubmitIdempotentReplay
+=== PAUSE TestSubmitIdempotentReplay
+=== RUN   TestOtherStudentAttempt404
+=== PAUSE TestOtherStudentAttempt404
+=== RUN   TestPutItemsRejects
+=== PAUSE TestPutItemsRejects
+=== RUN   TestIEKeepsGrading
+=== PAUSE TestIEKeepsGrading
+=== RUN   TestExamGuardMatrix
+=== PAUSE TestExamGuardMatrix
+=== RUN   TestExamAdminDenied
+=== PAUSE TestExamAdminDenied
+=== RUN   TestExamStudentRouteRoleOnly
+=== PAUSE TestExamStudentRouteRoleOnly
+=== RUN   TestExamRoutesTable
+=== PAUSE TestExamRoutesTable
+=== RUN   TestVerifyReferenceJudgeDown
+=== PAUSE TestVerifyReferenceJudgeDown
+=== RUN   TestCreateMCQValid
+=== PAUSE TestCreateMCQValid
+=== RUN   TestCreateTrueFalse
+=== PAUSE TestCreateTrueFalse
+=== RUN   TestShortEssayTypes
+=== PAUSE TestShortEssayTypes
+=== RUN   TestAdjustAudit
+=== PAUSE TestAdjustAudit
+=== RUN   TestReviewAudit
+=== PAUSE TestReviewAudit
+=== RUN   TestQuestionDetailStaffOnly
+=== PAUSE TestQuestionDetailStaffOnly
+=== RUN   TestArchivedCourseWrites
+=== PAUSE TestArchivedCourseWrites
+=== RUN   TestScheduleValidationsAll
+=== PAUSE TestScheduleValidationsAll
+=== CONT  TestRunJudgeDown503
+=== CONT  TestExamAdminDenied
+=== CONT  TestSaveOtherUsersAttempt404
+=== CONT  TestSaveAnswersValidation
+=== CONT  TestStartAttemptNotOpenReasons
+=== CONT  TestIEKeepsGrading
+=== CONT  TestSubmissionViewIE
+=== CONT  TestOtherStudentAttempt404
+=== CONT  TestSaveAnswersDiff
+=== CONT  TestPutItemsRejects
+=== CONT  TestExamGuardMatrix
+--- PASS: TestExamAdminDenied (0.01s)
+=== CONT  TestShortEssayTypes
+2026/11/25 19:06:39 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 7963c52558f18ad912232bc5c0e1ec7fd17a9101c45e1690fbeb0b3576424e2d
+  Test ProcessID: 4396c2eb-7687-4c7d-a17e-7c8caf3e7f78
+--- PASS: TestExamGuardMatrix (0.04s)
+=== CONT  TestScheduleValidationsAll
+2026/11/25 19:06:39 ✅ Container started: 68f6ff853df5
+2026/11/25 19:06:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/25 19:06:39 🔔 Container is ready: 68f6ff853df5
+2026/11/25 19:06:41 ✅ Container started: 5636bc78d64d
+2026/11/25 19:06:41 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/25 19:06:41 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSubmissionViewIE (1.84s)
+=== CONT  TestArchivedCourseWrites
+--- PASS: TestPutItemsRejects (1.84s)
+=== CONT  TestQuestionDetailStaffOnly
+--- PASS: TestStartAttemptNotOpenReasons (1.84s)
+=== CONT  TestReviewAudit
+--- PASS: TestSaveOtherUsersAttempt404 (1.84s)
+=== CONT  TestAdjustAudit
+--- PASS: TestSaveAnswersValidation (1.85s)
+=== CONT  TestSubmitIdempotentReplay
+--- PASS: TestOtherStudentAttempt404 (1.85s)
+=== CONT  TestSubmitCodeEnqueues
+--- PASS: TestShortEssayTypes (1.84s)
+=== CONT  TestVerifyReferenceJudgeDown
+--- PASS: TestIEKeepsGrading (1.86s)
+=== CONT  TestCreateTrueFalse
+--- PASS: TestSaveAnswersDiff (1.87s)
+=== CONT  TestCreateMCQValid
+--- PASS: TestRunJudgeDown503 (1.93s)
+=== CONT  TestExamRoutesTable
+--- PASS: TestExamRoutesTable (0.00s)
+=== CONT  TestExamStudentRouteRoleOnly
+--- PASS: TestExamStudentRouteRoleOnly (0.00s)
+--- PASS: TestScheduleValidationsAll (2.03s)
+--- PASS: TestCreateTrueFalse (0.85s)
+--- PASS: TestCreateMCQValid (0.84s)
+--- PASS: TestVerifyReferenceJudgeDown (0.87s)
+--- PASS: TestArchivedCourseWrites (0.90s)
+--- PASS: TestReviewAudit (0.90s)
+--- PASS: TestSubmitIdempotentReplay (0.94s)
+--- PASS: TestSubmitCodeEnqueues (0.94s)
+--- PASS: TestAdjustAudit (0.97s)
+--- PASS: TestQuestionDetailStaffOnly (1.33s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	4.007s
+rc=0

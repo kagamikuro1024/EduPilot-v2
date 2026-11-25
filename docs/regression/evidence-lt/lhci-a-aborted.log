@@ -1,0 +1,32 @@
+✅  .lighthouseci/ directory writable
+✅  Configuration file found
+✅  Chrome installation found
+⚠️   GitHub token not set
+Healthcheck passed!
+
+WARNING: collect.settings.chromeFlags option will be ignored.
+WARNING: If you want chromeFlags with puppeteerScript, use collect.puppeteerLaunchOptions.args option.
+Started a web server with "node lighthouse-api.mjs & exec pnpm exec next start -p 3310"...
+Running Lighthouse 5 time(s) on http://localhost:3310/
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3310/chat
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+ConnectionClosedError: Connection closed.
+    at Connection._rawSend (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/puppeteer-core@24.43.1_supports-color@7.2.0/node_modules/puppeteer-core/lib/cjs/puppeteer/cdp/Connection.js:106:35)
+    at Connection.send (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/puppeteer-core@24.43.1_supports-color@7.2.0/node_modules/puppeteer-core/lib/cjs/puppeteer/cdp/Connection.js:99:21)
+    at CdpBrowser._createPageInContext (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/puppeteer-core@24.43.1_supports-color@7.2.0/node_modules/puppeteer-core/lib/cjs/puppeteer/cdp/Browser.js:207:53)
+    at CdpBrowserContext.newPage (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/puppeteer-core@24.43.1_supports-color@7.2.0/node_modules/puppeteer-core/lib/cjs/puppeteer/cdp/BrowserContext.js:140:40)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async CdpBrowser.newPage (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/puppeteer-core@24.43.1_supports-color@7.2.0/node_modules/puppeteer-core/lib/cjs/puppeteer/cdp/Browser.js:200:16)
+    at async module.exports (/Users/kuro/Documents/TA_Agent_qc3p/frontend/lighthouse-auth.cjs:12:16)
+    at async PuppeteerManager.invokePuppeteerScriptForUrl (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/@lhci+cli@0.15.1_supports-color@7.2.0/node_modules/@lhci/cli/src/collect/puppeteer-manager.js:118:5)
+    at async Object.runCommand (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/@lhci+cli@0.15.1_supports-color@7.2.0/node_modules/@lhci/cli/src/collect/collect.js:254:7)
+    at async run (/Users/kuro/Documents/TA_Agent_qc3p/node_modules/.pnpm/@lhci+cli@0.15.1_supports-color@7.2.0/node_modules/@lhci/cli/src/cli.js:100:7)
