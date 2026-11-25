@@ -703,6 +703,17 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 - `GET /me/today` giới hạn timeline 8 mục: sinh viên nhiều lớp có thể không thấy buổi của lớp cần điểm danh (đã gặp với sv.gioi 9 lớp). AC16(b) không nói tới giới hạn này.
 - `/checkin` không đặt `Referrer-Policy` (chỉ các trang liên kết một lần) — token nằm ở fragment và đã bị xoá nên rủi ro thấp.
 
+
+### 9.2 Pha 2 — Android emulator (qc2, 25–26/11/2026)
+Nguồn: `docs/sprints/10.8/qc/tc-mobile-run-android.md` (qc2, AVD `ep-api36` Android 16/API 36, WebView Chrome 133, APK debug HEAD `cd843318`, `APP_SERVER_URL` = VPS). **34 TC = 26 P, 1 F, 7 N** (số của qc2; chi tiết từng ca + ảnh ở tệp đó và `docs/regression/evidence-mobile-android/`).
+
+- **F (1):** `TC-MOB-CL-4` — cỡ chữ hệ thống 2,0× trên `/checkin`: dock «Điểm danh» bị thanh điều hướng đè 45 % (dock 699..752, nav 728..816), nhãn nav xuống 2 dòng ⇒ **DEF-R10.8-07** (Thấp).
+- **N (7):** INS-01/02/03/09/13 (chỉ có APK debug, không có Gradle/SDK trên VPS, không có AVD API 24–28, Chrome chưa qua màn chào), GEO-03/05 (vị trí giả trong WebView không đổi được — chặn kỹ thuật của emulator).
+- **Chưa chạy (chờ lượt sau):** 6.D `SCN-01…06,08…16`, 6.E `GEO-01,04,06…13`, 6.H `SAF-04…10`, 6.J `THM-02…04,06…08`, 6.L `NAV-02,03,05…12`, 6.M `PRM-02…10`, 6.O `LIF-01…13`, 6.Q `A11-01,02,04…15` (TalkBack chưa bật), 6.U `DEV-01…14`, checklist `CL-3,5…12,14…16`, `INS-08,13`.
+- Ghi chú chặn của qc2: geolocation giả không vào WebView; CDP vào WebView không ổn định sau khi app xuống nền/`pm clear`; `pm clear` xoá phiên; APK debug nên chỉ kết luận được manifest/quyền.
+
+**Cộng dồn pha 1 + pha 2 (khử trùng):** 70 TC có kết quả — **61 P, 1 F, 9 N** (trùng `A11-16` ở cả hai pha).
+
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
 - Không có ca nào kiểm Play Integrity, App Attest, thông báo đẩy, đa cửa sổ, máy tính bảng, màn gập, chế độ tối thật (ngoài phạm vi US-AS-15).
