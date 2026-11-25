@@ -324,3 +324,14 @@ Tổng: **97 TC = 73 P, 0 F, 24 N.**
 - Android 16, bật công tắc quyền riêng tư camera toàn máy (`cmd sensor_privacy enable 0 camera`), bấm «Quét mã điểm danh»: hiện **«Không mở được camera.»** sau 0,2 s và quay về ô nhập mã (ô nhập có, nút quét dùng được), không treo, không đăng xuất (`shots/PRM-09-fixed.png`).
 - Ghi nhận: sau khi tắt công tắc, trang đang ở trạng thái lỗi vẫn giữ câu lỗi cho tới khi trang hiện lại (đúng thiết kế AC8, cần rời app rồi quay lại mới tự trở về nút quét bình thường).
 - **DEF này đóng từ phía QC.**
+
+## 32. Lượt 28 (26/11) — SCN-05/06/08/14 = P
+
+Tổng: **97 TC = 77 P, 0 F, 20 N.**
+
+- **SCN-05 = P**: quét QR của lớp **QCMOB6** (sv.qc2 không thuộc) → «Bạn không thuộc lớp này.» sau 0,6 s, nút quét ở lại, DB 0 dòng.
+- **SCN-06 = P**: đóng cửa sổ (`POST /courses/{id}/checkin-windows/{wid}/close` = 200) → quét QR của cửa sổ đó → «Đã đóng điểm danh.» sau 2,5 s, DB 0 dòng. Kiểm chéo bằng API: `POST /courses/{id}/checkins` trả **409 WINDOW_CLOSED** «Đã đóng điểm danh.».
+- **SCN-08 = P**: đang quét → Home 10 s → mở lại: camera đã tắt, về màn nhập mã có nút «Quét mã điểm danh», không màn trắng/treo; quét lại → nhận sau 1,1 s, DB 1 dòng.
+- **SCN-14 = P**: poster có hai QR (URL lạ + QR đúng) → chọn đúng QR hợp lệ, «Đã điểm danh» sau 2,3 s, DB 1 dòng.
+- Chưa chốt: SCN-09 (xoay 4 lần: video 0×0, token quá vòng), SCN-10 (mạng trễ 2 s thì khung hình chậm, không nhận QR trong 25 s), SCN-13 (máy bay bật sau khi POST đã xong).
+- Kỹ thuật: sau `pm clear` phải `pm grant ... CAMERA` lại, nếu không app vào khung quét rồi báo «Không mở được camera.» (đúng hành vi mới).
