@@ -18,8 +18,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CROCKFORD = /^[0-9A-HJKMNP-TV-Z]+$/;
 const GEO_LINE = "Lớp này kiểm tra vị trí khi điểm danh.";
 const EXPIRED_MSG = "Mã đã hết hạn. Quét lại mã trên màn chiếu.";
-/** Trần một lượt gửi điểm danh (DEF-MOB-03): quá hạn thì thôi «đang gửi» và cho «Thử lại» — không để treo vô hạn. */
+/** Trần phần MẠNG của một lượt gửi điểm danh (DEF-MOB-03): quá hạn thì thôi «đang gửi» và cho «Thử lại» — không để treo vô hạn. Không tính thời gian người dùng đọc hộp quyền vị trí (DEF-MOB-08). */
 const DEADLINE_MS = 15_000;
+/** Trần RIÊNG của định vị (DEF-MOB-08): WebView/hộp quyền có thể không bao giờ gọi lại ⇒ coi như từ chối, vẫn gửi điểm danh (AC4/AC5). */
+const GEO_CAP_MS = 10_000;
 
 /** Chuẩn hoá mã ngắn đúng như máy chủ (`attendance.NormalizeCode`): bỏ khoảng trắng và `-`, in hoa, O→0, I/L→1. Rỗng / ký tự ngoài bảng ⇒ null. */
 export function normalizeCode(raw: string): string | null {
@@ -48,6 +50,17 @@ function getGeo(): Promise<Geo> {
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 30_000 },
     );
   });
+}
+
+/** `getGeo` nhưng không bao giờ treo: quá `GEO_CAP_MS` thì coi như từ chối vị trí (`geo.denied=true`), vẫn gửi điểm danh. */
+async function getGeoWithin(): Promise<Geo> {
+  const { promise, resolve } = Promise.withResolvers<Geo>();
+  const t = setTimeout(() => resolve({ denied: true }), GEO_CAP_MS);
+  try {
+    return await Promise.race([getGeo(), promise]);
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 /** Một câu mỗi mã lỗi (US-AS-09 AC4, AC10). */
@@ -134,24 +147,27 @@ export function CheckinScreen() {
     async (inp: Input) => {
       const viaCode = "code" in inp;
       const retry = () => again.current(inp);
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), DEADLINE_MS);
+      let timer: ReturnType<typeof setTimeout> | undefined;
       try {
         const msg = `edupilot-checkin-v1|${"code" in inp ? `code:${inp.code}` : inp.token}|${uid}`;
-        const policyP = apiClient.get<{ attendance?: { self_checkin?: boolean; geo_check?: boolean } }>(`/courses/${inp.course}`, { signal: ctrl.signal });
-        const [policyRes, device] = await Promise.all([policyP, hasAttestPlugin() ? signNative(msg) : signWithDeviceKey(msg)]); // app: khoá Keystore; web: WebCrypto
+        // Định vị TRƯỚC: thời gian đọc hộp quyền không bị tính vào trần mạng (DEF-MOB-08)
+        const probe = apiClient.get<{ attendance?: { self_checkin?: boolean; geo_check?: boolean } }>(`/courses/${inp.course}`); // apiClient đã có trần 15 s riêng
+        const [policyRes, device] = await Promise.all([probe, hasAttestPlugin() ? signNative(msg) : signWithDeviceKey(msg)]); // app: khoá Keystore; web: WebCrypto
         const policy = policyRes.data.attendance;
         if (policy && policy.self_checkin === false) return setView(viaCode ? { k: "entry", error: "Lớp này không điểm danh bằng mã." } : { k: "error", message: "Lớp này không điểm danh bằng mã." });
         let geo: Geo | undefined;
         if (policy?.geo_check) {
           setGeoLine(true); // câu thông báo hiện TRƯỚC khi gọi định vị (Luật 91/2025 Đ31 k3)
           await nextFrame();
-          geo = await getGeo();
+          geo = await getGeoWithin();
           if (hasAttestPlugin() && "lat" in geo) {
             const mock = await nativeMockLocation();
             if (mock !== undefined) geo = { ...geo, mock };
           }
         }
+        // Trần 15 s chỉ phủ phần mạng (POST); GET chính sách đã chạy song song ở trên
+        const ctrl = new AbortController();
+        timer = setTimeout(() => ctrl.abort(), DEADLINE_MS);
         const { data } = await apiClient.post<{ checked_in_at: string; round: number }>(`/courses/${inp.course}/checkins`, {
           ...("code" in inp ? { code: inp.code } : { token: inp.token }),
           ...(device ? { device } : {}),
@@ -167,7 +183,7 @@ export function CheckinScreen() {
         const d = describe(e, viaCode);
         setView(viaCode ? { k: "entry", error: d.message, retry: d.offline ? retry : undefined } : { k: "error", message: d.message, offline: d.offline, retry: d.offline ? retry : undefined });
       } finally {
-        clearTimeout(timer);
+        if (timer) clearTimeout(timer);
         setGeoLine(false);
       }
     },
