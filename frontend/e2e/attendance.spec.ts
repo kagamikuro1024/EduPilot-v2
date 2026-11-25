@@ -19,13 +19,13 @@ const radio = (page: Page, i: number, label: string) => row(page, i).getByRole("
 const bodyOf = (c: { body: string }) => JSON.parse(c.body) as { records: Array<{ student_id: string; status: string; version?: number }>; complete: boolean };
 const desktopOnly = (info: { project: { name: string } }) => test.skip(info.project.name !== "desktop", "đo một lần");
 
-test("attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa, ?session= chọn buổi", async ({ page, context }, info) => {
+test("attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa điểm danh, ?session= chọn buổi", async ({ page, context }, info) => {
   desktopOnly(info);
   const list = [sessionRow(1, { attendance: { done_at: "2026-10-05T04:40:00Z", has_records: true } }), sessionRow(2), sessionRow(3)];
   await open(page, context, { sessions: list });
   const sel = page.locator("[data-part=att-session-select]");
   await expect(sel).toHaveValue(sessionRow(2).id);
-  await expect(sel.locator("option")).toHaveText(["Buổi 3 · 09/10 · Chưa", "Buổi 2 · 07/10 · Chưa", "Buổi 1 · 05/10 · Đã điểm danh"]);
+  await expect(sel.locator("option")).toHaveText(["Buổi 3 · 09/10 · Chưa điểm danh", "Buổi 2 · 07/10 · Chưa điểm danh", "Buổi 1 · 05/10 · Đã điểm danh"]);
   await page.goto(`/attendance?session=${sessionRow(1).id}`);
   await expect(page.locator("[data-part=att-session-select]")).toHaveValue(sessionRow(1).id);
 });
@@ -377,4 +377,20 @@ test("attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px", 
   const box = await page.getByRole("status").filter({ hasText: "Công thức" }).boundingBox();
   expect(box!.height).toBeLessThanOrEqual(56);
   expect((await page.getByRole("link", { name: "Xem công thức" }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+});
+
+// QC L2.10: dòng cảnh báo công thức không dính ô chọn Buổi và đầu bảng (khoảng thở ≥ 8 px mỗi phía)
+test("attendance notice: dòng cảnh báo công thức cách ô chọn Buổi và đầu bảng ≥ 8 px", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  await page.clock.setFixedTime(NOW);
+  await attApi(page);
+  await page.route("**/api/v1/courses/*/grade-scheme/status", (r) =>
+    r.fulfill(json({ state: "NO_POLICY", unclear_count: 0, has_policy: false, pending_draft: false, gradebook: { status: "OPEN", snapshot_version: 0 } })));
+  await page.goto("/attendance");
+  await expect(page.getByRole("link", { name: "Xem công thức" })).toBeVisible();
+  const sel = (await page.locator("[data-part=att-session-select]").boundingBox())!;
+  const note = (await page.getByRole("status").filter({ hasText: "Công thức" }).boundingBox())!;
+  const table = (await page.getByLabel(/Bảng điểm danh/).boundingBox())!;
+  expect(note.y - (sel.y + sel.height)).toBeGreaterThanOrEqual(8);
+  expect(table.y - (note.y + note.height)).toBeGreaterThanOrEqual(8);
 });

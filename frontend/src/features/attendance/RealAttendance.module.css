@@ -24,3 +24,4 @@
   .lineButtons { flex-basis: 100%; margin-inline-start: 0; }
   .lineButtons > * { min-height: 44px; }
 }
+.schemeNotice { margin-block: var(--ep-space-3); }
