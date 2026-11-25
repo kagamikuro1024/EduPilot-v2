@@ -91,6 +91,11 @@ func ensureSchema(ctx context.Context, d Deps) error {
 	if d.DB == nil {
 		return nil
 	}
+	// Bảng có sẵn (tạo bởi vai chủ ở lần chạy trước): bỏ qua DDL — `create … if not exists` vẫn đòi quyền chủ bảng, vai ứng dụng không có (42501).
+	var exists bool
+	if err := d.DB.QueryRow(ctx, `select to_regclass('_test_items') is not null`).Scan(&exists); err != nil || exists {
+		return err
+	}
 	_, err := d.DB.Exec(ctx, schemaSQL)
 	return err
 }
