@@ -680,9 +680,9 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-SEC-01 | P | Luồng token 63 ký tự: 0/31 request chứa token; hash rỗng sau khi tải | run1/shots/SEC-01-token-flow.png |
 | TC-MOB-ATT-04 | P | Thanh lưu trên thanh điều hướng, không dưới cutout/gesture | shots/ATT-01.png |
 | TC-MOB-ATT-06 | P | Dark mode: độ sáng nội dung 249/255, 1,6 % điểm tối | shots/ATT-06-dark.png |
-| TC-MOB-ATT-01 | N | ROUND_LIMIT mọi buổi QCMOB1/QCMOB2, không có API tạo buổi | — |
-| TC-MOB-ATT-10 | P | Màn chiếu mở được, có «Về Điểm danh», không crash; chưa chứng minh mã/QR | shots/ATT-10.png |
-| TC-MOB-ATT-11 | N | Cần lượt GEO_OUT/OFF_CAMPUS QCMOB2 — phiên khác đang chạy trên cùng lớp | — |
+| TC-MOB-ATT-01 | P | Sinh buổi 104 hôm nay bằng `POST /sessions/generate` (dry_run + thật, Idempotency-Key) rồi mở vòng 1 (`POST …/checkin-windows`): `/attendance` hiện «Buổi 104 · Hôm nay, 07:00–09:00», thẻ «Đang mở · 0/7 · còn 52:11», nút phụ «Mở màn chiếu» + «Đóng», một hành động chính «Lưu điểm danh» ở thanh dưới; không cuộn ngang | shots/ATT-01f.png |
+| TC-MOB-ATT-10 | P | Bấm «Mở màn chiếu» → `/attendance/display` hiện QR + «Mã điểm danh S3C OVX» + đếm «còn 46:30» + «Đóng điểm danh» + «Thoát»; không crash | shots/ATT-10b.png |
+| TC-MOB-ATT-11 | P | Ghim `geofence` 150 m + `campus_cidrs` trên QCMOB1, điểm danh bằng API với toạ độ cách 6 km: staff thấy cờ `GEO_OUT` «Ngoài khu vực lớp», `OFF_CAMPUS` «Ngoài mạng trường», `geo_distance_m` 6016, `in_campus` false, `assurance` 1; SV chỉ thấy `session_no/starts_at/status/checked_in_at`; route staff dưới JWT SV → 403 | shots/ATT-11-staff.json, shots/ATT-11-sv.json |
 | TC-MOB-SEC-02 | P | iOS Safari Simulator: `localStorage` chỉ có `ep_demo_state` (không token, không `ep.device`); IndexedDB đúng một CSDL `edupilot.device.v1/store keys` = một `CryptoKey`; `ep.checkin` chỉ ở `sessionStorage`, xoá khi dùng, hết hạn 60 s (`stash.ts`); khoá `extractable=false` | shots/sec02-localstorage.sqlite3, shots/sec02-indexeddb.sqlite3 |
 | TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
 | TC-MOB-SEC-18 | P | localStorage không có token (chỉ ep_demo_state/ep_returning); document.cookie không thấy ep_rt | — |
@@ -744,10 +744,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 89 | 0 | 5 |
+| qc3 iOS | 91 | 0 | 3 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (333 mã gốc − 47 trùng = 286)** | **218** | **0** | **68** |
+| **Hợp (335 mã gốc − 47 trùng = 288)** | **223** | **1** | **64** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -888,9 +888,9 @@ Còn lại của lô E (`PWA-06…12`, `14`, `15`, `17…21`) **N** trong phiên
 - Đăng nhập `teacher@edupilot.local` OK; `/attendance` mở lưới điểm danh («Buổi 2 · Hôm nay, 00:05-23:50», «Chưa có thay đổi», «Đã ghi 0 có mặt · 0 muộn · 0 chưa điểm danh», banner «Công thức chưa xác nhận · Xem»).
 - `ATT-04` **P**: thanh lưu «Lưu điểm danh · 0 có mặt · 0 vắng» nằm trên thanh điều hướng dưới, trên vạch home; **không** bị vùng an toàn/cutout che, không có phần tử nào dưới vùng che (`ATT-01.png`,`ATT-04-land.png`).
 - `ATT-06` **P**: bật `simctl ui appearance dark` → độ sáng trung bình vùng nội dung **249/255**, chỉ 1,6 % điểm ảnh tối ⇒ giao diện vẫn sáng (`ATT-06-dark.png`).
-- `ATT-01` **N**: không mở được cửa sổ điểm danh mới — mọi buổi của QCMOB1/QCMOB2 đang ở `ROUND_LIMIT` («Đã mở đủ số vòng điểm danh») và `class_sessions` không có endpoint tạo buổi; không có vòng mở thì trang không hiện mã/«Mở màn chiếu».
+- `ATT-01` **P** (sau khi PM chỉ `POST /sessions/generate`): sinh buổi 104 hôm nay, mở vòng 1 — thẻ «Đang mở · 0/7 · còn 52:11» + «Mở màn chiếu». Ghi chú cũ: không mở được cửa sổ điểm danh mới — mọi buổi của QCMOB1/QCMOB2 đang ở `ROUND_LIMIT` («Đã mở đủ số vòng điểm danh») và `class_sessions` không có endpoint tạo buổi; không có vòng mở thì trang không hiện mã/«Mở màn chiếu».
 - `ATT-10` **P (một phần)**: `/attendance/display` mở được, có «Màn chiếu điểm danh» + nút «Về Điểm danh», không crash, không có nút «Thoát» dạng Esc trên điện thoại (`ATT-10.png`); **không** chứng minh được mã/QR vì cùng lý do `ROUND_LIMIT`.
-- `ATT-11` **N**: cần lượt `GEO_OUT`/`OFF_CAMPUS` của QCMOB2 và so staff ↔ SV — QCMOB2 đang có vòng mở do phiên khác tạo trong lúc tôi chạy nên **không đụng vào** để tránh phá lượt của họ.
+- `ATT-11` **P**: làm trên QCMOB1 (không đụng QCMOB2): ghim `geofence` 150 m + `campus_cidrs` 203.0.113.0/24, điểm danh bằng API với toạ độ cách 6 km → cờ `GEO_OUT`/`OFF_CAMPUS` + `geo_distance_m` 6016 + `in_campus` false cho staff; SV không thấy; đã **trả chính sách lớp về nguyên trạng** và đóng vòng. Ghi chú cũ: cần lượt `GEO_OUT`/`OFF_CAMPUS` của QCMOB2 — QCMOB2 đang có vòng mở do phiên khác tạo trong lúc tôi chạy nên **không đụng vào** để tránh phá lượt của họ.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

@@ -515,4 +515,42 @@ final class IosTests: XCTestCase {
         web.swipeUp(); sleep(2); savePng(shotName() + "-2")
         web.swipeUp(); sleep(3); savePng(shotName() + "-3")
     }
+
+    /// Mở danh sách chọn buổi trên /attendance (giảng viên) và chụp.
+    func testSessionPicker() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 15)
+        web.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.418)).tap(); sleep(3)
+        savePng(shotName() + "-list")
+        let si = web.staticTexts.allElementsBoundByIndex.map(\.label)
+        try? si.joined(separator: " | ").write(toFile: evidDir() + "/" + shotName() + "-list.txt", atomically: true, encoding: .utf8)
+        print("opts=\(si.prefix(30))")
+    }
+
+    /// /attendance: mở danh sách buổi bằng nhãn (không theo toạ độ) và chụp.
+    func testPickSession() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 15)
+        let trig = web.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Buổi ")).firstMatch
+        XCTAssertTrue(trig.waitForExistence(timeout: 10), "không thấy nút chọn buổi")
+        trig.tap(); sleep(3)
+        savePng(shotName() + "-list")
+        let opts = web.staticTexts.allElementsBoundByIndex.map(\.label).filter { $0.hasPrefix("Buổi ") }
+        try? opts.joined(separator: " | ").write(toFile: evidDir() + "/" + shotName() + "-opts.txt", atomically: true, encoding: .utf8)
+        print("opts=\(opts)")
+    }
+
+    /// /attendance (GV): bấm «Mở màn chiếu» rồi chụp màn chiếu.
+    func testOpenDisplay() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 15)
+        let b = web.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mở màn chiếu")).firstMatch
+        if !b.exists {
+            let t = web.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Mở màn chiếu")).firstMatch
+            XCTAssertTrue(t.waitForExistence(timeout: 10), "không thấy nút Mở màn chiếu"); t.tap()
+        } else { b.tap() }
+        sleep(10); savePng(shotName())
+        let labels = web.staticTexts.allElementsBoundByIndex.map(\.label)
+        try? labels.joined(separator: " | ").write(toFile: evidDir() + "/" + shotName() + "-labels.txt", atomically: true, encoding: .utf8)
+    }
 }
