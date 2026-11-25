@@ -1,0 +1,17 @@
+[
+ {
+  "tc": "TC-MOB-SEC-01",
+  "kq": "P",
+  "note": "token (63 ký tự) trong request=0/31; hash sau khi tải=\"\"; trang=\"Bỏ qua điều hướng · QC3 mobile QC3M2 Tìm nhanh hoặc đi đến… B Tài khoản: QC Ba T\""
+ },
+ {
+  "tc": "TC-MOB-SEC-18",
+  "kq": "P",
+  "note": "localStorage=[ep_demo_state,ep_returning] sessionStorage=[] document.cookie thấy ep_rt=false"
+ },
+ {
+  "tc": "TC-MOB-SEC-07",
+  "kq": "P",
+  "note": "CSP unsafe-eval=false; Permissions-Policy=camera=(self), geolocation=(self); Referrer-Policy=không đặt (chỉ trang liên kết một lần); HSTS=có"
+ }
+]
