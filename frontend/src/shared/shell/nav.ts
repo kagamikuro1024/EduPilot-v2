@@ -39,9 +39,9 @@ const STUDENT: NavGroup[] = [
       { href: "/chat", label: "Chat riêng", icon: MessageSquare },
       { href: "/threads", label: "Hỏi đáp công khai", short: "Hỏi đáp", icon: MessagesSquare },
       { href: "/assignments", label: "Bài tập", icon: ClipboardCheck },
-      { href: "/checkin", label: "Điểm danh", icon: ScanLine }, // mọi SV có lớp, không lộ cửa sổ đang mở (P-11-137, US-AS-15 AC16a)
       { href: "/practice", label: "Luyện đề", icon: CircleHelp },
       { href: "/exams", label: "Bài thi", icon: ClipboardList },
+      { href: "/checkin", label: "Điểm danh", icon: ScanLine }, // mọi SV có lớp, không lộ cửa sổ đang mở (P-11-137, US-AS-15 AC16a)
       { href: "/library", label: "Thư viện", icon: Library },
       { href: "/calendar", label: "Lịch", icon: CalendarDays },
       { href: "/me", label: "Kết quả của tôi", icon: ChartColumn },

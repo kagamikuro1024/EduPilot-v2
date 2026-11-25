@@ -129,7 +129,16 @@ test("student today: hàng buổi có checkin_link ⇒ liên kết «Điểm dan
   const links = main(page).getByRole("link", { name: "Điểm danh", exact: true });
   await expect(links).toHaveCount(1);
   await expect(links).toHaveAttribute("href", `/checkin?course=${C1}`);
-  if (info.project.name === "mobile") expect((await links.boundingBox())!.height).toBeGreaterThanOrEqual(44); // vùng chạm ở 375
+  if (info.project.name === "mobile") {
+    expect((await links.boundingBox())!.height).toBeGreaterThanOrEqual(44); // vùng chạm ở 375
+    // < 720 px nút xuống DƯỚI dòng meta, không đứng cạnh tiêu đề làm tiêu đề xuống dòng
+    const li = main(page).locator("[data-ep-action-list] > li").first();
+    const link = (await links.boundingBox())!;
+    const meta = (await li.getByText("Đang diễn ra").boundingBox())!;
+    expect(link.y).toBeGreaterThanOrEqual(meta.y + meta.height - 1);
+    const title = li.getByText("Buổi 1 · An ninh mạng");
+    expect((await title.boundingBox())!.height).toBeLessThan(30); // một dòng
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
 
