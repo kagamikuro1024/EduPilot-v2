@@ -48,7 +48,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | FLW-10 | **N** | không còn tài khoản nào không thuộc lớp (sv.qc* đều đã ghi danh) |
 | FLW-11 | **P** | Vòng 2 (round 2) tạo lượt mới, cửa sổ ghi 1 lượt |
 | FLW-12 | **P** | Lớp tắt self_checkin: «Lớp này không điểm danh bằng mã.», **không còn ô mã** (đúng AC16(d)), 0 POST |
-| FLW-13 | **F (Thấp)** | Lớp **lưu trữ** hiện «Lớp này không điểm danh bằng mã.» — câu này nói sai nguyên nhân; AC (FLW-13) đòi câu về lớp đã lưu trữ. Máy chủ trả `attendance.self_checkin=false` cho lớp ARCHIVED nên giao diện rơi vào nhánh tắt điểm danh → **DEF-MOB-01** |
+| FLW-13 | **P** (sửa 578e809e, nghiệm lại ở ae069d85) | Lớp **lưu trữ**: «Lớp này đã được lưu trữ.» — đúng câu, không mã kỹ thuật, không ghi lượt (posts=0); trước đó là «Lớp này không điểm danh bằng mã.» (DEF-MOB-01). Máy chủ trả `attendance.self_checkin=false` cho lớp ARCHIVED nên giao diện rơi vào nhánh tắt điểm danh → **DEF-MOB-01** |
 | FLW-14 | **N** | cần `pnpm build:gate` + bộ `attendance-checkin.spec.ts` trên build (chạy ở lượt riêng) |
 | FLW-15/16/17/18 | **N** | hai AVD / camera hệ thống / LAN HTTP / IndexedDB chặn (native) |
 
@@ -120,9 +120,9 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | NET-01 | **P** (ngưỡng TC rút) | Mạng 400 kbit/s + RTT 2 s (CDP): khung hiển thị 5 360 ms, nội dung 5 364 ms, không màn trắng, không cuộn ngang — đạt phần AC9 nhìn thấy được. **DEF-MOB-04 = RÚT** theo P-11-143 (TC đặt ngưỡng 3 s không neo AC); số đo giữ làm tham chiếu |
-| NET-02 | **F (Trung bình)** | Offline khi gửi mã: hiện «Chưa có mạng.», mã giữ nguyên, **KHÔNG có nút `Thử lại`** (đường mã chỉ hiện câu lỗi dưới ô) → **DEF-MOB-02** |
+| NET-02 | **P** (sửa ae069d85) | Offline khi gửi mã: «Chưa có mạng.» + nút `Thử lại`, mã đã gõ giữ nguyên (4KNBY9), không hộp lỗi kỹ thuật; bấm `Thử lại` sau khi có mạng → «Đã điểm danh», `checked_in=1` (DEF-MOB-02) | ô) → **DEF-MOB-02** |
 | NET-03 | **P** | Có mạng lại: bấm `Điểm danh` lần nữa → «Đã điểm danh», `checked_in=1`, không tải lại trang |
-| NET-07 | **F (Trung bình)** | POST chậm 20 s: sau **16 s vẫn «đang gửi»**, không có «Chưa có mạng.» (TC: trong 15 s) → **DEF-MOB-03** |
+| NET-07 | **P** (sửa ae069d85) | POST chậm 20 s: sau **16 s có «Chưa có mạng.»**, trạng thái về `entry` (TC: trong 15 s) — DEF-MOB-03 |
 | NET-04/05/06/08/09/10/11/12 | **N** | mạng chập chờn/đổi Wi-Fi/WebView chặn host/tiết kiệm dữ liệu/PWA offline (native) |
 
 ## 6.R Vùng chạm ≥ 44 px
@@ -149,29 +149,37 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | ATT-10 | **P** | `/attendance/display?course&session` ở 393: QR/mã/vòng/Thoát hiện, không crash |
 | ATT-04/05/06/11 | **N** | safe-area, cỡ chữ 2,0×, máy tối/native, geofence+SQL (pha 2) |
 
+### Nghiệm lại bản sửa (VPS ae069d85)
+
+| TC | DEF | Kết quả |
+| --- | --- | --- |
+| FLW-13 | DEF-MOB-01 (578e809e) | **P** — «Lớp này đã được lưu trữ.», không POST |
+| NET-02 + MSG-07 | DEF-MOB-02 (ae069d85) | **P** — «Chưa có mạng.» + `Thử lại`, mã giữ nguyên, retry → `checked_in=1` |
+| NET-07 | DEF-MOB-03 (ae069d85) | **P** — sau 16 s có «Chưa có mạng.», trạng thái `entry` |
+
 ## Tổng (phần qc)
 
 | Nhóm | P | F | N |
 | --- | --- | --- | --- |
 | 6.B SES | 6 | 0 | 8 |
-| 6.C FLW | 10 | 1 | 7 |
+| 6.C FLW | 11 | 0 | 7 |
 | 6.F ERR | 14 | 0 | 6 |
-| 6.S MSG | 9 | 1 | 6 |
+| 6.S MSG | 10 | 0 | 6 |
 | 6.G UIW | 16 | 0 | 6 |
 | 6.I TXT | 1 | 0 | 7 |
 | 6.K KBD | 6 | 0 | 6 |
-| 6.N NET | 1 | 3 | 8 |
+| 6.N NET | 4 | 0 | 8 |
 | 6.R TGT | 3 | 0 | 3 |
 | 6.X ATT | 7 | 0 | 4 |
-| **Cộng** | **73** | **4** | **61** |
+| **Cộng** | **77** | **0** | **61** |
 
 ## DEF mới
 
 | DEF | Mức | Nội dung | Bằng chứng |
 | --- | --- | --- | --- |
-| DEF-MOB-01 | Thấp | Lớp đã lưu trữ hiện «Lớp này không điểm danh bằng mã.» thay vì câu về lớp lưu trữ (FLW-13) | Máy chủ: lớp ARCHIVED trả `attendance.self_checkin=false`; giao diện chỉ có nhánh "tắt điểm danh" |
-| DEF-MOB-02 | Trung bình | Mất mạng khi gửi **mã ngắn**: có «Chưa có mạng.» nhưng **không có nút `Thử lại`** (đường token thì có) (NET-02, MSG-07) | `CheckinScreen.describe` → `viaCode` chỉ đặt lỗi dưới ô, không gắn `retry` |
-| DEF-MOB-03 | Trung bình | Máy chủ trả lời POST chậm 20 s: sau 16 s vẫn «đang gửi», không có «Chưa có mạng.» / hết giờ (NET-07) | Gọi `apiClient.post` không có hạn giờ; chỉ đổi trạng thái khi promise kết thúc |
+| DEF-MOB-01 | ~~Thấp~~ **ĐÃ SỬA** (578e809e, nghiệm lại ae069d85: «Lớp này đã được lưu trữ.») | Lớp đã lưu trữ hiện «Lớp này không điểm danh bằng mã.» thay vì câu về lớp lưu trữ (FLW-13) | Máy chủ: lớp ARCHIVED trả `attendance.self_checkin=false`; giao diện chỉ có nhánh "tắt điểm danh" |
+| DEF-MOB-02 | ~~Trung bình~~ **ĐÃ SỬA** (ae069d85: có `Thử lại`, mã giữ nguyên, retry xong `checked_in=1`) | Mất mạng khi gửi **mã ngắn**: có «Chưa có mạng.» nhưng **không có nút `Thử lại`** (đường token thì có) (NET-02, MSG-07) | `CheckinScreen.describe` → `viaCode` chỉ đặt lỗi dưới ô, không gắn `retry` |
+| DEF-MOB-03 | ~~Trung bình~~ **ĐÃ SỬA** (ae069d85: sau 16 s có «Chưa có mạng.», về `entry`) | Máy chủ trả lời POST chậm 20 s: sau 16 s vẫn «đang gửi», không có «Chưa có mạng.» / hết giờ (NET-07) | Gọi `apiClient.post` không có hạn giờ; chỉ đổi trạng thái khi promise kết thúc |
 | DEF-MOB-04 | **RÚT** (P-11-143) | Mạng 400 kbit/s + RTT 2 s: khung 5 360 ms — **TC đặt ngưỡng 3 s không neo AC nên TC sai**, không phải lỗi sản phẩm; số đo giữ ở dòng NET-01 làm tham chiếu | — |
 
 ## Ghi chú
