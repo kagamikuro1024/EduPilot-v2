@@ -678,6 +678,12 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-A11-01 | P | axe /checkin Chromium 390: 0 vi phạm (0 critical/serious) | — |
 | TC-MOB-A11-16 | P | /checkin: lang=vi, title «Điểm danh · EduPilot» | — |
 | TC-MOB-SEC-01 | P | Luồng token 63 ký tự: 0/31 request chứa token; hash rỗng sau khi tải | run1/shots/SEC-01-token-flow.png |
+| TC-MOB-ATT-04 | P | Thanh lưu trên thanh điều hướng, không dưới cutout/gesture | shots/ATT-01.png |
+| TC-MOB-ATT-06 | P | Dark mode: độ sáng nội dung 249/255, 1,6 % điểm tối | shots/ATT-06-dark.png |
+| TC-MOB-ATT-01 | N | ROUND_LIMIT mọi buổi QCMOB1/QCMOB2, không có API tạo buổi | — |
+| TC-MOB-ATT-10 | P | Màn chiếu mở được, có «Về Điểm danh», không crash; chưa chứng minh mã/QR | shots/ATT-10.png |
+| TC-MOB-ATT-11 | N | Cần lượt GEO_OUT/OFF_CAMPUS QCMOB2 — phiên khác đang chạy trên cùng lớp | — |
+| TC-MOB-SEC-02 | P | iOS Safari Simulator: `localStorage` chỉ có `ep_demo_state` (không token, không `ep.device`); IndexedDB đúng một CSDL `edupilot.device.v1/store keys` = một `CryptoKey`; `ep.checkin` chỉ ở `sessionStorage`, xoá khi dùng, hết hạn 60 s (`stash.ts`); khoá `extractable=false` | shots/sec02-localstorage.sqlite3, shots/sec02-indexeddb.sqlite3 |
 | TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
 | TC-MOB-SEC-18 | P | localStorage không có token (chỉ ep_demo_state/ep_returning); document.cookie không thấy ep_rt | — |
 | TC-MOB-NAV-12 | P | Token flow: 1 POST /checkins; Back/Forward không gửi lại, không lặp lỗi | run1/shots/NAV-12-back-forward.png |
@@ -738,10 +744,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 85 | 0 | 3 |
+| qc3 iOS | 89 | 0 | 5 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (324 mã gốc − 42 trùng = 282)** | **200** | **0** | **82** |
+| **Hợp (333 mã gốc − 47 trùng = 286)** | **218** | **0** | **68** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -865,6 +871,26 @@ Còn lại của lô E (`PWA-06…12`, `14`, `15`, `17…21`) **N** trong phiên
 | TC-MOB-PWA-07 | P (P-11-148) | Vế mới: Safari đăng xuất (`sv.qc3` → màn «Đăng nhập EduPilot») trong khi PWA vẫn mở «Chào Ba» + «Việc nên làm tiếp» và còn ngữ cảnh lớp «Lớp QC3M2» (`F-logout` = Safari đã đăng xuất; `E-PWA07-v5` = PWA vẫn có phiên). Vế «không token trong localStorage» không đọc được trên Simulator (không có Web Inspector) — ghi nhận chưa kiểm độc lập |
 | TC-MOB-PWA-08 | N |  Không điều khiển được ô mã trong PWA bằng XCUITest — cây phần tử của web app chỉ trả `Other`/`Button` **không nhãn** (`E-pwa-tree-tree.txt`), chạm theo toạ độ không mở được màn Điểm danh (script `testPwaCheckin` của qc2 dựa vào layout cũ, chạy qua nhưng không tạo dòng điểm danh nào trong DB). Cần 1 thao tác tay (Thêm → Điểm danh → gõ mã) hoặc mở Safari Develop.
 - `PWA-11/12/14/15/17…21`: **N — máy thật** (cây phần tử web app không nhãn, chạm toạ độ không ăn; cần thao tác tay).
+
+### 9.15 Lô F — bảo mật/kho lưu (26/11, Safari Simulator iOS 27.2, `09f2deb3`)
+
+- `SEC-01` **P — phủ bởi QC** (Android pha 1: 0/31 request chứa token).
+- `SEC-07` **P — phủ bởi QC** (header `/checkin`: CSP không `unsafe-eval`/nguồn ngoài, `Permissions-Policy camera=(self), geolocation=(self)`, HSTS; `Referrer-Policy` không đặt — ghi nhận, AC5 không đòi ở trang này).
+- `SEC-18` **P — phủ bởi QC** + xác nhận lại trên kho iOS: `localStorage` chỉ có `ep_demo_state`.
+- `SEC-02` **P**: đọc thẳng kho của Safari trong Simulator (`sec02-localstorage.sqlite3`, `sec02-indexeddb.sqlite3`).
+  - `localStorage/ItemTable`: **duy nhất** khoá `ep_demo_state`; **không** có token truy cập/làm mới/QR, không có `ep.device`.
+  - `IndexedDB`: đúng một CSDL `edupilot.device.v1`, store `keys`, **một** bản ghi = `CryptoKey` (`publicKey`/`privateKey` trong blob WebKit); không có CSDL nào khác.
+  - `sessionStorage`: `ep.checkin` = `{c, token, at}` cất ở `stash.ts` (không localStorage), xoá khi dùng (`clearStash`) và hết hạn `MAX_AGE_MS = 60_000`; không đọc được từ đĩa vì chỉ nằm trong bộ nhớ tiến trình — đối chiếu mã nguồn thay cho Web Inspector.
+  - Khoá tạo bằng `generateKey(..., false, ...)` ⇒ `extractable=false` (vế xuất khoá thuộc `SEC-12`).
+
+### 9.16 Lô F/G — `/attendance` của giảng viên (26/11, `teacher@` trên Safari Simulator)
+
+- Đăng nhập `teacher@edupilot.local` OK; `/attendance` mở lưới điểm danh («Buổi 2 · Hôm nay, 00:05-23:50», «Chưa có thay đổi», «Đã ghi 0 có mặt · 0 muộn · 0 chưa điểm danh», banner «Công thức chưa xác nhận · Xem»).
+- `ATT-04` **P**: thanh lưu «Lưu điểm danh · 0 có mặt · 0 vắng» nằm trên thanh điều hướng dưới, trên vạch home; **không** bị vùng an toàn/cutout che, không có phần tử nào dưới vùng che (`ATT-01.png`,`ATT-04-land.png`).
+- `ATT-06` **P**: bật `simctl ui appearance dark` → độ sáng trung bình vùng nội dung **249/255**, chỉ 1,6 % điểm ảnh tối ⇒ giao diện vẫn sáng (`ATT-06-dark.png`).
+- `ATT-01` **N**: không mở được cửa sổ điểm danh mới — mọi buổi của QCMOB1/QCMOB2 đang ở `ROUND_LIMIT` («Đã mở đủ số vòng điểm danh») và `class_sessions` không có endpoint tạo buổi; không có vòng mở thì trang không hiện mã/«Mở màn chiếu».
+- `ATT-10` **P (một phần)**: `/attendance/display` mở được, có «Màn chiếu điểm danh» + nút «Về Điểm danh», không crash, không có nút «Thoát» dạng Esc trên điện thoại (`ATT-10.png`); **không** chứng minh được mã/QR vì cùng lý do `ROUND_LIMIT`.
+- `ATT-11` **N**: cần lượt `GEO_OUT`/`OFF_CAMPUS` của QCMOB2 và so staff ↔ SV — QCMOB2 đang có vòng mở do phiên khác tạo trong lúc tôi chạy nên **không đụng vào** để tránh phá lượt của họ.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
