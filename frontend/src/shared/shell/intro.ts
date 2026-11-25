@@ -4,7 +4,7 @@
  * route khác giữ khung xương. Không còn câu phụ dưới tiêu đề (FEAT-uiux-91 US-01). QUY TẮC LCP (AC8): ứng viên LCP đầu tiên phải là khối chữ LỚN NHẤT mà màn sẽ có sau phiên — chữ nào xuất hiện sau
  * phiên mà lớn hơn sẽ thành ứng viên mới và kéo LCP về lúc có phiên. Kiểm bằng e2e `lcp before refresh`.
  */
-export type RouteIntro = { title: string; width?: "work" | "read"; body?: string };
+export type RouteIntro = { title: string; width?: "work" | "read"; body?: string; /** ô chữ dữ liệu điền SỚM bởi `earlyPaint.ts` (đề bài / câu hỏi) */ early?: "body" | "question" };
 
 export const INBOX_INTRO = {
   title: "Hộp thư hỗ trợ",
@@ -36,6 +36,6 @@ const INTROS: Record<string, RouteIntro> = {
 
 // Route động: tra theo tiền tố (US-P10-08; `/assignments/<id>` không có PreShell thì FCP chờ tới khi có phiên). h1 thật của màn là tiêu đề bài tập (dữ liệu); trước khi có
 // dữ liệu nó là «Bài tập» (StudentAssignment), nên chữ máy chủ dùng đúng chữ đó.
-const PREFIX_INTROS: Array<[string, RouteIntro]> = [["/assignments/", { title: "Bài tập" }], ["/practice/", { title: "Làm bài", width: "work" }]];
+const PREFIX_INTROS: Array<[string, RouteIntro]> = [["/assignments/", { title: "Bài tập", early: "body" }], ["/practice/", { title: "Làm bài", width: "work", early: "question" }]];
 
 export const introFor = (pathname: string): RouteIntro | null => INTROS[pathname] ?? PREFIX_INTROS.find(([p]) => pathname.startsWith(p))?.[1] ?? null;

@@ -51,13 +51,19 @@ where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'IN_PRO
 returning *;
 
 -- name: AttemptsDue :many
--- Lượt IN_PROGRESS đã quá deadline + grace (lô 200). `by_close`: hạn do giờ đóng của lớp (CLOSED) hay do thời lượng (TIMEOUT).
+-- Lượt IN_PROGRESS đã quá deadline + grace (lô 200), trừ lượt tự nộp lỗi quá `max_failures` lần. `by_close`: hạn do giờ đóng của lớp (CLOSED) hay do thời lượng (TIMEOUT).
 select a.id, a.course_id, a.exam_id, a.student_id, a.deadline_at, (a.deadline_at >= e.closes_at)::boolean as by_close
 from exam_attempts a
 join exams e on e.course_id = a.course_id and e.id = a.exam_id
-where a.status = 'IN_PROGRESS' and a.deadline_at + make_interval(secs => sqlc.arg(grace_seconds)::int) < sqlc.arg(now)::timestamptz
+where a.status = 'IN_PROGRESS' and a.finish_failures < sqlc.arg(max_failures)::smallint and a.deadline_at + make_interval(secs => sqlc.arg(grace_seconds)::int) < sqlc.arg(now)::timestamptz
 order by a.deadline_at, a.id
 limit 200;
+
+-- name: AttemptFinishFailed :one
+-- Tick tự nộp thất bại một lần: cộng đếm (chạy NGOÀI transaction đã lùi). Trả đếm mới để biết lúc nào chạm ngưỡng.
+update exam_attempts set finish_failures = least(finish_failures + 1, 32000)
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'IN_PROGRESS'
+returning finish_failures;
 
 -- name: ExamGradeItems :many
 -- Mục kèm đáp án đúng và `override` để chấm (CHỈ dùng ở phía máy chủ khi chấm — không bao giờ vào DTO sinh viên).

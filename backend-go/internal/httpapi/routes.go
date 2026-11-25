@@ -174,7 +174,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			dh.Mount(r)
 			dh.MountManage(r) // US-P8-02 — danh sách, sửa, xoá, đoạn, thống kê (#3–#8, #12)
 			// US-P8-02 — thư viện của sinh viên (#13–#15).
-			(&libraryhttp.Handler{Svc: &library.Service{Pool: d.DB, Blob: d.Blob, Log: d.Log}, Guard: courseGuard, Log: d.Log}).Mount(r)
+			(&libraryhttp.Handler{Svc: &library.Service{Pool: d.DB, Blob: d.Blob, Log: d.Log}, Guard: courseGuard, Log: d.Log, Redis: d.Redis, Clock: clk}).Mount(r)
 		}
 		if d.Thread != nil {
 			// US-P3-06 — Threads: đọc / precheck / đăng / bình luận / quyết định của Staff / thread tương tự (SRS FEAT-private-chat-pii 6, #12–#20).

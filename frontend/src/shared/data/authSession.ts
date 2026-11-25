@@ -69,6 +69,8 @@ async function run(): Promise<RefreshResult> {
 
 /** Tên thuộc tính `window` giữ lời gọi làm mới sớm do `<script>` trong `<head>` của root layout bắt đầu (U1). Dùng đúng MỘT lần. */
 export const EARLY_REFRESH_KEY = "__epRefresh";
+/** `window` giữ `{ u: url, p: Promise<dữ liệu | null> }` của GET sớm do `earlyPaint.ts` gửi (chỉ đọc thuần, một lần): `apiClient` dùng lại thay vì gửi GET thứ hai. */
+export const EARLY_GET_KEY = "__epGet";
 
 /** Lấy lời gọi làm mới sớm (nếu có) và xoá khỏi `window`: mỗi token làm mới chỉ được dùng một lần. */
 function takeEarlyRefresh(): Promise<Response> | null {

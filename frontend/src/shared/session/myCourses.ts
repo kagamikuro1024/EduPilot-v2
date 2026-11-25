@@ -18,6 +18,7 @@ export type RealCourse = {
 
 type Item = { course: Omit<RealCourse, "role_in_course" | "enrollment_status">; role_in_course: RealCourse["role_in_course"]; enrollment_status: RealCourse["enrollment_status"] };
 
+
 /** Khoá lưu lựa chọn lớp ở trình duyệt (id lớp hoặc `all`; không phải bí mật). */
 export const COURSE_STORAGE_KEY = "ep:ui:course";
 

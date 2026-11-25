@@ -439,6 +439,90 @@ func (q *Queries) TodayCourseStaff(ctx context.Context, courseID uuid.UUID) ([]u
 	return items, nil
 }
 
+const todayDeadLetters = `-- name: TodayDeadLetters :many
+select topic, count(*)::int as n, max(dead_at)::timestamptz as latest
+from outbox
+where dead_at is not null and dead_at > $1::timestamptz
+group by topic
+order by topic
+`
+
+type TodayDeadLettersRow struct {
+	Topic  string
+	N      int32
+	Latest time.Time
+}
+
+// DEAD_LETTER (P-11-122): dòng outbox chết trong cửa sổ `since`, gộp theo chủ đề. CHỈ topic, đếm, dead_at mới nhất — KHÔNG đọc payload / last_error (không PII).
+func (q *Queries) TodayDeadLetters(ctx context.Context, since time.Time) ([]TodayDeadLettersRow, error) {
+	rows, err := q.db.Query(ctx, todayDeadLetters, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TodayDeadLettersRow{}
+	for rows.Next() {
+		var i TodayDeadLettersRow
+		if err := rows.Scan(&i.Topic, &i.N, &i.Latest); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const todayNewDocuments = `-- name: TodayNewDocuments :many
+with ids as (select unnest($1::text[])::uuid as course_id),
+d as (
+  select x.course_id, x.id, x.title, x.at from (
+    select dd.course_id, dd.id, dd.title, dd.created_at as at from documents dd where dd.course_id in (select course_id from ids)
+    union all
+    select dc.course_id, dd.id, dd.title, dc.created_at from document_courses dc join documents dd on dd.id = dc.document_id
+    where dc.course_id in (select course_id from ids) and dd.course_id <> dc.course_id
+  ) x
+  join documents f on f.id = x.id
+  where f.status = 'READY' and f.visible_to_students and f.type <> 'ANSWER_KEY' and f.category is distinct from 'THREAD_KNOWLEDGE' and x.at > $2::timestamptz
+)
+select course_id, array_agg(title order by at desc, id)::text[] as titles, array_agg(at order by at desc, id)::timestamptz[] as ats
+from d group by course_id
+`
+
+type TodayNewDocumentsParams struct {
+	CourseIds []string
+	Since     time.Time
+}
+
+type TodayNewDocumentsRow struct {
+	CourseID uuid.UUID
+	Titles   []string
+	Ats      []time.Time
+}
+
+// NEW_DOCUMENT (P-11-122): MỘT truy vấn gộp cho mọi lớp của sinh viên — tài liệu đúng bộ lọc /library (READY, hiện cho sinh viên, không ANSWER_KEY, không THREAD_KNOWLEDGE),
+// vào lớp trong cửa sổ `since`: của lớp (documents.created_at) hoặc chia sẻ vào lớp (document_courses.created_at). Mỗi lớp một dòng, tên + mốc vào lớp mới nhất trước; lọc «đã mở» làm ở Go (khoá Redis).
+func (q *Queries) TodayNewDocuments(ctx context.Context, arg TodayNewDocumentsParams) ([]TodayNewDocumentsRow, error) {
+	rows, err := q.db.Query(ctx, todayNewDocuments, arg.CourseIds, arg.Since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TodayNewDocumentsRow{}
+	for rows.Next() {
+		var i TodayNewDocumentsRow
+		if err := rows.Scan(&i.CourseID, &i.Titles, &i.Ats); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const todaySessions = `-- name: TodaySessions :many
 select s.course_id, c.class_code, c.name as course_name, s.session_no, s.starts_at, s.ends_at, s.room
 from class_sessions s

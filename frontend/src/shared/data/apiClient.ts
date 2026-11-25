@@ -1,5 +1,5 @@
 import { ApiError, AUTH_CODES } from "./ApiError";
-import { dropSession, refreshSession } from "./authSession";
+import { dropSession, EARLY_GET_KEY, refreshSession } from "./authSession";
 import { API_BASE as BASE, API_ORIGIN } from "./endpoint";
 import { netStatus } from "./netStatus";
 import { tokenStore } from "./tokenStore";
@@ -131,6 +131,16 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
   const upper = method.toUpperCase();
   const key = opts.idempotencyKey ?? (opts.idempotent === false ? undefined : upper === "POST" || opts.idempotent ? newIdempotencyKey() : undefined);
   const hasBody = body !== undefined;
+  if (upper === "GET" && typeof window !== "undefined") {
+    // GET sớm của earlyPaint (cùng URL, một lần): dùng kết quả của nó; null (lỗi / lạc lớp) → gửi như thường
+    const w = window as unknown as Record<string, { u: string; p: Promise<unknown> } | undefined>;
+    const early = w[EARLY_GET_KEY];
+    if (early?.u === url) {
+      delete w[EARLY_GET_KEY];
+      const data = await early.p;
+      if (data != null) return { data: data as T, status: 200 };
+    }
+  }
 
   const send = async (tk: string | null): Promise<ApiResult<T>> => {
     const headers: Record<string, string> = { Accept: opts.blob ? "*/*" : "application/json", "X-Request-Id": crypto.randomUUID(), ...opts.headers };

@@ -415,3 +415,16 @@ func (q *Queries) JudgeSupersedeQueued(ctx context.Context, id uuid.UUID) (uuid.
 	err := row.Scan(&id_2)
 	return id_2, err
 }
+
+const judgeUnmarkEnqueued = `-- name: JudgeUnmarkEnqueued :execrows
+update code_submissions set enqueued_at = null where id = $1 and status = 'QUEUED'
+`
+
+// XADD lỗi sau khi đã đặt enqueued_at: gỡ dấu để tick đưa lại tín hiệu ở nhịp sau.
+func (q *Queries) JudgeUnmarkEnqueued(ctx context.Context, id uuid.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, judgeUnmarkEnqueued, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}

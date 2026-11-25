@@ -628,16 +628,18 @@ func TestTodayQueryBudget(t *testing.T) {
 	}
 	su, ss := r.person(store.UserRoleSTUDENT, true)
 	r.enrollAt(c1, su, "STUDENT", "ACTIVE", "", time.Hour)
+	_, as := r.person(store.UserRoleADMIN, true)
+	r.exec(`insert into outbox (topic, attempts, dead_at) values ('mail.send', 4, now())`) // Admin có đủ dữ liệu cho cả DEAD_LETTER (P-11-122)
 	for name, tc := range map[string]struct {
 		s     session
 		path  string
 		limit int64
 	}{
-		"giảng viên tất cả lớp": {g, "/me/today", 7}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 8}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 7},
+		"giảng viên tất cả lớp": {g, "/me/today", 7}, "Admin": {as, "/me/today", 7}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 8}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 8},
 	} {
 		before := r.qc.n.Load()
 		require.Equal(t, http.StatusOK, r.tgetC(tc.s, tc.path).code, name)
-		require.LessOrEqual(t, r.qc.n.Load()-before, tc.limit, fmt.Sprintf("%s: ≤ %d truy vấn kể cả guard (#28; sinh viên 7 = 6 + 1 truy vấn gộp luyện đề, không đổi theo số lớp; PM chấp nhận P-10-8 F1)", name, tc.limit))
+		require.LessOrEqual(t, r.qc.n.Load()-before, tc.limit, fmt.Sprintf("%s: ≤ %d truy vấn kể cả guard (#28; sinh viên 8 = 6 + 1 truy vấn gộp luyện đề (P-10-8 F1) + 1 truy vấn gộp tài liệu mới (P-11-122, US-P2-11 AC17), không đổi theo số lớp)", name, tc.limit))
 	}
 	// #13 / #16: giảng viên 2 lớp, cả hai có bản nháp có trích dẫn → số truy vấn không tăng theo số bản nháp (số mục chưa rõ đọc từ cột, không đọc toàn văn).
 	for _, c := range []cls{c1, c2} {

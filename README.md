@@ -92,8 +92,11 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 ```text
 .
 ├── backend-go/              # Gateway + worker Go (một go.mod) — chi tiết: backend-go/README.md
-│   ├── cmd/gateway/         # điểm vào HTTP (+ lệnh `migrate`, `token` cho dev)
+│   ├── cmd/gateway/         # điểm vào HTTP (+ lệnh `migrate`, `token`, `admin` cho dev / vận hành)
 │   ├── cmd/worker/          # consumer nền (outbox, việc dài)
+│   ├── cmd/regress/         # chạy lại ca hồi quy chấm bài (công cụ ở môi trường đo)
+│   ├── cmd/mock-graph/, cmd/mock-imap/  # Teams (Graph) và hộp thư IMAP giả lập cho local / test
+│   ├── cmd/llmload/         # đo Scheduler của cổng LLM qua route thử
 │   ├── internal/
 │   │   ├── platform/        # config, log, otel, redis, db (pgx), blob (MinIO), outbox, clock
 │   │   ├── httpapi/         # router chi, middleware, lỗi thống nhất, cursor, Idempotency-Key, ETag, SSE
@@ -106,11 +109,20 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   │   ├── workhours/       # tính giờ chờ theo ngày làm việc (T2–T6, giờ VN)
 │   │   ├── knowledge/       # kho tri thức từ ticket / Threads đã xác nhận (che PII rồi nạp)
 │   │   ├── crm/             # điểm danh, phát biểu, ghi chú, hồ sơ 360 (audit), at-risk theo tuần
+│   │   ├── attendance/      # điểm danh tự phục vụ: QR xoay vòng, mã ngắn, cờ nghi điểm danh hộ, khoá thiết bị
 │   │   ├── activity/        # thời gian học: heartbeat chỉ ghi Redis, rollup vào DB
 │   │   ├── seedtool/        # lệnh quản trị cho seed dữ liệu quá khứ (chỉ dev / test)
 │   │   ├── exam/            # bài thi: lượt làm, tự lưu, nộp, công bố, kết quả, phúc khảo, liêm chính
 │   │   ├── quiz/            # Quiz Engine: chấm trắc nghiệm (decimal, từng phần)
 │   │   ├── judge/           # client go-judge + hàng chấm code (thuê việc kiểu outbox)
+│   │   ├── practice/        # luyện đề theo chủ đề, thi thử có giờ, điểm yếu
+│   │   ├── grade/           # sổ điểm: Grade Engine (decimal), công thức, chốt / mở khoá, XLSX
+│   │   ├── assignment/, submission/, mailin/  # bài tập; nguồn nộp (trong app, ZIP, thư IMAP, Teams)
+│   │   ├── grading/         # AI chấm nháp hai lượt, trích công thức từ quy chế, lưu ý chấm
+│   │   ├── regress/         # ca hồi quy khi giảng viên sửa điểm (D61)
+│   │   ├── decision/        # API cấu hình + quan sát decision model (D60)
+│   │   ├── insight/         # báo cáo lỗ hổng kiến thức (gom cụm câu hỏi bằng embedding)
+│   │   ├── observability/, audit/  # quan sát AI; nhật ký quản trị cho ADMIN
 │   │   ├── privacy/         # phát hiện / ẩn / che / khôi phục danh tính (roster theo lớp, unmask_stream)
 │   │   ├── agent/           # định tuyến tất định, tool theo kênh (danh tính từ trusted_context)
 │   │   ├── chat/            # chat riêng: SSE, nối lại, Dừng, khoá giờ thi
@@ -126,19 +138,21 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   │   ├── jobs/            # việc dài: 202 + GET /jobs/{id}
 │   │   ├── store/           # sqlc (queries/*.sql)
 │   │   ├── contract/        # response thật khớp api/openapi.yaml
+│   │   ├── integration/     # test tích hợp nhiều module
 │   │   └── testroutes/      # route chỉ cho test (build tag `testroutes`, image mặc định không có)
 │   ├── db/migrations/       # goose, từ 00001
 │   ├── api/openapi.yaml     # hợp đồng API — endpoint nào cũng phải có ở đây
-│   └── Dockerfile           # multi-stage, image < 10 MB, nonroot, không shell
+│   └── Dockerfile           # multi-stage, nonroot, không shell (đo 9.5: image gateway 17,7 MB, `benchmarks/reports/baseline.json`)
 ├── frontend/                # Next.js 16
 │   ├── src/app/             # route
 │   └── src/shared/          # token, primitive, lớp dữ liệu dùng chung (PU)
+├── mobile/                  # app Android (Capacitor) cho điểm danh bằng mã, xem mobile/README.md
 ├── seed/documents/          # PDF môn học dùng làm dữ liệu seed
 ├── scripts/
 │   ├── dev.mjs              # pnpm dev: dựng stack, chờ healthy
 │   ├── ui-antipatterns.sh   # chặn phản mẫu giao diện (DESIGN.md §21)
-│   └── team-up.sh           # dựng pane agent trên herdr
-├── deploy/                  # Caddyfile, cấu hình PgBouncer
+│   └── team-up.sh           # dựng pane agent trên herdr (đội đã chuyển sang Tern từ 16/11; script giữ cho lịch sử)
+├── deploy/, infra/docling/  # Caddyfile, cấu hình PgBouncer; image docling-serve
 ├── benchmarks/              # k6 (load/), số đo (reports/), đánh giá offline
 ├── docs/                    # PRD, kiến trúc, phase, spec, sprint, quyết định, research
 ├── legacy/                  # mã Project III — CHỈ ĐỌC
@@ -178,19 +192,72 @@ SEED_ON_EMPTY_DB=true COMPOSE_PROFILES=ingest pnpm dev
 | frontend trực tiếp | http://localhost:3000 | Không đăng nhập được (khác site với API, cookie `SameSite=Lax` bị chặn) |
 | Hộp thư giả | http://localhost:8025 | thư xác minh, đặt lại mật khẩu, trả lời của giảng viên |
 | MinIO | http://localhost:9001 | console kho tệp |
-| Postgres / Redis | `localhost:5433` / `localhost:6380` | user và DB `edupilot`; ứng dụng đi qua PgBouncer trong mạng compose |
+| Postgres / Redis | `localhost:5433` / `localhost:6380` | DB `edupilot`, vai chủ `edupilot` (migration, sao lưu). Gateway / worker nối bằng vai `edupilot_app` (không superuser, không chủ bảng; migration 00030) qua PgBouncer trong mạng compose; mật khẩu `APP_DB_PASSWORD`, để trống = `POSTGRES_PASSWORD`, do `gateway migrate` đặt |
 | `/api/v1/healthz`, `/readyz` | https://localhost/api/v1/… | `readyz` kiểm DB + Redis |
 
 Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … `@edupilot.local`; mật khẩu = `SEED_DEFAULT_PASSWORD` trong `.env.local` (mặc định của `.env.example`: `Edupilot#Seed-2026`). Lớp 1 = **761987** (mã tham gia `AN7K2MQ`), lớp 2 = 761988 (`BX4P9TW`). Sandbox chấm code là service `judge` (`go-judge`); trên Colima arm64 chạy với `-no-seccomp` (D58).
 
-### 5.3 LLM thật qua 9router (tuỳ chọn)
-Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test. Sinh chữ thật đi qua **9router chạy trên Mac** (`http://127.0.0.1:20128`; bật bằng `9router -n -t`), **không** gọi Gemini trực tiếp.
+#### Dựng lại stack demo cho buổi trình bày (công thức Gate P10, 25/11)
+`pnpm dev` tự đặt các biến dưới đây; khi gọi `docker compose` trực tiếp (dựng lại từng service, đổi env) thì phải tự đặt. Nguồn: lượt chạy Gate P10 ngày 25/11 (`docs/regression/gate-p10-demo.md` trên nhánh `qc2/regression`) và sổ tay vận hành của chủ dự án.
+
+1. **Sao lưu trước mọi thao tác:**
+   ```bash
+   docker compose -p edupilot exec -T postgres pg_dump -U edupilot -d edupilot -Fc > ~/edupilot-$(date +%Y%m%d-%H%M).dump
+   # khôi phục: docker compose -p edupilot exec -T postgres pg_restore -U edupilot -d edupilot --clean --if-exists < tệp.dump
+   # bản dump có GRANT cho edupilot_app nhưng vai là đối tượng cấp cụm, không nằm trong dump: volume mới thì chạy `$C up migrate` (bước 4) trước khi khôi phục
+   ```
+2. **`.env.local`** phải có `BLOB_PUBLIC_ENDPOINT=localhost` và `BLOB_PUBLIC_USE_SSL=true`. Thiếu hai dòng này, URL tải tệp ký sẵn trỏ `localhost:9000`, CSP chặn, mọi lần tải tệp báo «Không kết nối được».
+3. **Nhà cung cấp thật chậm hơn bản giả**: thêm vào `.env.local` `KNOWLEDGE_EMBED_TIMEOUT=45s` (worker, mặc định 10 s; embedding thật qua mạng ≈ 11–24 s mỗi lời gọi, đo 25/11) và `AI_SUMMARY_TIMEOUT=60s` (gateway, mặc định 20 s, khoảng 5–120 s). Compose chuyển mọi biến `config.go` đọc vào container (`TestComposeEveryEnvReachesAService`), nên đặt trong `.env.local` là đủ; đổi biến thì tạo lại service đó.
+4. **Mọi lệnh compose của demo** dùng cùng tiền tố (thiếu `COMPOSE_PROFILES=ingest` → không có `docling`, seed dừng ở bước 11):
+   ```bash
+   export COMPOSE_PROJECT_NAME=edupilot COMPOSE_PROFILES=ingest
+   C="docker compose -f docker-compose.local.yml --env-file .env.local"
+   ```
+5. **Sau mỗi lần build**, tạo lại MỌI service vừa build rồi đối chiếu image id. Build xong mà không tạo lại thì container vẫn chạy image cũ (đã xảy ra với frontend ngày 25/11). Tên image theo project (`${COMPOSE_PROJECT_NAME}-gateway`, …), nên build ở stack thử (`ep-qc`, …) không đổi image của demo.
+   ```bash
+   $C build gateway worker frontend
+   $C up -d --force-recreate --no-deps gateway worker frontend
+   for s in gateway worker frontend; do
+     c=$(docker inspect $COMPOSE_PROJECT_NAME-$s-1 --format '{{.Image}}' | cut -d: -f2 | cut -c1-12)
+     i=$(docker images $COMPOSE_PROJECT_NAME-$s:latest --format '{{.ID}}')
+     [ "$c" = "$i" ] && echo "$s khớp $i" || echo "$s LỆCH: container $c, image $i"
+   done
+   ```
+   (`judge`, `mock-graph`, `mock-imap` cũng vậy nếu có build lại.)
+
+   **Stack dựng trước 6eb77b26 (tên image cũ, cố định):** lần nâng đầu tiên phải `$C up -d --build`. Image tên mới (`<project>-gateway`, `-worker`, `-mock-graph`, `-mock-imap`, `-docling`, `-judge:dev`) chưa có trên máy; `up` không kèm `--build` sẽ thử kéo từ registry và báo `pull access denied` (QC gặp ở `ep-qc`).
+6. **Seed trong ngày trình bày** (buổi học «hôm nay» lấy theo ngày chạy seed; `docs/DEMO_SCRIPT.md` chuẩn bị #5), trên DB trống (đã sao lưu ở bước 1; xoá dữ liệu: `$C down -v` rồi `$C up -d --wait`):
+   1. Dọn Mailpit trước seed: `curl -X DELETE http://localhost:8025/api/v1/messages`.
+   2. Nới tạm 4 giới hạn theo IP (seed gửi hàng nghìn yêu cầu từ một IP; `pnpm dev` tự làm): `RATE_LIMIT_IP_PER_MIN=5000 AUTH_LOGIN_IP_PER_MIN=1000 AUTH_REGISTER_IP_PER_HOUR=1000 AUTH_TOKEN_IP_PER_MIN=1000 $C up -d --force-recreate --no-deps gateway`.
+   3. **Đặt tuyến `EMBEDDING` trước khi seed nạp tài liệu** (nạp bằng embedding giả thì báo cáo lỗ hổng kiến thức vô nghĩa): tạo Admin bằng đúng mật khẩu seed, `grep '^SEED_DEFAULT_PASSWORD=' .env.local | cut -d= -f2- | $C exec -T gateway /gateway admin create --email admin@edupilot.local --name "Quản trị viên EduPilot"`; đăng nhập Admin → `/settings/llm` → thêm nhà cung cấp embedding thật (mục 5.3) → tuyến `EMBEDDING`. Các tuyến sinh chữ để bản giả trong lúc seed (seed trích quy chế bằng bản ghi demo; cách làm như `PHASE=seed` của `deploy/vps-llm.mjs`), đổi sang bản thật sau seed.
+   4. `pnpm seed` (Admin đã có thì bước 1 của seed bỏ qua).
+   5. Trả 4 giới hạn: `$C up -d --force-recreate --no-deps gateway` (không kèm biến).
+7. Làm tiếp các việc chuẩn bị ở `docs/DEMO_SCRIPT.md` mục 2 (chấm Bài tập 03 trước, sinh báo cáo lỗ hổng «30 ngày» cho cả hai lớp, bật điểm danh bằng mã).
+
+### 5.3 LLM thật: 9router hoặc OpenCode Go (tuỳ chọn)
+Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test. Có hai nhà cung cấp thật, cùng loại «Máy chủ riêng (tương thích OpenAI)» (`openai_compatible`); đổi qua lại chỉ bằng tuyến ở `/settings/llm`, không dựng lại (P-11-106). Khoá chỉ nhập ở `/settings/llm` (lưu mã hoá), không ghi vào `.env.local` hay repo.
+
+**9router** (chạy trên Mac, `http://127.0.0.1:20128`; bật bằng `9router -n -t`; **không** gọi Gemini trực tiếp):
 1. Kiểm: `curl -s http://127.0.0.1:20128/v1/models | head -c 200` trả danh sách model.
 2. Stack demo: đăng nhập Admin → `/settings/llm` → `Thêm nhà cung cấp` → «Máy chủ riêng (tương thích OpenAI)», địa chỉ `http://host.docker.internal:20128/v1` (container thấy Mac qua tên này), khoá 9router, model `ag/gemini-3.8-flash` → gán cho các tác vụ ở mục tuyến. `rpm_limit` đặt ≈ 10–20 (9router bận thì chậm).
 3. Stack đo / thử (cổng lệch): `BASE=https://localhost:<cổng HTTPS> PHASE=live node deploy/vps-llm.mjs` làm đúng các bước trên bằng API (script từ chối stack demo; xem `benchmarks/README.md`).
-4. Về lại bản giả: `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang tắt. Không còn nhà cung cấp bật thì gateway rơi về `LLM_PROVIDER=fake`, kèm bản ghi `seed/demo/fake_llm.json` (xem `docs/DEMO_SCRIPT.md` mục 5).
 
-Embedding mặc định là nhà cung cấp giả: chất lượng gom cụm / truy xuất bằng embedding thật chưa đo (P-11-19).
+**OpenCode Go** (dịch vụ ngoài, cần khoá của chủ dự án; tài khoản phải đặt Region **Global**: model không được phép với vùng hoặc gói của khoá trả `400 BAD_REQUEST`, gateway không thử lại, không chuyển nhà; P-11-108):
+
+| Dùng cho | Địa chỉ (`base_url`) | Model | Ghi chú |
+| --- | --- | --- | --- |
+| Sinh chữ (chat, chấm, đặt tên chủ đề, …) | `https://opencode.ai/inference/go/v1` | `deepseek-v4.1-flash` | Gateway nhận ra host `opencode.ai` và tự gửi `User-Agent`, `x-opencode-session`, `reasoning_effort=low`, cộng 4096 vào `max_tokens` (token suy luận tính vào trần; FR-33) |
+| Embedding (tuyến `EMBEDDING`) | `https://opencode.ai/inference/go/openai/v1` | `qwen3-embedding-8b`, loại «Tìm kiếm tài liệu (1536 chiều)» | Nhà cung cấp riêng. Địa chỉ đã kiểm bằng lời gọi thật ngày 24/11 (`text-embedding-3-small` và `qwen3-embedding-8b`, 1536 chiều); nguồn: cấu hình nhà cung cấp của stack demo ở `/settings/llm`. Mỗi lời gọi ≈ 11–24 s, có lúc `429` (đo 25/11): cần `KNOWLEDGE_EMBED_TIMEOUT=45s` cho worker (mục 5.2 bước 3) |
+| Decision model (D60) | `https://opencode.ai/inference/go/systemone/v1` | `gemini-decision-1` | Gateway gọi `POST {base}/systemone` khi host là `opencode.ai`. Chỉ gọi thật khi `LLM_DECISION_ALLOW_REAL=true` (và trong trần `LLM_DECISION_REAL_DAILY_CAP`, mặc định 300 / ngày); lượt thật cần chủ dự án cho phép (D60 (6)) |
+
+Các bước trên stack demo:
+1. Sinh chữ + embedding: `/settings/llm` → `Thêm nhà cung cấp` hai lần theo hai dòng đầu của bảng → tuyến các tác vụ sinh chữ sang nhà thứ nhất, tuyến `EMBEDDING` sang nhà thứ hai. Đặt `EMBEDDING` **trước** khi seed nạp tài liệu (mục 5.2 bước 6). Đổi embedding sau khi đã nạp thì phải nhúng lại tài liệu.
+2. Decision: thêm vào `.env.local` `LLM_DECISION_ALLOW_REAL=true` và `LLM_DECISION_BASE_URL=https://opencode.ai/inference/go/systemone/v1` (compose chuyển cả hai cho gateway và worker), tạo lại `gateway` và `worker` (`$C up -d --force-recreate --no-deps gateway worker`), rồi ở phần «Quyết định» của `/settings/llm` nhập khoá và chọn `gemini-decision-1`.
+3. Tóm tắt AI của hồ sơ 360 với nhà cung cấp thật: `AI_SUMMARY_TIMEOUT=60s` trong `.env.local` (mặc định 20 s), tạo lại `gateway`.
+
+Về lại bản giả: `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang tắt. Không còn nhà cung cấp bật thì gateway rơi về `LLM_PROVIDER=fake`, kèm bản ghi `seed/demo/fake_llm.json` (xem `docs/DEMO_SCRIPT.md` mục 5). Decision về bản giả: chọn `decision-fake`.
+
+Embedding giả cho kết quả gom cụm vô nghĩa (Gate P10 lượt 1, 25/11): báo cáo lỗ hổng kiến thức chỉ trình bày với embedding thật (`docs/DEMO_SCRIPT.md` chuẩn bị #4). Ngưỡng gán chương theo `qwen3-embedding-8b`: liên quan ≥ 0,38, lạc đề ≤ 0,32 (P-11-115).
 
 ### 5.4 Nhiều stack trên một máy
 Mỗi stack một `COMPOSE_PROJECT_NAME` và một độ lệch cổng `EP_PORT_OFFSET` (cổng host cộng N; HTTPS = 443 + N). Hai máy giả `mock-graph` / `mock-imap` (8090 / 8091 + N) cũng lệch theo N khi dựng bằng `pnpm dev`; seed đọc `EP_PORT_MOCK_GRAPH` / `EP_PORT_MOCK_IMAP` để gửi thư thử đúng stack (thiếu thì thư rơi vào mock-imap của stack demo). **RAM: tối đa demo + một stack thử cùng lúc.**
@@ -245,10 +312,26 @@ TOKEN="$(cd backend-go && go run ./cmd/gateway token --role STUDENT)" && k6 run 
 Quản trị viên đầu tiên (không có route HTTP tạo ADMIN; mật khẩu CHỈ từ biến `ADMIN_PASSWORD` hoặc stdin, không có cờ `--password`; chạy lại cùng email thì thoát 0 và không đổi gì):
 
 ```bash
-ADMIN_PASSWORD='…' ./bin/gateway admin create --email admin@edupilot.local --name "Quản trị"
+printf '%s\n' '…' | docker compose -p edupilot exec -T gateway /gateway admin create --email admin@edupilot.local --name "Quản trị"   # stack đang chạy; mật khẩu qua stdin
 ```
 
 CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy job **Go** (`go vet` hai bộ tag, `golangci-lint`, `sqlc diff`, `go test -race -tags testroutes`) và **Frontend** (lint, build, `ui-antipatterns.sh`, Playwright gồm ảnh mốc và axe, Lighthouse CI) trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật (provider `fake` + bản ghi replay). Ảnh mốc Playwright sinh trong image `mcr.microsoft.com/playwright` để khớp CI. Số đo nền của bản Go: [`benchmarks/reports/pg-baseline.md`](benchmarks/reports/pg-baseline.md).
+
+### Smoke hồi quy toàn bộ ca cũ (sprint 11)
+Trước Gate P10, các phiên QC hồi quy chạy lại test case của **mọi sprint đã gộp** (1 → 10.8, kèm lượt OpenCode Go) trên đầu nhánh `sprint/11-p10-eval`, trên stack riêng (`ep-r` và các stack `ep-*` khác, không ghi lên demo). Nhãn mỗi ca: `P` đạt, `F` trượt, `K` không kiểm được với đúng một trong ba lý do (thiết bị không có, cần người thật, ngoài phạm vi đồ án), `D` lỗi thời vì spec đã đổi hợp lệ (ghi mã đề xuất), `N` / `M` / `X` chưa chạy (ghi lý do). Quy ước đầy đủ ở dòng đầu mỗi `smoke-*.md`. Lỗi tìm thấy được sửa trên nhánh `fix/…` riêng; QC chạy lại đúng ca gốc trên bản sửa rồi mới đóng.
+
+Kết quả nằm trên nhánh **`qc2/regression`** (không gộp vào `main`), thư mục `docs/regression/`:
+
+| Tệp | Nội dung |
+| --- | --- |
+| `smoke-<sprint>.md` | Bảng từng ca của một sprint: mã đã chạy, stack, tổng P / F / K / N, lệnh chạy |
+| `defects-<sprint>.md`, `defects.md` | Lỗi tìm thấy: mức, ca gốc, hồi quy do sprint sau hay có sẵn, bước tái hiện, bằng chứng |
+| `defects-closed.md`, `defects-status.md` | Lỗi đã đóng (ca gốc chạy lại đạt); bảng trạng thái MỞ / ĐÃ SỬA — CHỜ CHẠY LẠI / ĐÓNG |
+| `smoke-11-opencode-go.md`, `defects-opencode-go.md` | Lượt kiểm nhà cung cấp OpenCode Go |
+| `gate-p10-demo.md` | Gate P10: chạy `docs/DEMO_SCRIPT.md` trên stack demo, lượt 1 và lượt 2 |
+| `evidence-<sprint>/`, `env/` | Script, log, ảnh của từng lượt; script dựng stack hồi quy (`env/rebuild.sh`, `env/ep-r-env.sh`); `env/qc2-progress.py` tổng hợp `smoke-*.md` thành bảng tiến độ |
+
+Đọc mà không cần chuyển nhánh: `git fetch origin qc2/regression && git show origin/qc2/regression:docs/regression/defects-status.md`.
 
 ## 7. Luật bất biến
 
@@ -269,10 +352,10 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 | File | Nội dung |
 | --- | --- |
 | [`docs/PRD.md`](docs/PRD.md) | Yêu cầu, module M0–M15, tiêu chí nghiệm thu, mục tiêu G1–G8 |
-| [`docs/FLOWS.md`](docs/FLOWS.md) | 19 luồng end-to-end F1–F19, cả nhánh lỗi |
+| [`docs/FLOWS.md`](docs/FLOWS.md) | 20 luồng end-to-end F1–F19 (thêm F7b), cả nhánh lỗi |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Thành phần, lược đồ dữ liệu, REST, provider LLM, env, kiểm thử |
 | [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Tải T1, nút cổ chai, SLO, lộ trình mở rộng |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D59 |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D62 |
 | [`docs/design/DESIGN.md`](docs/design/DESIGN.md), [`docs/UX.md`](docs/UX.md) | Hệ thiết kế "Red Thread / Academic Instrument" + panel có kỷ luật (D59), hợp đồng từng route, luật UX |
 | [`docs/phases/`](docs/phases/) | Backlog kỹ thuật: P0, PG, PU, P1–P10, PR — lát việc + cổng nghiệm thu |
 | [`docs/specs/`](docs/specs/) | User story + SRS theo feature (BA viết) |
@@ -284,7 +367,7 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 
 ## 9. Quy trình làm việc: đội agent và sprint
 
-Một người (chủ dự án) và sáu phiên agent trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/)). Mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước khi làm. Sau mỗi lượt test, agent chạy `docker volume prune -f`; PM dọn sâu Docker khi đóng sprint.
+Một người (chủ dự án) và các phiên agent, giao tiếp qua file trong repo ([`docs/team/`](docs/team/)); đến sprint 11 có mười một phiên: `pm`, `ba`, `writer`, hai Tech Lead (`techlead-dd` nghiên cứu, `techlead-ui` giao diện) và ba cặp dev / QC. Các phiên chạy trong bộ chia terminal (herdr, từ 16/11 là Tern) và nhắn nhau chỉ để đánh thức; nội dung việc luôn nằm trong tệp. Mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước khi làm. Sau mỗi lượt test, agent chạy `docker volume prune -f`; PM dọn sâu Docker khi đóng sprint.
 
 | Vai | Việc | Sửa được |
 | --- | --- | --- |
@@ -334,10 +417,13 @@ flowchart LR
 | 8 | ✅ Xong | P6 | Sổ điểm kiểu bảng tính, AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay), chốt / mở khoá có lý do, nhập / xuất XLSX, điểm của tôi + tính thử |
 | 9 | ✅ Xong | P7 | Bài tập nộp trong app / ZIP / mail / Teams giả lập, khớp sinh viên an toàn, AI chấm nháp hai lượt có bằng chứng, duyệt cạnh nhau, chỉ giảng viên công bố, phúc khảo |
 | 9.1 | ✅ Xong | UI/UX | Khảo sát 34 màn × 4 vai × 1440 / 375 (27 vấn đề), sửa theo 6 đợt: nút có lý do khoá, giờ ICT, menu tiếng Việt, "Hôm nay" chia nhóm, sổ điểm / duyệt bài gọn, trang giới thiệu v2 + video có phụ đề |
-| 9.5 | | NFR | Seed đầy đủ, đo tải / hiệu năng trên Mac (VPS đã thu hồi), đánh giá LLM thật (Gemini) |
+| 9.5 | ✅ Xong | NFR | Seed đầy đủ, đo tải T1 trên Mac ×1 và ×2 (máy chủ thuê đã thu hồi), hỗn loạn, chấm 1.000 bài qua LLM thật trong 1,68 h, đo LLM thật R1–R6 (`docs/research/2026-11-14-nfr-real-llm.md`) |
 | 10 | ✅ Xong | P9 | Luyện đề: ngân hàng câu hỏi (trích từ đề cũ, sinh từ tài liệu có trích dẫn, duyệt hàng loạt), luyện theo chủ đề, thi thử có giờ + tự lưu, tự luận có nhận xét gợi ý, chủ đề cần ôn trên "Hôm nay", liêm chính với bài thi, nhập Google Forms vào sổ điểm |
 | 10.5 | ✅ Xong | D60 | Decision model `gemini-decision-1` + cascade 3 cổng (tường lửa Threads chỉ-thêm-chặn, cờ chèn lệnh, định tuyến chat; dưới ngưỡng về luật), mặc định tắt theo lớp, bản giả cho CI / demo, `/settings/llm` + `/observability` |
-| 11 | | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
+| 10.6 | ✅ Xong | D61 / D62 | Lưu ý chấm học từ lần giảng viên sửa (phiên bản do giảng viên duyệt, ghim theo lượt chấm), ca hồi quy chấm (`cmd/regress`) |
+| 10.7 | ✅ Xong | UI | Làm lại khung giao diện, bộ màu ĐHBK, trang giới thiệu có chuyển động |
+| 10.8 | ✅ Xong | M5 | Điểm danh tự phục vụ: QR xoay vòng + mã ngắn, cờ nghi điểm danh hộ, app Android có khoá thiết bị |
+| 11 | ✅ Xong | P10 | Quan sát AI + nhật ký quản trị (F16), báo cáo lỗ hổng kiến thức (F17), đánh giá E1–E6, smoke hồi quy toàn bộ ca cũ (mục 6), thêm OpenCode Go, **Gate P10**: chạy `docs/DEMO_SCRIPT.md` trên demo dựng lại (lượt 2: 44 đạt, 3 trượt, 4 chưa kiểm, `gate-p10-demo.md`) → **vạch bảo vệ** |
 
 Chi tiết ghép phase, cổng và mục cắt được khi trễ: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 

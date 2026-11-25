@@ -482,7 +482,7 @@ Một nguồn duy nhất: `platform.LoadConfig(getenv)` (mở rộng từ FEAT-s
 
 | Biến | Bắt buộc | Mặc định dev (khi trống) | Ý nghĩa / ràng buộc | Dùng bởi |
 | --- | --- | --- | --- | --- |
-| `DATABASE_URL` | **có** | — | URL Postgres **trực tiếp** (migrate, và là dự phòng của runtime) | gateway, worker, migrate |
+| `DATABASE_URL` | **có** | — | URL Postgres **trực tiếp**. `migrate` nối bằng **vai chủ** (chủ bảng; superuser của image Postgres ở dev). gateway / worker nối bằng **vai ứng dụng `edupilot_app`** (compose dựng URL từ `APP_DB_PASSWORD`; P-11-121) | gateway, worker, migrate |
 | `REDIS_URL` | **có** | — | `redis://host:port/db` | gateway, worker |
 | `JWT_SECRET_KEY` | **có** | — | ≥ **32 byte** (HS256); không được là giá trị mẫu của `.env.example` khi `APP_ENV=production` | gateway |
 | `BLOB_ENDPOINT` | **có** (gateway); worker: không ở PG | — | `host:port` MinIO nhìn từ container (ví dụ `minio:9000`) | gateway (worker khi phase sau dùng blob) |
@@ -490,6 +490,7 @@ Một nguồn duy nhất: `platform.LoadConfig(getenv)` (mở rộng từ FEAT-s
 | `BLOB_ACCESS_KEY` | **có** (gateway); worker: không ở PG | — | | gateway (worker như trên) |
 | `BLOB_SECRET_KEY` | **có** (gateway); worker: không ở PG | — | | gateway (worker như trên) |
 | `PGBOUNCER_URL` | không | rỗng → dùng `DATABASE_URL` | URL runtime qua PgBouncer; có giá trị thì log `db_via=pgbouncer` | gateway, worker |
+| `APP_DB_PASSWORD` | không | rỗng → dùng `POSTGRES_PASSWORD` | Mật khẩu vai ứng dụng `edupilot_app`. `gateway migrate up` đặt `LOGIN` + mật khẩu này **sau khi goose xong** (mật khẩu KHÔNG nằm trong migration). Triển khai production sinh mật khẩu riêng, khác mật khẩu vai chủ | migrate (đặt), compose (dựng `DATABASE_URL` / `PGBOUNCER_URL` của gateway, worker) |
 | `APP_ENV` | không | `dev` | `dev` \| `test` \| `production` (giá trị khác → thoát 1); chỉ để phân biệt môi trường (log, kiểm bí mật mẫu, chặn `gateway token`), **không** mở / đóng route thử | tất cả |
 | `HTTP_ADDR` | không | `:8080` | | gateway |
 | `INSTANCE_ID` | không | hostname | `X-Instance-Id`, log `instance` | tất cả |
@@ -587,7 +588,9 @@ Image và cách nạp xác thực do dev chọn (`QUESTIONS.md` Q12), cấu hìn
 | `ignore_startup_parameters` | `extra_float_digits` | pgx gửi tham số này |
 | `stats_users` | `$PGBOUNCER_STATS_USER` | Kiểm bằng `SHOW CONFIG` (07-AC7) |
 
-Phía pgx: `pgx.QueryExecModeExec` hoặc `QueryExecModeSimpleProtocol` cho **mọi** pool qua PgBouncer; cấm `QueryExecModeCacheStatement` / `CacheDescribe`. Kết nối `migrate` đi thẳng `DATABASE_URL` (goose dùng khoá tư vấn session, không an toàn qua transaction pooling). `sqlc` sinh mã `pgx/v5` không phụ thuộc prepared statement.
+Phía pgx: `pgx.QueryExecModeExec` hoặc `QueryExecModeSimpleProtocol` cho **mọi** pool qua PgBouncer; cấm `QueryExecModeCacheStatement` / `CacheDescribe`. Kết nối `migrate` đi thẳng `DATABASE_URL` bằng vai chủ (goose dùng khoá tư vấn session, không an toàn qua transaction pooling).
+
+**Vai ứng dụng `edupilot_app` (migration `00030_app_role.sql`; DEF-R6-01, P-11-121).** gateway / worker nối bằng vai này, không bằng vai chủ: `NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION`, **không** là chủ bảng, **không** có `CREATE` trên schema `public` (không tạo / sửa / xoá bảng, không gỡ được trigger append-only của `audit_log`, `pii_events`). Quyền: `USAGE` schema; `SELECT, INSERT, UPDATE, DELETE` trên mọi bảng; `USAGE, SELECT, UPDATE` trên mọi sequence; thu hồi toàn bộ trên `goose_db_version` và sequence của nó; `ALTER DEFAULT PRIVILEGES` để bảng / sequence do migration sau tạo (cùng vai chủ) tự cấp quyền cho vai này. Migration tạo vai `NOLOGIN` theo kiểu idempotent (chạy được trên volume cũ, không cần init script; hai migration song song không lỗi); `Down` thu quyền, **không** `DROP ROLE` (vai thuộc cả cụm). `sqlc` sinh mã `pgx/v5` không phụ thuộc prepared statement.
 
 ### 8.4 Compose (`docker-compose.local.yml`) — thay đổi so với sprint 1
 
@@ -597,7 +600,7 @@ Phía pgx: `pgx.QueryExecModeExec` hoặc `QueryExecModeSimpleProtocol` cho **m�
 | `redis` | `redis:8` + `--appendonly yes --appendfsync everysec --maxmemory-policy noeviction` | `6380` | volume `redis_data` |
 | `minio`, `mailpit` | giữ | giữ | |
 | `pgbouncer` | mục 8.3 | **không** | healthcheck `SHOW VERSION` qua stats user |
-| `migrate` | image gateway, `entrypoint: ["/gateway","migrate"]`, `command: ["up"]` (nên `docker compose run --rm migrate down` chạy `/gateway migrate down`), `DATABASE_URL` trực tiếp, `restart: "no"` | không | `depends_on: postgres healthy` |
+| `migrate` | image gateway, `entrypoint: ["/gateway","migrate"]`, `command: ["up"]` (nên `docker compose run --rm migrate down` chạy `/gateway migrate down`), `DATABASE_URL` trực tiếp bằng vai chủ, `APP_DB_PASSWORD`, `restart: "no"` | không | `depends_on: postgres healthy` |
 | `gateway` | `build: backend-go --target gateway`, `image: edupilot-gateway`, `read_only: true`, `tmpfs: /tmp`, `restart: on-failure:3`, healthcheck `["/gateway","-healthcheck"]` | **bỏ `8080:8080`** | `depends_on: migrate completed_successfully, pgbouncer healthy, redis healthy, minio healthy`; không `container_name` (để `--scale`) |
 | `worker` | `--target worker`, `image: edupilot-worker`, như gateway, healthcheck `["/worker","-healthcheck"]` | không | |
 | `caddy` | `caddy:2`, mount Caddyfile `:ro`, volume `caddy_data`, `caddy_config` | **`80:80`, `443:443`** | `depends_on: gateway healthy`, healthcheck `caddy validate` hoặc `wget` đến `localhost` nội bộ |

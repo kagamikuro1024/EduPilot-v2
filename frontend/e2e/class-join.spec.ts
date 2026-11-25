@@ -79,6 +79,27 @@ test("course picker: ?course= của lớp không thuộc người này bị bỏ
   await expect(page).toHaveURL(`${BASE_URL}/`);
 });
 
+// QC L2.10: ?course= phải thắng ngay lần vẽ đầu — thanh trên không được hiện lớp đã nhớ (sai) rồi mới đổi.
+test("course picker: ?course= thắng ngay từ lần vẽ đầu, không nháy lớp đã nhớ", async ({ page }) => {
+  await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
+  await page.addInitScript((c1) => {
+    localStorage.setItem("ep:ui:course", c1);
+    const w = window as unknown as { __seen: string[] };
+    w.__seen = [];
+    const rec = () => {
+      const t = document.querySelector('button[aria-label^="Chọn lớp, đang xem"]')?.getAttribute("aria-label");
+      if (t && w.__seen[w.__seen.length - 1] !== t) w.__seen.push(t);
+    };
+    new MutationObserver(rec).observe(document, { subtree: true, childList: true, attributes: true, characterData: true });
+  }, C1);
+  await page.goto(`/?course=${C2}`);
+  await expect(picker(page)).toContainText("761988");
+  await page.waitForTimeout(300);
+  const seen = await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+  expect(seen.length).toBeGreaterThan(0);
+  expect(seen.filter((t) => t.includes("761987")), `thanh trên từng hiện lớp đã nhớ: ${JSON.stringify(seen)}`).toEqual([]);
+});
+
 test("course picker: ?course= của lớp thuộc người này đè lựa chọn và được nhớ ở localStorage", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
   await page.goto(`/?course=${C2}`);

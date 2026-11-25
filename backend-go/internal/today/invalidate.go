@@ -57,6 +57,8 @@ const (
 	TopicThreadPostDecided = "thread.post_decided"
 	// US-P9-09: sinh viên bắt đầu / nộp lượt luyện → chỉ việc của chính họ (cache `all` và cache của lớp) đổi; không đụng cache của Staff.
 	topicPracticeUpdated = "practice.updated"
+	// P-11-122: tài liệu sẵn sàng / chia sẻ / đổi cờ / xoá (chuỗi trùng ingest.TopicDocumentChanged) → NEW_DOCUMENT của sinh viên lớp đó đổi. Không có trong Topics(): worker đăng ký topic này với chuỗi xử lý riêng.
+	topicDocumentChanged = "document.changed"
 )
 
 // Topics là mọi topic mà Invalidator phải được đăng ký.
@@ -107,7 +109,7 @@ func (i Invalidator) Handle(ctx context.Context, m outbox.Message) error {
 		var err error
 		switch {
 		case m.Topic == topicPracticeUpdated: // chỉ người luyện (đã có trong users)
-		case m.Topic == TopicChanged || m.Topic == TopicCalendarChanged || m.Topic == TopicAssignmentPublished || m.Topic == TopicAssignmentUpdated || isExamTopic(m.Topic): // sự kiện của bài thi ảnh hưởng cả người học
+		case m.Topic == TopicChanged || m.Topic == topicDocumentChanged || m.Topic == TopicCalendarChanged || m.Topic == TopicAssignmentPublished || m.Topic == TopicAssignmentUpdated || isExamTopic(m.Topic): // sự kiện của bài thi ảnh hưởng cả người học
 			uids, err = q.TodayCourseMembers(ctx, c)
 		default:
 			uids, err = q.TodayCourseStaff(ctx, c)

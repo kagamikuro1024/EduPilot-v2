@@ -179,6 +179,31 @@ where s.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and s.ends_at > sq
 order by s.starts_at, s.id
 limit 60;
 
+-- name: TodayNewDocuments :many
+-- NEW_DOCUMENT (P-11-122): MỘT truy vấn gộp cho mọi lớp của sinh viên — tài liệu đúng bộ lọc /library (READY, hiện cho sinh viên, không ANSWER_KEY, không THREAD_KNOWLEDGE),
+-- vào lớp trong cửa sổ `since`: của lớp (documents.created_at) hoặc chia sẻ vào lớp (document_courses.created_at). Mỗi lớp một dòng, tên + mốc vào lớp mới nhất trước; lọc «đã mở» làm ở Go (khoá Redis).
+with ids as (select unnest(sqlc.arg(course_ids)::text[])::uuid as course_id),
+d as (
+  select x.course_id, x.id, x.title, x.at from (
+    select dd.course_id, dd.id, dd.title, dd.created_at as at from documents dd where dd.course_id in (select course_id from ids)
+    union all
+    select dc.course_id, dd.id, dd.title, dc.created_at from document_courses dc join documents dd on dd.id = dc.document_id
+    where dc.course_id in (select course_id from ids) and dd.course_id <> dc.course_id
+  ) x
+  join documents f on f.id = x.id
+  where f.status = 'READY' and f.visible_to_students and f.type <> 'ANSWER_KEY' and f.category is distinct from 'THREAD_KNOWLEDGE' and x.at > sqlc.arg(since)::timestamptz
+)
+select course_id, array_agg(title order by at desc, id)::text[] as titles, array_agg(at order by at desc, id)::timestamptz[] as ats
+from d group by course_id;
+
+-- name: TodayDeadLetters :many
+-- DEAD_LETTER (P-11-122): dòng outbox chết trong cửa sổ `since`, gộp theo chủ đề. CHỈ topic, đếm, dead_at mới nhất — KHÔNG đọc payload / last_error (không PII).
+select topic, count(*)::int as n, max(dead_at)::timestamptz as latest
+from outbox
+where dead_at is not null and dead_at > sqlc.arg(since)::timestamptz
+group by topic
+order by topic;
+
 -- name: TodayAdminProviders :many
 -- Nhà cung cấp AI đang bật: lỗi nếu lần kiểm gần nhất thất bại (mạch mở do Scheduler báo thêm).
 select id, name, coalesce(last_test_ok, true)::boolean as ok from llm_providers where enabled order by name;

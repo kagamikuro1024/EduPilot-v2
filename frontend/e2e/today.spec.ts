@@ -139,6 +139,17 @@ test("student today: thứ tự Hôm nay trước Tiếp tục học; phiên cù
   await expect(main(page)).toContainText(/Thứ [A-Za-zÀ-ỹ ]+, 03\/11 · 09:00|Hôm qua|Hôm nay/);
 });
 
+test("student today: tài liệu mới ⇒ một việc «N tài liệu mới · lớp», nút Mở thư viện dẫn /library?course=, không câu giải thích (P-11-122)", async ({ page }) => {
+  await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () =>
+    student({ recommended: item("NEW_DOCUMENT", "2 tài liệu mới · lớp 761988", "Chương 3 — TCP và 1 tài liệu khác", { id: `NEW_DOCUMENT:${C1}`, href: `/library?course=${C1}`, course: c1 }) }),
+  );
+  await expect(page.getByText("2 tài liệu mới · lớp 761988")).toBeVisible();
+  await expect(page.getByText("Chương 3 — TCP và 1 tài liệu khác")).toBeVisible();
+  await expect(main(page).getByRole("link", { name: "Mở thư viện", exact: true })).toHaveAttribute("href", `/library?course=${C1}`);
+  await expect(page.getByText("Hôm nay bạn không có việc gấp")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { timeout: 5000 }).toBeLessThanOrEqual(0);
+});
+
 test("student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today", async ({ page }) => {
   const st = await open(page, "STUDENT", [mine(C1, "761988", "STUDENT"), mine(C2, "761987", "STUDENT")], () => student());
   await expect(page.getByText("Hôm nay bạn không có việc gấp")).toBeVisible();
@@ -252,6 +263,18 @@ test("admin today: việc của hệ thống, không có lớp", async ({ page }
   await expect(page.getByText("Nhà cung cấp AI đang lỗi")).toBeVisible();
   await expect(page.getByRole("link", { name: "Gán giảng viên", exact: true })).toHaveAttribute("href", "/admin/courses");
   expect(st.calls).toEqual(["/me/today"]);
+});
+
+test("admin today: tin lỗi hẳn ⇒ một việc không đường dẫn, không nút, chỉ chủ đề và số lượng (P-11-122)", async ({ page }) => {
+  await open(page, "ADMIN", [], () =>
+    ({ count: 1, actions: [item("DEAD_LETTER", "Hàng đợi có 3 tin lỗi hẳn", "mail.send (2) · mới nhất 3 giờ trước.", { id: "DEAD_LETTER", href: "" })] }),
+  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("1 việc cần xử lý hôm nay");
+  await expect(main(page).getByText("Hàng đợi có 3 tin lỗi hẳn")).toBeVisible();
+  await expect(main(page).getByText("mail.send (2) · mới nhất 3 giờ trước.")).toBeVisible();
+  await expect(main(page).getByRole("link")).toHaveCount(0);
+  await expect(main(page).getByRole("button")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { timeout: 5000 }).toBeLessThanOrEqual(0);
 });
 
 test("today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu", async ({ page }) => {

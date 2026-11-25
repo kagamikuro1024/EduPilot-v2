@@ -235,6 +235,30 @@ async function openStudent(page: Page, context: Parameters<typeof asDemo>[0], op
   return api;
 }
 
+// LCP-2: GET sớm của earlyPaint được khung thật dùng lại — mở bằng ?course= chỉ MỘT GET …/mine (luật «một trang, một GET»), khung thật vẫn dựng đủ.
+test("student page: mở bằng ?course= chỉ một GET …/mine (GET sớm được dùng lại)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await asDemo(context, "student");
+  const api = await studentApi(page);
+  await page.goto(`${STUDENT_URL}?course=00000000-0000-7000-8000-00000000c001`);
+  await expect(page.getByRole("heading", { name: "Bài tập 03 · Phân tích nhật ký", level: 1 })).toBeVisible();
+  await expect(page.locator("[data-part=markdown] li").first()).toHaveText("Nêu ba dấu hiệu");
+  expect(api.calls.filter((c) => c.method === "GET" && /\/assignments\/[^/]+\/mine$/.test(c.path))).toHaveLength(1);
+});
+
+// LCP-3: `description` là Markdown (SRS FEAT-assignments 4.2.1) — tiêu đề # / ## thành h3, không hiện nguyên dấu #.
+for (const [w, h] of [[1440, 900], [375, 812]] as const) test(`student page @${w}: tiêu đề Markdown của đề bài hiện thành tiêu đề, không còn dấu #`, async ({ page, context }, info) => {
+  desktopOnly(info);
+  await page.setViewportSize({ width: w, height: h });
+  await asDemo(context, "student");
+  const base = mineOut();
+  await studentApi(page, { mine: mineOut({ assignment: { ...base.assignment, description: "# Bài tập 03 — Phân tích\n\n## Đề bài\nĐọc kỹ log.\n\n- Nêu ba dấu hiệu" } }) });
+  await page.goto(STUDENT_URL);
+  await expect(page.locator("[data-part=markdown] h3")).toHaveText(["Bài tập 03 — Phân tích", "Đề bài"]);
+  await expect(page.locator("[data-part=markdown] li").first()).toHaveText("Nêu ba dấu hiệu");
+  expect(await page.locator("main").innerText()).not.toMatch(/^\s*#{1,6} /m);
+});
+
 test("student page states: bốn trạng thái, đề bài Markdown, tiêu chí, có mục «Bài tập» ở thanh điều hướng (P-11-14)", async ({ page, context }, info) => {
   desktopOnly(info);
   await openStudent(page, context);

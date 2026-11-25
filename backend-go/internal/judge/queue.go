@@ -136,13 +136,17 @@ func (q *Queue) HandleEnqueue(ctx context.Context, m outbox.Message) error {
 	return q.signal(ctx, p.SubmissionID, p.Kind)
 }
 
+// signal đặt `enqueued_at` TRƯỚC khi XADD: consumer nhận tin xong có thể chấm lỗi và đặt dòng về QUEUED (enqueued_at = null) trước khi lệnh đặt chạy;
+// đặt sau XADD thì lệnh muộn gắn enqueued_at lên dòng đã QUEUED lại, tick bỏ qua nó tới JUDGE_CLAIM_IDLE — lần thử lại mất. XADD lỗi thì gỡ dấu để tick đưa lại.
 func (q *Queue) signal(ctx context.Context, id uuid.UUID, kind string) error {
 	stream, _ := q.streamFor(kind)
-	if err := q.Redis.XAdd(ctx, &goredis.XAddArgs{Stream: stream, Values: map[string]any{"submission_id": id.String()}}).Err(); err != nil {
-		return fmt.Errorf("XADD %s: %w", stream, err)
-	}
-	if _, err := store.New(q.Pool).JudgeMarkEnqueued(ctx, id); err != nil {
+	s := store.New(q.Pool)
+	if _, err := s.JudgeMarkEnqueued(ctx, id); err != nil {
 		return fmt.Errorf("đặt enqueued_at: %w", err)
+	}
+	if err := q.Redis.XAdd(ctx, &goredis.XAddArgs{Stream: stream, Values: map[string]any{"submission_id": id.String()}}).Err(); err != nil {
+		_, _ = s.JudgeUnmarkEnqueued(context.WithoutCancel(ctx), id)
+		return fmt.Errorf("XADD %s: %w", stream, err)
 	}
 	return nil
 }

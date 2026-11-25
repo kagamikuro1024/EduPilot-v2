@@ -151,9 +151,9 @@ Mỗi module đăng ký nguồn việc; bảng đầy đủ nguồn việc sau r
 
 | Vai trò | Nguồn việc |
 | --- | --- |
-| Sinh viên | Chưa có lớp → nhập mã · email chưa xác minh · hạn nộp < 24 h chưa nộp · **bài thi đang làm dở / đang mở / sắp mở trong 48 h (F19)** · QUIZ / thi trong 48 h · điểm vừa công bố · phúc khảo có phản hồi · chủ đề sai nhiều · câu trả lời của giảng viên chưa đọc · tài liệu mới |
+| Sinh viên | Chưa có lớp → nhập mã · email chưa xác minh · hạn nộp < 24 h chưa nộp · **bài thi đang làm dở / đang mở / sắp mở trong 48 h (F19)** · QUIZ / thi trong 48 h · điểm vừa công bố · phúc khảo có phản hồi · chủ đề sai nhiều · câu trả lời của giảng viên chưa đọc · tài liệu mới (≤ 72 giờ, chưa mở thư viện lớp đó) |
 | Giảng viên / TA | Buổi học đang diễn ra chưa điểm danh · buổi có lượt điểm danh bằng mã cần xem (cờ chưa bỏ, ≤ 7 ngày) · ticket chờ (kèm số giờ) · phúc khảo chờ · bài chấm "cần xem kỹ" · bài đã duyệt chưa công bố · câu trả lời AI chờ xác nhận · bài bị báo cáo · bài nộp chưa khớp · yêu cầu vào lớp chờ duyệt · email lệch MSSV chờ duyệt · công thức điểm chưa xác nhận · thiết lập lớp mới · câu hỏi chờ duyệt (từ PE) · phúc khảo bài thi chờ · bài thi chấm xong nhưng đang hoãn công bố · bài code chấm lỗi hệ thống · cặp bài code nghi giống nhau cần xem (F19) · sinh viên mới vào diện cần chú ý |
-| Admin | Provider LLM lỗi · sắp chạm trần ngân sách · hàng dead-letter có việc · sao lưu gần nhất thất bại · lớp không có giảng viên hoạt động |
+| Admin | Provider LLM lỗi · sắp chạm trần ngân sách · hàng dead-letter có việc (`outbox.dead_at` ≤ 7 ngày) · sao lưu gần nhất thất bại (**thuộc phase PR**: chưa có sao lưu tự động, xem `PRODUCTION_READINESS.md`; chưa đăng ký) · lớp không có giảng viên hoạt động |
 
 ### F15. Cấu hình LLM, ngân sách, tích hợp
 Thêm provider → test → gán model theo tác vụ → fallback. **Ngân sách:** trần chi phí theo ngày và theo tháng, cấu hình toàn hệ thống và theo lớp; 80% → cảnh báo Admin; 100% → làn BATCH dừng nhận việc mới (việc xếp hàng, không mất), làn INTERACTIVE chuyển sang model rẻ nhất đã cấu hình; không bao giờ tắt hẳn chat mà không báo. **LLM nội địa / tự host:** loại provider "OpenAI-compatible" cho phép trỏ vào máy chủ trong nước hoặc trong trường — đây là lối thoát khi trường không chấp nhận gửi dữ liệu ra nước ngoài.

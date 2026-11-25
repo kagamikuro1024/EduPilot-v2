@@ -153,7 +153,7 @@ Bảng `question_options` **không có** cờ đúng / sai: đáp án đúng ch�
 
 #### 4.1.2 Quy tắc kiểm hợp lệ
 
-`title` 1…120; `topic` 1…80 (bắt buộc); `difficulty` ∈ `EASY|MEDIUM|HARD`; `stem` 1…8.000 ký tự Markdown, **lưu nguyên văn**; an toàn nằm ở **bộ render** (dựng React node từ cú pháp Markdown tối thiểu — đoạn, nhấn, mã, danh sách, bảng; HTML thô hiện thành chữ; không ảnh, không liên kết ngoài tự động; không `dangerouslySetInnerHTML`), không nằm ở việc cắt chuỗi lúc lưu; `explanation` ≤ 4.000. Đáp án: không rỗng, ≤ 1.000 ký tự, không trùng sau khi bỏ khoảng trắng và hạ chữ thường. Cảnh báo (không lỗi) cho đáp án kiểu "Tất cả các đáp án trên" / "Cả A và B" khi chưa `pinned_last`. Thao tác duyệt xem 4.1.4.
+`title` 1…120; `topic` 1…80 (bắt buộc); `difficulty` ∈ `EASY|MEDIUM|HARD`; `stem` 1…8.000 ký tự Markdown, **lưu nguyên văn**; an toàn nằm ở **bộ render** (dựng React node từ cú pháp Markdown tối thiểu — đoạn, tiêu đề `#`…`######` (cấp 1–2 → `h3`, cấp 3–6 → `h4`; P-11-124), nhấn, mã, danh sách, bảng; HTML thô hiện thành chữ; không ảnh, không liên kết ngoài tự động; không `dangerouslySetInnerHTML`), không nằm ở việc cắt chuỗi lúc lưu; `explanation` ≤ 4.000. Đáp án: không rỗng, ≤ 1.000 ký tự, không trùng sau khi bỏ khoảng trắng và hạ chữ thường. Cảnh báo (không lỗi) cho đáp án kiểu "Tất cả các đáp án trên" / "Cả A và B" khi chưa `pinned_last`. Thao tác duyệt xem 4.1.4.
 
 #### 4.1.3 Chấm trắc nghiệm (`quiz.Grade`)
 

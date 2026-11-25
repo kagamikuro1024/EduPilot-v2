@@ -3,8 +3,8 @@
 // Ghi THẲNG vào Postgres bằng SQL (generate_series, tất định theo SEED_RNG) — không qua API nghiệp vụ nên không chạy được ở dev-seed (`seed.mjs` ~ 60 tài khoản).
 // Chỉ chạy trên stack đo -p ep-* có DB TÊN `edupilot_t1` (không phải `edupilot` của demo):
 //   POSTGRES_DB=edupilot_t1 DATABASE_URL=postgres://edupilot:edupilot-dev@postgres:5432/edupilot_t1?sslmode=disable \
-//   PGBOUNCER_URL=postgres://edupilot:edupilot-dev@pgbouncer:6432/edupilot_t1?sslmode=disable COMPOSE_PROJECT_NAME=ep-t1 EP_PORT_OFFSET=400 pnpm dev
-//   (DATABASE_URLS của pgbouncer đọc POSTGRES_DB nên pgbouncer cũng trỏ vào edupilot_t1.)
+//   COMPOSE_PROJECT_NAME=ep-t1 EP_PORT_OFFSET=400 pnpm dev
+//   (DATABASE_URL = vai chủ cho migrate; URL của gateway / worker và DATABASE_URLS của pgbouncer đọc POSTGRES_DB nên cũng trỏ vào edupilot_t1.)
 // Cần admin đã có (`gateway admin create` hoặc bước 1 của seed.mjs): mật khẩu mọi tài khoản T1 = mật khẩu của admin (băm bcrypt đúng thuật toán của `auth`, dùng lại một bản băm).
 //   COMPOSE_PROJECT_NAME=ep-t1 SEED_DEFAULT_PASSWORD=… node scripts/seed-t1.mjs [--reset] [--scale 0.5] [--no-vectors]
 //   --reset       xoá sạch dữ liệu T1 (mọi lớp, mọi tài khoản trừ ADMIN) rồi sinh lại

@@ -55,6 +55,10 @@ returning id, kind, course_id, exam_id, attempt_id;
 -- name: JudgeMarkEnqueued :execrows
 update code_submissions set enqueued_at = now() where id = sqlc.arg(id) and status = 'QUEUED';
 
+-- name: JudgeUnmarkEnqueued :execrows
+-- XADD lỗi sau khi đã đặt enqueued_at: gỡ dấu để tick đưa lại tín hiệu ở nhịp sau.
+update code_submissions set enqueued_at = null where id = sqlc.arg(id) and status = 'QUEUED';
+
 -- name: JudgeDueUnqueued :many
 -- Tick: dòng QUEUED đến hạn mà chưa XADD (hoặc bị đặt lại để đưa lại).
 select id, kind from code_submissions

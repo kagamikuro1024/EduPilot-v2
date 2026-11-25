@@ -14,6 +14,9 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/library"
+	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/today"
 )
 
 // Handler là nhóm route thư viện.
@@ -21,6 +24,9 @@ type Handler struct {
 	Svc   *library.Service
 	Guard func(auth.GuardMode) func(http.Handler) http.Handler
 	Log   *slog.Logger
+	// Redis / Clock: mở danh sách thành công (200 hoặc 304) ghi «đã mở thư viện lớp» cho mục «tài liệu mới» của Hôm nay (US-P2-11 AC15). nil = không ghi.
+	Redis *appredis.Client
+	Clock clock.Clock
 }
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware.
@@ -77,6 +83,11 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSONETag(w, r, out, "") // ETag = băm thân đã tuần tự hoá: đổi cả khi sửa đoạn (#12); If-None-Match → 304
+	if p, ok := auth.FromContext(r.Context()); ok {
+		if uid, err := uuid.Parse(p.Sub); err == nil {
+			today.MarkLibrarySeen(r.Context(), h.Redis, h.Clock, uid, course)
+		}
+	}
 }
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
