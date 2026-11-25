@@ -106,7 +106,10 @@ export function RealLibrary({ courseId }: { courseId: string }) {
                 action={
                   <span className={r.rowActions}>
                     {wide && <ButtonLink href={`/library/${d.id}`} size="sm">Xem</ButtonLink>}
-                    {d.can_ask_ai && <OverflowMenu label={`Thêm với ${d.title}`} items={[{ label: "Hỏi AI về tài liệu", onSelect: () => void ask(d) }]} />}
+                    {(() => {
+                      const menu = d.can_ask_ai ? <OverflowMenu label={`Thêm với ${d.title}`} items={[{ label: "Hỏi AI về tài liệu", onSelect: () => void ask(d) }]} /> : null;
+                      return wide ? <span className={r.menuSlot}>{menu}</span> : menu;
+                    })()}
                   </span>
                 }
               />

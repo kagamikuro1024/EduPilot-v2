@@ -252,6 +252,7 @@ for (const [w, h] of [[1440, 900], [375, 812]] as const) {
     await expect(c.locator("[data-part=markdown] li")).toHaveCount(2);
     const text = await page.locator("main").innerText();
     expect(text).not.toMatch(/<!--|formula-not-decoded|^- /m);
+    expect(await q.locator("[data-part=markdown] ul").evaluate((e) => getComputedStyle(e).listStyleType)).toBe("disc"); // base.css reset list-style: danh sách phải còn dấu đầu dòng
     const who = await q.getByText("Ngô Ngọc Cẩm").boundingBox();
     const menu = await q.getByRole("button", { name: "Tuỳ chọn bài" }).boundingBox();
     expect(Math.abs(menu!.y + menu!.height / 2 - (who!.y + who!.height / 2))).toBeLessThan(24); // cùng hàng với tên tác giả

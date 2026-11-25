@@ -93,6 +93,17 @@ test("M4 @375: ô tìm không tự focus, bộ lọc gom một nút, danh sách 
   for (const f of ["Loại", "Chủ đề", "Tuần"]) await expect(page.getByLabel(f)).toBeVisible();
 });
 
+// techlead-ui 2026-11-25 (65fe5fdb): 1440 — cột hành động thẳng hàng dù có hàng không có «⋯»; ô «Tuần» không rơi xuống hàng riêng.
+test("layout @1440: nút «Xem» thẳng cột dù hàng không có «⋯»; Loại / Chủ đề / Tuần cùng hàng", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, context, { [`GET ${L}`]: list([libItem({ category: "Quy chế" }), libItem({ id: "d2", title: "Slide TLS", file_kind: "PPTX", can_ask_ai: false, category: "Mật mã" }), libItem({ id: "d3", title: "Đề cương", can_ask_ai: true })]) });
+  const xs = await page.getByRole("link", { name: "Xem" }).evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().right)));
+  expect(xs).toHaveLength(3);
+  expect(new Set(xs).size, `mép phải nút Xem ${xs}`).toBe(1);
+  const ys = await Promise.all(["Loại", "Chủ đề", "Tuần"].map(async (f) => Math.round((await page.getByLabel(f, { exact: true }).boundingBox())!.y)));
+  expect(new Set(ys).size, `y ${ys}`).toBe(1);
+});
+
 test("ask about document: tạo phiên có document_id rồi sang /chat?session=", async ({ page, context }) => {
   await context.route("**/api/v1/chat/sessions?**", (r) => r.fulfill(json({ items: [], next_cursor: null })));
   await context.route(`**/api/v1/chat/sessions/${SID}/messages**`, (r) => r.fulfill(json({ items: [], next_cursor: null })));
