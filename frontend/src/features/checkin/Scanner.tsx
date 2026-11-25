@@ -54,7 +54,7 @@ export function parseCheckinQr(raw: string): { c: string; token: string } | null
 }
 
 /** Camera sau + `BarcodeDetector` ~5 khung/giây. `track.stop()` khi nhận mã, `Thoát`, rời route, ẩn tab. */
-export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string; token: string }) => void; onExit: () => void; onDenied: () => void }) {
+export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string; token: string }) => void; onExit: () => void; onDenied: (why: "denied" | "failed") => void }) {
   const video = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
   const cb = useRef({ onCode, onExit, onDenied });
@@ -103,9 +103,13 @@ export function Scanner({ onCode, onExit, onDenied }: { onCode: (v: { c: string;
             /* khung không đọc được: thử khung sau */
           }
         }, 200);
-      } catch {
+      } catch (e) {
+        const wasAlive = alive; // đã thoát / rời màn lúc đang khởi động (Back nhanh): `play()` bị huỷ không phải lỗi camera
         stop();
-        cb.current.onDenied();
+        if (!wasAlive) return;
+        // quyền bị từ chối ≠ camera hỏng / đang bị app khác dùng (US-AS-15 AC14): hai câu khác nhau, không bao giờ lộ tên lỗi
+        const n = (e as { name?: string } | null)?.name;
+        cb.current.onDenied(n === "NotAllowedError" || n === "SecurityError" || n === "PermissionDeniedError" ? "denied" : "failed");
       }
     })();
     return () => {
