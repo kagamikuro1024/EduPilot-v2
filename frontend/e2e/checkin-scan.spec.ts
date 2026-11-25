@@ -65,3 +65,25 @@ test("checkin scan: getSupportedFormats() có qr_code ⇒ vẫn có nút quét",
   await page.goto("/checkin");
   await expect(page.getByRole("button", { name: "Quét mã điểm danh" }).first()).toBeVisible();
 });
+
+// DEF-MOB-11 (PRM-09): Android 12+ tắt công tắc Camera toàn máy ⇒ getUserMedia VẪN resolve nhưng track không có khung (videoWidth 0 / muted).
+// Khung quét đen 0×0 mà màn vẫn coi là đang chạy. Phải: dừng stream, «Không mở được camera.» + về ô nhập mã trong ≤ 5 s.
+const noFrame = `(() => {
+  window.__stopped = 0;
+  window.Capacitor = { isNativePlatform: () => true, isPluginAvailable: () => false };
+  navigator.mediaDevices.getUserMedia = async () => {
+    const s = new MediaStream(); // không track ⇒ không khung nào (tương đương track muted)
+    s.getTracks().forEach((t) => { const st = t.stop.bind(t); t.stop = () => { window.__stopped++; st(); }; });
+    return s;
+  };
+  window.BarcodeDetector = class { async detect(src) { return src instanceof HTMLCanvasElement ? [{ rawValue: "probe" }] : []; } };
+})()`;
+
+test("checkin scan: camera tắt ở hệ thống (không có khung) → «Không mở được camera.» + ô nhập mã trong ≤ 5 s", async ({ page, context }) => {
+  await page.addInitScript(noFrame);
+  await checkinApi(page, context);
+  await page.goto("/checkin");
+  await page.getByRole("button", { name: "Quét mã điểm danh" }).first().click();
+  await expect(page.getByText("Không mở được camera.")).toBeVisible({ timeout: 5000 });
+  await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
+});
