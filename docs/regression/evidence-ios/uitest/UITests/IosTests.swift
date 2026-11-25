@@ -360,22 +360,8 @@ final class IosTests: XCTestCase {
         try? ("\(form) -> \(v)").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
         savePng(shotName()); print("\(form) -> \(v)")
     }
-    /// KBD-09: chạm giữ ô rồi Dán (clipboard đặt bằng simctl pbcopy trước).
-    func testKbd09() {
-        safari.activate(); sleep(2)
-        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
-        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
-        f.press(forDuration: 1.6); sleep(2)
-        savePng(shotName() + "-menu")
-        let paste = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Dán")).firstMatch
-        let paste2 = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Paste")).firstMatch
-        if paste.exists { paste.tap() } else if paste2.exists { paste2.tap() }
-        sleep(2)
-        savePng(shotName())
-        print("value=\((f.value as? String) ?? "")")
-    }
 
-    /// KBD-02: ngang SE3, chạm ô, chụp khi bàn phím mở.
+    /// KBD-02: ngang SE3, chạm ô, chụp khi bàn phím mở; rồi cuộn tới nút Điểm danh.
     func testKbdLandscape() {
         XCUIDevice.shared.orientation = .landscapeLeft; sleep(4)
         safari.activate(); sleep(3)
@@ -383,9 +369,58 @@ final class IosTests: XCTestCase {
         let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
         f.tap(); sleep(3)
         savePng(shotName())
-        let web2 = safari.webViews.firstMatch
-        web2.swipeUp(); sleep(2)
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.82)).press(forDuration: 0.1,
+            thenDragTo: safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.18)))
+        sleep(1)
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.82)).press(forDuration: 0.1,
+            thenDragTo: safari.coordinate(withNormalizedOffset: CGVector(dx: 0.86, dy: 0.18)))
+        sleep(3)
         savePng(shotName() + "-swipe")
         XCUIDevice.shared.orientation = .portrait; sleep(2)
+    }
+
+    /// KBD-09: dán từ clipboard (đặt trước bằng simctl pbcopy).
+    func testKbd09() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        f.press(forDuration: 1.8); sleep(2)
+        savePng(shotName() + "-menu")
+        let dán = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Dán")).firstMatch
+        let paste = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Paste")).firstMatch
+        if dán.exists { dán.tap() } else if paste.exists { paste.tap() }
+        sleep(2)
+        savePng(shotName())
+        print("value=\((f.value as? String) ?? "")")
+    }
+    /// TXT-04: Safari aA → phóng trang 200 %.
+    func testTxt04() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let aa = safari.buttons.matching(NSPredicate(format: "label IN %@", ["aA", "AA", "Page Menu"])).firstMatch
+        if aa.exists { aa.tap() } else { safari.buttons["PageMenuButton"].tap() }
+        sleep(3)
+        savePng(shotName() + "-menu")
+        for _ in 0..<2 {
+            let big = safari.buttons.matching(NSPredicate(format: "label IN %@", ["Larger Text", "A+", "Increase text size"])).firstMatch
+            if big.exists { big.tap(); sleep(1) } else { break }
+        }
+        sleep(2); safari.tap(); sleep(3)
+        savePng(shotName())
+    }
+
+    /// TXT-04b: aA → Page Zoom → 200 %.
+    func testTxt04b() {
+        safari.activate(); sleep(2)
+        _ = safari.webViews.firstMatch.waitForExistence(timeout: 20)
+        let aa = safari.buttons.matching(NSPredicate(format: "label IN %@", ["aA", "AA", "Page Menu"])).firstMatch
+        if aa.exists { aa.tap() } else { safari.buttons["PageMenuButton"].tap() }
+        sleep(3)
+        let zoom = safari.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Page Zoom")).firstMatch
+        if zoom.exists { zoom.tap(); sleep(2) }
+        let two = safari.buttons.matching(NSPredicate(format: "label IN %@", ["200%", "200 %"])).firstMatch
+        if two.exists { two.tap(); sleep(4) }
+        savePng(shotName())
+        print("zoom_tapped=\(two.exists)")
     }
 }
