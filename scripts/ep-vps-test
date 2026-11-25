@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# ep-vps-test — chạy test trên VPS (Mac không chạy test nặng).
+#   ep-vps-test <worktree> -- <lệnh...>   rsync worktree → /srv/work/<tên-worktree> trên VPS, chạy lệnh ở đó, trả mã thoát.
+#                                         MỘT đối số sau «--» = chuỗi shell (vd 'pnpm build:gate && pnpm exec playwright test e2e/x.spec.ts --workers=1');
+#                                         nhiều đối số = argv (được quote). Lệnh có «-race» chạy tuần tự qua flock /srv/work/.race.lock.
+#   ep-vps-test --init [<worktree>]       dựng một lần dịch vụ test (postgres, redis, minio, pgbouncer, mailpit, judge) ở 127.0.0.1 của VPS.
+# Cần trên VPS: Go (/opt/go), golangci-lint/sqlc/goose (/opt/gotools), node + pnpm (/opt/node), docker. Code chỉ sửa ở worktree Mac; /srv/work/* chỉ là bản rsync.
+set -euo pipefail
+HOST=${EP_VPS:-edupilot-vps}
+SVC_NAMES="edupilot-test-postgres edupilot-test-redis edupilot-test-minio edupilot-test-pgbouncer edupilot-test-mailpit edupilot-test-judge"
+
+if [ "${1:-}" = "--init" ]; then
+  # nguồn Dockerfile của judge lấy từ worktree (mặc định thư mục hiện tại)
+  ssh "$HOST" mkdir -p /srv/work/.judge-src && rsync -az --delete "${2:-.}/deploy/judge/" "$HOST:/srv/work/.judge-src/"
+  # Tên + cấu hình KHỚP backend-go/internal/testutil (testcontainers Reuse theo tên); cổng chỉ bind 127.0.0.1 (testcontainers mặc định mở 0.0.0.0).
+  ssh "$HOST" bash -s <<'REMOTE'
+set -euo pipefail
+have() { docker inspect -f '{{.State.Running}}' "$1" 2>/dev/null | grep -q true; }
+run() { local n=$1; shift; if have "$n"; then echo "có sẵn: $n"; else docker rm -f "$n" >/dev/null 2>&1 || true; docker run -d --name "$n" --restart unless-stopped "$@" >/dev/null && echo "đã dựng: $n"; fi; }
+run edupilot-test-postgres -p 127.0.0.1:15432:5432 --shm-size=256m -e POSTGRES_USER=edupilot -e POSTGRES_PASSWORD=edupilot-dev -e POSTGRES_DB=postgres pgvector/pgvector:pg18 \
+  -c max_connections=400 -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+run edupilot-test-redis -p 127.0.0.1:16379:6379 redis:8
+run edupilot-test-minio -p 127.0.0.1:19000:9000 -e MINIO_ROOT_USER=edupilot-test -e MINIO_ROOT_PASSWORD=edupilot-test-secret pgsty/minio:RELEASE.2026-08-04T00-00-00Z server /data
+run edupilot-test-mailpit -p 127.0.0.1:11025:1025 -p 127.0.0.1:18025:8025 -e MP_IGNORE_DUPLICATE_IDS=true axllent/mailpit:v1.27
+if ! have edupilot-test-pgbouncer; then
+  until docker exec edupilot-test-postgres pg_isready -U edupilot >/dev/null 2>&1; do sleep 1; done
+  PGIP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' edupilot-test-postgres)
+  D=/srv/work/.pgbouncer; mkdir -p $D
+  printf '[databases]\n* = host=%s port=5432\n\n[pgbouncer]\nlisten_addr = 0.0.0.0\nlisten_port = 6432\nunix_socket_dir =\nauth_file = /etc/pgbouncer/userlist.txt\nauth_type = scram-sha-256\nadmin_users = edupilot\npool_mode = transaction\nmax_client_conn = 200\ndefault_pool_size = 20\nreserve_pool_size = 5\nreserve_pool_timeout = 3\nquery_wait_timeout = 30\nmax_prepared_statements = 0\nignore_startup_parameters = extra_float_digits\n' "$PGIP" > $D/pgbouncer.ini
+  printf '"edupilot" "edupilot-dev"\n' > $D/userlist.txt
+  chmod 644 $D/*
+  run edupilot-test-pgbouncer -p 127.0.0.1:16432:6432 -v $D/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro -v $D/userlist.txt:/etc/pgbouncer/userlist.txt:ro --entrypoint /usr/bin/pgbouncer edoburu/pgbouncer:v1.26.0-p0 /etc/pgbouncer/pgbouncer.ini
+else echo "có sẵn: edupilot-test-pgbouncer"; fi
+if ! have edupilot-test-judge; then
+  docker build -q -t edupilot-judge:test /srv/work/.judge-src >/dev/null
+  run edupilot-test-judge -p 127.0.0.1:15050:5050 --privileged --cgroupns=host --shm-size=256m --memory=2g --cpus=2 -e JUDGE_TOKEN=edupilot-test-judge-token -e JUDGE_PARALLELISM=2 -e JUDGE_EXTRA_ARGS= edupilot-judge:test
+else echo "có sẵn: edupilot-test-judge"; fi
+REMOTE
+  exit
+fi
+
+WT=${1:?dùng: ep-vps-test <worktree> -- <lệnh...>}; shift
+[ "${1:-}" = "--" ] || { echo "thiếu «--» sau worktree" >&2; exit 2; }; shift
+[ $# -gt 0 ] || { echo "thiếu lệnh" >&2; exit 2; }
+WT=$(cd "$WT" && pwd -P); NAME=$(basename "$WT"); DIR=/srv/work/$NAME
+if [ $# -eq 1 ]; then CMD=$1; else CMD=$(printf '%q ' "$@"); fi
+
+# worktree → VPS. node_modules / .next / build giữ lại trên VPS (không --delete-excluded) để lần sau khỏi cài lại.
+ssh "$HOST" "mkdir -p $DIR"
+rsync -az --delete --exclude .git --exclude node_modules --exclude .next --exclude build --exclude .gradle --exclude test-results --exclude playwright-report \
+  "$WT/" "$HOST:$DIR/"
+
+# cổng e2e riêng mỗi worktree (nhiều agent cùng VPS không giẫm cổng): 3500–3898
+P=$(( 3500 + $(printf %s "$NAME" | cksum | cut -d' ' -f1) % 200 * 2 ))
+B64=$(printf %s "$CMD" | base64 | tr -d '\n')
+ssh "$HOST" bash -s -- "$DIR" "$B64" "$P" <<'REMOTE'
+set -uo pipefail
+DIR=$1; CMD=$(printf %s "$2" | base64 -d); P=$3
+export PATH=/opt/go/bin:/opt/gotools:/opt/node/bin:$PATH GOPATH=/opt/gopath GOCACHE=/srv/work/.gocache GOTOOLCHAIN=local GOFLAGS=-buildvcs=false
+export TESTCONTAINERS_RYUK_DISABLED=true E2E_PORT=${E2E_PORT:-$P} E2E_API_PORT=${E2E_API_PORT:-$((P+1))}
+cd "$DIR"
+# phụ thuộc frontend: cài lại chỉ khi pnpm-lock.yaml đổi
+if [[ $CMD == *pnpm* || $CMD == *playwright* || $CMD == *npx* ]] && [ -f pnpm-lock.yaml ]; then
+  H=$(sha256sum pnpm-lock.yaml | cut -d' ' -f1)
+  if [ ! -d node_modules ] || [ "$(cat node_modules/.ep-lock-hash 2>/dev/null)" != "$H" ]; then
+    pnpm install --frozen-lockfile >&2 || exit 1
+    echo "$H" > node_modules/.ep-lock-hash
+  fi
+fi
+if [[ $CMD == *-race* ]]; then exec flock /srv/work/.race.lock bash -o pipefail -c "$CMD"; fi
+exec bash -o pipefail -c "$CMD"
+REMOTE
