@@ -78,15 +78,101 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | MSG-10 | **P** | Không `BarcodeDetector`: không câu lỗi nào, ô nhập + nút hiện ngay |
 | MSG-01…09, 11…16 | một phần **P** qua ERR-01…05/11/12/14/18 (đúng câu); còn lại **N** (native) |  |
 
-## 6.G / 6.I / 6.K / 6.N / 6.R / 6.X
+## 6.G Độ rộng, xoay ngang, khung app
 
-(chờ lô C chạy xong — điền ở lượt sau)
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| UIW-01…05 (360/375/390/411/430) | **P** | 4 trạng thái web × 5 bề rộng: `scrollWidth ≤ innerWidth` ở tất cả; nút chính trong khung (trạng thái gửi/đã gửi không có nút chính — dock gỡ theo thiết kế) |
+| UIW-06 | **P** | Bảng 5×5 đủ; ô «đang quét» = native → pha 2 |
+| UIW-07 | **P** | Câu lỗi dài ở 360: xuống dòng trong panel, không tràn (`sw=360/360`), nút chính thấy |
+| UIW-08 | **P** | 360 và 430: «Đã điểm danh 01:04» một dòng; phần tử đỏ duy nhất là svg/path của dấu Check |
+| UIW-09 | **N** | khung camera (native) |
+| UIW-10 | **P** | `/attendance` 5 bề rộng: không cuộn ngang; thanh lưu trên thanh dưới (đo ở ATT-02/03) |
+| UIW-11/12/13 | **P** | 667×375, 844×390, 915×412: 4 trạng thái không tràn, nút chính không bị che |
+| UIW-14/15/16 | **N** | xoay máy giữa lúc gửi / giữ mã / camera (native) |
+| UIW-17 | **P** | Dọc 375: 5 mục thanh đáy cao 56 px, không cắt chữ, không quá đáy (812). 844×1000: thanh bên **thu gọn 72 px** hiện, 10 mục, không tràn. Ghi chú: điện thoại **ngang thấp** 844×390 dùng thanh đáy — đúng M2 ở main (`(max-height: 500px) and (pointer: coarse)`), **TC cần cập nhật** (TC đòi thanh bên ở mọi ≥ 720) |
+| UIW-18 | **P** | 4 màn SV (/, /chat, /threads, /practice) ở 360 và 430: không cuộn ngang |
+| UIW-19 | **P** | CLS = 0,000 ở 360 và 430 (≤ 0,1) |
+| UIW-20 | **P** | 360×640 nhập mã: `scrollHeight=640` — không cuộn dọc, ô + nút thấy |
+| UIW-21/22 | **N** | thanh điều hướng hệ thống / mật độ màn hình (native) |
+
+## 6.I Cỡ chữ, phóng
+
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| TXT-06 | **P** | 180 px (≈200 % ở 360): 4 trạng thái không cuộn ngang, 0 phần tử chữ bị cắt |
+| TXT-01…05, 07, 08 | **N** | cỡ chữ hệ thống Android / phóng Safari `aA` / iOS content size (native) |
+
+## 6.K Bàn phím che ô nhập (phần web)
+
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| KBD-04 | **P** | `autocapitalize=characters`, `autocomplete=off`, `autocorrect=off`, `spellcheck=false`, `enterkeyhint=go`, `maxlength=12`, placeholder «ABC 123» |
+| KBD-05 | **P** | Enter gửi như nút, đúng 1 POST; mã có khoảng trắng được nhận |
+| KBD-07 | **P** | Đang gửi: dock gỡ/nút khoá (`data-state=sending`), không gửi hai lần |
+| KBD-09 | **P** | Dán «abc-123» vẫn điểm danh được |
+| KBD-10 | **P** | `autocomplete=off` (không gợi ý mật khẩu/địa chỉ) — cùng bằng chứng KBD-04 |
+| KBD-12 | **P** | Khung thu 411×500 (bàn phím ảo): ô ở 228–272, nút Điểm danh 391–435 — cả hai trong khung |
+| KBD-01/02/03/06/08/11 | **N** | bàn phím thật Android/iOS, Gboard Telex, phím cứng (native) |
+
+## 6.N Mạng yếu, mất mạng
+
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| NET-01 | **F (Thấp)** | 400 kbit/s + RTT 2 s (CDP): khung **5 360 ms** (ngưỡng 3 000), nội dung 5 364 ms, không cuộn ngang → **DEF-MOB-04** (môi trường giả lập, ghi rõ) |
+| NET-02 | **F (Trung bình)** | Offline khi gửi mã: hiện «Chưa có mạng.», mã giữ nguyên, **KHÔNG có nút `Thử lại`** (đường mã chỉ hiện câu lỗi dưới ô) → **DEF-MOB-02** |
+| NET-03 | **P** | Có mạng lại: bấm `Điểm danh` lần nữa → «Đã điểm danh», `checked_in=1`, không tải lại trang |
+| NET-07 | **F (Trung bình)** | POST chậm 20 s: sau **16 s vẫn «đang gửi»**, không có «Chưa có mạng.» (TC: trong 15 s) → **DEF-MOB-03** |
+| NET-04/05/06/08/09/10/11/12 | **N** | mạng chập chờn/đổi Wi-Fi/WebView chặn host/tiết kiệm dữ liệu/PWA offline (native) |
+
+## 6.R Vùng chạm ≥ 44 px
+
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| TGT-01 | **P** | 360 và 430: mọi `button/a/input` trong main, topbar, thanh dưới ≥ 44×44 |
+| TGT-02 | **N** | đo thô `minGap=0` do phần tử lồng nhau — không kết luận; cần đo theo cặp hàng thực tế |
+| TGT-03 | **P** | dock đáy 683 = mép trên thanh dưới 683 (không đè), dock 61 px, thanh dưới 57 px |
+| TGT-04 | **N** | `uiautomator dump` (native) |
+| TGT-05 | **P** | `/attendance` 375 (GV): mọi nút/hàng ≥ 44×44 (cùng bằng chứng ATT-02) |
+| TGT-06 | **N** | ngang **thấp** + `pointer: coarse` dùng thanh đáy (M2) nên không đo thanh bên |
+
+## 6.X Staff trên điện thoại — `/attendance`
+
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| ATT-01 | **P** | 375: mở được buổi, mở cửa sổ, có «Mở màn chiếu», không cuộn ngang |
+| ATT-02 | **P** | Mọi nút/hàng 375 ≥ 44×44 |
+| ATT-03 | **P** | TA 360: lưới cuộn trong khung riêng, trang không cuộn ngang |
+| ATT-07 | **P** | axe `/attendance` 360: 0 lỗi critical/serious (TalkBack = native) |
+| ATT-08 | **P** | SV mở `/attendance`: màn chặn «Bạn không có quyền xem màn này», không dữ liệu lớp |
+| ATT-09 | **P** | 844×1000: thanh bên hiện, không cuộn ngang |
+| ATT-10 | **P** | `/attendance/display?course&session` ở 393: QR/mã/vòng/Thoát hiện, không crash |
+| ATT-04/05/06/11 | **N** | safe-area, cỡ chữ 2,0×, máy tối/native, geofence+SQL (pha 2) |
+
+## Tổng (phần qc)
+
+| Nhóm | P | F | N |
+| --- | --- | --- | --- |
+| 6.B SES | 6 | 0 | 8 |
+| 6.C FLW | 10 | 1 | 7 |
+| 6.F ERR | 14 | 0 | 6 |
+| 6.S MSG | 9 | 1 | 6 |
+| 6.G UIW | 16 | 0 | 6 |
+| 6.I TXT | 1 | 0 | 7 |
+| 6.K KBD | 6 | 0 | 6 |
+| 6.N NET | 1 | 3 | 8 |
+| 6.R TGT | 3 | 0 | 3 |
+| 6.X ATT | 7 | 0 | 4 |
+| **Cộng** | **73** | **5** | **61** |
 
 ## DEF mới
 
 | DEF | Mức | Nội dung | Bằng chứng |
 | --- | --- | --- | --- |
 | DEF-MOB-01 | Thấp | Lớp đã lưu trữ hiện «Lớp này không điểm danh bằng mã.» thay vì câu về lớp lưu trữ (FLW-13) | Máy chủ: lớp ARCHIVED trả `attendance.self_checkin=false`; giao diện chỉ có nhánh "tắt điểm danh" |
+| DEF-MOB-02 | Trung bình | Mất mạng khi gửi **mã ngắn**: có «Chưa có mạng.» nhưng **không có nút `Thử lại`** (đường token thì có) (NET-02, MSG-07) | `CheckinScreen.describe` → `viaCode` chỉ đặt lỗi dưới ô, không gắn `retry` |
+| DEF-MOB-03 | Trung bình | Máy chủ trả lời POST chậm 20 s: sau 16 s vẫn «đang gửi», không có «Chưa có mạng.» / hết giờ (NET-07) | Gọi `apiClient.post` không có hạn giờ; chỉ đổi trạng thái khi promise kết thúc |
+| DEF-MOB-04 | Thấp | Mạng 400 kbit/s + RTT 2 s: khung 5 360 ms (ngưỡng PVC 3 000) (NET-01) | Đo bằng CDP trên Chromium giả lập — môi trường khác thiết bị thật |
 
 ## Ghi chú
 
