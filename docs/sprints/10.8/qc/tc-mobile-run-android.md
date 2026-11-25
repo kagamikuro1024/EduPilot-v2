@@ -368,3 +368,12 @@ Tổng: **100 TC = 82 P, 0 F, 18 N.**
 - **DEV-03 = P**: emulator (Play Store AVD) điểm danh lần đầu → gateway log 23:26:06Z: `POST /me/devices/challenge` 200 rồi `POST /me/devices` **422** (attestation máy ảo không được tin); app vẫn điểm danh «Đã điểm danh 06:26», DB `assurance=2`, `channel=CODE`, flags `{DEVICE_NEW,TOKEN_LATE}`, **không có `DEVICE_UNTRUSTED`**, sinh viên không thấy lỗi.
 - **DEV-09 = N**: 5 lần `am force-stop` + mở lại app: số `POST /me/devices` trong gateway log **không tăng** (60 → 60) ⇒ không thử lại mỗi lượt; nhưng `localStorage` không có khoá nào chứa «device» (app chỉ đăng ký khi điểm danh) nên chưa dựng được đúng cảnh «một lần đăng ký + cache key». Vế «≤ 5 challenge/phút» đã kiểm ở DEV-10 (lần 6 → 429).
 - Đã trả QCMOB2 `rotate_seconds=10`, không geofence.
+
+## 37. Lượt 33 (26/11) — DEV-09, DEV-13 = P; DEV-14 = N (phủ bởi e2e)
+
+Tổng: **102 TC = 84 P, 0 F, 18 N.**
+
+- **DEV-09 = P** (theo đúng cách PM): điểm danh **một lần** trước (đăng ký khoá) rồi 5 lần `am force-stop` + mở lại + vào `/checkin`: số `POST /me/devices` trong gateway log **không tăng** (34 → 34) ⇒ không đăng ký lại mỗi lượt, không thử lại trong cùng phiên.
+- **DEV-13 = P**: `adb uninstall` + `install` lại APK, đăng nhập, điểm danh: lượt đầu `flags {DEVICE_NEW}` (`assurance=2`, `channel=CODE`); lượt hai (cửa sổ khác, cùng phiên) `flags {}` — **DEVICE_NEW đúng một lần**. `user_devices` có bản ghi mới sau khi cài lại (kind `WEB_KEY` vì máy ảo không attest được); khoá cũ không được dùng lại.
+- **DEV-14 = N**: cần bản build plugin lỗi giả / máy không Keystore — không dựng được trên APK thật. **Phủ bởi** e2e `frontend/e2e/checkin-native.spec.ts` ca «checkin app: plugin lỗi → không gửi device (mức 1), vẫn điểm danh; lớp kiểm tra vị trí → geo.mock lấy từ plugin».
+- Đã trả QCMOB2 `rotate_seconds=10`, không geofence.
