@@ -31,3 +31,40 @@ func TestStripCiteMarkers(t *testing.T) {
 	require.Equal(t, "Vì đúng.", *exam.StripCiteMarkersPtr(&s))
 	require.Equal(t, "Vì [C7] đúng.", s, "không sửa chuỗi gốc")
 }
+
+// E5: câu AI sinh đã lưu còn mã «[C18]» ⇒ sinh viên không thấy ở BẤT KỲ đâu của đề tuần: lúc làm bài (stem, phương án) và ở kết quả (stem, phương án, lời giải).
+func TestExamStripsCiteMarkersOnRead(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	m := r.mixExam()
+	r.exec(`update question_bank set stem = stem || ' [C3]', explanation = 'Vì [C18, C2] đúng.' where course_id = $1`, r.course)
+	r.exec(`update question_options set body = body || ' [C1]' where course_id = $1`, r.course)
+
+	v, _ := r.start(m.e, m.sv, m.tab) // mở lại lượt đang làm: dựng DTO từ ngân hàng hiện tại
+	require.NotEmpty(t, v.Items)
+	for _, it := range v.Items {
+		require.NotContains(t, it.Stem, "[C")
+		for _, o := range it.Options {
+			require.NotContains(t, o.Body, "[C")
+		}
+	}
+	m.finish(true, false)
+	m.closeExam()
+	r.exec(`update exams set status='CLOSED' where id=$1`, m.e.ID)
+	_, err := r.svc.PublishDue(t.Context())
+	require.NoError(t, err)
+	res, err := r.svc.AttemptResult(t.Context(), m.sv, r.course, m.e.ID, m.v.Attempt.ID)
+	require.NoError(t, err)
+	var explained int
+	for _, it := range res.Items {
+		require.NotContains(t, it.Stem, "[C")
+		for _, o := range it.Options {
+			require.NotContains(t, o.Body, "[C")
+		}
+		if it.Explanation != nil {
+			explained++
+			require.Equal(t, "Vì đúng.", *it.Explanation)
+		}
+	}
+	require.NotZero(t, explained, "kết quả phải có lời giải để kiểm")
+}

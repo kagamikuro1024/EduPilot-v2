@@ -182,7 +182,7 @@ func BuildStudentView(src viewSource, shuffleQ, shuffleO bool, seed Seed, saved 
 	}
 	out := make([]ItemView, len(order))
 	for i, it := range order {
-		v := ItemView{ItemID: it.ItemID, Position: i + 1, Type: string(it.Type), Points: it.Points.StringFixed(2), Stem: it.Stem, Options: []OptionView{}, Answer: saved[it.ItemID]}
+		v := ItemView{ItemID: it.ItemID, Position: i + 1, Type: string(it.Type), Points: it.Points.StringFixed(2), Stem: StripCiteMarkers(it.Stem), Options: []OptionView{}, Answer: saved[it.ItemID]} // câu AI sinh lưu từ trước có thể còn mã «[C18]»
 		if it.Type == store.QuestionTypeCODE {
 			c := CodeItemView{Languages: it.Languages, StarterCode: map[string]string{}, Samples: src.Samples[it.QuestionID], Drafts: map[string]DraftView{}}
 			if it.TimeLimitMs != nil {
@@ -216,7 +216,7 @@ func BuildStudentView(src viewSource, shuffleQ, shuffleO bool, seed Seed, saved 
 				opts = append(free, pinned...)
 			}
 			for _, o := range opts {
-				v.Options = append(v.Options, OptionView{ID: o.ID, Body: o.Body})
+				v.Options = append(v.Options, OptionView{ID: o.ID, Body: StripCiteMarkers(o.Body)})
 			}
 		}
 		out[i] = v
