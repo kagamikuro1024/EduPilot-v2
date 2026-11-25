@@ -4,4 +4,9 @@
 }
 .body { margin: 0; color: var(--ep-ink-2); max-width: 60ch; }
 .early { margin: 0; line-height: 1.6; white-space: pre-line; overflow-wrap: anywhere; }
+/* cùng cỡ chữ với `.question` của màn Luyện đề (Practice.module.css, dòng 1.6 của Markdown): ứng viên LCP sớm phải KHÔNG nhỏ hơn câu hỏi thật, nếu không câu hỏi thật thành ứng viên mới */
+.earlyQuestion { margin: 0; font-size: var(--ep-text-section); line-height: 1.6; max-width: 64ch; white-space: pre-line; overflow-wrap: anywhere; }
+@media (max-width: 719px) { .earlyQuestion { font-size: var(--ep-text-item); } }
+/* ≥ 1100 px màn thật chia chính | ngăn câu 340 px (Split main-aside): cột câu hỏi hẹp hơn 64ch, câu hỏi thật xuống dòng sớm hơn */
+@media (min-width: 1100px) { .earlyQuestion { max-width: 386px; } }
 .fontWarm { position: absolute; visibility: hidden; pointer-events: none; }

@@ -31,7 +31,7 @@ export function PreShell({ intro, landmark = "main" }: { intro: RouteIntro; /** 
           {intro.early && (
             <div hidden suppressHydrationWarning>
               <Panel>
-                <p className={pre.early} data-part="early-body" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: "" }} />
+                <p className={intro.early === "question" ? pre.earlyQuestion : pre.early} data-part="early-body" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: "" }} />
               </Panel>
             </div>
           )}
