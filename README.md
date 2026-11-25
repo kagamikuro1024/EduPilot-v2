@@ -183,6 +183,50 @@ SEED_ON_EMPTY_DB=true COMPOSE_PROFILES=ingest pnpm dev
 
 Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … `@edupilot.local`; mật khẩu = `SEED_DEFAULT_PASSWORD` trong `.env.local` (mặc định của `.env.example`: `Edupilot#Seed-2026`). Lớp 1 = **761987** (mã tham gia `AN7K2MQ`), lớp 2 = 761988 (`BX4P9TW`). Sandbox chấm code là service `judge` (`go-judge`); trên Colima arm64 chạy với `-no-seccomp` (D58).
 
+#### Dựng lại stack demo cho buổi trình bày (công thức Gate P10, 25/11)
+`pnpm dev` tự đặt các biến dưới đây; khi gọi `docker compose` trực tiếp (dựng lại từng service, đổi env) thì phải tự đặt. Nguồn: lượt chạy Gate P10 ngày 25/11 (`docs/regression/gate-p10-demo.md` trên nhánh `qc2/regression`) và sổ tay vận hành của chủ dự án.
+
+1. **Sao lưu trước mọi thao tác:**
+   ```bash
+   docker compose -p edupilot exec -T postgres pg_dump -U edupilot -d edupilot -Fc > ~/edupilot-$(date +%Y%m%d-%H%M).dump
+   # khôi phục: docker compose -p edupilot exec -T postgres pg_restore -U edupilot -d edupilot --clean --if-exists < tệp.dump
+   ```
+2. **`.env.local`** phải có `BLOB_PUBLIC_ENDPOINT=localhost` và `BLOB_PUBLIC_USE_SSL=true`. Thiếu hai dòng này, URL tải tệp ký sẵn trỏ `localhost:9000`, CSP chặn, mọi lần tải tệp báo «Không kết nối được».
+3. **Tệp compose phụ** (ngoài repo): `docker-compose.local.yml` không chuyển `KNOWLEDGE_EMBED_TIMEOUT` (worker, mặc định 10 s) và `AI_SUMMARY_TIMEOUT` (gateway, mặc định 20 s) vào container, nên đặt trong `.env.local` không có tác dụng. Với nhà cung cấp thật cần nới:
+   ```yaml
+   # ~/edupilot-demo.override.yml
+   services:
+     worker:
+       environment:
+         KNOWLEDGE_EMBED_TIMEOUT: 45s   # embedding thật qua mạng ≈ 11–24 s mỗi lời gọi (đo 25/11)
+     gateway:
+       environment:
+         AI_SUMMARY_TIMEOUT: 60s        # khoảng hợp lệ 5–120 s
+   ```
+4. **Mọi lệnh compose của demo** dùng cùng tiền tố (thiếu `-f` tệp phụ → timeout về mặc định; thiếu `COMPOSE_PROFILES=ingest` → không có `docling`, seed dừng ở bước 11):
+   ```bash
+   export COMPOSE_PROJECT_NAME=edupilot COMPOSE_PROFILES=ingest
+   C="docker compose -f docker-compose.local.yml -f $HOME/edupilot-demo.override.yml --env-file .env.local"
+   ```
+5. **Sau mỗi lần build**, tạo lại MỌI service vừa build rồi đối chiếu image id. Build xong mà không tạo lại thì container vẫn chạy image cũ (đã xảy ra với frontend ngày 25/11). Tên image cố định trong compose (`edupilot-gateway`, `edupilot-worker`, …) nên mọi stack trên máy dùng chung một tag: dựng stack thử (`ep-qc`, …) sẽ đổi tag `latest` mà stack demo không biết. Vì vậy build lại từ đúng commit ngay trước khi tạo lại demo.
+   ```bash
+   $C build gateway worker frontend
+   $C up -d --force-recreate --no-deps gateway worker frontend
+   for s in gateway worker frontend; do
+     c=$(docker inspect edupilot-$s-1 --format '{{.Image}}' | cut -d: -f2 | cut -c1-12)
+     i=$(docker images edupilot-$s:latest --format '{{.ID}}')
+     [ "$c" = "$i" ] && echo "$s khớp $i" || echo "$s LỆCH: container $c, image $i"
+   done
+   ```
+   (`judge`, `mock-graph`, `mock-imap` cũng vậy nếu có build lại.)
+6. **Seed trong ngày trình bày** (buổi học «hôm nay» lấy theo ngày chạy seed; `docs/DEMO_SCRIPT.md` chuẩn bị #5), trên DB trống (đã sao lưu ở bước 1; xoá dữ liệu: `$C down -v` rồi `$C up -d --wait`):
+   1. Dọn Mailpit trước seed: `curl -X DELETE http://localhost:8025/api/v1/messages`.
+   2. Nới tạm 4 giới hạn theo IP (seed gửi hàng nghìn yêu cầu từ một IP; `pnpm dev` tự làm): `RATE_LIMIT_IP_PER_MIN=5000 AUTH_LOGIN_IP_PER_MIN=1000 AUTH_REGISTER_IP_PER_HOUR=1000 AUTH_TOKEN_IP_PER_MIN=1000 $C up -d --force-recreate --no-deps gateway`.
+   3. **Đặt tuyến `EMBEDDING` trước khi seed nạp tài liệu** (nạp bằng embedding giả thì báo cáo lỗ hổng kiến thức vô nghĩa): tạo Admin bằng đúng mật khẩu seed, `grep '^SEED_DEFAULT_PASSWORD=' .env.local | cut -d= -f2- | $C exec -T gateway /gateway admin create --email admin@edupilot.local --name "Quản trị viên EduPilot"`; đăng nhập Admin → `/settings/llm` → thêm nhà cung cấp embedding thật (mục 5.3) → tuyến `EMBEDDING`. Các tuyến sinh chữ để bản giả trong lúc seed (seed trích quy chế bằng bản ghi demo; cách làm như `PHASE=seed` của `deploy/vps-llm.mjs`), đổi sang bản thật sau seed.
+   4. `pnpm seed` (Admin đã có thì bước 1 của seed bỏ qua).
+   5. Trả 4 giới hạn: `$C up -d --force-recreate --no-deps gateway` (không kèm biến).
+7. Làm tiếp các việc chuẩn bị ở `docs/DEMO_SCRIPT.md` mục 2 (chấm Bài tập 03 trước, sinh báo cáo lỗ hổng «30 ngày» cho cả hai lớp, bật điểm danh bằng mã).
+
 ### 5.3 LLM thật qua 9router (tuỳ chọn)
 Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test. Sinh chữ thật đi qua **9router chạy trên Mac** (`http://127.0.0.1:20128`; bật bằng `9router -n -t`), **không** gọi Gemini trực tiếp.
 1. Kiểm: `curl -s http://127.0.0.1:20128/v1/models | head -c 200` trả danh sách model.
