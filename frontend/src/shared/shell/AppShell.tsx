@@ -164,10 +164,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 onClick={p.toggle}
                 aria-expanded={p["aria-expanded"]}
                 aria-haspopup="true"
-                aria-label={`Chọn lớp, đang xem ${courseTitle}`}
-                title={courseTitle}
+                aria-label={realPending ? "Chọn lớp" : `Chọn lớp, đang xem ${courseTitle}`}
+                title={realPending ? undefined : courseTitle}
               >
-                {role === "student" && !hasCourse ? (
+                {realPending ? (
+                  <span className={s.courseWait} aria-hidden="true" /> // lớp thật chưa tải: không hiện tên lớp mô phỏng rồi đổi (QC L2.10)
+                ) : role === "student" && !hasCourse ? (
                   <span className={s.courseCode} title="Chưa có lớp">Chưa có lớp</span>
                 ) : isAll ? (
                   <span className={s.courseCode} title="Tất cả lớp của tôi">Tất cả lớp của tôi</span>

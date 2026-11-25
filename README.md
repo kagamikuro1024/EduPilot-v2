@@ -224,6 +224,8 @@ Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … 
    done
    ```
    (`judge`, `mock-graph`, `mock-imap` cũng vậy nếu có build lại.)
+
+   **Stack dựng trước 6eb77b26 (tên image cũ, cố định):** lần nâng đầu tiên phải `$C up -d --build`. Image tên mới (`<project>-gateway`, `-worker`, `-mock-graph`, `-mock-imap`, `-docling`, `-judge:dev`) chưa có trên máy; `up` không kèm `--build` sẽ thử kéo từ registry và báo `pull access denied` (QC gặp ở `ep-qc`).
 6. **Seed trong ngày trình bày** (buổi học «hôm nay» lấy theo ngày chạy seed; `docs/DEMO_SCRIPT.md` chuẩn bị #5), trên DB trống (đã sao lưu ở bước 1; xoá dữ liệu: `$C down -v` rồi `$C up -d --wait`):
    1. Dọn Mailpit trước seed: `curl -X DELETE http://localhost:8025/api/v1/messages`.
    2. Nới tạm 4 giới hạn theo IP (seed gửi hàng nghìn yêu cầu từ một IP; `pnpm dev` tự làm): `RATE_LIMIT_IP_PER_MIN=5000 AUTH_LOGIN_IP_PER_MIN=1000 AUTH_REGISTER_IP_PER_HOUR=1000 AUTH_TOKEN_IP_PER_MIN=1000 $C up -d --force-recreate --no-deps gateway`.

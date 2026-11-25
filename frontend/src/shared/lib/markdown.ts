@@ -1,11 +1,12 @@
 /**
- * Bộ phân tích Markdown TỐI THIỂU (SRS FEAT-weekly-exam 4.1.2, Q21): đoạn, nhấn (`**đậm**`, `*nghiêng*`), mã (`inline` và khối ```), danh sách, bảng.
+ * Bộ phân tích Markdown TỐI THIỂU (SRS FEAT-weekly-exam 4.1.2, Q21): đoạn, tiêu đề (`#`…`######`), nhấn (`**đậm**`, `*nghiêng*`), mã (`inline` và khối ```), danh sách, bảng.
  * Chỉ sinh cây dữ liệu — bộ vẽ (`shared/domain/Markdown.tsx`) dựng React node. HTML thô KHÔNG có cú pháp riêng: `<script>`, `<img onerror=…>` chỉ là chữ.
  * Không ảnh, không liên kết (kể cả tự nhận URL). An toàn nằm ở việc không bao giờ đưa chuỗi vào `dangerouslySetInnerHTML`, không ở việc cắt chuỗi lúc lưu.
  */
 export type Inline = { t: "text"; v: string } | { t: "strong"; c: Inline[] } | { t: "em"; c: Inline[] } | { t: "code"; v: string };
 export type Block =
   | { t: "p"; c: Inline[] }
+  | { t: "h"; level: 1 | 2 | 3 | 4 | 5 | 6; c: Inline[] }
   | { t: "ul" | "ol"; items: Inline[][] }
   | { t: "code"; v: string }
   | { t: "table"; head: Inline[][]; rows: Inline[][][] };
@@ -54,6 +55,7 @@ export function parseInline(s: string): Inline[] {
   return out;
 }
 
+const HEAD = /^\s{0,3}(#{1,6})\s+(.*?)\s*#*\s*$/;
 const LIST_UL = /^\s*[-*]\s+(.*)$/;
 const LIST_OL = /^\s*\d+[.)]\s+(.*)$/;
 const cells = (line: string) =>
@@ -128,6 +130,12 @@ export function parseMarkdown(src: string): Block[] {
       blocks.push({ t: "table", head, rows });
       continue;
     }
+    const head = HEAD.exec(line);
+    if (head) {
+      blocks.push({ t: "h", level: head[1].length as 1 | 2 | 3 | 4 | 5 | 6, c: parseInline(head[2]) });
+      i++;
+      continue;
+    }
     const ul = LIST_UL.exec(line);
     const ol = LIST_OL.exec(line);
     if (ul || ol) {
@@ -143,7 +151,7 @@ export function parseMarkdown(src: string): Block[] {
       continue;
     }
     const para: string[] = [];
-    while (i < lines.length && lines[i].trim() !== "" && !lines[i].trimStart().startsWith("```") && !LIST_UL.test(lines[i]) && !LIST_OL.test(lines[i])) para.push(lines[i++]);
+    while (i < lines.length && lines[i].trim() !== "" && !lines[i].trimStart().startsWith("```") && !LIST_UL.test(lines[i]) && !LIST_OL.test(lines[i]) && !HEAD.test(lines[i])) para.push(lines[i++]);
     blocks.push({ t: "p", c: parseInline(para.join("\n")) });
   }
   return blocks;

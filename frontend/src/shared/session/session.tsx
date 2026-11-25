@@ -64,6 +64,7 @@ export function SessionProvider({
     return c?.ok ? c.claims : null;
   }, [token]);
   const [pickedCourseId, setJwtCourseId] = useState<string | null>(null); // id lớp thật hoặc "all"; null = chưa chọn trong phiên này → localStorage, rồi lớp đầu
+  const wantedCourse = useSearchParams().get("course"); // ?course= thắng ngay lần vẽ đầu (QC L2.10); useCourseDeepLink ghi nhớ rồi bỏ tham số sau
   const mine = useMyCourses(!!identity);
   const real = useMemo(() => (identity && mine.data ? mine.data.filter((c) => c.enrollment_status === "ACTIVE") : null), [identity, mine.data]);
   // lớp ARCHIVED còn trong danh sách nhưng không được nhớ / làm lớp mặc định (US-UX91-06 AC3, P-91-9)
@@ -101,7 +102,7 @@ export function SessionProvider({
     let realCourseId: string | null = null;
     if (identity && real && role !== "admin") {
       const stored = readStoredCourse(); // chỉ chạy ở client sau khi có phiên thật (identity ≠ null)
-      const jwtCourseId = pickedCourseId ?? (stored === ALL_COURSES || live?.some((c) => c.id === stored) ? stored : null);
+      const jwtCourseId = pickedCourseId ?? (wantedCourse && real.some((c) => c.id === wantedCourse) ? wantedCourse : null) ?? (stored === ALL_COURSES || live?.some((c) => c.id === stored) ? stored : null);
       // Lớp THẬT quyết định ai thấy lớp nào; màn mô phỏng dùng lớp mô phỏng tương ứng theo class_code (AC13), không gọi API lớp.
       const pick = jwtCourseId === ALL_COURSES && role !== "student" && real.length > 1 ? ALL_COURSES : (real.find((c) => c.id === jwtCourseId) ?? real.find((c) => c.id === firstId) ?? real.find((c) => c.status === "ACTIVE") ?? real[0])?.id ?? null; // mặc định: lớp đang hoạt động đầu tiên, không phải lớp đã lưu trữ
       realCourseId = pick;
@@ -121,7 +122,7 @@ export function SessionProvider({
       role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, realCourses: identity ? real : null, realPending: !!identity && role !== "admin" && (mine.isPending || (needFirst && first.isPending)), realCourseId,
       setCourse, identity, logout,
     };
-  }, [identity, fullName, pickedCourseId, real, live, mine.isPending, needFirst, first.isPending, firstId, members, setCourse, logout]);
+  }, [identity, fullName, pickedCourseId, wantedCourse, real, live, mine.isPending, needFirst, first.isPending, firstId, members, setCourse, logout]);
 
   // lớp đã nhớ không còn trong danh sách lớp của tôi (id lạ, bị xoá lớp): bỏ giá trị, dùng lớp mặc định (US-UX91-06 AC3)
   useEffect(() => {

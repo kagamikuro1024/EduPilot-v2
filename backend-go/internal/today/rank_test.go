@@ -36,8 +36,8 @@ func TestRankTierOrder(t *testing.T) {
 	t.Parallel()
 	for name, tiers := range map[string][]int{
 		"giảng viên": {TierEmailMismatch, TierJoinRequest, TierCourseSetup},
-		"admin":      {TierLLMProviderError, TierLLMBudgetOut, TierLLMBudgetWarn, TierCourseNoTeacher, TierInviteExpired},
-		"sinh viên":  {TierVerifyEmail, TierJoinCode, TierJoinPending},
+		"admin":      {TierLLMProviderError, TierLLMBudgetOut, TierLLMBudgetWarn, TierCourseNoTeacher, TierInviteExpired, TierDeadLetter},
+		"sinh viên":  {TierVerifyEmail, TierJoinCode, TierJoinPending, TierNewDocument},
 	} {
 		var items []Item
 		for i := len(tiers) - 1; i >= 0; i-- { // đưa vào ngược

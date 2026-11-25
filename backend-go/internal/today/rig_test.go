@@ -9,7 +9,9 @@ import (
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi"
+	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
+	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
@@ -92,8 +94,11 @@ func newRig(t *testing.T, opts ...func(map[string]string)) *rig {
 	// Có runtime LLM (nhà cung cấp giả) để bảng route đầy đủ — gồm /courses/{id}/llm-budget — nằm trong bộ quét guard.
 	rt, err := llmrt.New(t.Context(), cfg, pool, rdb.Client, log)
 	require.NoError(t, err)
+	// Kho đối tượng thật + hàng việc: để route thư viện của sinh viên (đánh dấu «đã mở» cho NEW_DOCUMENT) có mặt trong bộ định tuyến.
+	objs, err := blob.New(t.Context(), blob.Config{Endpoint: testutil.MinIOEndpoint(t), Bucket: "today", AccessKey: testutil.MinIOAccessKey, SecretKey: testutil.MinIOSecretKey, EnsureBucket: true})
+	require.NoError(t, err)
 	d := httpapi.Deps{
-		Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clk, State: httpapi.NewState(), LLM: rt,
+		Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clk, State: httpapi.NewState(), LLM: rt, Jobs: jobs.NewService(pool), Blob: objs,
 	}
 	id := uuid.New()
 	return &rig{t: t, cfg: cfg, h: httpapi.NewRouter(d), pool: pool, rdb: rdb, clk: clk, qc: qc, logs: logs, ip: fmt.Sprintf("203.0.%d.%d", 1+int(id[0])%254, 1+int(id[1])%254)}

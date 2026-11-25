@@ -193,13 +193,13 @@ test("@real dò mật khẩu: 5 lần sai → chờ tăng dần (429/423); lần
   expect(codes.slice(-2).every((c) => c === 423 || c === 429), `sau 5 lần sai phải chờ: ${codes}`).toBe(true);
   const good = await call(request, null, "POST", "/auth/login", { email: w.em, password: w.pw });
   expect([423, 429], "đang chờ thì đúng mật khẩu cũng chưa vào").toContain(good.status);
-  // (b) 10 lần sai THẬT: mỗi khi bị chờ (429/423) thì đợi hết rồi sai tiếp (chờ 2, 4, 8, 16, 32 giây) — tới lần thứ 10 bị khoá
+  // (b) 10 lần sai THẬT: mỗi khi bị chờ (429/423) thì đợi đúng `retry_after` rồi sai tiếp (chờ 2, 4, 8, 16, 32 giây) — tới lần thứ 10 bị khoá
   const l = await mk("lock");
   let wrong = 0;
   for (let i = 0; i < 60 && wrong < 10; i++) {
     const r = await call(request, null, "POST", "/auth/login", { email: l.em, password: `Sai!${i}${tag}` });
     if (r.status === 401) wrong++;
-    else await sleep(2500);
+    else await sleep((Number(r.json.retry_after) || 2) * 1000 + 500); // chờ ĐÚNG Retry-After (chờ theo tài khoản 2, 4, 8… s hoặc cửa sổ phút của hạn mức IP); hỏi dồn mỗi 2,5 s tự chạm 429 theo IP (10 lần/phút) trước lần sai thứ 10
   }
   expect(wrong, "đủ 10 lần sai thật").toBeGreaterThanOrEqual(10);
   const lu = sql(`select locked_until is not null and locked_until > now() + interval '10 minutes' and locked_until < now() + interval '20 minutes' from users where email='${l.em}'`)[0][0];

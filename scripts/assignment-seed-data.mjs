@@ -31,9 +31,12 @@ export function sampleText(root, id) {
 /** Bỏ khối chú thích HTML `<!-- … -->` (ghi chú nội bộ của BA ở đầu tệp đề bài / đáp án): không nạp vào `description` / `reference_answer` (BUG-S9-02, proposals #17). */
 export const stripHtmlComments = (s) => (typeof s === "string" ? s.replace(/<!--[\s\S]*?-->/g, "").replace(/\n{3,}/g, "\n\n").trim() : s);
 
+/** Bỏ hai tiêu đề lặp với giao diện: `# <tên bài>` (đã là tiêu đề trang) và `## Đề bài` (đã là tên khối chứa mô tả) — QC L2.11. Tệp của BA giữ nguyên. */
+export const stripDuplicateHeadings = (s, title) => (typeof s === "string" ? s.replace(new RegExp(`^# ${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[ \\t]*\\n+`, "m"), "").replace(/^## Đề bài[ \t]*\n+/m, "").trim() : s);
+
 export function createBody(root) {
   const b = JSON.parse(read(root, "create-bt03.json"));
-  b.description = stripHtmlComments(b.description);
+  b.description = stripDuplicateHeadings(stripHtmlComments(b.description), b.title);
   b.reference_answer = stripHtmlComments(b.reference_answer);
   if (Array.isArray(b.rubric)) b.rubric = b.rubric.map((c) => ({ ...c, name: stripHtmlComments(c.name), guidance: stripHtmlComments(c.guidance) }));
   return b;
