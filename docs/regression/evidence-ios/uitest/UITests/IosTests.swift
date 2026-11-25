@@ -347,4 +347,45 @@ final class IosTests: XCTestCase {
         savePng(shotName())
         print(web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(12).joined(separator: " | "))
     }
+
+    /// KBD-04: gõ MỘT dạng (env KBD_FORM) vào ô trống, đọc giá trị.
+    func testKbd04() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        let form = ProcessInfo.processInfo.environment["KBD_FORM"] ?? "abc 123"
+        f.tap(); sleep(2)
+        f.typeText(form); sleep(2)
+        let v = (f.value as? String) ?? ""
+        try? ("\(form) -> \(v)").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName()); print("\(form) -> \(v)")
+    }
+    /// KBD-09: chạm giữ ô rồi Dán (clipboard đặt bằng simctl pbcopy trước).
+    func testKbd09() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        f.press(forDuration: 1.6); sleep(2)
+        savePng(shotName() + "-menu")
+        let paste = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Dán")).firstMatch
+        let paste2 = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Paste")).firstMatch
+        if paste.exists { paste.tap() } else if paste2.exists { paste2.tap() }
+        sleep(2)
+        savePng(shotName())
+        print("value=\((f.value as? String) ?? "")")
+    }
+
+    /// KBD-02: ngang SE3, chạm ô, chụp khi bàn phím mở.
+    func testKbdLandscape() {
+        XCUIDevice.shared.orientation = .landscapeLeft; sleep(4)
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        f.tap(); sleep(3)
+        savePng(shotName())
+        let web2 = safari.webViews.firstMatch
+        web2.swipeUp(); sleep(2)
+        savePng(shotName() + "-swipe")
+        XCUIDevice.shared.orientation = .portrait; sleep(2)
+    }
 }

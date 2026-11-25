@@ -738,13 +738,13 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 76 | 1 | 0 |
+| qc3 iOS | 77 | 0 | 0 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (284 mã gốc − 38 trùng = 246)** | **185** | **1** | **60** |
+| **Hợp (284 mã gốc − 38 trùng = 246)** | **186** | **0** | **60** |
 | TC | 345 | | |
 
-1 F: `TC-MOB-ERR-06` (qc3 §9.9). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
+0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
 
 **Trùng mã lỗi cần PM đổi số:** qc đặt việc trên là `DEF-MOB-05`, nhưng `DEF-MOB-05` đã dùng cho lỗi stash /checkin của qc3 (đã sửa `ce30065e`+`e039b61f`, PM đóng). Đề nghị đánh số lại thành `DEF-MOB-06`.
 
@@ -799,7 +799,7 @@ Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 đ
 |---|---|---|
 | TC-MOB-ERR-17 | P | Simulator boot lại với `TZ=Asia/Tokyo`; điểm danh lúc `20:32:52Z` (`channel=WEB`) → trang hiện «Đã điểm danh **03:32**» = giờ Việt Nam (UTC+7), không theo múi giờ máy (Tokyo +9). Đã `launchctl unsetenv TZ`. |
 | TC-MOB-ERR-19 | P | Đăng nhập `sv.qc-b` (không ghi danh QC3M1) rồi mở liên kết QC3M1 → «Bạn không thuộc lớp này.» một dòng, không lộ lớp có tồn tại hay không. |
-| TC-MOB-ERR-06 | **F** | Đăng xuất, mở liên kết QR mới (cửa sổ `01a21463-66f3`), để màn đăng nhập **91 s** rồi đăng nhập `sv.qc3`: trang về **ô nhập mã** («Mã điểm danh», lớp QC3M1), KHÔNG hiện «Mã đã hết hạn. Quét lại mã trên màn chiếu.» như TC đòi; gateway **0 POST** (đúng phần "không POST"). Gốc: DEF-MOB-05 (e039b61f) cho `pick()` xoá im lặng stash quá 60 s nên nhánh `stashExpired` của màn không còn được dùng tới sau khi đăng nhập lại. |
+| TC-MOB-ERR-06 | **P** (nghiệm lại `09f2deb3`) | Đăng xuất → `simctl openurl` liên kết QR mới (cửa sổ `01a21478-c11b`) → để màn `/login` **99 s** → đăng nhập `sv.qc3`: hiện «Mã đã hết hạn. Quét lại mã trên màn chiếu.» một dòng (`C-ERR06-after`); cửa sổ đó **0 dòng** `attendance_checkins` và **0 POST** (gateway chỉ có 1 POST `/checkins` lúc `20:52:42Z` = 422, trước kịch bản). DEF-MOB-07 đóng về phía tôi.
 
 ERR-15/NET-09: **N**, không cắt được mạng riêng cho Simulator mà không cắt mạng dùng chung — phủ bởi NET-02/03 Android (qc2) + pha 1 (qc).
 
