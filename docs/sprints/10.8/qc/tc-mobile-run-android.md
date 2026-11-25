@@ -214,3 +214,11 @@ Tổng: **68 TC = 57 P, 0 F, 11 N.**
 - **LIF-08 = P**: sang Chrome 2 phút (TC ghi 10 phút — rút ngắn, đã ghi rõ) rồi quay lại bằng Recents: vào thẳng `/checkin`, phiên còn, không màn trắng.
 - **PRM-05 = P**: `pm revoke` CAMERA khi app đang chạy, mở lại: tiến trình sống, `/checkin`, đăng nhập còn hạn, không crash/màn trắng (nhánh hỏi lại quyền không kiểm được — không camera).
 - **INS-13 = P**: `am start VIEW` mở Chrome (FirstRunActivity), không mở app — đúng kỳ vọng.
+
+## 21. Lượt 17 (26/11) — THM-02 = P; DEV-06 ghi chú theo PM; GEO-05 thử lại
+
+Tổng: **68 TC = 57 P, 0 F, 11 N.**
+
+- **THM-02 = P**: `cmd uimode night yes` + force-stop + mở lại: `prefers-color-scheme` false, nền #fff, chữ #231f20, tương phản **16,3:1** ở «/» và `/checkin`; ô nhập + nút còn; trang tôn trọng `color-scheme: light`.
+- **DEV-06 = N (giữ), ghi chú theo PM**: vế web ĐẠT (201, có `NOT_APP`, SV không thấy); vế trong app chưa chấm được vì emulator luôn thất bại attestation ⇒ chờ máy thật.
+- **GEO-05 = N (chưa làm lại được)**: đã mở cửa sổ mới cho QCMOB2 nhưng app tự bind sang lớp **QCVPSD** («Chọn lớp, đang xem QCVPSD»), nên mã QCMOB2 bị trả «Mã không đúng»; vòng mock GPS của tôi không thực sự đặt vị trí (chỉ broadcast rỗng) ⇒ không có hộp quyền để chụp. Cần mock location thật + lớp đang mở khớp QCMOB2.
