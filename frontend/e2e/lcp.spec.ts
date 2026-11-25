@@ -118,7 +118,7 @@ for (const [path, api, body, expected] of [
   });
 }
 
-test("early paint: không có ?course= và chưa nhớ lớp thì ô trống ẩn (không gọi API đoán lớp)", async ({ page, context }) => {
+test("early paint: không có ?course= thì ô trống ẩn (không gọi API đoán lớp)", async ({ page, context }) => {
   await asDemo(context, "student");
   await page.route("**/_next/static/chunks/**", (r) => r.abort());
   await page.route("**/api/v1/auth/refresh", (r) => r.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody("STUDENT", {})) }));
