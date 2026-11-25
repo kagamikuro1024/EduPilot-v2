@@ -689,8 +689,9 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-A11-09 | P | Ô «Mã điểm danh» có nhãn thật «Mã điểm danh» (h1 «Điểm danh»); 18 svg, 0 svg không aria-hidden | run1/shots/A11-09-label.png |
 | TC-MOB-DAT-07 | P | `bash scripts/ui-antipatterns.sh` trên VPS: toàn bộ phép ✓ (0 vi phạm) | — |
 | TC-MOB-DAT-03 | P | `e2e/attendance-checkin.spec.ts` dự án `mobile` trên VPS: **14/14 passed** (22,0 s) — gồm 429 đếm ngược, lớp kiểm tra vị trí, chưa đăng nhập, giảng viên bị chặn | — |
+| TC-MOB-NAV-11 | P | Mở / → /calendar → /checkin: Back 1 = /calendar, Back 2 = / (ngăn xếp đúng, không vòng) | run1/shots/NAV-11-stack.png |
 
-**Chưa chạy trong pha 1** (không tính F): 6.J `THM-01…05,07,08` (thiết bị), `THM-06` (axe chế độ tối — chờ lượt chạy tiếp); 6.L `NAV-01…11` (phần Back trên thiết bị + bàn phím); 6.M `PRM-01…09,11,12` (quyền trên thiết bị); 6.Q `A11-02…08,10…15` (TalkBack/VoiceOver thiết bị); 6.T còn `SEC-02…06,08…17` (logcat/Keystore/APK); 6.V `PRF-01…03,05,06,08` (thiết bị) và `PRF-04,07` (Lighthouse/trace); 6.W `DAT-01…07`.
+**Chưa chạy trong pha 1** (không tính F): 6.J `THM-01…05,07,08` (thiết bị); 6.L `NAV-01…11` (phần Back trên thiết bị + bàn phím); 6.M `PRM-01…09,11,12` (quyền trên thiết bị); 6.Q `A11-02…08,10…15` (TalkBack/VoiceOver thiết bị); 6.T còn `SEC-02…06,08…17` (logcat/Keystore/APK); 6.V `PRF-01…03,05,06,08` (thiết bị) và `PRF-04` (Lighthouse mobile — `lhci` có trên VPS nhưng lượt chạy thử chưa thu được báo cáo; để lượt sau/CI); 6.W `DAT-01…07`.
 
 **Quan sát (chưa phải lỗi, chờ PM/BA):**
 - Thanh bên 1024 px thu gọn nhãn: mục nav chỉ còn biểu tượng 55×34 px (nhãn nằm ở `aria-label`). Luật DESIGN «điều hướng chính trên desktop luôn có nhãn chữ» — nếu buộc áp cho 1024 thì cần quyết định thiết kế; AC13 chỉ áp 360–430 nên **không** tính F.
