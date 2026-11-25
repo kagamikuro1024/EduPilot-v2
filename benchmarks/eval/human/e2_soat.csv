@@ -1,0 +1,25 @@
+stt,id,cau_hoi,tra_loi_duoc,phai_chua (moi nhom it nhat 1 bien the),nguon,trang,bang_chung,ket_luan (Đúng / Sai nhãn / Câu hỏi mơ hồ),ghi_chu
+1,E2-005,Sâu Morris dài bao nhiêu dòng mã?,có,99,Mordern_Network_Security_Threats.pdf,28,created the first Internet worm with 99 lines of code,Đúng,Trang 28 ghi đúng 99 dòng mã
+2,E2-010,MafiaBoy là ai và đã tấn công những trang nào năm 2000?,có,michael calce | yahoo,Mordern_Network_Security_Threats.pdf,30,MafiaBoy was the Internet alias of Michael Calce,Đúng,"Trang 30 nêu Michael Calce và sáu trang (Yahoo!, Amazon, Dell, E*TRADE, eBay, CNN); phai_chua chỉ đòi Yahoo là mức tối thiểu chấp nhận được"
+3,E2-015,"Các cuộc tấn công mạng được chia thành mấy loại, gồm những loại nào?",có,malicious code / ma doc | reconnaissance / do tham / trinh sat | access / truy cap | dos / tu choi dich vu,Mordern_Network_Security_Threats.pdf,47,There are four categories of attacks,Đúng,Trang 47 liệt kê đủ bốn loại
+4,E2-020,SQL Slammer dùng cổng UDP nào?,có,1434,Mordern_Network_Security_Threats.pdf,70,The SQL Slammer worm used UDP port 1434,Đúng,
+5,E2-025,Biện pháp chính để giảm thiểu virus và Trojan horse là gì?,có,antivirus / anti-virus / diet virus / chong virus,Mordern_Network_Security_Threats.pdf,66,primary means of mitigating virus and Trojan horse attacks is anti-virus software,Đúng,
+6,E2-030,Những ứng dụng mạng nào gửi gói tin dạng văn bản thuần dễ bị sniffer đọc?,có,ftp | telnet,Mordern_Network_Security_Threats.pdf,78,"Some network applications (FTP, Telnet, TFTP, SNMP",Đúng,
+7,E2-035,Ping of death gửi gói ICMP lớn hơn bao nhiêu byte?,có,65.535 / 65535,Mordern_Network_Security_Threats.pdf,95,"larger than the maximum packet size of 65,535 bytes",Đúng,"Đúng ý. Lưu ý: tài liệu viết ""65,535"" (dấu phẩy) nhưng phai_chua không có biến thể này; nếu bộ so khớp không chuẩn hoá dấu phẩy thì nên thêm"
+8,E2-040,Mật khẩu mạnh theo bài giảng dài tối thiểu bao nhiêu ký tự?,có,8 / tam,Mordern_Network_Security_Threats.pdf,109,at least eight characters long,Đúng,
+9,E2-045,Cisco AutoSecure làm được gì?,có,mot buoc / one-step / khoa / lockdown,Mordern_Network_Security_Threats.pdf,140,"provides a one-step lockdown for the control, management and data planes",Đúng,
+10,E2-050,Công thức dự báo xu hướng tuyến tính gồm những hệ số nào?,có,b0 | b1,QMB12ch6b.pdf,4,T t = b 0 + b 1 t,Đúng,Trang 4: b0 là tung độ gốc và b1 là độ dốc
+11,E2-055,Tổng số việc sửa chữa trong 9 tháng của Auger's Plumbing là bao nhiêu?,có,3480 / 3.480,QMB12ch6b.pdf,7,3480,Đúng,Cộng lại chín tháng ở trang 9 cũng ra 3480
+12,E2-060,Trung bình trượt có trọng số 3 kỳ trong ví dụ Auger gán trọng số lớn nhất cho kỳ nào?,có,moi nhat / gan nhat / newest / thang 11 / 0.6,QMB12ch6b.pdf,9,"weights of .6, .3, and .1 for the newest to oldest",Đúng,"Biến thể ""0.6"" hơi lỏng: câu trả lời chỉ nêu 0,6 mà chỉ sai kỳ vẫn được tính đúng"
+13,E2-065,Có bốn mùa thì cần mấy biến giả?,có,3 bien / ba bien / 3 dummy / three / 3 bien gia,QMB12ch6b.pdf,16,"If there are four seasons, we need three dummy variables.",Đúng,
+14,E2-070,Doanh số ô quý 4 của năm thứ 3 là bao nhiêu?,có,80,QMB12ch6b.pdf,13,138 144 113 80,Đúng,"Bảng Umbrella Sales trang 13: năm 3 quý 4 = 80. Chữ ""ô"" (ô che mưa) hơi cụt nhưng vẫn hiểu được một nghĩa"
+15,E2-075,Mùa Father's Day năm thứ 5 dự kiến bán trung bình bao nhiêu mỗi tuần?,có,2497,QMB12ch6b.pdf,23,= 2497.0,Đúng,Father's Day là mùa 2 (trang 20); trang 23 cho Seas. 2 = 2497.0
+16,E2-080,Khi chuỗi có cả mùa vụ lẫn xu hướng tuyến tính thì bổ sung gì vào mô hình?,có,bien / variable | thoi gian / time,QMB12ch6b.pdf,19,We will introduce an additional variable to represent time.,Đúng,
+17,E2-085,Mỗi lần phát biểu được ghi nhận cộng bao nhiêu điểm và tổng cộng tối đa bao nhiêu?,có,0.25 | 1.0 / 1 diem / toi da 1,quy-che-lop1.pdf,1,"cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm",Đúng,"Đúng ý (Điều 2.1). Lưu ý: quy chế viết ""0,25"" và ""1,0"" (dấu phẩy thập phân) nhưng phai_chua chỉ có ""0.25"", ""1.0""; nếu bộ so khớp không chuẩn hoá dấu phẩy thì nên thêm biến thể. Tệp nằm ở seed/demo/, không ở seed/documents/"
+18,E2-090,"Điểm học phần đã làm tròn 6,5 xếp loại chữ gì?",có,c+,quy-che-lop1.pdf,2,"từ 6,5 đến dưới 7,0 là C+",Đúng,Điều 3.2
+19,E2-095,Điểm trên EduPilot đóng vai trò gì so với điểm chính thức của trường?,có,ho tro | giai trinh,quy-che-lop1.pdf,2,điểm trên EduPilot chỉ hỗ trợ tính và giải trình,Đúng,"Điều 5.1. phai_chua hơi chặt: câu diễn đạt lại đúng ý (ví dụ ""chỉ để tham khảo, không phải điểm chính thức"") sẽ bị tính sai"
+20,E2-100,Sinh viên được phúc khảo điểm thi cuối kỳ trong vòng bao nhiêu ngày?,không,,,,,Đúng,"Đã soát quy-che-lop1.pdf, quy-che-lop1-v2.pdf và Quyche.pdf: không có quy định phúc khảo"
+21,E2-105,Sâu Stuxnet nhắm vào loại hệ thống nào?,không,,,,,Đúng,Bài giảng an ninh mạng không nhắc Stuxnet
+22,E2-110,OAuth 2.0 cấp access token qua những luồng nào?,không,,,,,Đúng,Không tài liệu nào nhắc OAuth
+23,E2-115,Sai số MAPE trong dự báo được tính thế nào?,không,,,,,Đúng,QMB12ch6b.pdf (24 trang) không có MAPE hay độ đo sai số dự báo nào
+24,E2-120,Thủ đô của nước Úc là thành phố nào?,không,,,,,Đúng,Ngoài phạm vi tài liệu
