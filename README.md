@@ -227,14 +227,30 @@ Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … 
    5. Trả 4 giới hạn: `$C up -d --force-recreate --no-deps gateway` (không kèm biến).
 7. Làm tiếp các việc chuẩn bị ở `docs/DEMO_SCRIPT.md` mục 2 (chấm Bài tập 03 trước, sinh báo cáo lỗ hổng «30 ngày» cho cả hai lớp, bật điểm danh bằng mã).
 
-### 5.3 LLM thật qua 9router (tuỳ chọn)
-Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test. Sinh chữ thật đi qua **9router chạy trên Mac** (`http://127.0.0.1:20128`; bật bằng `9router -n -t`), **không** gọi Gemini trực tiếp.
+### 5.3 LLM thật: 9router hoặc OpenCode Go (tuỳ chọn)
+Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test. Có hai nhà cung cấp thật, cùng loại «Máy chủ riêng (tương thích OpenAI)» (`openai_compatible`); đổi qua lại chỉ bằng tuyến ở `/settings/llm`, không dựng lại (P-11-106). Khoá chỉ nhập ở `/settings/llm` (lưu mã hoá), không ghi vào `.env.local` hay repo.
+
+**9router** (chạy trên Mac, `http://127.0.0.1:20128`; bật bằng `9router -n -t`; **không** gọi Gemini trực tiếp):
 1. Kiểm: `curl -s http://127.0.0.1:20128/v1/models | head -c 200` trả danh sách model.
 2. Stack demo: đăng nhập Admin → `/settings/llm` → `Thêm nhà cung cấp` → «Máy chủ riêng (tương thích OpenAI)», địa chỉ `http://host.docker.internal:20128/v1` (container thấy Mac qua tên này), khoá 9router, model `ag/gemini-3.8-flash` → gán cho các tác vụ ở mục tuyến. `rpm_limit` đặt ≈ 10–20 (9router bận thì chậm).
 3. Stack đo / thử (cổng lệch): `BASE=https://localhost:<cổng HTTPS> PHASE=live node deploy/vps-llm.mjs` làm đúng các bước trên bằng API (script từ chối stack demo; xem `benchmarks/README.md`).
-4. Về lại bản giả: `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang tắt. Không còn nhà cung cấp bật thì gateway rơi về `LLM_PROVIDER=fake`, kèm bản ghi `seed/demo/fake_llm.json` (xem `docs/DEMO_SCRIPT.md` mục 5).
 
-Embedding mặc định là nhà cung cấp giả: chất lượng gom cụm / truy xuất bằng embedding thật chưa đo (P-11-19).
+**OpenCode Go** (dịch vụ ngoài, cần khoá của chủ dự án; tài khoản phải đặt Region **Global**: model không được phép với vùng hoặc gói của khoá trả `400 BAD_REQUEST`, gateway không thử lại, không chuyển nhà; P-11-108):
+
+| Dùng cho | Địa chỉ (`base_url`) | Model | Ghi chú |
+| --- | --- | --- | --- |
+| Sinh chữ (chat, chấm, đặt tên chủ đề, …) | `https://opencode.ai/inference/go/v1` | `deepseek-v4.1-flash` | Gateway nhận ra host `opencode.ai` và tự gửi `User-Agent`, `x-opencode-session`, `reasoning_effort=low`, cộng 4096 vào `max_tokens` (token suy luận tính vào trần; FR-33) |
+| Embedding (tuyến `EMBEDDING`) | `https://opencode.ai/inference/go/openai/v1` | `qwen3-embedding-8b`, loại «Tìm kiếm tài liệu (1536 chiều)» | Nhà cung cấp riêng. Mỗi lời gọi ≈ 11–24 s, có lúc `429` (đo 25/11): cần `KNOWLEDGE_EMBED_TIMEOUT=45s` cho worker (mục 5.2 bước 3) |
+| Decision model (D60) | `https://opencode.ai/inference/go/systemone/v1` | `gemini-decision-1` | Gateway gọi `POST {base}/systemone` khi host là `opencode.ai`. Chỉ gọi thật khi `LLM_DECISION_ALLOW_REAL=true` (và trong trần `LLM_DECISION_REAL_DAILY_CAP`, mặc định 300 / ngày); lượt thật cần chủ dự án cho phép (D60 (6)) |
+
+Các bước trên stack demo:
+1. Sinh chữ + embedding: `/settings/llm` → `Thêm nhà cung cấp` hai lần theo hai dòng đầu của bảng → tuyến các tác vụ sinh chữ sang nhà thứ nhất, tuyến `EMBEDDING` sang nhà thứ hai. Đặt `EMBEDDING` **trước** khi seed nạp tài liệu (mục 5.2 bước 6). Đổi embedding sau khi đã nạp thì phải nhúng lại tài liệu.
+2. Decision: thêm vào `.env.local` `LLM_DECISION_ALLOW_REAL=true` và `LLM_DECISION_BASE_URL=https://opencode.ai/inference/go/systemone/v1` (compose chuyển cả hai cho gateway và worker), tạo lại `gateway` và `worker` (`$C up -d --force-recreate --no-deps gateway worker`), rồi ở phần «Quyết định» của `/settings/llm` nhập khoá và chọn `gemini-decision-1`.
+3. Tóm tắt AI của hồ sơ 360 với nhà cung cấp thật: `AI_SUMMARY_TIMEOUT=60s` cho gateway qua tệp compose phụ (mặc định 20 s; compose không chuyển biến này từ `.env.local`).
+
+Về lại bản giả: `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang tắt. Không còn nhà cung cấp bật thì gateway rơi về `LLM_PROVIDER=fake`, kèm bản ghi `seed/demo/fake_llm.json` (xem `docs/DEMO_SCRIPT.md` mục 5). Decision về bản giả: chọn `decision-fake`.
+
+Embedding giả cho kết quả gom cụm vô nghĩa (Gate P10 lượt 1, 25/11): báo cáo lỗ hổng kiến thức chỉ trình bày với embedding thật (`docs/DEMO_SCRIPT.md` chuẩn bị #4). Ngưỡng gán chương theo `qwen3-embedding-8b`: liên quan ≥ 0,38, lạc đề ≤ 0,32 (P-11-115).
 
 ### 5.4 Nhiều stack trên một máy
 Mỗi stack một `COMPOSE_PROJECT_NAME` và một độ lệch cổng `EP_PORT_OFFSET` (cổng host cộng N; HTTPS = 443 + N). Hai máy giả `mock-graph` / `mock-imap` (8090 / 8091 + N) cũng lệch theo N khi dựng bằng `pnpm dev`; seed đọc `EP_PORT_MOCK_GRAPH` / `EP_PORT_MOCK_IMAP` để gửi thư thử đúng stack (thiếu thì thư rơi vào mock-imap của stack demo). **RAM: tối đa demo + một stack thử cùng lúc.**
