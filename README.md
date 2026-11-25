@@ -257,6 +257,10 @@ Các bước trên stack demo:
 
 Về lại bản giả: `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang tắt. Không còn nhà cung cấp bật thì gateway rơi về `LLM_PROVIDER=fake`, kèm bản ghi `seed/demo/fake_llm.json` (xem `docs/DEMO_SCRIPT.md` mục 5). Decision về bản giả: chọn `decision-fake`.
 
+Đổi tuyến:
+- Đổi qua `/settings/llm` hay `PUT /api/v1/admin/llm/routes` thì gateway phát `ep:llm:reload` (Redis pub/sub) và mọi tiến trình nạp lại, thăm dò dự phòng mỗi 60 s (`internal/llm/registry.go` `PollEvery`). Trên VPS 25/11 tuyến mới có hiệu lực sau ≤ ~40 s: đợi chừng đó rồi mới kiểm.
+- Tuyến không nhận chuỗi rỗng: `chain: []` → `422 ROUTE_INVALID` (luật `chain_empty`); không có API xoá tuyến. Đưa **một** tác vụ về bản giả mà vẫn giữ nhà cung cấp thật bật: xoá hàng của tác vụ đó trong `llm_task_routes` (`delete from llm_task_routes where task = '<TASK>'`), rồi đợi lần thăm dò 60 s hoặc tạo lại `gateway` và `worker`.
+
 Embedding giả cho kết quả gom cụm vô nghĩa (Gate P10 lượt 1, 25/11): báo cáo lỗ hổng kiến thức chỉ trình bày với embedding thật (`docs/DEMO_SCRIPT.md` chuẩn bị #4). Ngưỡng gán chương theo `qwen3-embedding-8b`: liên quan ≥ 0,38, lạc đề ≤ 0,32 (P-11-115).
 
 ### 5.4 Nhiều stack trên một máy
