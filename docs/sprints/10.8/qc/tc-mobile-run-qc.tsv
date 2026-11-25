@@ -14,7 +14,7 @@
 6.B	SES-13	N	cần `pm clear` (native)
 6.B	SES-14	P	Đăng xuất KHÔNG xoá khoá thiết bị: IndexedDB `edupilot.device.v1` còn `{id:web,pub:124}` trước và sau; sv.qc-b đăng nhập lại trong CÙNG context → lượt thứ hai cùng `device_id` (SQL) → DB ghi `DEVICE_SHARED`
 6.C	FLW-01	P	Token QR tự gửi 1 lần, «Đã điểm danh 00:11» sau 171 ms; `#token` mất khỏi URL; chỉ dấu Check đỏ (svg/path)
-6.C	FLW-02	N	cần `simctl openurl` (pha 3)
+6.C	FLW-02	N	pha 1: không có rotate mới để simctl openurl; qc3 P ở pha 3 iOS (rotate_seconds=60, 1 POST, DB channel=WEB) — khi gộp lấy P của qc3
 6.C	FLW-03	P	Ba kiểu `5mk9v5` / `5MK 9V5` / `5MK-9V5` đều nhận, cùng giờ; cửa sổ 1 lượt
 6.C	FLW-04	P	Ô «Mã điểm danh» + «Lớp QCMOB1» + nút Điểm danh; không nút quét (Chromium không BarcodeDetector)
 6.C	FLW-05	P	Mở lại cùng liên kết: hiện lại đúng giờ lượt đầu, không lỗi

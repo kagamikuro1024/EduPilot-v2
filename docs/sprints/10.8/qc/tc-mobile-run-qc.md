@@ -37,7 +37,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | Mã | Kết quả | Lý do / bằng chứng |
 | --- | --- | --- |
 | FLW-01 | **P** | Token QR tự gửi 1 lần, «Đã điểm danh 00:11» sau 171 ms; `#token` mất khỏi URL; chỉ dấu Check đỏ (svg/path) |
-| FLW-02 | **N** | cần `simctl openurl` (pha 3) |
+| FLW-02 | **N** | pha 1 (Chromium giả iPhone) không có rotate mới để mở liên kết bằng `simctl openurl`; **qc3 đã P ở pha 3 iOS** với cửa sổ `rotate_seconds=60` (token còn hạn khi trang tải, đúng 1 POST, DB `channel=WEB`) — khi gộp lấy **P** của qc3 |
 | FLW-03 | **P** | Ba kiểu `5mk9v5` / `5MK 9V5` / `5MK-9V5` đều nhận, cùng giờ; cửa sổ 1 lượt |
 | FLW-04 | **P** | Ô «Mã điểm danh» + «Lớp QCMOB1» + nút Điểm danh; không nút quét (Chromium không BarcodeDetector) |
 | FLW-05 | **P** | Mở lại cùng liên kết: hiện lại đúng giờ lượt đầu, không lỗi |
