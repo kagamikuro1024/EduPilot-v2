@@ -270,3 +270,12 @@ Tổng: **68 TC = 59 P, 0 F, 9 N.**
   - Chọn **Precise** + **While using the app**, nhập mã đang hiện → «Đã điểm danh 04:49», DB **1 dòng**: `{DEVICE_NEW,GEO_MOCK}`, dist 0, acc 100 m (`shots/GEO-05-def09-fast-precise.png`).
 - **Ghi nhận (không chặn):** lượt chạy trước thao tác chậm (~10 s vì hai lần `uiautomator dump`) vẫn «Đã điểm danh» + 1 dòng nhưng cờ `{DEVICE_NEW,GEO_DENIED}`, không có toạ độ — trần định vị 10 s tính cả thời gian hộp quyền đang mở (`shots/GEO-05-def09-done.png`). Trên máy thật, người dùng đọc hộp quyền lâu cũng sẽ bị gắn `GEO_DENIED` dù đã cấp quyền; đề nghị PM cân nhắc (không phải lỗi chặn AC).
 - Đã trả lại cấu hình lớp: `rotate_seconds=10`, `geo_check=false`.
+
+## 27. Lượt 23 (26/11) — GEO-05 trên DEF-MOB-10 (hộp quyền mở lâu vẫn có toạ độ) = P
+
+Tổng: **68 TC = 59 P, 0 F, 9 N.**
+
+- VPS `9965bd1c`, có `1d35e73a` (DEF-MOB-10); build `22:03:50Z` — sau commit `22:01:55Z`.
+- Geofence QCMOB2, `rotate_seconds=10` mặc định, `pm clear`, mở `/checkin`: hộp quyền hiện ngay; **giữ mở 13 s** (vượt trần 10 s) rồi chọn **Precise** + **While using the app**, nhập mã đang hiện.
+- Kết quả: «Đã điểm danh 05:05»; DB **1 dòng**: `{DEVICE_NEW,GEO_MOCK}`, dist 0, acc 100 m — **không còn `GEO_DENIED`** (`shots/GEO-05-def10-*.png`).
+- Đã trả lại cấu hình lớp: `rotate_seconds=10`, `geo_check=false`.
