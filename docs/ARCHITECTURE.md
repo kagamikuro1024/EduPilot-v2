@@ -100,7 +100,7 @@ Mỗi module: `handler.go` (mỏng) · `service.go` (logic, transaction, audit) 
 | Object storage | `minio/minio-go` v7 (tương thích S3) |
 | Test | `testing` + `testify` + `testcontainers-go` (+ `moby/moby/api`: kiểu `HostConfig` cho container sandbox go-judge trong test; **chỉ test**, từ sprint 6, không vào binary gateway / worker) + REST API Mailpit |
 
-Frontend giữ: Next.js, React, zustand (chỉ trạng thái UI + phiên), tailwind, recharts; thêm `@tanstack/react-query`, `@tanstack/react-virtual`, `lucide-react` (thư viện icon DUY NHẤT), font Be Vietnam Pro qua `next/font`, Playwright, `@axe-core/playwright`, Lighthouse CI; `uqr` 0.1.x (MIT, vẽ QR ra SVG, chỉ ở màn chiếu điểm danh — P-108-1 Q4).
+Frontend giữ: Next.js, React, zustand (chỉ trạng thái UI + phiên), tailwind, recharts; thêm `@tanstack/react-query`, `@tanstack/react-virtual`, `lucide-react` (thư viện icon DUY NHẤT), font Be Vietnam Pro qua `next/font`, Playwright, `@axe-core/playwright`, Lighthouse CI; `uqr` 0.1.x (MIT, vẽ QR ra SVG: màn chiếu điểm danh, P-108-1 Q4; `/checkin` import động để thử khả năng quét, P-11-131).
 App Android (sprint 10.8, P-108-1): thư mục `mobile/` riêng với `@capacitor/core`, `@capacitor/cli`, `@capacitor/android` 8.x (MIT); `frontend/` không import gói Capacitor nào (§11.7).
 Hạ tầng thêm trong compose: Caddy, PgBouncer, MinIO, Mailpit, `docling-serve` (trích PDF/DOCX cho worker), mock-graph (chỉ local). Test tải: k6.
 Python chỉ xuất hiện ở `benchmarks/` cho script đánh giá offline (D46); không có thư viện Python nào nằm trong đường chạy của sản phẩm.
@@ -528,7 +528,7 @@ Lệnh dev / test (`APP_ENV ∈ {dev, test}`): `gateway admin seed-checkin-demo 
   - `/attendance/display` ở `app/(present)/attendance/display/`: ngoài `AppShell`, vẫn qua `AuthGate`.
   - `/checkin` ở `app/(checkin)/checkin/`: layout riêng cất `#token` vào `sessionStorage` rồi mới bọc `AuthGate` + `AppShell`, vì `AuthGate` chuyển `/login?next=` chỉ giữ path + query.
   - Bố cục: `DESIGN.md` §14.8.1, §14.8.2.
-- `uqr` chỉ được import trong route màn chiếu. Kích thước First Load JS của các route khác không đổi.
+- `uqr`: màn chiếu (import tĩnh) + `/checkin` (import động trong `features/checkin/Scanner.tsx`, chỉ khi thử khả năng quét: vẽ QR mẫu cho `detect()`, P-11-131). First Load JS các route khác không đổi.
 - Khoá web:
   - `crypto.subtle.generateKey({name: "ECDSA", namedCurve: "P-256"}, false, ["sign"])`; cặp khoá cất nguyên trong IndexedDB `edupilot.device.v1` (structured clone giữ `extractable=false`).
   - Gửi khoá công khai `exportKey("spki")`. Gọi `navigator.storage.persist()`.
