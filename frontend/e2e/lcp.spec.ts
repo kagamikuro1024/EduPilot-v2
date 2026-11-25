@@ -99,7 +99,7 @@ test("lcp before refresh /practice/<id>: ứng viên đầu là chữ PreShell",
 // trả token và điền chữ thô vào ô PreShell, TRƯỚC khi JS nào chạy (ở đây mọi chunk JS bị chặn: chỉ HTML máy chủ + mã nội tuyến).
 const EC = "00000000-0000-7000-8000-00000000c001";
 for (const [path, api, body, expected] of [
-  [`/assignments/00000000-0000-7000-8000-0000000a0001?course=${EC}`, `**/api/v1/courses/${EC}/assignments/00000000-0000-7000-8000-0000000a0001/mine`, { assignment: { description: "**Đề:** phân tích `nhật ký` máy chủ." } }, "Đề: phân tích nhật ký máy chủ."],
+  [`/assignments/00000000-0000-7000-8000-0000000a0001?course=${EC}`, `**/api/v1/courses/${EC}/assignments/00000000-0000-7000-8000-0000000a0001/mine`, { assignment: { description: "# Bài 03\n\n**Đề:** phân tích `nhật ký` máy chủ.\n\n- ý một" } }, "Bài 03 Đề: phân tích nhật ký máy chủ. • ý một"],
   [`/practice/00000000-0000-7000-8000-00000000d001?course=${EC}`, `**/api/v1/courses/${EC}/practice/attempts/00000000-0000-7000-8000-00000000d001`, { current_index: 1, items: [{ question: { stem: "câu 0" } }, { question: { stem: "Thiết bị nào chuyển khung theo MAC?" } }] }, "Thiết bị nào chuyển khung theo MAC?"],
 ] as const) {
   test(`early paint ${path.split("?")[0].replace(/[0-9a-f-]{36}/, "<id>")}: chữ dữ liệu hiện trong PreShell trước JS, token chỉ ở Authorization`, async ({ page, context }) => {

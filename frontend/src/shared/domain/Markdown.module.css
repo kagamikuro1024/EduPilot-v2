@@ -1,5 +1,8 @@
 .md { display: grid; gap: var(--ep-space-3); line-height: 1.6; overflow-wrap: anywhere; }
 .md p { margin: 0; white-space: pre-line; }
+.md h3, .md h4 { margin: var(--ep-space-2) 0 0; font-weight: 600; line-height: 1.3; }
+.md h3 { font-size: var(--ep-text-item); }
+.md h4 { font-size: var(--ep-text-label); }
 .md ul, .md ol { margin: 0; padding-left: var(--ep-space-5); display: grid; gap: var(--ep-space-1); }
 .md code { font-size: var(--ep-text-meta); padding: 0 var(--ep-space-1); border-radius: var(--ep-radius-sm); background: var(--ep-surface-subtle); }
 .pre { margin: 0; padding: var(--ep-space-3); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); overflow-x: auto; font-size: var(--ep-text-meta); line-height: 1.5; white-space: pre; }

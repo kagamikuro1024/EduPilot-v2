@@ -22,6 +22,8 @@ export function Markdown({ source, className }: { source: string; className?: st
     <div className={[s.md, className ?? ""].join(" ")} data-part="markdown">
       {parseMarkdown(source).map((b, i) => {
         switch (b.t) {
+          case "h":
+            return b.level <= 2 ? <h3 key={i}>{inline(b.c)}</h3> : <h4 key={i}>{inline(b.c)}</h4>; // h1 / h2 của trang là tiêu đề màn và tiêu đề vùng
           case "ul":
             return <ul key={i}>{b.items.map((it, k) => <li key={k}>{inline(it)}</li>)}</ul>;
           case "ol":

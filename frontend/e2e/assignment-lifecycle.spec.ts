@@ -246,6 +246,19 @@ test("student page: mở bằng ?course= chỉ một GET …/mine (GET sớm đ�
   expect(api.calls.filter((c) => c.method === "GET" && /\/assignments\/[^/]+\/mine$/.test(c.path))).toHaveLength(1);
 });
 
+// LCP-3: `description` là Markdown (SRS FEAT-assignments 4.2.1) — tiêu đề # / ## thành h3, không hiện nguyên dấu #.
+for (const [w, h] of [[1440, 900], [375, 812]] as const) test(`student page @${w}: tiêu đề Markdown của đề bài hiện thành tiêu đề, không còn dấu #`, async ({ page, context }, info) => {
+  desktopOnly(info);
+  await page.setViewportSize({ width: w, height: h });
+  await asDemo(context, "student");
+  const base = mineOut();
+  await studentApi(page, { mine: mineOut({ assignment: { ...base.assignment, description: "# Bài tập 03 — Phân tích\n\n## Đề bài\nĐọc kỹ log.\n\n- Nêu ba dấu hiệu" } }) });
+  await page.goto(STUDENT_URL);
+  await expect(page.locator("[data-part=markdown] h3")).toHaveText(["Bài tập 03 — Phân tích", "Đề bài"]);
+  await expect(page.locator("[data-part=markdown] li").first()).toHaveText("Nêu ba dấu hiệu");
+  expect(await page.locator("main").innerText()).not.toMatch(/^\s*#{1,6} /m);
+});
+
 test("student page states: bốn trạng thái, đề bài Markdown, tiêu chí, có mục «Bài tập» ở thanh điều hướng (P-11-14)", async ({ page, context }, info) => {
   desktopOnly(info);
   await openStudent(page, context);

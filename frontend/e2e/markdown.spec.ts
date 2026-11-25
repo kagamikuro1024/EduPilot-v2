@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
+import { earlyText } from "../src/shared/data/earlyText";
 import { parseInline, parseMarkdown, stripComments, type Block, type Inline } from "../src/shared/lib/markdown";
 
 // US-PE-03 AC1 — bộ render Markdown tối thiểu: HTML thô chỉ là CHỮ, không bao giờ thành thẻ. Test thuần (không cần trình duyệt).
 
 const text = (nodes: Inline[]): string => nodes.map((n) => (n.t === "text" || n.t === "code" ? n.v : text(n.c))).join("");
-const flat = (b: Block): string => (b.t === "p" ? text(b.c) : b.t === "code" ? b.v : b.t === "table" ? [b.head, ...b.rows].flat().map(text).join("|") : b.items.map(text).join("|"));
+const flat = (b: Block): string => (b.t === "p" || b.t === "h" ? text(b.c) : b.t === "code" ? b.v : b.t === "table" ? [b.head, ...b.rows].flat().map(text).join("|") : b.items.map(text).join("|"));
 
 const HOSTILE = [
   "<script>alert(1)</script>",
@@ -63,4 +64,22 @@ test("markdown: chú thích HTML không hiện thành chữ (một dòng, nhiề
   expect(parseMarkdown(`<!-- ${hidden} -->`)).toEqual([]);
   expect(all("```\n<!-- giữ nguyên -->\n```")).toContain("<!-- giữ nguyên -->");
   expect(stripComments("a\r\nb")).toBe("a\r\nb"); // không đổi khi không có chú thích
+});
+
+// LCP-3 (US-P7-03; SRS FEAT-assignments 4.2.1 «description Markdown»): tiêu đề `#`…`######` là khối riêng (không hiện nguyên dấu #); chưa có dấu cách hoặc quá 6 dấu thì vẫn là đoạn.
+test("markdown: tiêu đề # … ###### thành khối h; «#x», «####### x» vẫn là đoạn; HTML trong tiêu đề chỉ là chữ", () => {
+  const b = parseMarkdown("# Bài tập 03\n\n## Đề bài ##\nĐoạn một\n### Mục **nhỏ**\n#x\n####### bảy\n# <script>alert(1)</script>");
+  expect(b.map((x) => (x.t === "h" ? `h${x.level}` : x.t))).toEqual(["h1", "h2", "p", "h3", "p", "h1"]);
+  expect(flat(b[1])).toBe("Đề bài");
+  expect(flat(b[2])).toBe("Đoạn một");
+  expect(flat(b[3])).toBe("Mục nhỏ");
+  expect(flat(b[4])).toBe("#x\n####### bảy");
+  expect(flat(b[5])).toBe("<script>alert(1)</script>");
+});
+
+// Ô sớm của earlyPaint: chữ thô đọc được, KHÔNG còn dấu Markdown (#, **, `, hàng gạch bảng, rào mã, chú thích HTML).
+test("earlyText: bỏ dấu tiêu đề, nhấn, rào mã, chú thích; mục danh sách thành «• »", () => {
+  const md = "<!-- nội bộ -->\n\n# Bài tập 03 — Phân tích\n\n## Đề bài\nĐọc **kỹ** mã `nc -l`.\n\n- Nêu ba dấu hiệu\n* Đề xuất\n\n| a | b |\n| --- | --- |\n| 1 | 2 |\n\n```\nls\n```\n\n\n\nHết";
+  expect(earlyText(md)).toBe("Bài tập 03 — Phân tích\n\nĐề bài\nĐọc kỹ mã nc -l.\n\n• Nêu ba dấu hiệu\n• Đề xuất\n\n| a | b |\n| 1 | 2 |\n\nls\n\nHết");
+  expect(earlyText("x\r\n\r\ny")).toBe("x\n\ny");
 });
