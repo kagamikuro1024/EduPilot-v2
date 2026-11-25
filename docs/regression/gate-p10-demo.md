@@ -362,3 +362,19 @@ Rebuild ep-qc gateway + worker + frontend lên 7ad0d062 (từng service, RAM ≥
 | --- | --- | --- |
 | GP10-06 (810c16fe): `/me` hàng «Điểm danh lúc hh:mm» cho buổi «Có mặt» | **P** | sv36 `/me` ở 1440 và 375 px: «Bạn có mặt 1/1 buổi, vắng 0.» + «Buổi 1 · 25/11 — Có mặt · Điểm danh lúc 07:20»; `evidence-gp10-06/me-1440.png`, `me-375.png` |
 | GP10-08 (7ad0d062): cụm 0 câu mẫu không gửi LLM đặt tên | **P** | `go test ./internal/insight -run TestKnowledgeGap -count=1` xanh (cả `TestKnowledgeGapNameZeroSample` PASS) từ worktree 7ad0d062 |
+
+## L2.8 Dò backend sau DEF-R6-01 / EXAMTICK / compose (ep-qc, HEAD sprint/11-p10-eval ea0cf217; backend, FE chưa rebuild)
+
+Cách nâng: build migrate/gateway/worker/mock-graph/judge (tên image mới `ep-qc-*`, các image `ep-qc-mock-graph`, `ep-qc-judge:dev`, `ep-qc-gateway` chưa có nên phải build thêm lần đầu), `up -d --no-build gateway worker migrate`. Volume cũ version 29 → 31.
+
+| Ca | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| TC-P3-01-49 | **P** | chuỗi nối của gateway (cả `DATABASE_URL` lẫn `PGBOUNCER_URL`): `edupilot_app`, rolsuper=f, rolbypassrls=f. `update pii_events set count=9` → `42501 audit_log is append-only` (0 dòng đổi, 291 dòng nguyên); `drop trigger` / `alter table … disable trigger` → 42501 must be owner; `truncate` → 42501; `set session_replication_role` → 42501 |
+| Migrate 29→31 trên volume cũ | **P** | `applied 00030_app_role.sql`, `00031_exam_attempt_finish_failures.sql`, `version=31 (2 migration mới)`, exit 0; không lỗi permission; gateway + worker + pgbouncer healthy |
+| API đọc/ghi lớp QC (QD10Q) | **P** | đăng nhập, GET exams/today/members → 200; POST thread (Idempotency-Key) → 201 |
+| EXAMTICK ca S tự nộp quá hạn | **P** | lượt IN_PROGRESS quá hạn: exam đã đóng → `GRADED/CLOSED`; exam còn mở → `GRADED/TIMEOUT`, graded_at có giá trị; ≤ 15 s |
+| EXAMTICK lượt lỗi (xoá `exam_items` bằng SQL) | **P** | worker log đúng 1 dòng `lượt tự nộp lỗi quá ngưỡng… failures=5` (attempt/exam/course id, không PII) lúc 09:13:23; sau đó thêm 60 s `finish_failures` đứng ở 5, lượt vẫn `IN_PROGRESS`; lượt lành cùng lô vẫn tự nộp |
+| `AI_SUMMARY_TIMEOUT` | **P** | `docker inspect` gateway và worker: `AI_SUMMARY_TIMEOUT=60s` |
+| Ghi chú (Thấp, chỉ bản testroutes) | **N** | gateway khởi động ghi ERROR `không tạo được bảng thử _test_items … must be owner of table _test_items (SQLSTATE 42501)`: bảng thử do vai chủ tạo từ volume cũ, vai ứng dụng không sửa được; gateway vẫn healthy |
+
+Dữ liệu QC tạo trên ep-qc: 2 lượt thi (sv36 CLOSED, sv.gioi TIMEOUT) ở QD10A; thread «QC3 dò vai DB 00030» ở QD10Q; bảng tạm đã xoá, `exam_items` đề 27162 đã khôi phục (3 dòng), lượt thử lỗi đã xoá, `closes_at` đề 27205 đã khôi phục.
