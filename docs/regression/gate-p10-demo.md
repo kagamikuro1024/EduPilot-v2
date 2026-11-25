@@ -378,3 +378,13 @@ Cách nâng: build migrate/gateway/worker/mock-graph/judge (tên image mới `ep
 | Ghi chú (Thấp, chỉ bản testroutes) | **N** | gateway khởi động ghi ERROR `không tạo được bảng thử _test_items … must be owner of table _test_items (SQLSTATE 42501)`: bảng thử do vai chủ tạo từ volume cũ, vai ứng dụng không sửa được; gateway vẫn healthy |
 
 Dữ liệu QC tạo trên ep-qc: 2 lượt thi (sv36 CLOSED, sv.gioi TIMEOUT) ở QD10A; thread «QC3 dò vai DB 00030» ở QD10Q; bảng tạm đã xoá, `exam_items` đề 27162 đã khôi phục (3 dòng), lượt thử lỗi đã xoá, `closes_at` đề 27205 đã khôi phục.
+
+## L2.9 Kiểm lượt cuối (ep-qc rebuild gateway + frontend lên 77091b87 ⊇ ac0f52b9, 2366ee52)
+
+| Ca | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| Log gateway không còn ERROR `_test_items` (2366ee52) | **P** | gateway khởi động 09:19:59Z, 0 dòng chứa `_test_items`, 0 dòng ERROR; healthy |
+| Judge `go test -race -tags integration ./internal/judge -count=1` ×2 (77091b87) | **P** | `ok` 122 s và 81 s; `TestJudgeSignalNotLostBeforeMark` chạy riêng PASS (5,8 s); không cần `-no-seccomp` |
+| LCP `/assignments/[id]` và `/practice/[attemptId]` trên ep-qc ở ac0f52b9 (THAM KHẢO — kết luận chấm trên sha mới của dev2) | xem dưới | Lighthouse devtools 3 lượt, đăng nhập sv.kha, «Đã hiểu» đã bấm (`auth-qc.cjs`) |
+
+LCP (ms, 3 lượt): `/assignments/<id>?course=` devtools 1905/1905/1901 (trung vị 1905, TBT ≤ 46, CLS 0,028); `/practice/<id>?course=` devtools 1915/1924/1912 (1915, TBT ≤ 60, CLS 0). URL trần (tham khảo, không chấm): `/assignments/<id>` 1516/1545/1534; `/practice/<id>` **5485/5457/5423** (phần tử LCP = `h1.ep-page-title`). Simulate với `?course=`: assignments 2814/2741/2564; practice 3010/3007/2485.
