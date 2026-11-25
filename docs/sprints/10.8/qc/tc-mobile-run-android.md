@@ -279,3 +279,17 @@ Tổng: **68 TC = 59 P, 0 F, 9 N.**
 - Geofence QCMOB2, `rotate_seconds=10` mặc định, `pm clear`, mở `/checkin`: hộp quyền hiện ngay; **giữ mở 13 s** (vượt trần 10 s) rồi chọn **Precise** + **While using the app**, nhập mã đang hiện.
 - Kết quả: «Đã điểm danh 05:05»; DB **1 dòng**: `{DEVICE_NEW,GEO_MOCK}`, dist 0, acc 100 m — **không còn `GEO_DENIED`** (`shots/GEO-05-def10-*.png`).
 - Đã trả lại cấu hình lớp: `rotate_seconds=10`, `geo_check=false`.
+
+## 28. Lượt 24 (26/11) — lô 1 nhóm còn lại: SCN, DEV, CL, PRM, LIF, NAV, THM
+
+Tổng: **97 TC = 66 P, 0 F, 31 N.**
+
+**P mới:** DEV-10 (challenge lần 6 → 429 RATE_LIMITED kèm `retry_after`), NAV-03 (link QR → `/login` → đăng nhập tại trang → tự gửi 1 lần, Back về «/» không vòng `/login`), NAV-06 (vuốt cạnh chậm: thoát app, không màn lạ; tại «/» vuốt chậm bị huỷ, không thoát nhầm), NAV-10 (mở LẠI cùng liên kết → «Đã điểm danh 05:11», không thêm lượt), CL-7 (các nhánh Back không dính camera), CL-5 + THM-03 (`force_dark_override=1` + máy tối: `/checkin` vẫn nền trắng chữ `rgb(35,31,32)`, tương phản ~15:1).
+
+**N có lý do (không phải FAIL):**
+- **Nhánh QUÉT + quyền camera không dựng được trên AVD:** WebView không có `BarcodeDetector` (`typeof BarcodeDetector` = `undefined`) nên app ẩn nút «Quét mã điểm danh» — đúng AC3a/SCN-11. Kéo theo SCN-01…06, 08…15, PRM-02/03/09, CL-9, LIF-11, và nhánh quét của CL-7.
+- **Thiếu thiết bị/kênh:** SCN-16 (máy thật), CL-11 + LIF-10 (iPhone Safari/PWA), CL-12 (cần nghe TalkBack; TalkBack có bật trên máy nhưng không thu/nghe được).
+- **Thiếu Docker:** DEV-12 — máy không còn Docker/colima, 3 test attest fail ngay bước start redis container (lỗi môi trường, không phải code).
+- **NAV-05:** đặt net delay 3 s, POST vẫn xong (DB 1 dòng) và không crash, nhưng không chốt được đúng thời điểm Back rơi vào lúc POST đang bay, và mở lại app về «/» chứ không hiện kết quả.
+
+Đã trả lại cấu hình QCMOB2 (`rotate_seconds=10`, không geofence) và tắt `force_dark_override`, `uimode auto`.
