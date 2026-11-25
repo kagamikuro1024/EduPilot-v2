@@ -283,7 +283,7 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 
 **4.7.5 Reaper.** Worker cron mỗi 30 s: `UPDATE chat_messages SET stream_status='FAILED', error_code='INTERRUPTED', completed_at=now() WHERE stream_status='STREAMING' AND updated_at < now() - 150 s` (chỉ mục từng phần `chat_messages_streaming_idx`; `updated_at` do trigger `set_updated_at`, 5.3); `G` còn sống mà bị reaper ghi trước sẽ thấy 0 dòng ở lệnh ghi cuối và dừng (4.7.1 bước 10).
 
-**4.7.6 Cache câu trả lời (D47 mục 5).** Khoá `ep:ans:{course_id}:{ver}:{sha256(chuẩn hoá(câu hỏi) + document_id)}`, TTL 1 giờ (lưới an toàn), chỉ cho `COURSE_QA` / `LIBRARY_SEARCH` **không** PII và không phiên giới hạn tài liệu của người khác; `ver` = `GET ep:rag:ver:{course_id}`, tăng bởi outbox `document.changed` (US-P8). Trúng cache → phát lại theo cùng giao thức (token theo lô nhỏ), `masked_count=0`. Intent cá nhân và tin có PII **không bao giờ** đọc / ghi cache. Khoá cache theo khớp chuẩn hoá chính xác (không "ngữ nghĩa" bằng vectơ: `ponytail:` đủ cho T1, nâng cấp khi đo thấy tỷ lệ trúng thấp).
+**4.7.6 Cache câu trả lời (D47 mục 5).** Khoá `ep:ans:{course_id}:{ver}:{route}:{sha256(chuẩn hoá(câu hỏi) + document_id)}` (`route` = chữ ký mô hình chính của tuyến CHAT + EMBEDDING: đổi tuyến thì khoá cũ không trúng, luật 15), TTL 1 giờ (lưới an toàn), chỉ cho `COURSE_QA` / `LIBRARY_SEARCH` **không** PII và không phiên giới hạn tài liệu của người khác; `ver` = `GET ep:rag:ver:{course_id}`, tăng bởi outbox `document.changed` (US-P8). Trúng cache → phát lại theo cùng giao thức (token theo lô nhỏ), `masked_count=0`. Intent cá nhân và tin có PII **không bao giờ** đọc / ghi cache. Khoá cache theo khớp chuẩn hoá chính xác (không "ngữ nghĩa" bằng vectơ: `ponytail:` đủ cho T1, nâng cấp khi đo thấy tỷ lệ trúng thấp).
 
 ### 4.8 `ResponseMetadata` và độ tin cậy (US-P3-07)
 
@@ -404,7 +404,7 @@ Thêm `CHECK (role <> 'USER' OR (stream_status='DONE' AND confidence IS NULL))`.
 | --- | --- | --- | --- |
 | `ep:mask:{session_id}` | HASH | 24 h kể từ lần dùng cuối | ánh xạ placeholder (không log) |
 | `ep:roster:{course_id}` | String JSON | 1 h; DEL theo sự kiện | từ điển roster |
-| `ep:emb:{sha256}` | String (vectơ nén; không chứa chữ) | 10 phút | cache nhúng, khoá = `sha256(chuẩn hoá(chữ thô))` |
+| `ep:emb:{route}:{sha256}` | String (vectơ nén; không chứa chữ) | 10 phút | cache nhúng, khoá = chữ ký mô hình chính của tuyến EMBEDDING + `sha256(chuẩn hoá(chữ thô))`; đổi tuyến thì vectơ cũ không trúng |
 | `ep:cls:proto:{model}` | String | 24 h | vectơ mẫu cá nhân |
 | `ep:chat:stream:{mid}` | pub/sub | — | đánh thức người nối lại (gom kênh mỗi tiến trình) |
 | `ep:chat:buf:{mid}:{attempt}` | Stream (`MAXLEN ~ 4096`) | 10 phút | bộ đệm token `{off,t}` để nối lại không khe |

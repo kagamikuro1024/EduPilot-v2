@@ -2,10 +2,13 @@ package llm
 
 import (
 	"context"
+	"crypto/sha256"
 	_ "embed"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -222,6 +225,23 @@ func (r *Registry) Reload(ctx context.Context) error {
 	r.cur.Store(st)
 	r.fire()
 	return nil
+}
+
+// Signature là chữ ký ngắn của mô hình chính (nhà cung cấp + mô hình) của các tác vụ: khoá cache nhúng / câu trả lời dùng nó để
+// kết quả sinh bởi tuyến cũ không trúng sau khi admin đổi tuyến (luật 15). Tác vụ chưa cấu hình đóng góp "-".
+// ponytail: chỉ mô hình chính; kết quả của mô hình dự phòng nằm dưới chữ ký của mô hình chính tới khi đổi tuyến.
+func (r *Registry) Signature(tasks ...Task) string {
+	var b strings.Builder
+	for _, t := range tasks {
+		rt, err := r.Route(t)
+		if err != nil {
+			b.WriteString("-;")
+			continue
+		}
+		b.WriteString(rt.Targets[0].ProviderID + "/" + rt.Targets[0].Model + ";")
+	}
+	sum := sha256.Sum256([]byte(b.String()))
+	return hex.EncodeToString(sum[:4])
 }
 
 // Route trả chuỗi của tác vụ; ErrNotConfigured nếu không có.
