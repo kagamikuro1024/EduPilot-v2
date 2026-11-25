@@ -26,7 +26,7 @@ type Input = { course: string; token: string } | { course: string; code: string 
 type View =
   | { k: "sending" }
   | { k: "done"; at: string }
-  | { k: "entry"; error?: string; denied?: boolean }
+  | { k: "entry"; error?: string; cam?: "denied" | "failed" }
   | { k: "scanning" }
   | { k: "error"; message: string; offline?: boolean; retry?: () => void }
   | { k: "limited"; until: number; retry?: () => void };
@@ -169,6 +169,38 @@ export function CheckinScreen() {
     return () => clearInterval(t);
   }, [view]);
 
+  // Back / vuốt quay lại khi đang quét: thoát khung quét về ô nhập mã, không rời /checkin (US-AS-15 AC7a). Vào khung quét đẩy một mục lịch sử; thoát bằng cách lùi mục đó.
+  const scanning = view.k === "scanning";
+  useEffect(() => {
+    if (!scanning) return;
+    window.history.pushState({ ...(window.history.state as object | null), epScan: true }, "");
+    const onPop = () => setView((v) => (v.k === "scanning" ? { k: "entry" } : v));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [scanning]);
+  const leaveScan = () => {
+    if ((window.history.state as { epScan?: boolean } | null)?.epScan) window.history.back(); // popstate đưa về ô nhập mã
+    else setView((v) => (v.k === "scanning" ? { k: "entry" } : v));
+  };
+
+  // Quyền camera đã cấp lại ở Cài đặt hệ thống: khi trang hiện lại, trả nút «Quét mã điểm danh» và bỏ dòng từ chối, không xin quyền lặp (AC8)
+  const camIssue = view.k === "entry" && view.cam !== undefined;
+  useEffect(() => {
+    if (!camIssue) return;
+    const onShow = () => {
+      if (document.visibilityState !== "visible") return;
+      const back = () => {
+        setCodeMode(false);
+        setView((v) => (v.k === "entry" && v.cam ? { k: "entry" } : v));
+      };
+      const q = navigator.permissions?.query({ name: "camera" as PermissionName });
+      if (!q) return back();
+      q.then((p) => p.state !== "denied" && back(), back);
+    };
+    document.addEventListener("visibilitychange", onShow);
+    return () => document.removeEventListener("visibilitychange", onShow);
+  }, [camIssue]);
+
   if (role !== "student") return null;
 
   const norm = normalizeCode(code);
@@ -179,6 +211,7 @@ export function CheckinScreen() {
   }
   function onScanned(v: { c: string; token: string }) {
     begin({ course: v.c, token: v.token });
+    leaveScan();
   }
 
   let primary: HeaderAction | undefined;
@@ -195,7 +228,7 @@ export function CheckinScreen() {
     <Page kind="read">
       <PageHeader title="Điểm danh" primary={primary} />
       <Panel>
-        <div className={s.body} data-part="checkin" data-state={view.k}>
+        <div className={s.body} data-part="checkin" data-state={view.k} aria-live="polite">
           {view.k === "sending" && (
             <>
               {geoLine && <p className={s.geo} data-part="geo-line">{GEO_LINE}</p>}
@@ -211,10 +244,10 @@ export function CheckinScreen() {
           {view.k === "scanning" && (
             <Scanner
               onCode={onScanned}
-              onExit={() => setView({ k: "entry" })}
-              onDenied={() => {
+              onExit={leaveScan}
+              onDenied={(cam) => {
                 setCodeMode(true);
-                setView({ k: "entry", denied: true });
+                setView({ k: "entry", cam });
               }}
             />
           )}
@@ -249,7 +282,7 @@ export function CheckinScreen() {
                 )}
               </Field>
               {classCode && <p className="ep-meta">Lớp {classCode}</p>}
-              {view.denied && <StatusText tone="amber">Chưa cấp quyền camera.</StatusText>}
+              {view.cam && <StatusText tone="amber">{view.cam === "denied" ? "Chưa cấp quyền camera." : "Không mở được camera."}</StatusText>}
             </form>
           ))}
           {view.k === "error" && <InlineNotice tone="danger" compact>{view.message}</InlineNotice>}
