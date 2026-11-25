@@ -764,6 +764,24 @@ Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 đ
 
 **Còn lại của lô B (chưa chạy):** `FLW-04` (PWA gõ mã), `ERR-01` (`c` không phải UUID), `ERR-03` (MAC sai), `ERR-04` (cửa sổ đã đóng), `ERR-05/19` (SV không thuộc lớp), `ERR-06` (đăng nhập chậm > 60 s), `ERR-07/08` (teacher/TA/admin), `ERR-09` (429 sau 6 mã sai), `ERR-15` (offline lần đầu — cần cắt mạng host), `ERR-17` (múi giờ), `NET-09/12`.
 
+### 9.6 Nghiệm DEF-MOB-05 trên iOS (VPS `40281db4`) — ĐẠT
+
+- Tab Safari đã có trạng thái cũ (> 60 s, màn «Đã điểm danh» của lượt trước) + mở liên kết QR MỚI trong cùng tab: trang gửi **đúng 1** `POST /checkins` (gateway log `19:20:45Z` 200, `19:23:36Z` 200 — 1 lần cho mỗi lần mở), hiện «Đã điểm danh 02:12», không còn «Mã đã hết hạn» oan.
+- Liên kết còn token bước cũ: server trả `CHECKIN_TOKEN_EXPIRED` (đo bằng API: token 5 phút tuổi → 422, token mới → 201), trang rơi về nhánh hết hạn / ô nhập mã — đúng ý AC4.
+- `#main` (skip link) không bị cất làm token (e039b61f): URL giữ nguyên, 0 POST.
+- Giới hạn bằng chứng: `simctl openurl` bỏ qua lệnh mở lại y nguyên URL đang đứng (không phát `hashchange`), nên đường "đổi hash trên trang đang dựng" chỉ nghiệm được qua e2e của dev (`frontend/e2e/checkin-net.spec.ts`, techlead-ui ĐẠT); trên máy thật cần quét QR bằng camera.
+
+### 9.7 Lô B — thêm 26/11 (VPS `40281db4`)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-ERR-03 | P | Sửa 1 ký tự MAC: **422** `CHECKIN_TOKEN_INVALID` «Mã không đúng. Quét lại mã trên màn chiếu.» |
+| TC-MOB-ERR-05 | P | SV không thuộc lớp (`sv.moi`): **403** `FORBIDDEN`, `details.reason="course"` |
+| TC-MOB-ERR-07 | P | TEACHER `POST /checkins`: **403** |
+| TC-MOB-ERR-08 | P | TA `POST /checkins`: **403** |
+| TC-MOB-ERR-09 | P | 5 lần mã sai liên tiếp = 422, lần thứ **6** trở đi = **429** `RATE_LIMITED` |
+| TC-MOB-ERR-01 | **F** | Liên kết đúng như TC (`?c=khong-phai-uuid#tokenbatky`): KHÔNG hiện «Liên kết không đúng.», rơi về ô nhập mã. Câu lỗi chỉ hiện khi fragment ĐÚNG cú pháp token + `c` sai (`?c=khong-phai-uuid#<token thật>` → «Liên kết không đúng.» — đã chụp `ERR-01c`). Nguyên nhân: P-11-144/e039b61f cố ý chỉ cất fragment đúng cú pháp (để `#main` còn tác dụng); `tokenbatky` không phải token nên bị bỏ. Đề nghị QC sửa fixture TC sang token thật, không mở defect. |
+
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
 - Không có ca nào kiểm Play Integrity, App Attest, thông báo đẩy, đa cửa sổ, máy tính bảng, màn gập, chế độ tối thật (ngoài phạm vi US-AS-15).

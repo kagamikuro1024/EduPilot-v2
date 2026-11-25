@@ -256,4 +256,28 @@ final class IosTests: XCTestCase {
         try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
         savePng(shotName()); print(log.joined(separator: "\n").prefix(600))
     }
+
+    /// Đổi tài khoản trong app: Thêm → Đăng xuất → đăng nhập sv.gioi (dùng cho DEF-MOB-05 vì sv.qc3 đã điểm danh các cửa sổ đang mở).
+    func testSwitchToGioi() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let more = web.buttons.matching(NSPredicate(format: "label == %@", "Thêm")).firstMatch
+        if more.exists { more.tap() } else { web.staticTexts.matching(NSPredicate(format: "label == %@", "Thêm")).firstMatch.tap() }
+        sleep(3)
+        let out = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if out.exists { out.tap() } else { web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch.tap() }
+        sleep(4)
+        let confirm = safari.alerts.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if confirm.exists { confirm.tap(); sleep(4) }
+        let email = web.textFields.firstMatch
+        _ = email.waitForExistence(timeout: 15)
+        email.tap(); sleep(1); email.typeText("sv.gioi@edupilot.local")
+        let pw = web.secureTextFields.firstMatch
+        pw.tap(); sleep(1); pw.typeText("Edupilot#Seed-2026")
+        let login = web.buttons.matching(NSPredicate(format: "label == %@", "Đăng nhập")).firstMatch
+        if login.exists { login.tap() } else { safari.typeText("\n") }
+        sleep(9)
+        savePng(shotName())
+        print("after login: \((web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(12)).joined(separator: " | "))")
+    }
 }
