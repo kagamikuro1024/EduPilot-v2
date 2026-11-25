@@ -14,9 +14,14 @@ def fresh(min_rem=30):
         time.sleep(1)
     return w
 def entry():
-    scn.goto_checkin(); time.sleep(2.5)
-    if not m.cdp("!!document.querySelector('input')"):
-        m.cdp("location.reload()"); time.sleep(3)
+    for attempt in range(3):
+        scn.goto_checkin(); time.sleep(2.0)
+        if m.cdp("!!document.querySelector('input')"): return True
+        t=scn.txt()
+        if "Thoát" in t:
+            scn.click("Thoát"); time.sleep(1.2)
+            if m.cdp("!!document.querySelector('input')"): return True
+        m.cdp("location.reload()"); time.sleep(3.0)
     return m.cdp("!!document.querySelector('input')")
 def scan():
     m.cdp("(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.innerText.trim()==='Quét mã điểm danh'); if(!b) return 'nobtn'; b.click(); return 'ok'})()")

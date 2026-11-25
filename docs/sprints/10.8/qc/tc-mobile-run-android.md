@@ -315,3 +315,12 @@ Tổng: **97 TC = 72 P, 1 F, 24 N.**
 - **SCN-04 = P**: poster token đã qua vòng → «Mã đã hết hạn. Quét lại mã trên màn chiếu.», nút quét ở lại, không đăng xuất, DB 0 dòng.
 - **LIF-11 = N**: bật `low_power=1` rồi quét lại thì app báo «Không mở được camera.» trong 0,8 s (camera còn bị phiên trước giữ) — không đo được nhịp khung ≥3 khung/giây nên không kết luận.
 - Còn N: SCN-05/06/08/09/10/12/13/14/15 (chưa dựng ổn định được cảnh: cửa sổ đóng/lớp khác/hai QR/nền/mạng chậm/xoay) — sẽ chạy tiếp.
+
+## 31. Lượt 27 (26/11) — PRM-09 chạy lại trên bản vá 1d7843e0 = P
+
+Tổng: **97 TC = 73 P, 0 F, 24 N.**
+
+- VPS `1d7843e0` (DEF-MOB-11), frontend build `22:48:31Z`.
+- Android 16, bật công tắc quyền riêng tư camera toàn máy (`cmd sensor_privacy enable 0 camera`), bấm «Quét mã điểm danh»: hiện **«Không mở được camera.»** sau 0,2 s và quay về ô nhập mã (ô nhập có, nút quét dùng được), không treo, không đăng xuất (`shots/PRM-09-fixed.png`).
+- Ghi nhận: sau khi tắt công tắc, trang đang ở trạng thái lỗi vẫn giữ câu lỗi cho tới khi trang hiện lại (đúng thiết kế AC8, cần rời app rồi quay lại mới tự trở về nút quét bình thường).
+- **DEF này đóng từ phía QC.**
