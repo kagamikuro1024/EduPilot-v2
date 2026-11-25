@@ -1,8 +1,8 @@
 .picker { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-1) var(--ep-space-2); }
 .picker select { min-width: 190px; }
 @media (max-width: 719px) {
-  .picker { flex: 1; }
-  .picker select { flex: 1; }
+  .picker { flex: 1; flex-direction: column; align-items: stretch; } /* nhãn «Buổi» trên ô chọn: ô chọn đủ bề rộng, nhãn «Chưa điểm danh» không bị cắt (QC VPS) */
+  .picker select { width: 100%; min-width: 0; }
 }
 .longText { display: inline; }
 .shortText { display: none; }

@@ -28,7 +28,7 @@ export function FailedMail() {
   return (
     <Section title="Thư chưa gửi được" fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} /> : null}>
       <PageState query={list} isEmpty={() => list.items.length === 0} loading={<Skeleton lines={3} />} empty={<EmptyState title="Không có thư lỗi" />}>
-        <DataTable caption="Thư chưa gửi được, mới nhất trước" columns={columns} rows={list.items} rowKey={(r) => r.id} dense />
+        <DataTable caption="Danh sách thư lỗi" columns={columns} rows={list.items} rowKey={(r) => r.id} dense />
         {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}
       </PageState>
     </Section>

@@ -394,3 +394,23 @@ test("attendance notice: dòng cảnh báo công thức cách ô chọn Buổi v
   expect(note.y - (sel.y + sel.height)).toBeGreaterThanOrEqual(8);
   expect(table.y - (note.y + note.height)).toBeGreaterThanOrEqual(8);
 });
+
+// QC VPS: 375 px nhãn ô chọn Buổi không bị cắt giữa từ («…Chưa điểm danl»)
+test("attendance @375: ô chọn Buổi đủ rộng cho nhãn dài nhất, không cắt chữ", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "mobile", "đo ở di động");
+  await asDemo(context, "teacher");
+  await page.clock.setFixedTime(NOW);
+  await attApi(page, { sessions: [sessionRow(1), sessionRow(2), sessionRow(3)] });
+  await page.goto("/attendance");
+  const sel = page.locator("[data-part=att-session-select]");
+  await expect(sel).toBeVisible();
+  const m = await sel.evaluate((e: HTMLSelectElement) => {
+    const cs = getComputedStyle(e);
+    const c = document.createElement("canvas").getContext("2d")!;
+    c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const text = Math.max(...[...e.options].map((o) => c.measureText(o.textContent ?? "").width));
+    const room = e.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 28; // 28: mũi tên chọn
+    return { text: Math.round(text), room: Math.round(room) };
+  });
+  expect(m.text).toBeLessThanOrEqual(m.room);
+});
