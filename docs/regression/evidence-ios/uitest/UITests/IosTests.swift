@@ -494,4 +494,16 @@ final class IosTests: XCTestCase {
             web.swipeRight(); sleep(3); savePng(shotName() + "-back2")
         }
     }
+
+    /// PWA: về «Hôm nay» (toạ độ) và chụp — kiểm phiên còn sống sau khi Safari đăng xuất (P-11-148).
+    func testPwaHomeState() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch.tap()
+        sleep(9)
+        let app = XCUIApplication(bundleIdentifier: "com.apple.webapp")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.08)).tap(); sleep(2)
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.10, dy: 0.915)).tap(); sleep(4)
+        savePng(shotName())
+    }
 }
