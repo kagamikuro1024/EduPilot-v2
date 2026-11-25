@@ -10,7 +10,7 @@ test("@real OBS-1 ADMIN: dải 24 giờ, bảng 7 ngày, bảng yêu cầu, lọ
   await page.goto("/observability");
   const today = page.locator('[data-part="obs-today"]');
   await expect(today).toHaveCount(1);
-  await expect(today).toHaveText(/^24 giờ qua: [\d.,]+ yêu cầu · p95 [\d.,]+ ?\w* · lỗi [\d.,]+ ?% · dự phòng [\d.,]+ ?% · chi phí/);
+  await expect(today).toHaveText(/^[\d.,]+ yêu cầu · p95 [\d.,]+ ?\w* · lỗi [\d.,]+ ?% · dự phòng [\d.,]+ ?% · chi phí/);
   await expect(page.getByText("7 ngày qua", { exact: true })).toBeVisible();
   await expect(page.getByText("Chi phí theo tác vụ", { exact: true })).toBeVisible();
   const heads = (await page.getByRole("table", { name: /Số liệu theo ngày/ }).innerText()).toLowerCase();

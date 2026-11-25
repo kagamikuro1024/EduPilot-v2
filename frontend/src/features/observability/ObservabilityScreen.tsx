@@ -12,7 +12,7 @@ export function ObservabilityScreen() {
   const courseId = realCourses ? (realCourseId && realCourseId !== "all" ? realCourseId : (realCourses[0]?.id ?? null)) : null;
   return (
     <Page kind="work">
-      <PageHeader title="Quan sát AI" meta={isAdmin ? [<span key="m">Toàn hệ thống</span>] : undefined} />
+      <PageHeader title="Quan sát AI" />
       {isAdmin ? <AdminView /> : <CourseView courseId={courseId} />}
     </Page>
   );

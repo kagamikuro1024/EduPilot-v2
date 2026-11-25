@@ -121,10 +121,12 @@ test("TEACHER: chỉ tổng hợp 7 ngày của lớp mình, không bảng yêu 
 });
 
 // DEF-R10.7-01 (khung §23): ADMIN — mọi mục cách nhau 48 px; GV — meta không lặp lớp đang chọn, lớp chưa có yêu cầu dùng EmptyState.
-test("ADMIN: các mục kề nhau cách đều 48 px (mục → mục), dòng «24 giờ qua» nằm trong mục 7 ngày (DEF-R10.7-01)", async ({ page }) => {
+test("ADMIN: các mục kề nhau cách đều 48 px (mục → mục), số «24 giờ qua» và bảng «7 ngày qua» là hai mục riêng (DEF-R10.7-01, P-11-128)", async ({ page }) => {
   await openAdmin(page);
   await expect(page.getByRole("heading", { name: "Yêu cầu", level: 2 })).toBeVisible();
   await expect(page.locator("[data-part=obs-today]")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "24 giờ qua", level: 2 })).toBeVisible();
+  await expect(page.locator("[data-ep-header-meta]")).toHaveCount(0); // «Toàn hệ thống» lặp bộ chọn lớp ở topbar
   const gaps = await page.locator("main [data-ep-section]").evaluateAll((els) => els.slice(1).map((e, i) => Math.round(e.getBoundingClientRect().top - els[i].getBoundingClientRect().bottom)));
   expect(gaps.length).toBeGreaterThanOrEqual(3);
   expect(gaps).toEqual(gaps.map(() => 48));
