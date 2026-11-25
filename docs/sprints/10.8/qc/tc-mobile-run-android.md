@@ -359,3 +359,12 @@ Tổng: **97 TC = 80 P, 0 F, 17 N.**
 - Thực tế POST xong trong **< 2 s** (đã «Đã điểm danh 06:22», DB 1 dòng) nên không đúng cảnh «đang gửi»; Back về «/» (không thoát app); mở lại app về «/», **không hiện lại kết quả**.
 - Muốn chấm được vế «mở lại thấy kết quả» cần làm POST chậm thật (chặn phía gateway), không dùng delay mạng của emulator.
 - Đã trả QCMOB2 về `rotate_seconds=10`, không geofence.
+
+## 36. Lượt 32 (26/11) — DEV-11 = P, DEV-03 = P, DEV-09 = N
+
+Tổng: **100 TC = 82 P, 0 F, 18 N.**
+
+- **DEV-11 = P** (API, token sv.qc3): nonce đã dùng → `422 DEVICE_CHALLENGE_INVALID` «Mã thử thách hết hạn. Thử lại.»; chuỗi 7 chứng chỉ → `422 VALIDATION_FAILED` (details `attestation_chain`: «Cần 2 đến 6»); chuỗi tự ký 2 cert openssl → `422 ATTESTATION_FAILED`; replay chuỗi thật với nonce mới → `ATTESTATION_FAILED` (challenge không khớp).
+- **DEV-03 = P**: emulator (Play Store AVD) điểm danh lần đầu → gateway log 23:26:06Z: `POST /me/devices/challenge` 200 rồi `POST /me/devices` **422** (attestation máy ảo không được tin); app vẫn điểm danh «Đã điểm danh 06:26», DB `assurance=2`, `channel=CODE`, flags `{DEVICE_NEW,TOKEN_LATE}`, **không có `DEVICE_UNTRUSTED`**, sinh viên không thấy lỗi.
+- **DEV-09 = N**: 5 lần `am force-stop` + mở lại app: số `POST /me/devices` trong gateway log **không tăng** (60 → 60) ⇒ không thử lại mỗi lượt; nhưng `localStorage` không có khoá nào chứa «device» (app chỉ đăng ký khi điểm danh) nên chưa dựng được đúng cảnh «một lần đăng ký + cache key». Vế «≤ 5 challenge/phút» đã kiểm ở DEV-10 (lần 6 → 429).
+- Đã trả QCMOB2 `rotate_seconds=10`, không geofence.
