@@ -349,3 +349,22 @@ test("staff attention block: không có AT_RISK thì không hiện khối", asyn
   await expect(main(page).getByText("Bạn đã xử lý hết việc")).toBeVisible();
   await expect(main(page).getByRole("heading", { name: "Lớp cần chú ý" })).toHaveCount(0);
 });
+
+// M11 (mobile review 25/11): nút chính là động từ, không bao giờ lặp tiêu đề việc
+for (const [kind, label] of [["EXAM_RESULT", "Xem kết quả"], ["KIND_CHUA_BIET", "Mở"]] as const) {
+  test(`student today: việc loại ${kind} ⇒ nút «${label}», không lặp tiêu đề`, async ({ page }) => {
+    const title = "Điểm bài thi Kiểm tra tuần 9 — Mật mã đã công bố";
+    await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () => student({ recommended: item(kind, title, "Đã công bố", { href: "/exams" }) }));
+    const act = main(page).locator("[data-part=primary-action]");
+    await expect(act).toHaveText(label);
+  });
+}
+
+// M20 (mobile review 25/11): việc không có ngữ cảnh ⇒ không có dòng ngữ cảnh rỗng trước nút
+test("staff today @375: việc không có lý do không chừa dòng ngữ cảnh rỗng", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([item("SESSION_UNMARKED", "Buổi 4 chưa điểm danh", "", { href: "/attendance", course: c1 })]));
+  const row = main(page).locator("li[data-kind=SESSION_UNMARKED]");
+  await expect(row).toBeVisible();
+  await expect(row.locator('span[class*="context"]')).toHaveCount(0);
+});

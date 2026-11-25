@@ -76,6 +76,7 @@ export function TodayActions({ actions, showClass, canDismiss }: { actions: Toda
                 data={{ "data-kind": a.kind }}
                 title={showClass ? a.title : withoutClass(a.title, a.course)}
                 context={
+                  !a.reason && !a.steps ? undefined : ( // không có ngữ cảnh ⇒ không dựng dòng rỗng (M20)
                   <>
                     {a.reason}
                     {a.steps && (
@@ -97,6 +98,7 @@ export function TodayActions({ actions, showClass, canDismiss }: { actions: Toda
                       </>
                     )}
                   </>
+                  )
                 }
                 meta={showClass ? classLabel(a.course) : undefined}
                 action={

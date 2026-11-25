@@ -12,7 +12,7 @@ import { formatTime, formatWhen } from "@/shared/lib/datetime";
 import { longDate } from "./format";
 import { useToday, type StudentToday as Data, type TodayItem, type TodaySession } from "./todayApi";
 
-const CTA: Record<string, string> = { VERIFY_EMAIL: "Xác minh email", ASSIGNMENT_GRADED: "Xem điểm", ASSIGNMENT_DUE: "Mở bài tập", ASSIGNMENT_APPEAL_REPLY: "Xem phản hồi", NEW_DOCUMENT: "Mở thư viện" };
+const CTA: Record<string, string> = { VERIFY_EMAIL: "Xác minh email", ASSIGNMENT_GRADED: "Xem điểm", ASSIGNMENT_DUE: "Mở bài tập", ASSIGNMENT_APPEAL_REPLY: "Xem phản hồi", NEW_DOCUMENT: "Mở thư viện", EXAM_RESULT: "Xem kết quả", EXAM_APPEAL_REPLY: "Xem phản hồi", EXAM_IN_PROGRESS: "Làm tiếp", EXAM_OPEN: "Vào làm bài", EXAM_UPCOMING: "Xem bài thi", PRACTICE_WEAK_TOPIC: "Luyện tập" };
 const STATE: Record<TodaySession["state"], { label: string; tone: "green" | "amber" | "neutral" }> = {
   NOW: { label: "Đang diễn ra", tone: "green" },
   NEXT: { label: "Sắp tới", tone: "amber" },
@@ -119,7 +119,7 @@ function Recommended({ item, courseId }: { item: TodayItem; courseId: string | n
       action={
         href ? (
           <ButtonLink href={href} variant="primary" data-part="primary-action">
-            {CTA[item.kind] ?? item.title}
+            {CTA[item.kind] ?? "Mở"}
           </ButtonLink>
         ) : undefined
       }
