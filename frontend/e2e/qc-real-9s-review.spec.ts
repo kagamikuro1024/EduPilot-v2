@@ -1,0 +1,30 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { expect, test } from "@playwright/test";
+import { needReal, noOverflow, shot, sql, uiLogin } from "./qc-real-lib";
+
+needReal();
+const S = JSON.parse(readFileSync("/tmp/q9s/seed08.json", "utf8")) as { course: string; aid: string; res: Record<string, string>; sub: Record<string, string> };
+const dump: Record<string, unknown> = {};
+test("@real 08 UI: hàng chờ + màn duyệt (TC-08-01,04,05,09,13)", async ({ page }) => {
+  await page.addInitScript((c) => localStorage.setItem("ep:ui:course", c), S.course);
+  await uiLogin(page, "teacher");
+  await page.goto(`/grading?course=${S.course}`);
+  await page.locator("main").waitFor(); await page.waitForTimeout(3500);
+  await shot(page, "p708-queue");
+  const q = await page.locator("main").innerText(); dump.queue = q.slice(0, 1500);
+  const heads = await page.locator("main [role=columnheader], main th").allInnerTexts(); dump.heads = heads;
+  const rows = page.locator("main [role=row], main tbody tr"); dump.rowCount = await rows.count();
+  dump.first3 = await rows.evaluateAll((els) => els.slice(0, 4).map((e) => (e as HTMLElement).innerText.replace(/\n+/g, " | ").slice(0, 200)));
+  dump.techWords = ["trace", "model", "flags", "run_state"].filter((w) => q.toLowerCase().includes(w));
+  await page.goto(`/grading/${S.sub["sv.kha"]}?course=${S.course}`);
+  await page.locator("main").waitFor(); await page.waitForTimeout(3500);
+  await shot(page, "p708-review-1440");
+  const t = await page.locator("main").innerText(); dump.review = t.slice(0, 2500);
+  dump.hasPublishBtn = await page.getByRole("button", { name: /Công bố/ }).count();
+  dump.hasApprove = await page.getByRole("button", { name: /Duyệt bài/ }).count();
+  const cols = await page.evaluate(() => { const m = document.querySelector("main")!; const kids = Array.from(m.querySelectorAll("*")).filter((e) => { const r = e.getBoundingClientRect(); return r.width > 300 && r.height > 300 && r.top < 500; }).map((e) => { const r = e.getBoundingClientRect(); return { tag: e.tagName, cls: String((e as HTMLElement).className).slice(0, 40), x: Math.round(r.x), w: Math.round(r.width) }; }); return kids.slice(0, 14); });
+  dump.cols = cols; dump.vw = 1440;
+  dump.notice = await page.locator("[role=status], [data-part*=notice], [class*=Notice]").allInnerTexts();
+  writeFileSync("/tmp/q9s/dump08.json", JSON.stringify(dump, null, 1));
+  await noOverflow(page, true);
+});

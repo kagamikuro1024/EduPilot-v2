@@ -80,7 +80,11 @@ for (const [w, h, mobile] of [[1440, 900, false], [375, 812, true]] as const) {
     await page.getByRole("button", { name: /Lưu điểm danh/ }).last().click();
     const note = page.getByText(/Còn \d+ sinh viên chưa điểm danh/); await note.waitFor({ timeout: 10_000 });
     const nUn = Number((await note.innerText()).match(/\d+/)![0]);
-    check(`TC-AS05-10c (${tag}) «Lưu điểm danh» khi còn SV chưa điểm danh → 422 CHECKIN_UNRESOLVED hiện «Còn N sinh viên chưa điểm danh» + nút «Đánh vắng N SV…»`, nUn > 0 && (await page.getByRole("button", { name: new RegExp(`Đánh vắng ${nUn} SV chưa điểm danh`) }).count()) >= 1, `N=${nUn}; số nút «Đánh vắng N SV…» cùng lúc: ${await page.getByRole("button", { name: new RegExp(`Đánh vắng ${nUn} SV chưa điểm danh`) }).count()}`);
+    check(`TC-AS05-10c (${tag}) «Lưu điểm danh» khi còn SV chưa điểm danh → 422 CHECKIN_UNRESOLVED hiện «Còn N sinh viên chưa điểm danh» + nút «Đánh vắng N SV…»`, nUn > 0 && (await page.getByRole("button", { name: new RegExp(`Đánh vắng ${nUn} SV chưa điểm danh`) }).count()) === 1, `N=${nUn}; số nút «Đánh vắng N SV…» cùng lúc: ${await page.getByRole("button", { name: new RegExp(`Đánh vắng ${nUn} SV chưa điểm danh`) }).count()}`);
+    const bbn = await note.boundingBox(); const lh = await note.evaluate((e) => parseFloat(getComputedStyle(e).lineHeight) || 20);
+    check(`TC-AS08-UX1 (${tag}) D-AS-05: «Còn N sinh viên chưa điểm danh» không xuống dòng từng chữ (≤ 2 dòng, rộng ≥ 150 px)`, !!bbn && bbn.width >= 150 && bbn.height <= lh * 2.5, JSON.stringify(bbn));
+    const prim = await page.getByRole("button", { name: /^(Mở điểm danh|Lưu điểm danh)/ }).allInnerTexts();
+    check(`TC-AS08-UX2 (${tag}) sau đóng, đã có vòng: không còn nút «Mở điểm danh» cạnh «Mở vòng 2»; chỉ một «Lưu điểm danh» chính`, !prim.some((x) => x.trim() === "Mở điểm danh"), prim.join(" | "));
     await page.screenshot({ path: `${OUT}/att-unresolved-${tag}.png`, fullPage: true });
     // ConfirmIrreversible
     await page.getByRole("button", { name: new RegExp(`Đánh vắng ${nUn} SV chưa điểm danh`) }).first().click();
