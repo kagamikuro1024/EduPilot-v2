@@ -17,6 +17,8 @@ import s from "./CheckinScreen.module.css";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CROCKFORD = /^[0-9A-HJKMNP-TV-Z]+$/;
 const GEO_LINE = "Lớp này kiểm tra vị trí khi điểm danh.";
+/** Trần một lượt gửi điểm danh (DEF-MOB-03): quá hạn thì thôi «đang gửi» và cho «Thử lại» — không để treo vô hạn. */
+const DEADLINE_MS = 15_000;
 
 /** Chuẩn hoá mã ngắn đúng như máy chủ (`attendance.NormalizeCode`): bỏ khoảng trắng và `-`, in hoa, O→0, I/L→1. Rỗng / ký tự ngoài bảng ⇒ null. */
 export function normalizeCode(raw: string): string | null {
@@ -28,7 +30,7 @@ type Input = { course: string; token: string } | { course: string; code: string 
 type View =
   | { k: "sending" }
   | { k: "done"; at: string }
-  | { k: "entry"; error?: string; cam?: "denied" | "failed" }
+  | { k: "entry"; error?: string; cam?: "denied" | "failed"; retry?: () => void }
   | { k: "scanning" }
   | { k: "error"; message: string; offline?: boolean; retry?: () => void }
   | { k: "limited"; until: number; retry?: () => void };
@@ -50,7 +52,7 @@ function getGeo(): Promise<Geo> {
 /** Một câu mỗi mã lỗi (US-AS-09 AC4, AC10). */
 function describe(e: unknown, viaCode: boolean): { message: string; offline?: boolean } {
   if (!(e instanceof ApiError)) return { message: "Chưa điểm danh được. Thử lại." };
-  if (e.code === "NETWORK") return { message: "Chưa có mạng.", offline: true };
+  if (e.code === "NETWORK" || e.code === "ABORTED") return { message: "Chưa có mạng.", offline: true }; // ABORTED = quá hạn 15 s của lượt gửi
   if (e.status === 403 || e.status === 404) return { message: "Bạn không thuộc lớp này." };
   if (viaCode && e.code === "CHECKIN_TOKEN_INVALID") return { message: "Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu." };
   return { message: e.userMessage };
@@ -68,7 +70,10 @@ export function CheckinScreen() {
   const [view, setView] = useState<View>(() => {
     if (!stash) return { k: "entry" };
     if (!UUID.test(stash.c)) return { k: "error", message: "Liên kết không đúng." };
-    if (stashExpired(stash)) return { k: "error", message: "Mã đã hết hạn. Quét lại mã trên màn chiếu." };
+    if (stashExpired(stash)) {
+      clearStash(); // token quá 60 s: bỏ khỏi sessionStorage, không để dùng lại sau khi tải lại
+      return { k: "error", message: "Mã đã hết hạn. Quét lại mã trên màn chiếu." };
+    }
     return { k: "sending" };
   });
   const [geoLine, setGeoLine] = useState(false);
@@ -95,20 +100,24 @@ export function CheckinScreen() {
   // Lớp không bật điểm danh bằng mã (US-AS-15 AC16d): biết TRƯỚC khi sinh viên gõ gì; không ô nhập, không gọi POST. Chính sách do máy chủ trả cho mọi thành viên (US-AS-01 AC6).
   const policy = useQuery({
     queryKey: ["course-policy", course],
-    queryFn: ({ signal }) => apiClient.get<{ attendance?: { self_checkin?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
+    queryFn: ({ signal }) => apiClient.get<{ status?: string; attendance?: { self_checkin?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
     enabled: role === "student" && course !== "" && !stash,
     staleTime: 30_000,
   });
-  const disabled = !stash && view.k === "entry" && policy.data?.attendance?.self_checkin === false;
+  // Lớp đã LƯU TRỮ (DEF-MOB-01, SRS `COURSE_ARCHIVED`): nói đúng nguyên nhân, không lẫn với lớp tắt điểm danh bằng mã.
+  const archived = !stash && policy.data?.status === "ARCHIVED";
+  const disabled = !stash && !archived && view.k === "entry" && policy.data?.attendance?.self_checkin === false;
   const checking = !stash && view.k === "entry" && policy.isPending && policy.fetchStatus !== "idle"; // đang hỏi chính sách lớp: khung xương, chưa vẽ ô nhập
 
   const submit = useCallback(
     async (inp: Input) => {
       const viaCode = "code" in inp;
       const retry = () => again.current(inp);
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), DEADLINE_MS);
       try {
         const msg = `edupilot-checkin-v1|${"code" in inp ? `code:${inp.code}` : inp.token}|${uid}`;
-        const policyP = apiClient.get<{ attendance?: { self_checkin?: boolean; geo_check?: boolean } }>(`/courses/${inp.course}`);
+        const policyP = apiClient.get<{ attendance?: { self_checkin?: boolean; geo_check?: boolean } }>(`/courses/${inp.course}`, { signal: ctrl.signal });
         const [policyRes, device] = await Promise.all([policyP, hasAttestPlugin() ? signNative(msg) : signWithDeviceKey(msg)]); // app: khoá Keystore; web: WebCrypto
         const policy = policyRes.data.attendance;
         if (policy && policy.self_checkin === false) return setView(viaCode ? { k: "entry", error: "Lớp này không điểm danh bằng mã." } : { k: "error", message: "Lớp này không điểm danh bằng mã." });
@@ -126,7 +135,7 @@ export function CheckinScreen() {
           ...("code" in inp ? { code: inp.code } : { token: inp.token }),
           ...(device ? { device } : {}),
           ...(geo ? { geo } : {}),
-        });
+        }, { signal: ctrl.signal });
         setView({ k: "done", at: fmtHM(data.checked_in_at) });
       } catch (e) {
         if (e instanceof ApiError && (e.status === 429 || e.code === "RATE_LIMITED")) {
@@ -135,8 +144,9 @@ export function CheckinScreen() {
           return setView({ k: "limited", until: Date.now() + secs * 1000, retry: viaCode ? undefined : retry });
         }
         const d = describe(e, viaCode);
-        setView(viaCode ? { k: "entry", error: d.message } : { k: "error", message: d.message, offline: d.offline, retry: d.offline ? retry : undefined });
+        setView(viaCode ? { k: "entry", error: d.message, retry: d.offline ? retry : undefined } : { k: "error", message: d.message, offline: d.offline, retry: d.offline ? retry : undefined });
       } finally {
+        clearTimeout(timer);
         setGeoLine(false);
       }
     },
@@ -226,10 +236,11 @@ export function CheckinScreen() {
   }
 
   let primary: HeaderAction | undefined;
-  if (disabled || checking) {
+  if (archived || disabled || checking) {
     primary = undefined;
   } else if (view.k === "entry") {
-    primary = canScan && !codeMode ? { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true } : { label: "Điểm danh", onClick: sendCode, disabled: code.trim() === "" || !course, docked: true };
+    if (view.retry) primary = { label: "Thử lại", onClick: view.retry, docked: true };
+    else primary = canScan && !codeMode ? { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true } : { label: "Điểm danh", onClick: sendCode, disabled: code.trim() === "" || !course, docked: true };
   } else if (view.k === "error") {
     if (view.retry) primary = { label: "Thử lại", onClick: view.retry, docked: true };
     else if (canScan) primary = { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true };
@@ -266,8 +277,9 @@ export function CheckinScreen() {
             />
           )}
           {checking && <Skeleton lines={2} />}
+          {archived && <p data-part="checkin-archived">Lớp này đã được lưu trữ.</p>}
           {disabled && <p data-part="checkin-disabled">Lớp này không điểm danh bằng mã.</p>}
-          {view.k === "entry" && !disabled && !checking && (canScan && !codeMode ? (
+          {view.k === "entry" && !archived && !disabled && !checking && (canScan && !codeMode ? (
             <Button variant="ghost" onClick={() => setCodeMode(true)}>Nhập mã</Button>
           ) : (
             <form
