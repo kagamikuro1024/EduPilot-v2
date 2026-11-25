@@ -1,0 +1,23 @@
+### ./internal/auth/... -run TestRegister|TestVerify|TestForgot|TestReset|TestLockout|TestAccept|TestRefresh|TestLoginUniform|TestResend|TestThrottle|TestRoster
+ok  	github.com/edupilot/backend-go/internal/auth	43.333s
+rc=0
+### ./internal/course/... -run TestAssign|TestArchive|TestRejoin|TestRemove|TestJoin|TestChangeTeacher|TestTeacherManagesOwnTAs|TestPending|TestUndo|TestMember
+ok  	github.com/edupilot/backend-go/internal/course	31.623s
+rc=0
+### ./internal/integration/... -run TestCourseIsolation|TestAllCourseRoutesGuarded|TestAssignTeacher|TestAssignNotify|TestOpenCourseAssign
+ok  	github.com/edupilot/backend-go/internal/integration	4.548s
+rc=0
+### ./internal/today/...
+ok  	github.com/edupilot/backend-go/internal/today	50.956s
+rc=0
+### ./internal/llm/... ./internal/llmconfig/... -run Budget|Fallback|Breaker|BatchNoDegrade|Provider|Route|Key|Verify
+ok  	github.com/edupilot/backend-go/internal/llm	1.413s
+?   	github.com/edupilot/backend-go/internal/llm/budget	[no test files]
+ok  	github.com/edupilot/backend-go/internal/llm/cost	0.291s [no tests to run]
+ok  	github.com/edupilot/backend-go/internal/llm/fake	0.517s
+?   	github.com/edupilot/backend-go/internal/llm/llmrt	[no test files]
+?   	github.com/edupilot/backend-go/internal/llm/llmtest	[no test files]
+ok  	github.com/edupilot/backend-go/internal/llm/provider	0.371s
+ok  	github.com/edupilot/backend-go/internal/llm/scheduler	1.743s
+ok  	github.com/edupilot/backend-go/internal/llmconfig	4.328s
+rc=0

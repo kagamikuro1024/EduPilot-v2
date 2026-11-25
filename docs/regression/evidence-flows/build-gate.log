@@ -1,0 +1,81 @@
+$ NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_BLOB_ORIGIN=http://blob.test NEXT_PUBLIC_API_URL=http://localhost:${E2E_API_PORT:-3312} next build
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 91ms
+- Experiments (use with caution):
+  ✓ inlineCss
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1781ms
+  Running TypeScript ...
+  Finished TypeScript in 6.9s ...
+  Collecting page data using 10 workers ...
+  Generating static pages using 10 workers (0/42) ...
+  Generating static pages using 10 workers (10/42) 
+  Generating static pages using 10 workers (20/42) 
+  Generating static pages using 10 workers (31/42) 
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Generating static pages using 10 workers (42/42) in 570ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[...slug]
+├ ○ /admin/audit
+├ ○ /admin/courses
+├ ○ /admin/users
+├ ○ /analytics
+├ ○ /assignments
+├ ƒ /assignments/[id]
+├ ○ /attendance
+├ ○ /attendance/display
+├ ○ /calendar
+├ ○ /chat
+├ ○ /checkin
+├ ○ /class/members
+├ ○ /class/settings
+├ ƒ /dev/[...slug]
+├ ○ /dev/data
+├ ○ /dev/ui
+├ ○ /documents
+├ ○ /exams
+├ ƒ /exams/[id]
+├ ƒ /exams/[id]/results
+├ ƒ /exams/[id]/similarity
+├ ƒ /exams/[id]/take
+├ ○ /forgot-password
+├ ○ /gradebook
+├ ○ /gradebook/scheme
+├ ○ /grading
+├ ƒ /grading/[submissionId]
+├ ○ /inbox
+├ ○ /insights
+├ ƒ /invite/[token]
+├ ○ /join
+├ ƒ /join/[code]
+├ ○ /library
+├ ƒ /library/[id]
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ○ /me
+├ ○ /observability
+├ ○ /practice
+├ ƒ /practice/[attemptId]
+├ ○ /practice/history
+├ ○ /questions
+├ ○ /register
+├ ○ /reset-password
+├ ○ /settings
+├ ○ /settings/integrations
+├ ○ /settings/llm
+├ ○ /students
+├ ƒ /students/[id]
+├ ○ /threads
+├ ƒ /threads/[id]
+└ ○ /verify-email
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+rc=0

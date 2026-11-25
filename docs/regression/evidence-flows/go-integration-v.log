@@ -1,0 +1,7 @@
+--- PASS: TestAssignTeacherNotifies (0.83s)
+--- PASS: TestAssignNotifyOnce (0.60s)
+--- PASS: TestOpenCourseAssignThenTeacherSeesCode (0.61s)
+--- PASS: TestAllCourseRoutesGuarded (1.11s)
+--- PASS: TestAllCourseRoutesGuardedDetectsMissing (0.00s)
+--- PASS: TestCourseIsolation (0.65s)
+ok  	github.com/edupilot/backend-go/internal/integration	4.416s

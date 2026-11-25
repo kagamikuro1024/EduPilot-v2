@@ -1,0 +1,20 @@
+    Error: đủ 10 lần sai thật
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 10
+    Received:    9
+
+      202 |     else await sleep(2500);
+      203 |   }
+    > 204 |   expect(wrong, "đủ 10 lần sai thật").toBeGreaterThanOrEqual(10);
+          |                                       ^
+      205 |   const lu = sql(`select locked_until is not null and locked_until > now() + interval '10 minutes' and locked_until < now() + interval '20 minutes' from users where email='${l.em}'`)[0][0];
+      206 |   expect(lu, "locked_until ≈ 15 phút").toBe("t");
+      207 |   const rightPw = await call(request, null, "POST", "/auth/login", { email: l.em, password: l.pw });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-f1-account.spec.ts:204:39
+
+    Error Context: test-results/qc-real-f1-account--real-d-cf2aa-ng-mật-khẩu-cũng-bị-từ-chối-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-real-f1-account.spec.ts:179:1 › @real dò mật khẩu: 5 lần sai → chờ tăng dần (429/423); lần thứ 10 sai → khoá 15 phút + đúng MỘT thư cảnh báo; đúng mật khẩu cũng bị từ chối 

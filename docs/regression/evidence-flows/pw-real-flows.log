@@ -1,0 +1,101 @@
+##### qc-real-f1-account
+
+Running 6 tests using 1 worker
+
+(node:85913) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:85913) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  1 [desktop] › e2e/qc-real-f1-account.spec.ts:13:1 › @real register → Mailpit → xác minh → đăng nhập → vào / (ô nhập mã lớp) (5.1s)
+  ✓  2 [desktop] › e2e/qc-real-f1-account.spec.ts:49:1 › @real login + refresh qua Caddy cùng origin: tải lại giữ phiên, đúng một refresh, không token ở storage/cookie đọc được (1.6s)
+  ✓  3 [desktop] › e2e/qc-real-f1-account.spec.ts:72:1 › @real reset mật khẩu thu hồi phiên máy khác: token máy B chết ngay, mở nguội về /login (6.3s)
+  ✓  4 [desktop] › e2e/qc-real-f1-account.spec.ts:104:1 › @real mời giảng viên: Admin mời → Mailpit → đặt mật khẩu → bị khoá → mất phiên → mở khoá (4.2s)
+  ✓  5 [desktop] › e2e/qc-real-f1-account.spec.ts:139:1 › @real mạo danh MSSV: đăng ký bằng MSSV của SV trong lớp, email khác → PENDING + cảnh báo lệch, không thấy dữ liệu của SV thật (4.0s)
+  ✘  6 [desktop] › e2e/qc-real-f1-account.spec.ts:179:1 › @real dò mật khẩu: 5 lần sai → chờ tăng dần (429/423); lần thứ 10 sai → khoá 15 phút + đúng MỘT thư cảnh báo; đúng mật khẩu cũng bị từ chối (2.0m)
+
+
+  1) [desktop] › e2e/qc-real-f1-account.spec.ts:179:1 › @real dò mật khẩu: 5 lần sai → chờ tăng dần (429/423); lần thứ 10 sai → khoá 15 phút + đúng MỘT thư cảnh báo; đúng mật khẩu cũng bị từ chối 
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/qc-real-f1-account--real-d-cf2aa-ng-mật-khẩu-cũng-bị-từ-chối-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-real-f1-account.spec.ts:179:1 › @real dò mật khẩu: 5 lần sai → chờ tăng dần (429/423); lần thứ 10 sai → khoá 15 phút + đúng MỘT thư cảnh báo; đúng mật khẩu cũng bị từ chối 
+  5 passed (2.4m)
+##### qc-real-f2-class
+
+Running 4 tests using 1 worker
+
+(node:86534) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86534) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✘  1 [desktop] › e2e/qc-real-f2-class.spec.ts:11:1 › @real bộ chọn lớp theo seed: GV 2 lớp, SV A/B ≥ 1 lớp ACTIVE, SV D (sv.moi) chưa có lớp → màn «Bạn chưa vào lớp nào» (45ms)
+  -  2 [desktop] › e2e/qc-real-f2-class.spec.ts:37:1 › @real nhập danh sách: GV mở lớp mới, nhập roster-2-loi.csv → báo đúng dòng 7 và 19, nút «Nhập 28 sinh viên»; TA không thấy tab
+  -  3 [desktop] › e2e/qc-real-f2-class.spec.ts:71:1 › @real vào lớp end-to-end 375×812: D xem trước và vào lớp, GV duyệt, tạo lại mã (mã cũ chết ngay), 6 mã sai ⇒ 429
+  -  4 [desktop] › e2e/qc-real-f2-class.spec.ts:117:1 › @real Hôm nay (seed): SV chưa có lớp thấy ô nhập mã; SV có lớp ≤ 1 nút chính; GV: «N việc cần xử lý hôm nay»
+
+
+  1) [desktop] › e2e/qc-real-f2-class.spec.ts:11:1 › @real bộ chọn lớp theo seed: GV 2 lớp, SV A/B ≥ 1 lớp ACTIVE, SV D (sv.moi) chưa có lớp → màn «Bạn chưa vào lớp nào» 
+
+    Error: đăng nhập teacher: {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"3aed2162405cb1948bd5be7
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 429
+
+       at qc-real-lib.ts:59
+
+      57 |   if (hit) return hit;
+      58 |   const r = await call(request, null, "POST", "/auth/login", { email: email(user), password: pw });
+    > 59 |   expect(r.status, `đăng nhập ${user}: ${r.text.slice(0, 120)}`).toBe(200);
+         |                                                                  ^
+      60 |   const t = String(r.json.access_token);
+      61 |   tokens.set(key, t);
+      62 |   return t;
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-lib.ts:59:66)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-f2-class.spec.ts:13:41
+
+    Error Context: test-results/qc-real-f2-class--real-bộ--10040--màn-«Bạn-chưa-vào-lớp-nào»-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-real-f2-class.spec.ts:11:1 › @real bộ chọn lớp theo seed: GV 2 lớp, SV A/B ≥ 1 lớp ACTIVE, SV D (sv.moi) chưa có lớp → màn «Bạn chưa vào lớp nào» 
+  3 did not run
+##### qc-real-f15-llm
+
+Running 3 tests using 1 worker
+
+(node:86548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86548) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✘  1 [desktop] › e2e/qc-real-f15-llm.spec.ts:10:1 › @real 403: TEACHER / TA / STUDENT không đọc, không ghi cấu hình LLM (API) và /settings/llm là trang chặn quyền (UI) (42ms)
+  -  2 [desktop] › e2e/qc-real-f15-llm.spec.ts:38:1 › @real hai tab: cùng sửa một nhà cung cấp, tab sau nhận 409 (khoá lạc quan) và giao diện nạp lại giá trị mới
+  -  3 [desktop] › e2e/qc-real-f15-llm.spec.ts:60:1 › @real khoá sai: gateway từ chối khoá không hợp lệ (422 PROVIDER_AUTH_FAILED tại ô api_key), khoá đúng lưu được, khoá không lộ ở giao diện
+
+
+  1) [desktop] › e2e/qc-real-f15-llm.spec.ts:10:1 › @real 403: TEACHER / TA / STUDENT không đọc, không ghi cấu hình LLM (API) và /settings/llm là trang chặn quyền (UI) 
+
+    Error: đăng nhập teacher: {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"10f696bfb41b33dc1fdf7dc
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 429
+
+       at qc-real-lib.ts:59
+
+      57 |   if (hit) return hit;
+      58 |   const r = await call(request, null, "POST", "/auth/login", { email: email(user), password: pw });
+    > 59 |   expect(r.status, `đăng nhập ${user}: ${r.text.slice(0, 120)}`).toBe(200);
+         |                                                                  ^
+      60 |   const t = String(r.json.access_token);
+      61 |   tokens.set(key, t);
+      62 |   return t;
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-lib.ts:59:66)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-real-f15-llm.spec.ts:13:16
+
+    Error Context: test-results/qc-real-f15-llm--real-403--b1370-llm-là-trang-chặn-quyền-UI--desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-real-f15-llm.spec.ts:10:1 › @real 403: TEACHER / TA / STUDENT không đọc, không ghi cấu hình LLM (API) và /settings/llm là trang chặn quyền (UI) 
+  2 did not run

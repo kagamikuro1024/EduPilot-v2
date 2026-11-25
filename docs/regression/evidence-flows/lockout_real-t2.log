@@ -1,0 +1,37 @@
+register 202
+   (0.2, 401, 'INVALID_CREDENTIALS', None)
+   (0.5, 401, 'INVALID_CREDENTIALS', None)
+   (0.7, 401, 'INVALID_CREDENTIALS', None)
+   (0.9, 401, 'INVALID_CREDENTIALS', None)
+   (1.2, 401, 'INVALID_CREDENTIALS', None)
+   (1.2, 429, 'LOGIN_THROTTLED', '2')
+   (3.9, 401, 'INVALID_CREDENTIALS', None)
+   (3.9, 429, 'LOGIN_THROTTLED', '4')
+   (8.7, 401, 'INVALID_CREDENTIALS', None)
+   (8.7, 429, 'LOGIN_THROTTLED', '8')
+   (17.4, 401, 'INVALID_CREDENTIALS', None)
+   (17.4, 429, 'LOGIN_THROTTLED', '16')
+   (34.2, 401, 'INVALID_CREDENTIALS', None)
+   (34.2, 429, 'LOGIN_THROTTLED', '32')
+   (67.0, 401, 'INVALID_CREDENTIALS', None)
+10 lần sai thật: 10 sau 67s
+   (0.2, 401, 'INVALID_CREDENTIALS', None)
+   (0.5, 401, 'INVALID_CREDENTIALS', None)
+   (0.7, 401, 'INVALID_CREDENTIALS', None)
+   (0.9, 401, 'INVALID_CREDENTIALS', None)
+   (1.2, 401, 'INVALID_CREDENTIALS', None)
+   (1.2, 429, 'LOGIN_THROTTLED', '2')
+   (3.9, 401, 'INVALID_CREDENTIALS', None)
+   (3.9, 429, 'LOGIN_THROTTLED', '4')
+   (8.7, 401, 'INVALID_CREDENTIALS', None)
+   (8.7, 429, 'LOGIN_THROTTLED', '8')
+   (17.4, 401, 'INVALID_CREDENTIALS', None)
+   (17.4, 429, 'LOGIN_THROTTLED', '16')
+   (34.2, 401, 'INVALID_CREDENTIALS', None)
+   (34.2, 429, 'LOGIN_THROTTLED', '32')
+   (67.0, 401, 'INVALID_CREDENTIALS', None)
+  số lần bị chờ: 5 codes: ['LOGIN_THROTTLED']
+locked_until ≈ 15 phút: t
+đúng mật khẩu khi đang khoá: 429 LOGIN_THROTTLED Retry-After 900
+thư cảnh báo: 1 ['Tài khoản EduPilot bị khoá tạm thời']
+KẾT QUẢ: ĐẠT

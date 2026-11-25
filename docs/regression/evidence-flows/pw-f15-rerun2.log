@@ -1,0 +1,10 @@
+load:  16:51:52  up 2 days  4:28,  1 user,  load average: 2.52, 3.07, 3.62
+
+Running 3 tests using 1 worker
+
+  ✓  1 [desktop] › e2e/qc-real-f15-llm.spec.ts:10:1 › @real 403: TEACHER / TA / STUDENT không đọc, không ghi cấu hình LLM (API) và /settings/llm là trang chặn quyền (UI) (3.7s)
+  ✓  2 [desktop] › e2e/qc-real-f15-llm.spec.ts:38:1 › @real hai tab: cùng sửa một nhà cung cấp, tab sau nhận 409 (khoá lạc quan) và giao diện nạp lại giá trị mới (1.6s)
+  -  3 [desktop] › e2e/qc-real-f15-llm.spec.ts:60:1 › @real khoá sai: gateway từ chối khoá không hợp lệ (422 PROVIDER_AUTH_FAILED tại ô api_key), khoá đúng lưu được, khoá không lộ ở giao diện
+
+  1 skipped
+  2 passed (5.8s)
