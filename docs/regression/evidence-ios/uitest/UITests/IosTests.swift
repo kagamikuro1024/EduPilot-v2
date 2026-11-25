@@ -294,4 +294,23 @@ final class IosTests: XCTestCase {
         try? ("scan_buttons=\(scan) code=\(code) texts=\(texts)").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
         savePng(shotName()); print("scan=\(scan) texts=\(texts.prefix(300))")
     }
+
+    /// Đăng xuất: bấm avatar góc phải trên → «Đăng xuất» → xác nhận.
+    func testLogout() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = safari.frame
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.115)).tap()
+        sleep(3)
+        var labels = web.staticTexts.allElementsBoundByIndex.map(\.label)
+        var target = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if !target.exists { target = web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch }
+        if target.exists { target.tap(); sleep(2) }
+        let confirm = safari.alerts.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if confirm.exists { confirm.tap(); sleep(5) }
+        labels = web.staticTexts.allElementsBoundByIndex.map(\.label)
+        try? ("frame=\(f) labels=\(labels.joined(separator: " | "))").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName())
+        print("labels=\(labels.prefix(20))")
+    }
 }

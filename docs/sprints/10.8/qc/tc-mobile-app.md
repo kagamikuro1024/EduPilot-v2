@@ -734,17 +734,17 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 
 ### 9.4 Soát tổng theo MÃ TC (26/11/2026 — qc chốt lại `bb052c71`)
 
-Nguồn từng mã: qc3 iOS 62 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 22 mã trùng (13 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, `NET-12` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
+Nguồn từng mã: qc3 iOS 65 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 22 mã trùng (13 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, `NET-12` P/qc3–N/qc, `ERR-06` F/qc3–P/qc, `ERR-17` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 62 | 0 | 0 |
+| qc3 iOS | 64 | 1 | 0 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 82 | 2 | 55 |
-| **Hợp (266 mã gốc − 22 trùng = 244)** | **178** | **2** | **64** |
+| **Hợp (266 mã gốc − 22 trùng = 244)** | **178** | **3** | **63** |
 | TC | 345 | | |
 
-2 F của qc: `TC-MOB-TGT-02`, `TC-MOB-ATT-02` — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
+3 F: `TC-MOB-TGT-02`, `TC-MOB-ATT-02` (qc) và `TC-MOB-ERR-06` (qc3 §9.9 — qc chấm P, qc3 tái hiện F: stash quá 60 s bị xoá im lặng sau đăng nhập, không có câu «Mã đã hết hạn») — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
 
 **Trùng mã lỗi cần PM đổi số:** qc đặt việc trên là `DEF-MOB-05`, nhưng `DEF-MOB-05` đã dùng cho lỗi stash /checkin của qc3 (đã sửa `ce30065e`+`e039b61f`, PM đóng). Đề nghị đánh số lại thành `DEF-MOB-06`.
 
@@ -791,7 +791,17 @@ Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 đ
 | TC-MOB-FLW-04 | P | `/checkin` không `#token`: ô «Mã điểm danh» + «Lớp QC3M1» + nút Điểm danh, **0 nút Quét** trên iOS; gõ mã đúng → «Đã điểm danh 03:23»; DB `channel=CODE` (`FLW-04b`, log `scan_buttons=0`) |
 | TC-MOB-NET-12 | P | Cùng một token gửi 3 lần: **201** rồi **200, 200** với `checked_in_at` y hệt (`20:24:12.408Z`); SQL mỗi SV đúng **1** dòng |
 
-**Chưa chạy được (N, nêu lý do):** `ERR-06` (cần đăng nhập chậm > 60 s), `ERR-15` + `NET-09` (cần cắt mạng host — không cắt mạng dùng chung), `ERR-17` (đổi múi giờ thiết bị), `ERR-19` (cần đăng nhập bằng SV không thuộc lớp).
+**Đã chạy bổ sung sau nhắc của PM:** xem §9.9 — `ERR-17` P, `ERR-19` P, `ERR-06` **F**; `ERR-15`/`NET-09` vẫn N (không cắt được mạng riêng cho Simulator), phủ bởi NET-02/03 Android + pha 1.
+
+### 9.9 Lô B — chốt 26/11 (VPS `40281db4`)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-ERR-17 | P | Simulator boot lại với `TZ=Asia/Tokyo`; điểm danh lúc `20:32:52Z` (`channel=WEB`) → trang hiện «Đã điểm danh **03:32**» = giờ Việt Nam (UTC+7), không theo múi giờ máy (Tokyo +9). Đã `launchctl unsetenv TZ`. |
+| TC-MOB-ERR-19 | P | Đăng nhập `sv.qc-b` (không ghi danh QC3M1) rồi mở liên kết QC3M1 → «Bạn không thuộc lớp này.» một dòng, không lộ lớp có tồn tại hay không. |
+| TC-MOB-ERR-06 | **F** | Đăng xuất, mở liên kết QR mới (cửa sổ `01a21463-66f3`), để màn đăng nhập **91 s** rồi đăng nhập `sv.qc3`: trang về **ô nhập mã** («Mã điểm danh», lớp QC3M1), KHÔNG hiện «Mã đã hết hạn. Quét lại mã trên màn chiếu.» như TC đòi; gateway **0 POST** (đúng phần "không POST"). Gốc: DEF-MOB-05 (e039b61f) cho `pick()` xoá im lặng stash quá 60 s nên nhánh `stashExpired` của màn không còn được dùng tới sau khi đăng nhập lại. |
+
+ERR-15/NET-09: **N**, không cắt được mạng riêng cho Simulator mà không cắt mạng dùng chung — phủ bởi NET-02/03 Android (qc2) + pha 1 (qc).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
