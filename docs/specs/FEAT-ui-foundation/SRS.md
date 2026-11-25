@@ -93,7 +93,7 @@ flowchart TD
 
 | Tình huống | Hệ thống phản ứng | Người dùng thấy |
 | --- | --- | --- |
-| Mạng đứt khi gõ / gửi | Giữ nguyên chữ; `OfflineBanner`; POST không tự gửi lại không khoá; có khoá thì thử lại cùng khoá | Dải "Mất kết nối mạng…", nút `Gửi lại` |
+| Mạng đứt khi gõ / gửi | Giữ nguyên chữ; `OfflineBanner`; POST không tự gửi lại không khoá; có khoá thì thử lại cùng khoá | Dải «Mất kết nối mạng.», nút `Gửi lại` |
 | 401 `TOKEN_EXPIRED` | Một sự kiện `auth:expired` / 10 s; không thử lại; xoá token | Cổng dán token (dev) / "Phiên đã hết hạn" |
 | 403 `FORBIDDEN` | Không thử lại | Màn chặn quyền, `Về Hôm nay` |
 | 409 `VERSION_CONFLICT` | `error.conflict` có giá trị hiện tại | Màn hỏi giữ bên nào (phase sở hữu) |
