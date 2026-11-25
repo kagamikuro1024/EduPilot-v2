@@ -1,0 +1,1 @@
+scan_buttons=0 code=NKB 6Q1 texts=Bỏ qua điều hướng | Đã điểm danh | 03:23 | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh

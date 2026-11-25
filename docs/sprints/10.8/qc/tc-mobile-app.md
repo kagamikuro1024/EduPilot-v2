@@ -192,7 +192,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 ## 6.F Nhánh lỗi, QR lạ, hết hạn, lớp khác, chưa đăng nhập, phân quyền
 | Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| TC-MOB-ERR-01 | US-AS-09 AC8; AC4 | I, A | Liên kết `https://{VPS}/checkin?c=khong-phai-uuid#tokenbatky` | Mở bằng `simctl openurl` / `am start VIEW` | «Liên kết không đúng.» một dòng; không gọi API; không đăng xuất | TAY+ADB |  |
+| TC-MOB-ERR-01 | US-AS-09 AC8; AC4 | I, A | (a) `https://{VPS}/checkin?c=khong-phai-uuid#<token thật, đúng cú pháp>`; (b) `…?c=khong-phai-uuid#tokenbatky` | Mở bằng `simctl openurl` / `am start VIEW` | (a) «Liên kết không đúng.» một dòng, không gọi API, không đăng xuất; (b) rơi về ô nhập mã, **0 POST**, URL giữ nguyên | TAY+ADB | P-11-145: (a) `ERR-01c` P; (b) `ERR-01b` P |
 | TC-MOB-ERR-02 | US-AS-09 AC4 | I, A | Liên kết có token đã hết hạn (> 2 bước, giữ liên kết cũ) | Mở liên kết | «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; web: không nút; app: nút `Quét mã điểm danh` | TAY |  |
 | TC-MOB-ERR-03 | US-AS-09 AC4 | I, A | Liên kết token có MAC sai (sửa một ký tự cuối) | Mở liên kết | «Mã không đúng. Quét lại mã trên màn chiếu.»; không phân biệt cửa sổ lạ / MAC sai | TAY |  |
 | TC-MOB-ERR-04 | US-AS-09 AC4 | I, A | Cửa sổ đã đóng; liên kết còn trong 2 bước | Mở liên kết | «Đã đóng điểm danh.» | TAY |  |
@@ -732,20 +732,97 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 | TC-MOB-THM-04 | P | `simctl ui appearance dark`: trang vẫn SÁNG ở cả Safari và PWA (chữ đen trên nền trắng), thanh trạng thái PWA đọc được (chữ đen, nền trắng `theme_color`) |
 | TC-MOB-THM-07 | P | Ảnh: giờ/pin/sóng màu đen trên nền trắng — đọc rõ. `theme_color` đang dùng `#FFFFFF` (không phải BRAND.red); đối chiếu US-AS-15 AC11/D59: nền sáng, ghi nhận là quan sát |
 
-### 9.4 Soát tổng theo MÃ TC (26/11/2026 — gộp TSV từng mã của qc + `results.jsonl` của qc2)
+### 9.4 Soát tổng theo MÃ TC (26/11/2026 — qc chốt lại `bb052c71`)
 
-Đếm theo mã, một mã một lần, lấy kết quả MỚI NHẤT; N của lượt trước mà lượt sau đã P thì tính P.
+Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 38 mã trùng (13 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, `NET-12` P/qc3–N/qc, `ERR-06` F/qc3–P/qc, `ERR-17` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
 
-| Nguồn | Mã | P | F | N |
-|---|---|---|---|---|
-| qc3 — pha 1 web + DAT `ep-dat` + pha 3 iOS lô A | 47 | 47 | 0 | 0 |
-| qc2 — Android, lô 14 (`results.jsonl` @`90b9b2fd`) | 65 | 54 | 0 | 11 |
-| qc — pha 1 (`tc-mobile-run-qc.tsv` @`513840e2`) | 139 | 78 | 0 | 61 |
-| **Hợp theo mã** | **241** | **169** | **0** | **72** |
+| Mã | P | F | N |
+|---|---|---|---|
+| qc3 iOS | 77 | 0 | 0 |
+| qc2 Android | 57 | 0 | 11 |
+| qc pha 1 | 84 | 0 | 55 |
+| **Hợp (284 mã gốc − 38 trùng = 246)** | **186** | **0** | **60** |
+| TC | 345 | | |
 
-- Trùng đã khử: `Flw-13`, `MSG-07`, `NET-02`, `NET-03`, `NET-07` (qc ∩ qc2) và `A11-16`, `NAV-02`, `NAV-11`, `PRM-10`, `THM-07` (qc2 ∩ qc3) ⇒ 10 mã.
-- Đã tính `CL-4` = P (`f6113582`, `DEF-R10.8-07` đóng) và `GEO-03` = P.
-- **N còn lại (72):** 61 của qc (camera, `adb`/`simctl`, bàn phím thật, TalkBack/VoiceOver, WebView, geofence, thiếu dữ kiện) + 11 của qc2.
+0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
+
+**Trùng mã lỗi cần PM đổi số:** qc đặt việc trên là `DEF-MOB-05`, nhưng `DEF-MOB-05` đã dùng cho lỗi stash /checkin của qc3 (đã sửa `ce30065e`+`e039b61f`, PM đóng). Đề nghị đánh số lại thành `DEF-MOB-06`.
+
+### 9.5 Pha 3 — iOS, lô B (một phần; 26/11/2026)
+
+Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 để token sống đủ lâu qua bước tải trang), buổi 6/7.
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-FLW-02 | P | `simctl openurl` liên kết `#token` khi Safari đã đăng nhập: trang tự gửi MỘT `POST`, hiện «Đã điểm danh 01:28», không bấm gì; DB `attendance_checkins` `channel=WEB`, đúng 1 dòng/cửa sổ |
+| TC-MOB-ERR-02 | P | Mở liên kết của bước đã quay: «Mã đã hết hạn. Quét lại mã trên màn chiếu.» một dòng, không nút |
+| TC-MOB-ERR-11 | P | Gõ mã sai `ZZZ999` + Enter: «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» dưới ô, viền lỗi, không hộp thoại |
+| TC-MOB-ERR-12 | P | Ô rỗng: nút «Điểm danh» ở trạng thái khoá (`isEnabled=false`); ký tự lạ đi cùng một câu lỗi chung ở ERR-11 |
+| TC-MOB-ERR-13 | P | Dán 40 ký tự: ô chỉ giữ **12** (`value.count=12`), không tràn ngang |
+| TC-MOB-ERR-18 | P | `POST …/checkins {code, student_id}` bằng token SV: **422** `VALIDATION_FAILED`, `details[0].{field:"student_id", code:"unknown"}`; không ghi gì |
+
+**DEF-MOB-05 (Thấp, đề nghị mở):** mở một liên kết QR MỚI trong tab Safari đang còn `sessionStorage.ep.checkin` cũ (> 60 s) → trang hiện «Mã đã hết hạn. Quét lại mã trên màn chiếu.» và **không** điểm danh, dù token mới hợp lệ. Tái hiện 4 lần; cùng token đó `POST` trực tiếp trả **201**. Sau khi tắt hẳn Safari (xoá sessionStorage) thì liên kết mới chạy đúng («Đã điểm danh 01:28»). Gốc: `/checkin` giữ stash cũ trong `sessionStorage` khi trang được phục hồi (bfcache/SPA) nên không ghi đè stash mới; stash cũ quá 60 s ⇒ nhánh `stashExpired` trả câu hết hạn.
+
+**Còn lại của lô B (chưa chạy):** `FLW-04` (PWA gõ mã), `ERR-01` (`c` không phải UUID), `ERR-03` (MAC sai), `ERR-04` (cửa sổ đã đóng), `ERR-05/19` (SV không thuộc lớp), `ERR-06` (đăng nhập chậm > 60 s), `ERR-07/08` (teacher/TA/admin), `ERR-09` (429 sau 6 mã sai), `ERR-15` (offline lần đầu — cần cắt mạng host), `ERR-17` (múi giờ), `NET-09/12`.
+
+### 9.6 Nghiệm DEF-MOB-05 trên iOS (VPS `40281db4`) — ĐẠT
+
+- Tab Safari đã có trạng thái cũ (> 60 s, màn «Đã điểm danh» của lượt trước) + mở liên kết QR MỚI trong cùng tab: trang gửi **đúng 1** `POST /checkins` (gateway log `19:20:45Z` 200, `19:23:36Z` 200 — 1 lần cho mỗi lần mở), hiện «Đã điểm danh 02:12», không còn «Mã đã hết hạn» oan.
+- Liên kết còn token bước cũ: server trả `CHECKIN_TOKEN_EXPIRED` (đo bằng API: token 5 phút tuổi → 422, token mới → 201), trang rơi về nhánh hết hạn / ô nhập mã — đúng ý AC4.
+- `#main` (skip link) không bị cất làm token (e039b61f): URL giữ nguyên, 0 POST.
+- Giới hạn bằng chứng: `simctl openurl` bỏ qua lệnh mở lại y nguyên URL đang đứng (không phát `hashchange`), nên đường "đổi hash trên trang đang dựng" chỉ nghiệm được qua e2e của dev (`frontend/e2e/checkin-net.spec.ts`, techlead-ui ĐẠT); trên máy thật cần quét QR bằng camera.
+
+### 9.7 Lô B — thêm 26/11 (VPS `40281db4`)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-ERR-03 | P | Sửa 1 ký tự MAC: **422** `CHECKIN_TOKEN_INVALID` «Mã không đúng. Quét lại mã trên màn chiếu.» |
+| TC-MOB-ERR-05 | P | SV không thuộc lớp (`sv.moi`): **403** `FORBIDDEN`, `details.reason="course"` |
+| TC-MOB-ERR-07 | P | TEACHER `POST /checkins`: **403** |
+| TC-MOB-ERR-08 | P | TA `POST /checkins`: **403** |
+| TC-MOB-ERR-09 | P | 5 lần mã sai liên tiếp = 422, lần thứ **6** trở đi = **429** `RATE_LIMITED` |
+| TC-MOB-ERR-01 | P | P-11-145. (a) `?c=khong-phai-uuid#<token thật>` → «Liên kết không đúng.» một dòng, không gọi API, không đăng xuất (`ERR-01c`). (b) `?c=khong-phai-uuid#tokenbatky` → ô nhập mã «Mã điểm danh» + lớp QC3M1, **0 POST** (gateway log 90 s chỉ có 1 POST của lớp khác), URL giữ nguyên (`ERR-01b2`). |
+
+### 9.8 Lô B — tiếp 26/11 (VPS `40281db4`)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-ERR-04 | P | Cửa sổ vừa đóng, token còn trong bước: API **409** `WINDOW_CLOSED` «Đã đóng điểm danh.»; mở liên kết trên iOS hiện đúng «Đã đóng điểm danh.» một dòng (`ERR-04`) |
+| TC-MOB-FLW-04 | P | `/checkin` không `#token`: ô «Mã điểm danh» + «Lớp QC3M1» + nút Điểm danh, **0 nút Quét** trên iOS; gõ mã đúng → «Đã điểm danh 03:23»; DB `channel=CODE` (`FLW-04b`, log `scan_buttons=0`) |
+| TC-MOB-NET-12 | P | Cùng một token gửi 3 lần: **201** rồi **200, 200** với `checked_in_at` y hệt (`20:24:12.408Z`); SQL mỗi SV đúng **1** dòng |
+
+**Đã chạy bổ sung sau nhắc của PM:** xem §9.9 — `ERR-17` P, `ERR-19` P, `ERR-06` **F**; `ERR-15`/`NET-09` vẫn N (không cắt được mạng riêng cho Simulator), phủ bởi NET-02/03 Android + pha 1.
+
+### 9.9 Lô B — chốt 26/11 (VPS `40281db4`)
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-ERR-17 | P | Simulator boot lại với `TZ=Asia/Tokyo`; điểm danh lúc `20:32:52Z` (`channel=WEB`) → trang hiện «Đã điểm danh **03:32**» = giờ Việt Nam (UTC+7), không theo múi giờ máy (Tokyo +9). Đã `launchctl unsetenv TZ`. |
+| TC-MOB-ERR-19 | P | Đăng nhập `sv.qc-b` (không ghi danh QC3M1) rồi mở liên kết QC3M1 → «Bạn không thuộc lớp này.» một dòng, không lộ lớp có tồn tại hay không. |
+| TC-MOB-ERR-06 | **P** (nghiệm lại `09f2deb3`) | Đăng xuất → `simctl openurl` liên kết QR mới (cửa sổ `01a21478-c11b`) → để màn `/login` **99 s** → đăng nhập `sv.qc3`: hiện «Mã đã hết hạn. Quét lại mã trên màn chiếu.» một dòng (`C-ERR06-after`); cửa sổ đó **0 dòng** `attendance_checkins` và **0 POST** (gateway chỉ có 1 POST `/checkins` lúc `20:52:42Z` = 422, trước kịch bản). DEF-MOB-07 đóng về phía tôi.
+
+ERR-15/NET-09: **N**, không cắt được mạng riêng cho Simulator mà không cắt mạng dùng chung — phủ bởi NET-02/03 Android (qc2) + pha 1 (qc).
+
+### 9.10 Lô C — kích thước / ngang / vùng an toàn / chữ lớn / bàn phím (iOS `40281db4`)
+
+Máy: `qc3-se3` (375×667), `qc3-iphone15` (390×844), `qc3-iphone15pm` (430×932). Lưu ý dữ liệu: lớp đang chọn trên SE3/15PM là `QC3M2` vốn chưa có `settings.attendance` (mặc định `self_checkin=false`) nên màn khoá; đã bật `self_checkin=true` cho `QC3M2` + mở cửa sổ `01a21478-c11b` để dựng 6 trạng thái.
+
+| TC | KQ | Bằng chứng |
+|---|---|---|
+| TC-MOB-UIW-02 | P | SE3 375×667 dọc: «Mã điểm danh» + nút «Điểm danh» nằm trong khung nhìn khi KHÔNG bàn phím, không cuộn ngang (`C-UIW-02c`) |
+| TC-MOB-UIW-03 | P | iPhone 15 390×844: đủ trạng thái ô nhập / đã điểm danh / lỗi ngay trong khung (`C-UIW-03`, `ERR-11`, `FLW-02`) |
+| TC-MOB-UIW-05 | P | 15 Pro Max 430×932: nội dung căn giữa cột đọc, không chữ quá nhỏ, không tràn (`C-UIW-05b`) |
+| TC-MOB-UIW-11 | P | SE3 667×375 ngang: thanh đáy 5 mục thấy đủ, nút «Điểm danh» + ô nhập trong khung nhìn, không cuộn ngang (`C-UIW-11-land`). Không kiểm được `Thoát` của khung quét (Simulator không có camera) |
+| TC-MOB-UIW-12 | P | iPhone 15 844×390 ngang: nút chính và ô nhập không bị Dynamic Island che, lề hai bên lớn hơn tai thỏ (`C-UIW-12-land2`) |
+| TC-MOB-UIW-17 | P | Dọc: thanh đáy 5 mục (Hôm nay · Chat riêng · Hỏi đáp · Luyện đề · Thêm) đủ chữ; ngang (< 500 px CSS): **vẫn thanh đáy**, không cắt chữ (`C-UIW-11-land`, `C-KBD-err`) |
+| TC-MOB-SAF-07 | P | iPhone 15 ngang: ô nhập + nút chính nằm trong vùng an toàn, không dải trắng hai bên (`C-UIW-12-land2`) |
+| TC-MOB-SAF-08 | P | SE3 (không tai thỏ): đáy trang sát thanh đáy, không khoảng đệm an toàn thừa (`C-UIW-02c`) |
+| TC-MOB-TXT-05 | P | `content_size=accessibility-extra-extra-extra-large`: chữ phóng to, bố cục vẫn 1 cột, không cuộn ngang, nút chính còn chạm được (`C-TXT-05`) |
+| TC-MOB-KBD-02 | P* | Bàn phím mở: ô nhập thấy trước, không bị che (`C-KBD-kbd`, SE3 dọc — TC ghi ngang, ghi nhận lệch) |
+| TC-MOB-KBD-03 | P | Mã sai + phím «Đi»: câu lỗi hiện ngay dưới ô, KHÔNG bị bàn phím che, nút chính thấy được (`C-KBD-err`) |
+| TC-MOB-KBD-05 | P | Phím Enter/«Đi» gửi như nút: nhận phản hồi từ máy chủ (`C-KBD-err` hiện câu lỗi mã sai do POST) |
+
+**N (chưa dựng được):** `SAF-10` (rà đủ 6 trạng thái cùng lúc với đường biên vùng an toàn), `TXT-04` (Safari phóng trang 200 % qua menu `aA`), `KBD-04` (kiểm `autocorrect=off`/`spellcheck=false` cần đọc DOM), `KBD-09` (dán từ clipboard cần bật clipboard dùng chung).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

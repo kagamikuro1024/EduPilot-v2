@@ -5,16 +5,16 @@
 6.B	SES-04	P	Đăng xuất → /login; Back ra about:blank; `sessionStorage.ep.checkin` rỗng
 6.B	SES-05	P	teacher + ta bị chặn ở /checkin (không ô nhập, 0 POST); /attendance vẫn dùng được
 6.B	SES-06	P	admin bị chặn, 0 POST
-6.B	SES-07	N	cần 2 tài khoản SV cùng thiết bị; sv.qc2 thuộc qc2 → pha 2
+6.B	SES-07	P	sv.qc + sv.qc-b CÙNG context (IndexedDB `edupilot.device.v1` = một khoá): cả hai điểm danh được trong cùng cửa sổ; SQL `attendance_checkins` — cùng `device_id` 01a21458-a7df-744f-8ee3-8c168346378d, cả hai `flags` có `DEVICE_SHARED`; SV không thấy cờ trong app
 6.B	SES-08	N	native: thanh thông báo hệ thống
 6.B	SES-09	N	cần access token hết hạn thật (TTL); không đổi giờ máy chủ
 6.B	SES-10	N	cần thu hồi phiên từ thiết bị khác (thiết bị thật)
 6.B	SES-11	P	Chưa đăng nhập: chuyển /login, cất {c,token,at} vào sessionStorage (không localStorage)
 6.B	SES-12	N	cần Back của Android / vuốt iOS (native)
 6.B	SES-13	N	cần `pm clear` (native)
-6.B	SES-14	N	cần hai SV cùng trình duyệt; không dùng sv.qc2
+6.B	SES-14	P	Đăng xuất KHÔNG xoá khoá thiết bị: IndexedDB `edupilot.device.v1` còn `{id:web,pub:124}` trước và sau; sv.qc-b đăng nhập lại trong CÙNG context → lượt thứ hai cùng `device_id` (SQL) → DB ghi `DEVICE_SHARED`
 6.C	FLW-01	P	Token QR tự gửi 1 lần, «Đã điểm danh 00:11» sau 171 ms; `#token` mất khỏi URL; chỉ dấu Check đỏ (svg/path)
-6.C	FLW-02	N	cần `simctl openurl` (pha 3)
+6.C	FLW-02	N	pha 1: không có rotate mới để simctl openurl; qc3 P ở pha 3 iOS (rotate_seconds=60, 1 POST, DB channel=WEB) — khi gộp lấy P của qc3
 6.C	FLW-03	P	Ba kiểu `5mk9v5` / `5MK 9V5` / `5MK-9V5` đều nhận, cùng giờ; cửa sổ 1 lượt
 6.C	FLW-04	P	Ô «Mã điểm danh» + «Lớp QCMOB1» + nút Điểm danh; không nút quét (Chromium không BarcodeDetector)
 6.C	FLW-05	P	Mở lại cùng liên kết: hiện lại đúng giờ lượt đầu, không lỗi
@@ -36,10 +36,10 @@
 6.F	ERR-03	P	Sửa ký tự cuối → «Mã không đúng. Quét lại mã trên màn chiếu.»
 6.F	ERR-04	P	Cửa sổ đã đóng → «Đã đóng điểm danh.»
 6.F	ERR-05	P	sv.qc mở QCMOB6 → «Bạn không thuộc lớp này.», checked_in=0
-6.F	ERR-06	P	Để màn đăng nhập > 60 s → «Mã đã hết hạn…», 0 POST (ep.checkin còn lại, không thuộc AC)
+6.F	ERR-06	P	web/Chromium VPS 8d2ec456: >60 s → «Mã đã hết hạn…», 0 POST, ep.checkin rỗng; qc3 tái hiện F trên iOS @40281db4 — PM quyết
 6.F	ERR-07	P	teacher: màn chặn, 0 POST, token không lộ trong DOM
 6.F	ERR-08	P	ta + admin: như ERR-07, 0 POST, không lộ token
-6.F	ERR-09	N	đếm ngược 429 cần 6 lần nhập sai liên tiếp — để ca riêng (sợ chạm hạn mức sv.qc cho ca khác)
+6.F	ERR-09	P	6 mã sai liên tiếp: 5×422 rồi 429 (`Retry-After: 60`); UI «Thử lại sau 33 giây.» đếm ngược 33→32, nút Điểm danh khoá, **ô mã bị gỡ** trong lúc đếm; hết giờ về ô nhập. Lý do hiện trong panel, KHÔNG gắn aria lên nút (quan sát nhỏ, không chấm)
 6.F	ERR-10	N	cần tải 11 lượt/phút rồi quét ngay (native+API)
 6.F	ERR-11	P	Mã sai → «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» dưới ô, aria-invalid=true, không hộp thoại
 6.F	ERR-12	P	Ô rỗng → nút khoá; ký tự lạ `😀@#$` → cùng một câu, 0 yêu cầu, không crash
@@ -56,7 +56,7 @@
 6.S	MSG-03	P	«Đã đóng điểm danh.» (ERR-04)
 6.S	MSG-04	P	«Lớp này không điểm danh bằng mã.» (FLW-12)
 6.S	MSG-05	P	«Bạn không thuộc lớp này.» (ERR-05)
-6.S	MSG-06	N	«Thử lại sau {n} giây.» cần 429 thật — cùng lý do ERR-09 (giữ hạn mức sv.qc)
+6.S	MSG-06	P	«Thử lại sau 33 giây.» ({n} nguyên ≥1, đếm ngược) — cùng bằng chứng ERR-09; gateway trả 429 `RATE_LIMITED` + `Retry-After: 60`
 6.S	MSG-07	P	«Chưa có mạng.» + nút Thử lại (NET-02, sửa ae069d85)
 6.S	MSG-08	N	quyền camera bị từ chối — native (pha 2)
 6.S	MSG-09	N	camera đang bị app khác dùng — native (pha 2)
@@ -65,7 +65,7 @@
 6.S	MSG-12	P	«Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» (ERR-11/12/13)
 6.S	MSG-13	P	«Liên kết không đúng.» (ERR-01)
 6.S	MSG-14	P	5xx/HTML/thân rỗng → câu tiếng Việt của SRS (ERR-14)
-6.S	MSG-15	N	chưa quét có hệ thống innerText + aria-label của cả 6 trạng thái — lượt riêng
+6.S	MSG-15	P	Quét DOM `innerText` + `aria-label`/`aria-description`/`alt` của CẢ 6 trạng thái (entry, đang gửi, 429, lỗi 5xx, mất mạng, đã điểm danh): 0 chuỗi cấm (`CHECKIN_`, `NotAllowedError`, `ERR_`, `net::`, `undefined`, `null`, `[object`, `Error`, `Failed`…), 0 mã HTTP
 6.S	MSG-16	N	cỡ chữ 2,0× (native: Android font scale / iOS content size)
 6.G	UIW-01	P	360: 4 trạng thái web không tràn ngang (scrollWidth ≤ innerWidth)
 6.G	UIW-02	P	375: 4 trạng thái không tràn ngang
@@ -122,13 +122,13 @@
 6.N	NET-11	N	mất mạng khi đang mở màn chiếu (native)
 6.N	NET-12	N	mất mạng khi camera mở (native)
 6.R	TGT-01	P	360 và 430: mọi button/a/input trong main, topbar, thanh dưới ≥ 44×44
-6.R	TGT-02	N	đo thô minGap=0 do phần tử lồng nhau — không kết luận; cần đo theo cặp hàng thực tế
+6.R	TGT-02	P	sửa 8d2ec456: 4 phép đo (checkin/attendance x 360/375) min 8 px, 0 cặp <8 (trước: 7 cặp 4 px — DEF-MOB-06)
 6.R	TGT-03	P	dock đáy 683 = mép trên thanh dưới 683 (không đè); dock 61 px, thanh dưới 57 px
 6.R	TGT-04	N	uiautomator dump (native)
 6.R	TGT-05	P	/attendance 375 (GV): mọi nút/hàng ≥ 44×44
 6.R	TGT-06	N	ngang thấp + pointer:coarse dùng thanh đáy (M2) nên không đo thanh bên
 6.X	ATT-01	P	375: mở được buổi, cửa sổ, có «Mở màn chiếu», không cuộn ngang
-6.X	ATT-02	P	Mọi nút/hàng ở 375 ≥ 44×44
+6.X	ATT-02	P	44x44 đạt; vế kề >= 8 px nay đạt (min 8 px ở 360 và 375 sau 8d2ec456)
 6.X	ATT-03	P	TA 360: lưới cuộn trong khung riêng, trang không cuộn ngang
 6.X	ATT-04	N	safe-area (native)
 6.X	ATT-05	N	cỡ chữ 2,0× (native)

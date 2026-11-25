@@ -211,4 +211,181 @@ final class IosTests: XCTestCase {
         dump(pwa, shotName()); savePng(shotName())
         print("fields=", web.textFields.count)
     }
+
+    /// Tắt hẳn Safari (xoá sessionStorage của tab) — dùng để kiểm lại từ trạng thái sạch.
+    func testKillSafari() { safari.terminate(); sleep(3); safari.launch(); sleep(4); savePng(shotName()) }
+
+    /// Lô B: ô mã (ERR-11/12/13) — nút khoá khi rỗng, câu lỗi chung, maxlength 12.
+    func testCodeEntry() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch
+        _ = web.waitForExistence(timeout: 20)
+        var log: [String] = []
+        let field = web.textFields.firstMatch
+        let btnName = "Điểm danh"
+        let btn = web.buttons.matching(NSPredicate(format: "label == %@", btnName)).firstMatch
+        log.append("field_exists=\(field.waitForExistence(timeout: 10)) btn_exists=\(btn.exists) btn_enabled=\(btn.isEnabled)")
+        let long = String(repeating: "A", count: 40)
+        field.tap(); sleep(2); field.typeText(long); sleep(1)
+        log.append("value_len=\(((field.value as? String) ?? "").count)")
+        let bad = "ZZZ999"
+        field.tap(); sleep(1)
+        let cur = (field.value as? String) ?? ""
+        if !cur.isEmpty { field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: cur.count)) }
+        field.typeText(bad); sleep(1)
+        if btn.isEnabled { btn.tap() } else { safari.typeText("\n") }
+        sleep(4)
+        let body = safari.webViews.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ")
+        log.append("body=\(body.prefix(400))")
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName())
+        print(log.joined(separator: "\n"))
+    }
+
+    /// ERR-11: gõ mã sai rồi Enter → câu lỗi chung dưới ô, aria-invalid.
+    func testWrongCode() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let field = web.textFields.firstMatch; _ = field.waitForExistence(timeout: 10)
+        field.tap(); sleep(2)
+        let cur = (field.value as? String) ?? ""
+        if !cur.isEmpty { field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: cur.count)) }
+        field.typeText("ZZZ999"); sleep(1); safari.typeText("\n"); sleep(5)
+        var log = ["web_true"]
+        log.append("texts=\(web.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | "))")
+        try? log.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName()); print(log.joined(separator: "\n").prefix(600))
+    }
+
+    /// Đổi tài khoản trong app: Thêm → Đăng xuất → đăng nhập sv.gioi (dùng cho DEF-MOB-05 vì sv.qc3 đã điểm danh các cửa sổ đang mở).
+    func testSwitchToGioi() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let more = web.buttons.matching(NSPredicate(format: "label == %@", "Thêm")).firstMatch
+        if more.exists { more.tap() } else { web.staticTexts.matching(NSPredicate(format: "label == %@", "Thêm")).firstMatch.tap() }
+        sleep(3)
+        let out = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if out.exists { out.tap() } else { web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch.tap() }
+        sleep(4)
+        let confirm = safari.alerts.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if confirm.exists { confirm.tap(); sleep(4) }
+        let email = web.textFields.firstMatch
+        _ = email.waitForExistence(timeout: 15)
+        email.tap(); sleep(1); email.typeText("sv.gioi@edupilot.local")
+        let pw = web.secureTextFields.firstMatch
+        pw.tap(); sleep(1); pw.typeText("Edupilot#Seed-2026")
+        let login = web.buttons.matching(NSPredicate(format: "label == %@", "Đăng nhập")).firstMatch
+        if login.exists { login.tap() } else { safari.typeText("\n") }
+        sleep(9)
+        savePng(shotName())
+        print("after login: \((web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(12)).joined(separator: " | "))")
+    }
+
+    /// FLW-04: ô mã + nút Điểm danh gõ mã đúng → «Đã điểm danh»; không có nút quét (iOS).
+    func testCodeCheckin() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let scan = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Quét")).count
+        let field = web.textFields.firstMatch; _ = field.waitForExistence(timeout: 12)
+        let code = "NKB 6Q1"
+        field.tap(); sleep(2); field.typeText(code); sleep(1)
+        safari.typeText("\n"); sleep(7)
+        let texts = web.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ")
+        try? ("scan_buttons=\(scan) code=\(code) texts=\(texts)").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName()); print("scan=\(scan) texts=\(texts.prefix(300))")
+    }
+
+    /// Đăng xuất: bấm avatar góc phải trên → «Đăng xuất» → xác nhận.
+    func testLogout() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = safari.frame
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.115)).tap()
+        sleep(3)
+        var labels = web.staticTexts.allElementsBoundByIndex.map(\.label)
+        var target = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if !target.exists { target = web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch }
+        if target.exists { target.tap(); sleep(2) }
+        let confirm = safari.alerts.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Đăng xuất")).firstMatch
+        if confirm.exists { confirm.tap(); sleep(5) }
+        labels = web.staticTexts.allElementsBoundByIndex.map(\.label)
+        try? ("frame=\(f) labels=\(labels.joined(separator: " | "))").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName())
+        print("labels=\(labels.prefix(20))")
+    }
+
+    /// Xoay ngang, chụp, trả lại dọc.
+    func testLandscape() {
+        XCUIDevice.shared.orientation = .landscapeLeft; sleep(4)
+        safari.activate(); sleep(2)
+        savePng(shotName())
+        XCUIDevice.shared.orientation = .portrait; sleep(2)
+    }
+    /// Bàn phím mở: chụp ô nhập; gõ mã sai + phím Đi; chụp câu lỗi so với bàn phím.
+    func testKeyFlow() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let field = web.textFields.firstMatch; _ = field.waitForExistence(timeout: 12)
+        field.tap(); sleep(3)
+        savePng(shotName() + "-kbd")
+        field.typeText("ZZZ999"); sleep(1)
+        safari.typeText("\n"); sleep(6)
+        savePng(shotName() + "-err")
+        print(web.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ").prefix(300))
+    }
+
+    /// Chọn lớp QC3M1 trong ô chọn lớp ở thanh trên.
+    func testSelectClass() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let sel = web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3")).firstMatch
+        if sel.exists { sel.tap() } else { web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3")).firstMatch.tap() }
+        sleep(3)
+        let opt = web.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3M1")).firstMatch
+        if opt.exists { opt.tap() } else { web.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "QC3M1")).firstMatch.tap() }
+        sleep(5)
+        savePng(shotName())
+        print(web.staticTexts.allElementsBoundByIndex.map(\.label).prefix(12).joined(separator: " | "))
+    }
+
+    /// KBD-04: gõ MỘT dạng (env KBD_FORM) vào ô trống, đọc giá trị.
+    func testKbd04() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        let form = ProcessInfo.processInfo.environment["KBD_FORM"] ?? "abc 123"
+        f.tap(); sleep(2)
+        f.typeText(form); sleep(2)
+        let v = (f.value as? String) ?? ""
+        try? ("\(form) -> \(v)").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        savePng(shotName()); print("\(form) -> \(v)")
+    }
+    /// KBD-09: chạm giữ ô rồi Dán (clipboard đặt bằng simctl pbcopy trước).
+    func testKbd09() {
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        f.press(forDuration: 1.6); sleep(2)
+        savePng(shotName() + "-menu")
+        let paste = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Dán")).firstMatch
+        let paste2 = safari.menuItems.matching(NSPredicate(format: "label CONTAINS[c] %@", "Paste")).firstMatch
+        if paste.exists { paste.tap() } else if paste2.exists { paste2.tap() }
+        sleep(2)
+        savePng(shotName())
+        print("value=\((f.value as? String) ?? "")")
+    }
+
+    /// KBD-02: ngang SE3, chạm ô, chụp khi bàn phím mở.
+    func testKbdLandscape() {
+        XCUIDevice.shared.orientation = .landscapeLeft; sleep(4)
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        f.tap(); sleep(3)
+        savePng(shotName())
+        let web2 = safari.webViews.firstMatch
+        web2.swipeUp(); sleep(2)
+        savePng(shotName() + "-swipe")
+        XCUIDevice.shared.orientation = .portrait; sleep(2)
+    }
 }
