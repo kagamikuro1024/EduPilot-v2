@@ -5,7 +5,8 @@ import { asDemo, type DemoRole } from "./session";
 // Gateway giả cho /checkin (US-AS-09). Mỗi lần gọi `POST …/checkins` được ghi lại (thân + URL + header) để test đếm / kiểm token không lộ.
 export { COURSE, err, json };
 export const SUB = "00000000-0000-7000-8000-0000000000a0"; // `sub` của JWT giả (support/session.ts)
-export const TOKEN = "v1.AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBB"; // dạng khác gì cũng được: máy chủ giả không kiểm
+// Đúng cú pháp `uuid.bước.mac` của attendance.ParseToken (P-11-144): `/checkin` chỉ cất fragment khớp cú pháp này.
+export const TOKEN = "5f4dcc3b-1a2b-4c3d-8e9f-0a1b2c3d4e5f.7.ABCDEFGHIJKLMNOP";
 export const CHECKED_IN_AT = "2026-10-07T00:03:12.000Z"; // 07:03 giờ Việt Nam
 export const item = (id: string, code: string, role = "STUDENT") => ({ course: { id, class_code: code, subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" }, role_in_course: role, enrollment_status: "ACTIVE" });
 

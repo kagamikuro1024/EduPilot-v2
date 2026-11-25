@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { COURSE, CHECKED_IN_AT, checkinApi, json } from "./support/checkin-fixtures";
+import { COURSE, CHECKED_IN_AT, TOKEN, checkinApi, json } from "./support/checkin-fixtures";
 
 // DEF-MOB-02/03 (TC mobile pha 1, NET-02/NET-07): đường mã ngắn và đường token phải cùng một cách báo lỗi mạng; lượt gửi có trần 15 s.
 test("DEF-MOB-02 mất mạng khi gửi mã ngắn: «Chưa có mạng.» + nút «Thử lại», giữ mã; gửi lại được", async ({ page, context }) => {
@@ -56,4 +56,55 @@ test("token QR quá hạn 60 s: báo hết hạn và xoá ep.checkin khỏi sess
   await page.goto(`/checkin?course=${COURSE}`);
   await expect(page.getByText("Mã đã hết hạn. Quét lại mã trên màn chiếu.")).toBeVisible();
   expect(await page.evaluate(() => sessionStorage.getItem("ep.checkin"))).toBeNull();
+});
+
+// DEF-MOB-05 (qc3 iOS lô B): tab đang mở /checkin còn stash cũ quá hạn, người dùng mở liên kết QR MỚI (chỉ đổi hash hoặc trang phục hồi từ bfcache).
+test("DEF-MOB-05 #token mới trong cùng tab (đổi hash): gửi token MỚI, không báo «Mã đã hết hạn»", async ({ page, context }) => {
+  const log = await checkinApi(page, context);
+  await page.goto(`/checkin?c=${COURSE}`); // liên kết QR: `?c=` + `#token`
+  await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
+  await page.evaluate(
+    (c) => sessionStorage.setItem("ep.checkin", JSON.stringify({ c, token: "e7c1a1c2-1111-4c3d-8e9f-0a1b2c3d4e5f.3.ABCDEFGHIJKLMNOP", at: Date.now() - 61_000 })),
+    COURSE,
+  );
+  await page.evaluate((t) => {
+    location.hash = t; // cùng tab: chỉ đổi fragment, trang KHÔNG tải lại
+  }, TOKEN);
+  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh");
+  expect(log.posts).toHaveLength(1);
+  expect(log.posts[0].body.token).toBe(TOKEN);
+  expect(await page.evaluate(() => sessionStorage.getItem("ep.checkin"))).toBeNull();
+  await expect(page.getByText("Mã đã hết hạn. Quét lại mã trên màn chiếu.")).toHaveCount(0);
+});
+
+test("DEF-MOB-05 #token mới khi Safari phục hồi trang từ bfcache (pageshow persisted)", async ({ page, context }) => {
+  const log = await checkinApi(page, context);
+  await page.goto(`/checkin?c=${COURSE}`);
+  await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
+  await page.evaluate(
+    ({ c, t }) => {
+      sessionStorage.setItem("ep.checkin", JSON.stringify({ c, token: "e7c1a1c2-1111-4c3d-8e9f-0a1b2c3d4e5f.3.ABCDEFGHIJKLMNOP", at: Date.now() - 61_000 }));
+      history.replaceState(null, "", `/checkin?c=${c}#${t}`); // bfcache: URL đã có token, KHÔNG có hashchange
+      dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })); // Safari phục hồi
+    },
+    { c: COURSE, t: TOKEN },
+  );
+  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh");
+  expect(log.posts).toHaveLength(1);
+  expect(log.posts[0].body.token).toBe(TOKEN);
+});
+
+test("DEF-MOB-05b skip link «Bỏ qua điều hướng» ở /checkin: fragment #main không bị coi là token (0 POST, focus tới #main, ô mã còn)", async ({ page, context }) => {
+  const log = await checkinApi(page, context);
+  await page.goto(`/checkin?course=${COURSE}`);
+  const field = page.getByLabel("Mã điểm danh");
+  await expect(field).toBeVisible();
+  await page.keyboard.press("Tab"); // skip link chỉ hiện khi được focus bằng bàn phím
+  const skip = page.getByRole("link", { name: "Bỏ qua điều hướng" });
+  await expect(skip).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main")).toBeFocused();
+  expect(page.url()).toContain("#main"); // không bị replaceState xoá
+  expect(log.posts).toHaveLength(0);
+  await expect(field).toBeVisible(); // ô mã không biến mất
 });
