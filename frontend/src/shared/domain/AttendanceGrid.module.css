@@ -48,7 +48,7 @@
 }
 .mMark[aria-checked="true"] { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 700; }
 .mMark[aria-checked="true"]::before { content: "✓ "; }
-.mTop { display: flex; align-items: center; gap: var(--ep-space-1); }
+.mTop { display: flex; align-items: center; gap: var(--ep-space-2); } /* DEF-MOB-06: hai vùng chạm liền nhau phải cách ≥ 8 px (TGT-02/ATT-02) */
 .mTop .mHead { flex: 1; min-width: 0; }
 .mPlus { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink); }
 .mPlus svg { width: 18px; height: 18px; }

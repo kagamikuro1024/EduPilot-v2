@@ -321,6 +321,26 @@ test("attendance 375: hàng chỉ có chữ trạng thái, bấm hàng mở bố
   expect(api.puts()).toHaveLength(0); // chưa tới 2 s
 });
 
+// DEF-MOB-06 (qc TGT-02/ATT-02): hai vùng chạm trong một hàng điện thoại — nút mở hàng và nút «+ phát biểu» — cách nhau ≥ 8 px ở 360 và 375.
+test("attendance 360/375: nút mở hàng và nút ghi phát biểu cách nhau ≥ 8 px, hàng không tràn", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await open(page, context, { grid: gridBody(2, [student(1), student(2), student(3)]) }, "/attendance");
+  for (const w of [360, 375]) {
+    await page.setViewportSize({ width: w, height: 812 });
+    await expect(page.locator("[data-part=att-row]").first()).toBeVisible();
+    const gaps = await page.locator("[data-part=att-row]").evaluateAll((rows) =>
+      rows.map((row) => {
+        const [head, plus] = Array.from(row.querySelectorAll("button")).slice(0, 2).map((b) => b.getBoundingClientRect());
+        return Math.round(plus.left - head.right);
+      }),
+    );
+    expect(gaps.length, `${w}px`).toBeGreaterThan(0);
+    expect(Math.min(...gaps), `${w}px`).toBeGreaterThanOrEqual(8);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `${w}px`).toBe(true);
+  }
+  expect(api.puts()).toHaveLength(0);
+});
+
 test("attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồi Lưu điểm danh — đúng một PUT cho cả lưới, mỗi chạm phản hồi ≤ 100 ms", async ({ page, context }, info) => {
   desktopOnly(info);
   await page.setViewportSize({ width: 375, height: 812 });
