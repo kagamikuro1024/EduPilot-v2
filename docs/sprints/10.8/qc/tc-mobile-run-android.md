@@ -157,3 +157,11 @@ Tổng: **54 TC = 45 P, 0 F, 9 N.**
 | NAV-10 | N | Back→Forward không trả lại trang kết quả QR (điều hướng client-side không để lại mục lịch sử của trang QR) |
 
 Ghi nhận: PM xác nhận mất phiên khi tải lại nhanh là thiết kế hiện hành (xoay refresh không ân hạn, Q9) — không tính F, chờ P-11-140.
+
+## 13. Lượt 9 (26/11) — LIF-04 P; LIF-02 N
+
+Tổng: **56 TC = 46 P, 0 F, 10 N.**
+
+- **LIF-04 = P**: về nền + tắt màn 50 s, mở lại → nội dung app («/», «QC mobile 1 (điểm danh bật)»), không về `/login`.
+- **LIF-02 = N**: đo hỏng — ngay sau khi gửi mã, phiên rơi về `/login` (lỗi xoay refresh Q9, PM chốt không tính F); không quan sát được thông báo khi giáo viên đóng cửa sổ giữa lúc gửi. DB 0 dòng chỉ nghĩa là chưa gửi được.
+- Merge `origin/sprint/11-p10-eval` (7 xung đột: 5 tệp regression + `android-checklist.md` + `tc-mobile-app.md`) — lấy bản sprint; HEAD đã đẩy `sprint/11-p10-eval` (ef0e0d0f).
