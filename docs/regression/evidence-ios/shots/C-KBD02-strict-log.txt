@@ -1,0 +1,2 @@
+btn_exists=true hit0=true
+final_hit=true
