@@ -92,8 +92,11 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 ```text
 .
 ├── backend-go/              # Gateway + worker Go (một go.mod) — chi tiết: backend-go/README.md
-│   ├── cmd/gateway/         # điểm vào HTTP (+ lệnh `migrate`, `token` cho dev)
+│   ├── cmd/gateway/         # điểm vào HTTP (+ lệnh `migrate`, `token`, `admin` cho dev / vận hành)
 │   ├── cmd/worker/          # consumer nền (outbox, việc dài)
+│   ├── cmd/regress/         # chạy lại ca hồi quy chấm bài (công cụ ở môi trường đo)
+│   ├── cmd/mock-graph/, cmd/mock-imap/  # Teams (Graph) và hộp thư IMAP giả lập cho local / test
+│   ├── cmd/llmload/         # đo Scheduler của cổng LLM qua route thử
 │   ├── internal/
 │   │   ├── platform/        # config, log, otel, redis, db (pgx), blob (MinIO), outbox, clock
 │   │   ├── httpapi/         # router chi, middleware, lỗi thống nhất, cursor, Idempotency-Key, ETag, SSE
@@ -106,11 +109,20 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   │   ├── workhours/       # tính giờ chờ theo ngày làm việc (T2–T6, giờ VN)
 │   │   ├── knowledge/       # kho tri thức từ ticket / Threads đã xác nhận (che PII rồi nạp)
 │   │   ├── crm/             # điểm danh, phát biểu, ghi chú, hồ sơ 360 (audit), at-risk theo tuần
+│   │   ├── attendance/      # điểm danh tự phục vụ: QR xoay vòng, mã ngắn, cờ nghi điểm danh hộ, khoá thiết bị
 │   │   ├── activity/        # thời gian học: heartbeat chỉ ghi Redis, rollup vào DB
 │   │   ├── seedtool/        # lệnh quản trị cho seed dữ liệu quá khứ (chỉ dev / test)
 │   │   ├── exam/            # bài thi: lượt làm, tự lưu, nộp, công bố, kết quả, phúc khảo, liêm chính
 │   │   ├── quiz/            # Quiz Engine: chấm trắc nghiệm (decimal, từng phần)
 │   │   ├── judge/           # client go-judge + hàng chấm code (thuê việc kiểu outbox)
+│   │   ├── practice/        # luyện đề theo chủ đề, thi thử có giờ, điểm yếu
+│   │   ├── grade/           # sổ điểm: Grade Engine (decimal), công thức, chốt / mở khoá, XLSX
+│   │   ├── assignment/, submission/, mailin/  # bài tập; nguồn nộp (trong app, ZIP, thư IMAP, Teams)
+│   │   ├── grading/         # AI chấm nháp hai lượt, trích công thức từ quy chế, lưu ý chấm
+│   │   ├── regress/         # ca hồi quy khi giảng viên sửa điểm (D61)
+│   │   ├── decision/        # API cấu hình + quan sát decision model (D60)
+│   │   ├── insight/         # báo cáo lỗ hổng kiến thức (gom cụm câu hỏi bằng embedding)
+│   │   ├── observability/, audit/  # quan sát AI; nhật ký quản trị cho ADMIN
 │   │   ├── privacy/         # phát hiện / ẩn / che / khôi phục danh tính (roster theo lớp, unmask_stream)
 │   │   ├── agent/           # định tuyến tất định, tool theo kênh (danh tính từ trusted_context)
 │   │   ├── chat/            # chat riêng: SSE, nối lại, Dừng, khoá giờ thi
@@ -126,19 +138,21 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   │   ├── jobs/            # việc dài: 202 + GET /jobs/{id}
 │   │   ├── store/           # sqlc (queries/*.sql)
 │   │   ├── contract/        # response thật khớp api/openapi.yaml
+│   │   ├── integration/     # test tích hợp nhiều module
 │   │   └── testroutes/      # route chỉ cho test (build tag `testroutes`, image mặc định không có)
 │   ├── db/migrations/       # goose, từ 00001
 │   ├── api/openapi.yaml     # hợp đồng API — endpoint nào cũng phải có ở đây
-│   └── Dockerfile           # multi-stage, image < 10 MB, nonroot, không shell
+│   └── Dockerfile           # multi-stage, nonroot, không shell (đo 9.5: image gateway 17,7 MB, `benchmarks/reports/baseline.json`)
 ├── frontend/                # Next.js 16
 │   ├── src/app/             # route
 │   └── src/shared/          # token, primitive, lớp dữ liệu dùng chung (PU)
+├── mobile/                  # app Android (Capacitor) cho điểm danh bằng mã, xem mobile/README.md
 ├── seed/documents/          # PDF môn học dùng làm dữ liệu seed
 ├── scripts/
 │   ├── dev.mjs              # pnpm dev: dựng stack, chờ healthy
 │   ├── ui-antipatterns.sh   # chặn phản mẫu giao diện (DESIGN.md §21)
-│   └── team-up.sh           # dựng pane agent trên herdr
-├── deploy/                  # Caddyfile, cấu hình PgBouncer
+│   └── team-up.sh           # dựng pane agent trên herdr (đội đã chuyển sang Tern từ 16/11; script giữ cho lịch sử)
+├── deploy/, infra/docling/  # Caddyfile, cấu hình PgBouncer; image docling-serve
 ├── benchmarks/              # k6 (load/), số đo (reports/), đánh giá offline
 ├── docs/                    # PRD, kiến trúc, phase, spec, sprint, quyết định, research
 ├── legacy/                  # mã Project III — CHỈ ĐỌC
@@ -305,7 +319,7 @@ TOKEN="$(cd backend-go && go run ./cmd/gateway token --role STUDENT)" && k6 run 
 Quản trị viên đầu tiên (không có route HTTP tạo ADMIN; mật khẩu CHỈ từ biến `ADMIN_PASSWORD` hoặc stdin, không có cờ `--password`; chạy lại cùng email thì thoát 0 và không đổi gì):
 
 ```bash
-ADMIN_PASSWORD='…' ./bin/gateway admin create --email admin@edupilot.local --name "Quản trị"
+printf '%s\n' '…' | docker compose -p edupilot exec -T gateway /gateway admin create --email admin@edupilot.local --name "Quản trị"   # stack đang chạy; mật khẩu qua stdin
 ```
 
 CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy job **Go** (`go vet` hai bộ tag, `golangci-lint`, `sqlc diff`, `go test -race -tags testroutes`) và **Frontend** (lint, build, `ui-antipatterns.sh`, Playwright gồm ảnh mốc và axe, Lighthouse CI) trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật (provider `fake` + bản ghi replay). Ảnh mốc Playwright sinh trong image `mcr.microsoft.com/playwright` để khớp CI. Số đo nền của bản Go: [`benchmarks/reports/pg-baseline.md`](benchmarks/reports/pg-baseline.md).
@@ -345,10 +359,10 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 | File | Nội dung |
 | --- | --- |
 | [`docs/PRD.md`](docs/PRD.md) | Yêu cầu, module M0–M15, tiêu chí nghiệm thu, mục tiêu G1–G8 |
-| [`docs/FLOWS.md`](docs/FLOWS.md) | 19 luồng end-to-end F1–F19, cả nhánh lỗi |
+| [`docs/FLOWS.md`](docs/FLOWS.md) | 20 luồng end-to-end F1–F19 (thêm F7b), cả nhánh lỗi |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Thành phần, lược đồ dữ liệu, REST, provider LLM, env, kiểm thử |
 | [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Tải T1, nút cổ chai, SLO, lộ trình mở rộng |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D59 |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D62 |
 | [`docs/design/DESIGN.md`](docs/design/DESIGN.md), [`docs/UX.md`](docs/UX.md) | Hệ thiết kế "Red Thread / Academic Instrument" + panel có kỷ luật (D59), hợp đồng từng route, luật UX |
 | [`docs/phases/`](docs/phases/) | Backlog kỹ thuật: P0, PG, PU, P1–P10, PR — lát việc + cổng nghiệm thu |
 | [`docs/specs/`](docs/specs/) | User story + SRS theo feature (BA viết) |
@@ -360,7 +374,7 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 
 ## 9. Quy trình làm việc: đội agent và sprint
 
-Một người (chủ dự án) và sáu phiên agent trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/)). Mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước khi làm. Sau mỗi lượt test, agent chạy `docker volume prune -f`; PM dọn sâu Docker khi đóng sprint.
+Một người (chủ dự án) và các phiên agent, giao tiếp qua file trong repo ([`docs/team/`](docs/team/)); đến sprint 11 có mười một phiên: `pm`, `ba`, `writer`, hai Tech Lead (`techlead-dd` nghiên cứu, `techlead-ui` giao diện) và ba cặp dev / QC. Các phiên chạy trong bộ chia terminal (herdr, từ 16/11 là Tern) và nhắn nhau chỉ để đánh thức; nội dung việc luôn nằm trong tệp. Mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước khi làm. Sau mỗi lượt test, agent chạy `docker volume prune -f`; PM dọn sâu Docker khi đóng sprint.
 
 | Vai | Việc | Sửa được |
 | --- | --- | --- |
