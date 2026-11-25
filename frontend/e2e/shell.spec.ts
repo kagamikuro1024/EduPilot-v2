@@ -607,3 +607,24 @@ test("demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng ·
   await expect(demoPage.getByText(label).first()).toBeVisible();
   await demoCtx.close();
 });
+
+// M17 + M18 (techlead-ui 2026-11-25): mất mạng rồi bấm thanh đáy không được rời app sang trang lỗi của trình duyệt; dải chỉ một câu.
+test("M17/M18: mất mạng — bấm thanh đáy giữ trang hiện tại, dải chỉ «Mất kết nối mạng.»; có mạng lại thì điều hướng được", async ({ page, context }) => {
+  mockOnly();
+  await asDemo(context, "student");
+  await size(page, 375, 800);
+  await page.goto("/");
+  await page.locator("main:not([aria-busy]) h1").first().waitFor();
+  await context.setOffline(true);
+  const banner = page.locator("[data-part=offline-banner] [role=status]");
+  await expect(banner).toHaveText("Mất kết nối mạng.");
+  await page.locator("[data-part=bottom-nav]").getByRole("link", { name: "Luyện đề" }).click();
+  await page.waitForTimeout(1200);
+  expect(new URL(page.url()).pathname).toBe("/");
+  await expect(page.locator("main")).toBeVisible();
+  await expect(banner).toHaveText("Mất kết nối mạng.");
+  await context.setOffline(false);
+  await expect(banner).toHaveCount(0, { timeout: 5000 });
+  await page.locator("[data-part=bottom-nav]").getByRole("link", { name: "Luyện đề" }).click();
+  await expect(page).toHaveURL(/\/practice/);
+});

@@ -98,6 +98,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [more, setMore] = useState(false);
   const [askLogout, setAskLogout] = useState(0); // số thay đổi chưa lưu khi bấm Đăng xuất (0 = không hỏi)
 
+  // M17: mất mạng thì Next không lấy được dữ liệu route và tải cả trang ⇒ trình duyệt rời app sang trang lỗi (kẹt cả khi có mạng lại).
+  // Link nội bộ của khung (thanh đáy, «Thêm», thanh bên) giữ trang hiện tại; dải mất mạng là phản hồi.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (navigator.onLine || !(e.target instanceof Element)) return;
+      const a = e.target.closest("a[href]");
+      if (a instanceof HTMLAnchorElement && a.origin === location.origin && !a.target && !a.hasAttribute("download") && a.pathname + a.search !== location.pathname + location.search) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const typing = e.target instanceof HTMLElement && e.target.closest("input, textarea, select, [contenteditable]");

@@ -29,7 +29,7 @@ export function OfflineBanner() {
       {off && (
         <p className={s.banner} role="status" aria-live="polite">
           <WifiOff aria-hidden />
-          {pending > 0 ? `Chưa có mạng · ${pending} thay đổi chờ lưu` : "Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng."}
+          {pending > 0 ? `Chưa có mạng · ${pending} thay đổi chờ lưu` : "Mất kết nối mạng."}
         </p>
       )}
     </div>
