@@ -165,3 +165,9 @@ Tổng: **56 TC = 46 P, 0 F, 10 N.**
 - **LIF-04 = P**: về nền + tắt màn 50 s, mở lại → nội dung app («/», «QC mobile 1 (điểm danh bật)»), không về `/login`.
 - **LIF-02 = N**: đo hỏng — ngay sau khi gửi mã, phiên rơi về `/login` (lỗi xoay refresh Q9, PM chốt không tính F); không quan sát được thông báo khi giáo viên đóng cửa sổ giữa lúc gửi. DB 0 dòng chỉ nghĩa là chưa gửi được.
 - Merge `origin/sprint/11-p10-eval` (7 xung đột: 5 tệp regression + `android-checklist.md` + `tc-mobile-app.md`) — lấy bản sprint; HEAD đã đẩy `sprint/11-p10-eval` (ef0e0d0f).
+
+## 14. Lượt 10 (26/11) — THM-02 N
+
+Tổng: **57 TC = 46 P, 0 F, 11 N.**
+
+- **THM-02 = N**: lượt đo chỉ bật `cmd uimode night yes` (app báo `scheme=false`, nền #fff, chữ #231f20). TC yêu cầu cờ Chrome «Auto Dark Mode for Web Contents» + mở `/checkin` bằng `am start VIEW` — chưa dựng đúng, cần chạy lại.

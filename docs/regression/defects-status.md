@@ -283,3 +283,8 @@ Lấy từ trường «Hồi quy do sprint sau?» hoặc chữ «Không phải h
 | opencode-go | DEF-OC-SI-01 | Thấp | TC-OC-70 | ĐÓNG | sửa 55664e51 | không ghi | log structured_invalid còn chép một phần nội dung đầu ra của mô hình |
 
 TC ghi riêng mã: mặc định dòng cuối là P; `=LT` là TC lỗi thời đã xoá có nguồn (không còn dòng trong smoke).
+
+## 10.8 — chốt trạng thái (qc2, 26/11)
+
+- Không còn defect 10.8 mở: DEF-01 (axe /checkin) ĐÓNG, DEF-04 (AS11-07 Capacitor BarcodeDetector rỗng) ĐÓNG ở b3c039c0 và chạy lại P (`ui-more9.log`, `rerun-def.jsonl`), DEF-R10.8-05 ĐÓNG.
+- Kết quả 10.8: **272/272 P, 0 F, 0 K, 0 N** (`smoke-10.8.md`). Hai ca từng ghi K đã chạy được: TC-AS11-17 (Android thật, lô 2 NAV-01/04 + evidence-mobile-android 46 TC P) và TC-AS09-34 (iOS Safari + PWA, `evidence-10.8/ios/`).

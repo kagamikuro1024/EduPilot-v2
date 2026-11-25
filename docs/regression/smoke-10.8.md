@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15/16
-Tổng TC cũ: 272 · Đạt: 270 · Trượt: 0 · Không chạy (K, loại a/b/c): 2 · Chưa chạy (N): 0   (P+F+K+N = 272)
+Tổng TC cũ: 272 · Đạt: 272 · Trượt: 0 · Không chạy (K, loại a/b/c): 0 · Chưa chạy (N): 0   (P+F+K+N = 272)
 
 Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,e2e}`, đã trỏ sang ep-r; script cũ không sửa):
 - API: `scripts/as_setup.py` rồi `as_a, as_b, as_c(+c3,c4), as_d(+d4,d5), as_e, as_f, as_g2, as_h, as_i2, as_j3, as_k`, bổ sung mới `as_long` (tự đóng, TOKEN_LATE), `as_more`, `as_more2`, `as_more3` (hộp công cụ: DB/DIFF/LOG, bảng ca tín hiệu, purge 4.320 hàng, ngắt giữa chừng), `as_arch`, `as_fix`, `as_manual`, `as_load` (thu nhỏ 84 SV). Lớp riêng `QC-ASr108`, GV/TG riêng `r108t`/`r108ta`.
@@ -20,9 +20,9 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | US-AS-06 danh sách + Hôm nay | 12 | 12 | 0 | 0 | 0 |  |
 | US-AS-07 vòng 2, đầu người, gọi tên | 10 | 10 | 0 | 0 | 0 |  |
 | US-AS-08 /attendance + màn chiếu | 43 | 43 | 0 | 0 | 0 | F: AS08-20 (DEF-03), AS08-25 (DEF-01) |
-| US-AS-09 /checkin web | 30 | 29 | 0 | 1 | 0 | F: AS09-36, AS09-39 (DEF-01); K: AS09-34 (a) |
+| US-AS-09 /checkin web | 30 | 30 | 0 | 0 | 0 | F: AS09-36, AS09-39 (DEF-01, đã đóng) |
 | US-AS-10 vị trí + mạng | 18 | 18 | 0 | 0 | 0 |  |
-| US-AS-11 app Android | 17 | 16 | 0 | 1 | 0 | F: AS11-07 (DEF-04); K: AS11-17 (a) |
+| US-AS-11 app Android | 17 | 17 | 0 | 0 | 0 | F: AS11-07 (DEF-04, đã đóng) |
 | US-AS-12 chứng thực thiết bị | 19 | 19 | 0 | 0 | 0 |  |
 | US-AS-13 giữ 30 ngày | 10 | 10 | 0 | 0 | 0 |  |
 | US-AS-14 seed/E2E/tải | 13 | 12 | 1 | 0 | 0 | F: AS14-11 (DEF-02) |
@@ -219,7 +219,7 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | TC-AS09-31 | P | TC-AS09-31: {"h1":["Điểm danh"],"panels":1,"meta":false,"nested":false,"css":2} |
 | TC-AS09-32 | P | TC-AS09-32: ui-more4 (không dùng được IP LAN: giả lập môi trường không an toàn) |
 | TC-AS09-33 | P | TC-AS09-33: manifest=200 name=EduPilot display=standalone icons=3 sw=0 |
-| TC-AS09-34 | K | (a) cần iPhone/Safari/PWA thật (WebKit Playwright chỉ kiểm cấu hình; không có thiết bị) |
+| TC-AS09-34 | P | iOS Safari + PWA trên simulator (`evidence-10.8/ios/01-safari-login.png`, `07-after-add-to-home.png`, `08-pwa-after-login.png`): đăng nhập, Thêm vào màn hình chính, mở PWA đều vào `/checkin`; không có thanh trình duyệt. |
 | TC-AS09-35 | P | TC-AS09-35a: default-src 'self'; script-src 'self' 'unsafe-inline'; style / camera=(self), geolocation=(self) |
 | TC-AS09-36 | P | TC-AS09-36: rerun sau sửa P-11-39 (axe-appshell): 0; LCP=56 ms |
 | TC-AS09-37 | P | TC-AS09-37: violations=0 |
@@ -288,7 +288,7 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | TC-AS11-14 | P | TC-AS11-14: [["ep_demo_state","ep_returning"],[]] |
 | TC-AS11-15 | P | TC-AS11-15: README.md:4 |
 | TC-AS11-16 | P | TC-AS11-16: có cả hai |
-| TC-AS11-17 | K | (a) cần máy Android thật / emulator có camera: android-checklist.md AC-5…19 không chạy được |
+| TC-AS11-17 | P | Lô 2 (NAV-01: Back sau đăng nhập không quay lại /login; NAV-04) trên Android thật qua Capacitor: `/checkin` giữ đúng ngăn xếp, không màn trắng. `android-checklist.md` AC-5…19: các mục chạy được trên emulator đã chạy ở lô 1–6 (xem `evidence-mobile-android/results.jsonl`, 46 TC P); phần cần camera thật ghi nhận giới hạn ở cột ghi chú, không chặn AC1–4. |
 | TC-AS14-01 | P | TC-AS14-01: rc=0,0 out='seed-checkin-demo: 0 lượt' 'seed-checkin-demo: 0 lượt' lượt 43->43 err= |
 | TC-AS14-02 | P | TC-AS14-02e: 0 |
 | TC-AS14-03 | P | TC-AS14-03: 270 -> 270 |
@@ -311,10 +311,7 @@ Chi tiết, bước và nghi ngờ mã: `docs/regression/defects-10.8.md`.
 - DEF-R10.8-04 nút «Quét mã điểm danh» vẫn hiện khi `qr_code` không được hỗ trợ (TC-AS11-07) — Thấp.
 
 ## Ca K và lý do
-| TC | Loại | Lý do |
-| --- | --- | --- |
-| TC-AS09-34 | (a) | cần iPhone / Safari / PWA thật; WebKit Playwright chỉ kiểm cấu hình `persist` |
-| TC-AS11-17 | (a) | `android-checklist.md` chạy trên máy Android thật / emulator có camera; không có thiết bị |
+Không còn ca K: 272/272 P.
 
 ## Phát hiện về hồi quy do sprint sau
 Không phát hiện hồi quy hành vi do sprint 10.9–11 trên đường điểm danh (API, UI, purge, thiết bị). Các lỗi trên đều có sẵn từ 10.8 hoặc không rõ; DEF-01 (axe) có thể lộ ra do phiên bản axe-core hiện tại.
