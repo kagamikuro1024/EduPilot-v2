@@ -9,7 +9,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    theme_color: BRAND.red,
+    theme_color: BRAND.canvas, // thanh trên trắng: thanh trạng thái hệ thống đọc được (US-AS-15 AC5)
     background_color: BRAND.canvas,
     lang: "vi",
     icons: [

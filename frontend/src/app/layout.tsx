@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import "@/shared/styles/tokens.css";
 import "@/shared/styles/base.css";
@@ -7,6 +7,7 @@ import { QueryProvider } from "@/shared/data/queryClient";
 import { AuthProvider } from "@/shared/session/AuthProvider";
 import { EARLY_REFRESH_SCRIPT } from "@/shared/data/earlyRefresh";
 import { EARLY_PAINT_SCRIPT } from "@/shared/data/earlyPaint";
+import { BRAND } from "@/shared/styles/brand";
 
 // next/font tự lưu font cùng máy chủ và phát @font-face "Be Vietnam Pro" (không gọi Google lúc chạy). KHÔNG đặt font-family qua
 // className: --ep-font ở tokens.css (có "Noto Sans" dự phòng) mới là chuỗi font duy nhất của trang.
@@ -19,8 +20,13 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 export const metadata: Metadata = {
   title: { default: "EduPilot", template: "%s · EduPilot" },
-  icons: { icon: "/brand/favicon.svg" },
+  icons: { icon: "/brand/favicon.svg", apple: [{ url: "/brand/icon-192.png", sizes: "192x192", type: "image/png" }] },
+  // PWA iPhone «Thêm vào Màn hình chính» (US-AS-15 AC11): tên, chạy toàn màn, thanh trạng thái sáng khớp thanh trên trắng
+  appleWebApp: { capable: true, title: "EduPilot", statusBarStyle: "default" },
 };
+
+// US-AS-15 AC3: nội dung tràn dưới tai thỏ / thanh cử chỉ, CSS chừa bằng env(safe-area-inset-*); bàn phím ảo co khung nhìn (Chrome Android) để ô nhập + dock thấy cùng lúc (AC6)
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content", themeColor: BRAND.canvas };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

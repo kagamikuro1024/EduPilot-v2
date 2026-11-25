@@ -1,7 +1,7 @@
 /* Nền chung sau tokens.css: vai chữ, bề mặt trình duyệt, tiện ích không có trong primitive. */
 
 html { color-scheme: light; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
-body { min-height: 100dvh; caret-color: var(--ep-red); }
+body { min-height: 100dvh; caret-color: var(--ep-red); padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px); } /* ngang: lề lớn hơn tai thỏ (US-AS-15 AC3) */
 
 h1, h2, h3, h4, p { margin: 0; }
 h1, h2, h3 { text-wrap: balance; }
