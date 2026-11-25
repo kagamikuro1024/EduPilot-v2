@@ -377,3 +377,23 @@ Tổng: **102 TC = 84 P, 0 F, 18 N.**
 - **DEV-13 = P**: `adb uninstall` + `install` lại APK, đăng nhập, điểm danh: lượt đầu `flags {DEVICE_NEW}` (`assurance=2`, `channel=CODE`); lượt hai (cửa sổ khác, cùng phiên) `flags {}` — **DEVICE_NEW đúng một lần**. `user_devices` có bản ghi mới sau khi cài lại (kind `WEB_KEY` vì máy ảo không attest được); khoá cũ không được dùng lại.
 - **DEV-14 = N**: cần bản build plugin lỗi giả / máy không Keystore — không dựng được trên APK thật. **Phủ bởi** e2e `frontend/e2e/checkin-native.spec.ts` ca «checkin app: plugin lỗi → không gửi device (mức 1), vẫn điểm danh; lớp kiểm tra vị trí → geo.mock lấy từ plugin».
 - Đã trả QCMOB2 `rotate_seconds=10`, không geofence.
+
+## 38. Lượt 34 (26/11) — INS tách lý do; CHỐT pha 2
+
+Tổng: **102 TC = 85 P, 1 F, 16 N.**
+
+- **INS-03 = P**: chạy bước đầu của `npm run install:device` (`node scripts/prepare.mjs`): `APP_SERVER_URL=http://10.0.2.2:3500` → exit 1 «APP_SERVER_URL phải là HTTPS…»; rỗng → exit 1 «Đặt APP_SERVER_URL trước…»; không tạo `dist`/`www`, không dựng APK, không cài.
+- **INS-01/02 = N «chờ khoá ký của chủ dự án»**: cả hai cần APK **release** ký bằng `EDUPILOT_KEYSTORE` (máy QC không có khoá) nên chưa chạy được `aapt2`/`apksigner` và `npm run install:device` (dựng `assembleRelease`).
+- **INS-09 = F (mới)**: AVD tạm **API 28** (`google_apis` arm64, WebView **66.0.3359.158**, không có `BarcodeDetector`) + `app-debug-vps-HEAD.apk`: app mở được, trang giới thiệu hiện bình thường; nhưng **/checkin dừng ở khung xương**, không hiện ô nhập mã: logcat «Uncaught SyntaxError: Unexpected token ?» (`_next/static/chunks/2rius_rr1t5rq.js`) và «Unexpected token .» (`4405k6lfz-4hg.js`) — bundle Next.js dùng cú pháp mới (optional chaining/nullish) mà WebView 66 không parse được. Kỳ vọng của TC: WebView cũ không có BarcodeDetector thì hiện ô nhập mã ngay, không lỗi.
+- Đã **xoá AVD tạm `ins28`**, tắt mọi emulator (chỉ còn `ep-api36-ps` trên đĩa, không chạy).
+
+### Chốt pha 2 — danh sách việc cần máy thật / điều kiện ngoài
+| Nhóm | Ca | Điều kiện |
+|---|---|---|
+| Máy Android thật (bootloader khoá, TEE) | DEV-01, DEV-02, DEV-07, DEV-08, SCN-16 | chủ dự án không có máy thật (P-108-12) |
+| iPhone/Safari thật | CL-11, LIF-10 | không có thiết bị iOS |
+| Nghe TalkBack/VoiceOver | CL-12 | cần người nghe trực tiếp |
+| Bản build đặc biệt | DEV-14 (plugin lỗi giả) | đã phủ bởi e2e `checkin-native.spec.ts` |
+| Khoá ký APK release | INS-01, INS-02 | chờ khoá ký của chủ dự án |
+| Chặn POST thật ở gateway | NAV-05 | cần netem/gateway chậm thật |
+| AVD API 24–28 | INS-09 | đã chạy, ra F (WebView 66 không parse bundle) |
