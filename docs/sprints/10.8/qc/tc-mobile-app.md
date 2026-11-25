@@ -732,24 +732,20 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 | TC-MOB-THM-04 | P | `simctl ui appearance dark`: trang vẫn SÁNG ở cả Safari và PWA (chữ đen trên nền trắng), thanh trạng thái PWA đọc được (chữ đen, nền trắng `theme_color`) |
 | TC-MOB-THM-07 | P | Ảnh: giờ/pin/sóng màu đen trên nền trắng — đọc rõ. `theme_color` đang dùng `#FFFFFF` (không phải BRAND.red); đối chiếu US-AS-15 AC11/D59: nền sáng, ghi nhận là quan sát |
 
-### 9.4 Soát tổng theo MÃ TC (26/11/2026, sau khi qc soát)
+### 9.4 Soát tổng theo MÃ TC (26/11/2026 — gộp TSV từng mã của qc + `results.jsonl` của qc2)
 
-Đếm theo mã, một mã một lần, lấy kết quả MỚI NHẤT; N của pha 1 mà pha 2/3 đã P thì tính P.
+Đếm theo mã, một mã một lần, lấy kết quả MỚI NHẤT; N của lượt trước mà lượt sau đã P thì tính P.
 
-| Nguồn | Mã có kết quả | P | F | N |
+| Nguồn | Mã | P | F | N |
 |---|---|---|---|---|
-| qc3 — pha 1 web + pha 2 gộp qc2 + DAT trên `ep-dat` + pha 3 iOS lô A | 47 | 47 | 0 | 0 |
-| qc2 — pha 2 Android (34 TC khai) | 33 mã tách được (+1 mã trong dòng gộp) | 27 | 0 | 6 |
-| qc — pha 1 (khai 138 TC) | 92 mã tách được; 46 mã còn lại nằm trong dòng gộp «một phần P / còn lại N» | 62 | 0 | 30 |
-| **Hợp theo mã (parse được)** | **171** | **135** | **0** | **36** |
+| qc3 — pha 1 web + DAT `ep-dat` + pha 3 iOS lô A | 47 | 47 | 0 | 0 |
+| qc2 — Android, lô 14 (`results.jsonl` @`90b9b2fd`) | 65 | 54 | 0 | 11 |
+| qc — pha 1 (`tc-mobile-run-qc.tsv` @`513840e2`) | 139 | 78 | 0 | 61 |
+| **Hợp theo mã** | **241** | **169** | **0** | **72** |
 
-Trùng giữa các nguồn: `A11-16` (qc3 pha 1 và qc2) — tính 1 lần. qc ∩ qc3 = 0 mã theo danh sách tách được.
-
-**Giải thích 75 so với 73:** chú thích cũ cộng `36 (pha 1) + 28 (qc2) + 4 (DAT) + 7 (iOS)` và đếm trùng 2 chỗ: (a) `A11-16` nằm ở cả pha 1 của qc3 và qc2; (b) `DAT-01`/`DAT-02` đã nằm trong 2 N của pha 1 rồi lại được cộng vào «+4 DAT» khi chúng chuyển P. Số đúng theo mã của qc3 là **47 P**.
-
-**Còn chờ qc tách dòng:** 46 mã qc ghi trong dòng gộp (phần lớn nhóm 6.N/6.R/6.S/6.X + MSG/TXT/KBD/NET) chưa gán được P/N theo từng mã; nếu cộng hết thì trần là 217 mã.
-
-**N native còn lại (36):** 30 mã của qc (thiết bị thật/camera/lan/âm lượng…) + 6 mã qc2 (`INS-01/02/03/09/13`, `GEO-05`).
+- Trùng đã khử: `Flw-13`, `MSG-07`, `NET-02`, `NET-03`, `NET-07` (qc ∩ qc2) và `A11-16`, `NAV-02`, `NAV-11`, `PRM-10`, `THM-07` (qc2 ∩ qc3) ⇒ 10 mã.
+- Đã tính `CL-4` = P (`f6113582`, `DEF-R10.8-07` đóng) và `GEO-03` = P.
+- **N còn lại (72):** 61 của qc (camera, `adb`/`simctl`, bàn phím thật, TalkBack/VoiceOver, WebView, geofence, thiếu dữ kiện) + 11 của qc2.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
