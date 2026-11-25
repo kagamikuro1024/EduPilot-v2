@@ -125,7 +125,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
 - AC8 (tạo thread ghim). Given chủ đề + `Tạo thread ghim` Then mở nháp thread (tiêu đề + nội dung từ khuyến nghị, giảng viên sửa được) → bấm `Đăng` tạo thread **ghim** (`pinned_at`) tác giả = giảng viên, nội dung không chứa câu hỏi mẫu; thread xuất hiện ở `/threads` lớp đó. Không tự đăng không qua giảng viên.
 - AC9 (buổi ôn tập). Given `Tạo buổi ôn tập` Then mở form sự kiện lịch (tiêu đề «Ôn tập: <chủ đề>», ngày giờ do giảng viên chọn) → lưu tạo `calendar_events` (type `OTHER`) của lớp; sinh viên thấy ở `/calendar`.
 - AC10 (xuất). Given `Xuất` When chọn Markdown Then tải `GET …/insights/knowledge-gap/{id}/export?format=md` (chỉ câu mẫu đạt ngưỡng, đã che); chọn PDF → in trang bằng định dạng in của trình duyệt (không thư viện mới, Q-E-8).
-- AC11 (thông báo quyền riêng tư). Given trang Then một dòng `meta` «Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy» (F17); không thêm đoạn giải thích khác (luật chữ UI).
+- AC11 (luật chữ UI; P-11-128). Given trang Then **không** có dòng `meta` hay câu giải thích nào dưới tiêu đề (đã bỏ «Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy»); không `Tooltip` / icon thay thế. Quyền riêng tư giữ ở dữ liệu: báo cáo chỉ chứa số đếm và câu đã che (SRS FR-13; US-P10-04).
 - AC12 (phân quyền). Given STUDENT mở `/insights` Then `403`, mục không có trong điều hướng; ADMIN `403`; TA và TEACHER của lớp có cùng quyền tạo báo cáo, tạo thread ghim, tạo buổi ôn tập (SRS 2).
 - AC13 (nhánh lỗi). Given API lỗi → `<PageState>` lỗi + `Thử lại`; tạo thread thất bại → giữ nháp, báo tại chỗ; không mất chữ đã sửa (`useAutosaveDraft`).
 - AC14 (di động). Given 375 px Then danh sách xếp dọc, mục gập đủ vùng chạm ≥ 44 px, không tràn ngang.
