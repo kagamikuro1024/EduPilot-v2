@@ -192,7 +192,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 ## 6.F Nhánh lỗi, QR lạ, hết hạn, lớp khác, chưa đăng nhập, phân quyền
 | Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| TC-MOB-ERR-01 | US-AS-09 AC8; AC4 | I, A | Liên kết `https://{VPS}/checkin?c=khong-phai-uuid#tokenbatky` | Mở bằng `simctl openurl` / `am start VIEW` | «Liên kết không đúng.» một dòng; không gọi API; không đăng xuất | TAY+ADB |  |
+| TC-MOB-ERR-01 | US-AS-09 AC8; AC4 | I, A | (a) `https://{VPS}/checkin?c=khong-phai-uuid#<token thật, đúng cú pháp>`; (b) `…?c=khong-phai-uuid#tokenbatky` | Mở bằng `simctl openurl` / `am start VIEW` | (a) «Liên kết không đúng.» một dòng, không gọi API, không đăng xuất; (b) rơi về ô nhập mã, **0 POST**, URL giữ nguyên | TAY+ADB | P-11-145: (a) `ERR-01c` P; (b) `ERR-01b` P |
 | TC-MOB-ERR-02 | US-AS-09 AC4 | I, A | Liên kết có token đã hết hạn (> 2 bước, giữ liên kết cũ) | Mở liên kết | «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; web: không nút; app: nút `Quét mã điểm danh` | TAY |  |
 | TC-MOB-ERR-03 | US-AS-09 AC4 | I, A | Liên kết token có MAC sai (sửa một ký tự cuối) | Mở liên kết | «Mã không đúng. Quét lại mã trên màn chiếu.»; không phân biệt cửa sổ lạ / MAC sai | TAY |  |
 | TC-MOB-ERR-04 | US-AS-09 AC4 | I, A | Cửa sổ đã đóng; liên kết còn trong 2 bước | Mở liên kết | «Đã đóng điểm danh.» | TAY |  |
@@ -780,7 +780,7 @@ Máy `qc3-iphone15`; lớp `QC3M1` (`self_checkin` bật, `rotate_seconds` 60 đ
 | TC-MOB-ERR-07 | P | TEACHER `POST /checkins`: **403** |
 | TC-MOB-ERR-08 | P | TA `POST /checkins`: **403** |
 | TC-MOB-ERR-09 | P | 5 lần mã sai liên tiếp = 422, lần thứ **6** trở đi = **429** `RATE_LIMITED` |
-| TC-MOB-ERR-01 | **F** | Liên kết đúng như TC (`?c=khong-phai-uuid#tokenbatky`): KHÔNG hiện «Liên kết không đúng.», rơi về ô nhập mã. Câu lỗi chỉ hiện khi fragment ĐÚNG cú pháp token + `c` sai (`?c=khong-phai-uuid#<token thật>` → «Liên kết không đúng.» — đã chụp `ERR-01c`). Nguyên nhân: P-11-144/e039b61f cố ý chỉ cất fragment đúng cú pháp (để `#main` còn tác dụng); `tokenbatky` không phải token nên bị bỏ. Đề nghị QC sửa fixture TC sang token thật, không mở defect. |
+| TC-MOB-ERR-01 | P | P-11-145. (a) `?c=khong-phai-uuid#<token thật>` → «Liên kết không đúng.» một dòng, không gọi API, không đăng xuất (`ERR-01c`). (b) `?c=khong-phai-uuid#tokenbatky` → ô nhập mã «Mã điểm danh» + lớp QC3M1, **0 POST** (gateway log 90 s chỉ có 1 POST của lớp khác), URL giữ nguyên (`ERR-01b2`). |
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
