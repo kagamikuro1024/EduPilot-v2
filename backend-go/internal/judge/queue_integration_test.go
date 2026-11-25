@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 
@@ -337,6 +338,41 @@ func TestJudgeRetryThenDead(t *testing.T) {
 	_, err = r.pool.Exec(t.Context(), `update code_submissions set status='QUEUED', fail_count=0, next_attempt_at=now(), enqueued_at=null, verdict=null where id=$1`, id)
 	require.NoError(t, err)
 	r.waitStatus(id, "DONE", 15*time.Second)
+}
+
+// slowMark làm chậm CHỈ lệnh JudgeMarkEnqueued (trước khi gửi, không giữ khoá dòng) để consumer kịp nhận + chấm lỗi giữa XADD và lệnh đó.
+type slowMark struct{ d time.Duration }
+
+func (m slowMark) TraceQueryStart(ctx context.Context, _ *pgx.Conn, e pgx.TraceQueryStartData) context.Context {
+	if strings.Contains(e.SQL, "set enqueued_at = now() where id =") {
+		time.Sleep(m.d)
+	}
+	return ctx
+}
+func (slowMark) TraceQueryEnd(context.Context, *pgx.Conn, pgx.TraceQueryEndData) {}
+
+// TestJudgeSignalNotLostBeforeMark — tín hiệu không được mất khi consumer chấm lỗi xong TRƯỚC lúc `enqueued_at` được đặt: lệnh đặt muộn gắn `enqueued_at` lên dòng đã QUEUED lại,
+// tick bỏ qua dòng đó tới JUDGE_CLAIM_IDLE (10 phút ở production) — lần thử lại lặng lẽ mất. Đặt `enqueued_at` TRƯỚC XADD thì không còn cửa sổ đó (CI «Judge attacks» đỏ ngẫu nhiên ở TestJudgeRetryThenDead).
+func TestJudgeSignalNotLostBeforeMark(t *testing.T) {
+	r := newQRig(t)
+	cfg := r.pool.Config()
+	cfg.ConnConfig.Tracer = slowMark{d: 300 * time.Millisecond}
+	slow, err := pgxpool.NewWithConfig(t.Context(), cfg)
+	require.NoError(t, err)
+	t.Cleanup(slow.Close)
+	c, err := judge.NewClient(judge.Config{URL: r.fake.srv.URL, Token: testutil.JudgeToken, Slack: time.Second})
+	require.NoError(t, err)
+	q := judge.NewQueue(&judge.Queue{
+		Pool: slow, Redis: r.rdb, Judge: c, Log: slog.New(slog.NewJSONHandler(&syncBuf{}, nil)), P: 2, Prefix: r.prefix, Name: "c1",
+		Lease: 600 * time.Millisecond, Renew: 150 * time.Millisecond, Idle: time.Minute, TickEvery: 1500 * time.Millisecond, Probe: 100 * time.Millisecond, Poll: 50 * time.Millisecond,
+		Backoff: []time.Duration{100 * time.Millisecond, 200 * time.Millisecond, 300 * time.Millisecond},
+	})
+	r.fake.status5 = true
+	r.start(q)
+	id := r.sub("SUBMIT", "x")
+	r.enqueue(q, id, "SUBMIT")
+	s := r.waitStatus(id, "ERROR", 12*time.Second) // thử lại theo nhịp tick 1,5 s; mất tín hiệu thì kẹt tới Idle (1 phút)
+	require.Equal(t, 4, s.FailCount)
 }
 
 // TestJudgeKillWorkerMidRun — consumer A bị "giết" giữa lúc chạy (thuê hết hạn), consumer B chấm xong; kết quả muộn của A bị bỏ (rào chắn thuê).
