@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 2 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC cũ (cập nhật 22/11, bỏ D/X/K theo luật chủ dự án; mọi ca chưa có P/F là N): xem số P/F/N ở dòng tổng của env/qc2-progress.py
+Tổng TC: 493 · Đạt (P): 493 · Trượt (F): 0 · Chờ test (N): 0   (P+F+N = 493; đồng bộ tổng 25/11 theo bảng ca (dòng cuối của mỗi mã TC thắng; mã dạng A…B tính từng mã; `env/qc2-count.py`); bỏ D/X/K theo luật chủ dự án 22/11).
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - `docs/regression/evidence-2/scripts/{pg01..pg07,gate-pg}.sh` (bản sao của `docs/sprints/2/qc/scripts`, chỉ chỉnh cổng/project sang ep-r: 6133/7080/9700/1143, `-p ep-r`, thêm APP_ENCRYPTION_KEY vào env nhị phân trần — bắt buộc từ sprint 3, proposals#4; docker bọc chặn lệnh phá huỷ). Log: `evidence-2/run-logs/<story>.log`.

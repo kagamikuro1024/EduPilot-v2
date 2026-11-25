@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 531 · Trượt: 1 · Chờ test N: 0   (P+F+N = 532). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 532 · Trượt: 0 · Chờ test N: 0   (P+F+N = 532; đồng bộ tổng 25/11 theo bảng ca: TC-P3-01-49 đạt ở dòng chạy lại cuối tệp, trước đó 531 P / 1 F). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -566,7 +566,7 @@ Cách chạy:
 | TC-P8-03-60 | P | A (sv04) thấy personal_state=['NOT_STARTED'] (không thấy IN_PROGRESS của B=sv05); lịch lớp 2 → 403; /me/settings của A → 200 chỉ preferences của chính A |
 
 ## Trượt: bước tái hiện
-### DEF-R6-01 — K(c): nợ phase PR theo D44 (PROGRESS.md dòng 72); TC-P3-01-49 không tính trượt. Chi tiết `defects-6.md`.
+### DEF-R6-01 — ĐÃ SỬA (3f332fb3 + ea0cf217, migration 00030_app_role) — TC-P3-01-49 chạy lại P 25/11 (`gate-p10-demo.md` L2.8). Chi tiết `defects-6.md`.
 ### DEF-R6-02 — ĐÃ SỬA (afbd433e) — rerun 2026-11-16: vào bằng mã / duyệt / mời ra đều xoá `ep:roster` ≤ 3 s; TC-P3-02-21 đạt. Chi tiết `defects-6.md`.
 ### DEF-R6-C-01 — Dòng khoá ở /threads khi đang thi dùng chữ của chat (TC-P3-06-42). Chi tiết `defects-6.md`.
 
@@ -574,3 +574,8 @@ Cách chạy:
 Xem bảng; mọi ca N nằm trong hàng đợi chạy (không còn nhãn K/T).
 
 HANDOFF qc3 (dừng 2026-11-18 ~23:00 theo lệnh chủ dự án): sprint 6 đã chạy phần P3-01…P3-04 (mask/unmask/payload qua provider giả, route, cache, tiêm lệnh) + vài ca P8-03 (02,03,05,08,15,16). Còn N = số «N» trong bảng (P3-05 streaming/khoá thi/UI, P3-06, P3-07, P3-08, P8-01, P8-02, P8-03 phần chat/nhắc/UI). Đang dở: nhóm P3-05 (script w11.py: ca 07/14/17/20/21 chạy sai kịch bản → đã gỡ khỏi kết quả, vẫn N; kịch bản w12.py cho khoá giờ thi 05-22…25, 06-12/40/41, 08-03-14/60 CHƯA chạy). Hạ tầng: /tmp/qc3e (win.py on|off = cửa sổ fake-LLM trong khoá /tmp/qc2-lock-global; fx.py = lớp QC3S6/QC3S6C/QC3S6D + ask()/add_ctx() dùng /tmp/qc3e/qcvec; h.py = chat()/ct()), bản sao ở evidence-6/scripts-r3/ (qcvec build từ backend-go/cmd/qcvec tạm, không commit). Dữ liệu đã tạo ở ep-r: lớp QC3S6, QC3S6C, QC3S6D (class_code, mã vào QKTWQ36/QKTWQ3C/QKTWQ3D), tài liệu/chunk tiêu đề «QC3 …», 3 thread «Hỏi …» ở QC3S6C; không còn route/khoá/cờ toàn cục nào bị đổi (đã kiểm CHAT/CLASSIFY=QC 9router, fake mặc định, log_statement reset). Ca ghi F: TC-P3-01-49 (vai DB siêu quyền, DEF-R6-01, Thấp). Mọi ca khác đã chạy đều P. Chưa gửi lô lỗi cho dev2 (chỉ 1 F).
+
+## Chạy lại 25/11 (theo `gate-p10-demo.md` L2.8; không đổi kết quả ca khác)
+| TC | KQ | Ghi chú |
+|---|---|---|
+| TC-P3-01-49 | P | DEF-R6-01 đã sửa (3f332fb3 + ea0cf217; migration 00030_app_role): chuỗi nối của gateway (`DATABASE_URL` và `PGBOUNCER_URL`) dùng `edupilot_app`, rolsuper=f, rolbypassrls=f; `update pii_events` → 42501 audit_log is append-only (0 dòng đổi); `drop trigger`, `alter table … disable trigger`, `truncate`, `set session_replication_role` → 42501. Bằng chứng: `gate-p10-demo.md` mục L2.8 (ep-qc @ea0cf217) |

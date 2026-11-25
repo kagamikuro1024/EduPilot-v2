@@ -1,5 +1,7 @@
 # Lỗi hồi quy tổng hợp — qc2, mã sprint/11-p10-eval, 2026-11-16
 
+> Tệp lịch sử (16/11, 72 ca trượt của lượt đầu). Số lỗi và trạng thái hiện hành: `defects-status.md` (25/11).
+
 Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md` (từng ca). Mỗi lỗi ghi: mức, sprint gốc, có phải hồi quy do sprint sau không.
 
 ## Ca trượt (ca · sprint · triệu chứng)
@@ -26,7 +28,7 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
 | 8 | TC-P6-03-19 | [] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM'] |
 | 8 | TC-P6-03-36 | đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error' |
-| 8 | TC-P6-04-03 | 1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer � |
+| 8 | TC-P6-04-03 | 1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer … |
 | 8 | TC-P6-07-47 | ghi xong ô cập nhật không tải lại trang (ô Bùi Thanh Khải 7,00), hộp thoại đóng, NHƯNG focus rơi về <body>, không về nút menu «Thêm hành đ |
 | 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -97,7 +99,7 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 9.1 | TC-UX09-13 | spec w6-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.5 | TC-N01-12 | DEF-R9.5-16: check-meta nêu đúng tên 7 trường thiếu nhưng `demo_stack:"unknown"` vẫn «meta đủ» (không kiểm giá trị) |
 | 9.5 | TC-N01-17 | DEF-R9.5-01: BASE=http://[::1]:3000 và host.docker.internal:3000 KHÔNG bị refuseDemo (chỉ lỗi kết nối) |
-| 9.5 | TC-N02-02 | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 c� |
+| 9.5 | TC-N02-02 | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 c… |
 | 9.5 | TC-N02-03 | DEF-R9.5-17: chạy lại seed.mjs trên ep-r: mã 1 «422 IDEMPOTENCY_KEY_REUSED» ở bước 15 (6 điểm giữa kỳ bị ca khác sửa); lượt chạy sau bước |
 | 9.5 | TC-N02-06 | DEF-R9.5-18: đăng nhập 4 vai OK, sai mật khẩu 401; GV/TA/SV có việc đúng nguồn; Admin Hôm nay = 0 việc (nguồn Admin chỉ phát sinh khi lỗi hệ th |
 | 9.5 | TC-N02-09 | DEF-R9.5-19: bỏ SEED_DEFAULT_PASSWORD vẫn chạy tiếp (đọc .env.local/.env.example), không «Thiếu SEED_DEFAULT_PASSWORD» |
@@ -121,7 +123,7 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 9.5 | TC-N10-10 | DEF-R9.5-05: 9.5 sửa test có sẵn (bf9aa0bb 2 test guard; 811afebd kỳ vọng 429) |
 | 9.5 | TC-N01-12 | DEF-R9.5-16: check-meta nêu đúng tên 7 trường thiếu nhưng `demo_stack:"unknown"` vẫn «meta đủ» (không kiểm giá trị) |
 | 9.5 | TC-N01-17 | DEF-R9.5-01: BASE=http://[::1]:3000 và host.docker.internal:3000 KHÔNG bị refuseDemo (chỉ lỗi kết nối) |
-| 9.5 | TC-N02-02 | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 c� |
+| 9.5 | TC-N02-02 | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 c… |
 | 9.5 | TC-N02-03 | DEF-R9.5-17: chạy lại seed.mjs trên ep-r: mã 1 «422 IDEMPOTENCY_KEY_REUSED» ở bước 15 (6 điểm giữa kỳ bị ca khác sửa); lượt chạy sau bước |
 | 9.5 | TC-N02-06 | DEF-R9.5-18: đăng nhập 4 vai OK, sai mật khẩu 401; GV/TA/SV có việc đúng nguồn; Admin Hôm nay = 0 việc (nguồn Admin chỉ phát sinh khi lỗi hệ th |
 | 9.5 | TC-N02-09 | DEF-R9.5-19: bỏ SEED_DEFAULT_PASSWORD vẫn chạy tiếp (đọc .env.local/.env.example), không «Thiếu SEED_DEFAULT_PASSWORD» |

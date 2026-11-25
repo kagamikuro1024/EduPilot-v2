@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 1 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC cũ: 68 · Đạt (P): 28 · Trượt (F): 3 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 32 · Chưa chạy — cần PM quyết (X): 5 · Chưa chạy — ngoài mẫu (N): 0   (P+F+K+D+X+N = 68)
+Tổng TC: 46 · Đạt (P): 46 · Trượt (F): 0 · Chờ test (N): 0   (P+F+N = 46; đồng bộ tổng 25/11 theo bảng ca (dòng cuối của mỗi mã TC thắng; mã dạng A…B tính từng mã; `env/qc2-count.py`)). Lượt đầu 15/11 ghi «68 · P 28 · F 3 · D 32 · X 5»: các ca D/X đã xoá có nguồn (cuối defects-1.md) hoặc chạy lại tới P theo luật 22/11. Bảng «Tổng hợp theo US» bên dưới là số lượt đầu.
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - `bash docs/sprints/1/qc/scripts/tc-US-P0-01.sh` (14 TC), `tc-US-P0-02.sh` (tĩnh: 01–09 19 23–27 31 34–38; riêng 18, 21), `tc-US-P0-03.sh TC-04 05 13 14 16` — log ở `evidence-1/run-*.log`.

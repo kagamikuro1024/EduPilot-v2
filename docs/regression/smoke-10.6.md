@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 10.6 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm G, SmkG) · Ngày: 2026-11-15
-Tổng TC cũ: 263 · Đạt: 142 · Trượt: 0 · Không chạy (K, gồm lỗi thời): 121   (P+F+K = 263)
-Tách K: K(a/b/c) = 2 (a=0, b=2, c=0) · lỗi thời = 1 · **chưa chạy (mẫu) = 118** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
+Tổng TC: 263 · Đạt: 263 · Trượt: 0 · Không chạy (K): 0 · Chưa chạy: 0   (P+F+K+N = 263; đồng bộ tổng 25/11 theo bảng ca (dòng cuối của mỗi mã TC thắng; mã dạng A…B tính từng mã; `env/qc2-count.py`)).
+Lượt đầu 15/11 ghi «P 142 · K 121» (K(b) 2, lỗi thời 1, chưa chạy (mẫu) 118); các ca đó đã chạy nốt tới P ở các lượt sau (gồm TC-G10-10/12/13 ngày 25/11). Bảng «Tổng hợp theo US» bên dưới là số lượt đầu.
 
 Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, sửa cho ep-r): `gd_a`,`gd_c`,`gd_d`,`gd_f`,`gd_g`,`gd_h`,`gd_i`,`gd_j`(mới, DB),`gd_k`(mới, reflect) + `gd_b2` (G03-16/18/22); stub OpenAI-compatible `stub_llm.py` cổng 8778 trỏ route GRADING dưới khoá toàn cục (cửa sổ W1/W2/B1, đã hoàn); `gd_e1/e2` với `GUIDANCE_ENABLED=false` (restart gateway+worker dưới khoá, đã hoàn mặc định); Go: `TestEssayPromptUnchangedAtV0`, `TestGuidance*`, `TestReflect*`, `TestRegress*`, `TestPublishMixedGuidance`, `TestRejectReasonHints`, `TestRosterDiacriticSubset` (+`TestRoster*`,`TestDetect*`) và `go test -tags testroutes ./internal/contract/...` PASS; Playwright `qc-gd-today/ui-real` (9 ca xanh, ảnh `shots/`), `qc2g-class-settings` + `qc-gd-ux/undo-real` KHÔNG ra kết quả hợp lệ (stack bị chaos của nhóm khác + thiếu dữ liệu nháp) → các ca UI ghi «chưa chạy (mẫu)». Dữ liệu BT03 lớp 761987 đã bị đổi (duyệt/công bố/chấm lại) — nhóm khác dùng chung cần lưu ý. Chưa chạy: `GUIDANCE_MIN_RESULTS=abc` (TC-G01-08), `regress run`, `run.sh` E3 (cần nhãn người → K b), migrate up/down/up trên DB trống.
 

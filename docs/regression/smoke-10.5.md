@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 10.5 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm G, SmkG) · Ngày: 2026-11-15
-Tổng TC cũ: 185 · Đạt: 80 · Trượt: 0 · Không chạy (K, gồm lỗi thời): 105   (P+F+K = 185)
-Tách K: K(a/b/c) = 0 (a=0, b=0, c=0) · lỗi thời = 2 · **chưa chạy (mẫu) = 103** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
+Tổng TC: 185 · Đạt: 185 · Trượt: 0 · Không chạy (K): 0 · Chưa chạy: 0   (P+F+K+N = 185; đồng bộ tổng 25/11 theo bảng ca (dòng cuối của mỗi mã TC thắng; mã dạng A…B tính từng mã; `env/qc2-count.py`)).
+Lượt đầu 15/11 ghi «P 80 · K 105» (lỗi thời 2, chưa chạy (mẫu) 103); các ca đó đã chạy nốt tới P ở các lượt sau. Bảng «Tổng hợp theo US» bên dưới là số lượt đầu.
 
 Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, sửa cho ep-r): `dm_a_provider` (23 PASS), `dm_e_api` (58 PASS), `dm_f_alert_obs` (obs khớp SQL), `dm_smoke.py` (mới: ma trận cổng theo cấu hình) qua các lần restart gateway+worker dưới khoá toàn cục với `FAKE_DECISION_PROB`=0,9/0,01/0,2/0,97/mặc định, `LLM_DECISION_FAKE_MODE`=error/timeout, CLASSIFY→stub :8778 (đã hoàn); `dm_b_threads` (rules/precheck); `dm_c` (cờ chèn lệnh, 3 cấu hình — kết quả KHÔNG hợp lệ: chỉ 7–22/24 bài chấm lại được, P=0,9 chưa chạy xong hàng đợi, dữ liệu BT03 bị lẫn bởi 10.6 → ca D04-01/02/03/05/09/14/20 ghi chưa chạy); Go gate (llm, agent, thread, privacy, grading) PASS; Playwright `qc-dm-ui-real` 3 xanh; `LLM_DECISION_ALLOW_REAL=false` giữ nguyên, 0 gói tới googleapis. Chưa chạy: cảnh báo DECISION_FAIL_CLOSED (cần `DECISION_ALERT_TICK` + dữ liệu mới), `benchmarks/decision/run.sh`, thêm ca Threads comment/roles.
 

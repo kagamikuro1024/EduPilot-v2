@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.7 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15
-Tổng TC cũ: 86 · Đạt: 86 · Trượt: 0 · Không chạy (K): 0 · Chưa kết luận (N): 0   (P+F+K+N = 86)
+Tổng TC: 86 · Đạt: 86 · Trượt: 0 · Không chạy (K): 0 · Chưa kết luận (N): 0   (P+F+K+N = 86). Đồng bộ tổng 25/11 theo bảng ca: lượt đầu 79 P / 7 F; 7 ca F (AUDIT-H3, H7, P5, E7, X3, T2 và MISC-observability) có dòng chạy lại P ở mục «Dòng chốt» cuối tệp (dòng cuối của mã thắng). Bảng «Tổng hợp» và «Trượt» bên dưới là số lượt đầu.
 
 Sprint 10.7 không có tệp `tc-*.md`; tập kiểm tự định nghĩa từ bộ kiểm của chính sprint (audit khung `qc-ui-audit-real`, thanh dính, trang giới thiệu 24 AC, tương phản, ui-antipatterns, e2e dev): 37 mã audit + 5 điểm dock + 24 AC landing + 1 tương phản + 2 antipatterns + 12 spec dev + 5 điểm riêng = 86. Route động không đo.
 
@@ -134,3 +134,15 @@ Các mục này chưa đổi trạng thái F của DEF-R10.7-01/-02 (còn mở m
 - **Lớp 761987 + lớp rỗng QCEMPTY, audit đầy đủ `sau9`** (310 lượt chụp: dữ liệu 108, rỗng 94, đang tải 54, lỗi 54; lỗi chụp 0): **0 lệch ở mọi mã**.
 - **QCEMPTY, ta/teacher × gradebook/insights/observability × dữ liệu/đang tải/lỗi, `sau10`**: **0 lệch**.
 - Kết luận: 86 điểm đo tự định nghĩa của 10.7 = 86 đạt (trước đó 79P/7F); các F X3/H7/D3/E6 đã đóng bởi P-11-51 + P-11-58.
+
+## Dòng chốt sau P-11-51 + P-11-58 (25/11; dòng cuối của mỗi mã thắng dòng cũ)
+Nguồn: `evidence-10.7/audit-sau9.md` (310 lượt chụp, 4 vai × 1440/375 × dữ liệu/rỗng/đang tải/lỗi, lớp 761987 + QCEMPTY: 0 lệch ở mọi mã) và `audit-sau10.md` (QCEMPTY, ta/teacher × gradebook/insights/observability: 0 lệch).
+| Ca | KQ | Ghi chú |
+|---|---|---|
+| AUDIT-H3 | P | RERUN sau9/sau10: 0 lệch (meta một dòng, không lặp tên lớp); DEF-R10.7-01 |
+| AUDIT-H7 | P | RERUN sau9/sau10: 0 lệch (đầu trang một giá trị); DEF-R10.7-02 |
+| AUDIT-P5 | P | RERUN sau9/sau10: 0 lệch (mục→mục 48); DEF-R10.7-01 |
+| AUDIT-E7 | P | RERUN sau9/sau10: 0 lệch (lớp rỗng có `data-ep-empty`); DEF-R10.7-01 |
+| AUDIT-X3 | P | RERUN sau9/sau10: 0 lệch (khung chờ/lỗi giữ nút theo luật P-11-58); DEF-R10.7-02/03 |
+| AUDIT-T2 | P | RERUN sau9/sau10: 0 lệch (chuỗi dài lặp < 3 lần); DEF-R10.7-04 |
+| MISC-observability: EmptyState «Chưa có số liệu» ở lớp rỗng | P | RERUN sau9: audit E7 0 lệch ở QCEMPTY + `decision-observability.spec` xanh (dev-e2e-107.log); DEF-R10.7-01 |

@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 1.5 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC (sau khi xoá ca lỗi thời có nguồn; danh sách ở cuối defects-1.5.md): 27 · Đạt (P): 24 · Trượt (F): 0 · Chờ test (N): 3 (TC-00-10, TC-00-60, TC-03-23: ghi lỗi thời nhưng không nguồn quyết định)
+Tổng TC: 25 · Đạt (P): 25 · Trượt (F): 0 · Chờ test (N): 0   (P+F+N = 25; đồng bộ tổng 25/11 theo bảng ca (dòng cuối của mỗi mã TC thắng; mã dạng A…B tính từng mã; `env/qc2-count.py`)). Lượt trước ghi 27 (P 24, N 3): TC-00-60 và TC-03-23 đã xoá khỏi tổng theo P-11-92 (22/11; danh sách ở cuối defects-1.5.md), TC-00-10 chạy lại P. Bảng «Tổng hợp theo US» bên dưới là số lượt trước.
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - Ma trận vai × route (SRS PROTO §2) trên app thật: `docs/regression/evidence-1.5/scripts/matrix.mjs` (Playwright, https://localhost:1143, 4 tài khoản seed, 1440 + 375 px) → `matrix-<vai>.json`; kiểm thêm `extras.mjs` (TA /grading, GV /settings/llm, /observability, /insights) → `extras.json`.
