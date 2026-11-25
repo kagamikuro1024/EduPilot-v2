@@ -215,8 +215,40 @@ test("DEF-MOB-09 geofence: geolocation được gọi TRƯỚC khi bấm gửi (
   await page.getByLabel("Mã điểm danh").fill("abc 123");
   const t0 = Date.now();
   await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
-  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh", { timeout: 20_000 });
-  expect(Date.now() - t0).toBeLessThanOrEqual(15_000); // không chờ thêm hộp quyền lúc gửi
+  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh", { timeout: 25_000 });
+  expect(Date.now() - t0).toBeLessThanOrEqual(25_000); // không chờ hộp quyền lúc gửi: tối đa 10 s chờ kết quả lấy trước + 10 s lấy lại (DEF-MOB-10)
   expect(log.posts).toHaveLength(1);
   expect(log.posts[0].body.geo).toMatchObject({ denied: true }); // trần định vị 10 s đã chốt trước khi bấm
+});
+
+// DEF-MOB-10 (qc2 @fec5c72d): đọc hộp quyền > 10 s rồi CẤP ⇒ lượt gửi phải lấy lại toạ độ (quyền đã cấp), không gửi geo.denied.
+test("DEF-MOB-10 hộp quyền vị trí giữ 16 s rồi CẤP: lượt gửi lấy lại toạ độ (POST có geo, không denied)", async ({ page, context }) => {
+  test.slow();
+  const log = await checkinApi(page, context, { geoCheck: true });
+  await page.addInitScript(() => {
+    const w = window as unknown as { __geo: number; __granted: boolean };
+    w.__geo = 0;
+    w.__granted = false;
+    navigator.geolocation.getCurrentPosition = (ok: PositionCallback) => {
+      w.__geo++;
+      const pos = { coords: { latitude: 10.5, longitude: 106.5, accuracy: 9 } as GeolocationCoordinates } as GeolocationPosition;
+      if (w.__granted) return ok(pos); // quyền đã cấp: trả ngay
+      setTimeout(() => {
+        w.__granted = true;
+        ok(pos);
+      }, 16_000); // người dùng đọc hộp quyền 16 s rồi mới cấp
+    };
+  });
+  await page.goto(`/checkin?course=${COURSE}`);
+  await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
+  await expect(page.getByText("Lớp này kiểm tra vị trí khi điểm danh.")).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __geo: number }).__geo)).toBeGreaterThan(0); // đã xin lúc mở màn (DEF-MOB-09)
+  await page.getByLabel("Mã điểm danh").fill("abc 123");
+  // chờ tới khi hộp quyền được cấp (16 s) rồi mới bấm gửi
+  await page.waitForFunction(() => (window as unknown as { __granted: boolean }).__granted, undefined, { timeout: 25_000 });
+  await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
+  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh", { timeout: 20_000 });
+  expect(log.posts).toHaveLength(1);
+  expect(log.posts[0].body.geo).toMatchObject({ lat: 10.5, lng: 106.5 });
+  expect(log.posts[0].body.geo).not.toHaveProperty("denied");
 });
