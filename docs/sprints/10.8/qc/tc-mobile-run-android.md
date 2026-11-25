@@ -143,3 +143,17 @@ Tổng: **49 TC = 41 P, 0 F, 8 N.**
 - **PRM-04 = P**: camera bị thu hồi → chỉ ô mã + nút, không hộp xin quyền lặp, không nút quét.
 - **NAV-09 = N**: chưa dựng đúng cảnh bàn phím mở + Back (toạ độ chạm sai sau khi app tự về «/»).
 - **Phát hiện quan trọng cho lượt sau:** điều hướng `location.href`/`p.goto` (tải lại toàn trang) làm app gọi `/auth/refresh` mỗi lần; lặp nhanh ⇒ refresh token bị thu hồi ⇒ rơi về `/login`. Đi đúng luồng trong app (bấm «Thêm» → «Điểm danh», client-side router) thì phiên giữ nguyên. Mọi ca sau phải dùng điều hướng client-side.
+
+## 12. Lượt 8 (26/11) — NAV-02/11, LIF-01/12 P
+
+Tổng: **54 TC = 45 P, 0 F, 9 N.**
+
+| TC | KQ | Ghi chú |
+|---|---|---|
+| NAV-02 | P | sau «Đã điểm danh»: Back → «/» không hash, `sessionStorage` không còn `ep.checkin`, DB vẫn 1 dòng |
+| NAV-11 | P | «/» → Thêm→Lịch (`/calendar`) → Thêm→Điểm danh (`/checkin`); Back 1 → «/»; Back 2 → nền |
+| LIF-01 | P | mạng chậm (delay 2 s, 400 kbit/s), gửi rồi về nền, mở lại: «Đã điểm danh», DB đúng 1 dòng |
+| LIF-12 | P | locale en-US: `lang=vi`, toàn bộ chữ tiếng Việt, không hộp dịch |
+| NAV-10 | N | Back→Forward không trả lại trang kết quả QR (điều hướng client-side không để lại mục lịch sử của trang QR) |
+
+Ghi nhận: PM xác nhận mất phiên khi tải lại nhanh là thiết kế hiện hành (xoay refresh không ân hạn, Q9) — không tính F, chờ P-11-140.
