@@ -192,3 +192,10 @@ Tổng: **63 TC = 51 P, 0 F, 12 N.**
 - **NET-03 = P**: tắt máy bay + «Thử lại» → 1,4 s sạch lỗi, không tải lại, lần gửi tới máy chủ (nhận đúng câu lỗi mã sai).
 - **MSG-07 = P**: cùng bằng chứng NET-02 (một dòng, có «Thử lại», không mã kỹ thuật).
 - **NET-07 = N**: `adb emu network delay` hoãn cả tuyến chứ không riêng phản hồi, nên không ép được mốc 15 s; app chờ rồi báo «Đã điểm danh» sau ~20 s, DB 1 dòng. Cần proxy hoãn riêng phản hồi.
+
+## 18. Lượt 14 (26/11) — NET-07, FLW-13 phủ bởi pha 1; LIF-07 P
+
+Tổng: **65 TC = 54 P, 0 F, 11 N.**
+
+- **NET-07, FLW-13 = P**: PM chốt phủ bởi pha 1 (qc) trên VPS ae069d85, cùng mã WebView — `tc-mobile-run-qc.md` @34e8fa3b; không dựng lại. Ghi nhận riêng ở emulator: QCMOB4 `archived_at=2026-11-25 16:00:06`, QCMOB5 `SELF_CHECKIN_DISABLED`.
+- **LIF-07 = P**: `dumpsys deviceidle force-idle` 30 s → unforce → mở lại: vẫn `/checkin`, vẫn đăng nhập, không màn trắng, không rơi `/login`. Không gửi lượt mới được vì SV đã điểm danh trong ngày; không đếm được đúng một `POST /auth/refresh`.
