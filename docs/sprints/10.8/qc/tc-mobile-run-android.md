@@ -206,3 +206,11 @@ Tổng: **65 TC = 54 P, 0 F, 11 N.**
 
 - **CL-10 = N**: SV sv.qc2b (lớp QCMOB1, chưa điểm danh hôm nay). Đang gửi với mạng trễ 5 s rồi Home → quay lại: vẫn `/checkin`, phiên còn, không màn trắng, DB 0 dòng (lần gửi bị huỷ, không có lượt hai). `am kill` rồi mở lại: vẫn `/checkin`, phiên còn, DB 0 dòng. Nhánh «camera tắt khi ra nền» + nút «Quét mã điểm danh» trở lại KHÔNG kiểm được trên emulator (không có camera) ⇒ cần máy thật.
 - Ghi chú: `pm clear` + đăng nhập sv.qc2b để có SV chưa điểm danh trong ngày (sv.qc2 đã điểm danh ở NET-07).
+
+## 20. Lượt 16 (26/11) — LIF-08, PRM-05, INS-13 = P
+
+Tổng: **68 TC = 57 P, 0 F, 11 N.**
+
+- **LIF-08 = P**: sang Chrome 2 phút (TC ghi 10 phút — rút ngắn, đã ghi rõ) rồi quay lại bằng Recents: vào thẳng `/checkin`, phiên còn, không màn trắng.
+- **PRM-05 = P**: `pm revoke` CAMERA khi app đang chạy, mở lại: tiến trình sống, `/checkin`, đăng nhập còn hạn, không crash/màn trắng (nhánh hỏi lại quyền không kiểm được — không camera).
+- **INS-13 = P**: `am start VIEW` mở Chrome (FirstRunActivity), không mở app — đúng kỳ vọng.
