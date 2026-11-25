@@ -11,12 +11,13 @@ import { Button, Field, InlineNotice, Input, Page, PageHeader, Panel, Skeleton, 
 import { signWithDeviceKey } from "./deviceKey";
 import { hasAttestPlugin, nativeMockLocation, signNative } from "./nativeDevice";
 import { canScanQr, hasBarcodeDetector, Scanner } from "./Scanner";
-import { clearStash, readStash, stashExpired, STASH_EVENT } from "./stash";
+import { clearStash, markStashExpired, readStash, stashExpired, STASH_EVENT, takeStashExpired } from "./stash";
 import s from "./CheckinScreen.module.css";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CROCKFORD = /^[0-9A-HJKMNP-TV-Z]+$/;
 const GEO_LINE = "Lớp này kiểm tra vị trí khi điểm danh.";
+const EXPIRED_MSG = "Mã đã hết hạn. Quét lại mã trên màn chiếu.";
 /** Trần một lượt gửi điểm danh (DEF-MOB-03): quá hạn thì thôi «đang gửi» và cho «Thử lại» — không để treo vô hạn. */
 const DEADLINE_MS = 15_000;
 
@@ -67,23 +68,15 @@ export function CheckinScreen() {
   const canScan = native && hasBarcodeDetector() && qrOk !== false;
   // token đã cất ở layout (QR): đọc MỘT lần lúc dựng; AuthGate chỉ dựng màn này ở client nên không lệch khi hydrate
   const [stash, setStash] = useState(() => (typeof window === "undefined" ? null : readStash()));
-  // DEF-MOB-05: token MỚI trong URL (#token) luôn thắng stash cũ — kể cả khi trang không tải lại (chỉ đổi hash / bfcache).
-  useEffect(() => {
-    const pick = () => {
-      const s = readStash();
-      if (!s || !UUID.test(s.c)) return;
-      if (stashExpired(s)) return clearStash(); // token mới cũng quá hạn: bỏ, không gửi
-      setStash(s);
-    };
-    window.addEventListener(STASH_EVENT, pick);
-    return () => window.removeEventListener(STASH_EVENT, pick);
-  }, []);
   const [view, setView] = useState<View>(() => {
+    // Trang đăng nhập chen giữa đã xoá token quá hạn: vẫn phải nói «hết hạn» một lần (DEF-MOB-07)
+    if (typeof window !== "undefined" && takeStashExpired()) return { k: "error", message: EXPIRED_MSG };
     if (!stash) return { k: "entry" };
     if (!UUID.test(stash.c)) return { k: "error", message: "Liên kết không đúng." };
     if (stashExpired(stash)) {
       clearStash(); // token quá 60 s: bỏ khỏi sessionStorage, không để dùng lại sau khi tải lại
-      return { k: "error", message: "Mã đã hết hạn. Quét lại mã trên màn chiếu." };
+      markStashExpired(); // nhớ để lần dựng sau (sau đăng nhập) vẫn hiện câu hết hạn (DEF-MOB-07)
+      return { k: "error", message: EXPIRED_MSG };
     }
     return { k: "sending" };
   });
@@ -103,6 +96,23 @@ export function CheckinScreen() {
   }, [native]);
   const [code, setCode] = useState("");
   const [left, setLeft] = useState(0);
+  // DEF-MOB-05: token MỚI trong URL (#token) luôn thắng stash cũ — kể cả khi trang không tải lại (chỉ đổi hash / bfcache).
+  useEffect(() => {
+    const pick = () => {
+      const s = readStash();
+      if (!s || !UUID.test(s.c)) return;
+      if (stashExpired(s)) {
+        // token mới cũng quá hạn: bỏ khỏi sessionStorage nhưng vẫn báo «hết hạn» (DEF-MOB-07)
+        clearStash();
+        markStashExpired();
+        setView({ k: "error", message: EXPIRED_MSG });
+        return;
+      }
+      setStash(s);
+    };
+    window.addEventListener(STASH_EVENT, pick);
+    return () => window.removeEventListener(STASH_EVENT, pick);
+  }, []);
   const sent = useRef(new Set<string>()); // token đã gửi (StrictMode chạy effect hai lần: cùng token chỉ gửi một lần)
   const again = useRef<(i: Input) => void>(() => undefined); // gửi lại cùng đầu vào (Thử lại, hết 429)
   const uid = identity?.sub ?? "";

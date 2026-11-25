@@ -5,6 +5,8 @@ const KEY = "ep.checkin";
 /** `#token` mới vừa được cất (điều hướng chỉ đổi hash / trang phục hồi từ bfcache): màn `/checkin` đang dựng phải gửi token mới. */
 export const STASH_EVENT = "ep:checkin-stash";
 const MAX_AGE_MS = 60_000;
+/** Dấu «vừa bỏ một token quá hạn» (DEF-MOB-07): token bị xoá theo yêu cầu 60 s, nhưng màn hình vẫn phải nói «Mã đã hết hạn» một lần — kể cả khi trang đăng nhập chen giữa làm màn `/checkin` dựng lại. */
+const EXPIRED_KEY = "ep.checkin.expired";
 /** Cú pháp token điểm danh (`attendance.ParseToken`, backend-go/internal/attendance/token.go): `uuid.bước.mac`. Fragment khác (vd skip link `#main`) KHÔNG phải token. */
 const TOKEN_RE = /^[0-9a-f-]{36}\.[0-9]+\.[A-Za-z0-9]{16}$/;
 
@@ -36,6 +38,26 @@ export function clearStash(): void {
     sessionStorage.removeItem(KEY);
   } catch {
     /* bỏ qua */
+  }
+}
+
+export function markStashExpired(): void {
+  try {
+    sessionStorage.setItem(EXPIRED_KEY, "1");
+  } catch {
+    /* bỏ qua */
+  }
+}
+
+/** Đọc RỒI XOÁ: câu «Mã đã hết hạn» chỉ hiện một lần. */
+export function takeStashExpired(): boolean {
+  try {
+    const v = sessionStorage.getItem(EXPIRED_KEY);
+    if (v === null) return false;
+    sessionStorage.removeItem(EXPIRED_KEY);
+    return true;
+  } catch {
+    return false;
   }
 }
 
