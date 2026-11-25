@@ -1,7 +1,7 @@
 // node --test mobile/scripts/prepare.test.mjs — prepare.mjs chỉ nhận APP_SERVER_URL https (D-AS-04).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -14,7 +14,8 @@ const run = (url) => {
   if (url === undefined) delete env.APP_SERVER_URL;
   else env.APP_SERVER_URL = url;
   const r = spawnSync("node", [script], { cwd, env, encoding: "utf8" });
-  return { ...r, wrote: existsSync(path.join(cwd, "www", "error.html")) };
+  const page = path.join(cwd, "www", "error.html");
+  return { ...r, wrote: existsSync(page), html: existsSync(page) ? readFileSync(page, "utf8") : "" };
 };
 
 for (const bad of ["http://localhost:580", "http://127.0.0.1", "http://10.0.2.2:3000", "http://edupilot.example.com", "không-phải-url"]) {
@@ -31,4 +32,14 @@ test("https hợp lệ → sinh www/", () => {
   const r = run("https://demo.trycloudflare.com");
   assert.equal(r.status, 0, r.stderr);
   assert.equal(r.wrote, true);
+});
+
+// error.html là trang lỗi WebView: nền và chữ đặt rõ theo token sáng (D59: --ep-canvas, --ep-ink, --ep-red) và khai chỉ-sáng để WebView ép tối không đổi màu.
+test("error.html: nền + chữ theo token sáng, khai color-scheme light, chữ tiếng Việt", () => {
+  const { html } = run("https://demo.trycloudflare.com");
+  assert.match(html, /<meta name="color-scheme" content="light">/);
+  assert.match(html, /background:#FFFFFF/i);
+  assert.match(html, /color:#231F20/i);
+  assert.match(html, /Không kết nối được máy chủ\./);
+  assert.match(html, /<a href="https:\/\/demo\.trycloudflare\.com\/">Thử lại<\/a>/); // nút chạy được: href đúng, không onclick lồng dấu nháy
 });
