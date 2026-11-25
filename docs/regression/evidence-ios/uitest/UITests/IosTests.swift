@@ -506,4 +506,13 @@ final class IosTests: XCTestCase {
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.10, dy: 0.915)).tap(); sleep(4)
         savePng(shotName())
     }
+
+    /// Cuộn trang Safari 2 lần rồi chụp (xem khối dưới màn).
+    func testScrollDown() {
+        safari.activate(); sleep(3)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 15)
+        web.swipeUp(); sleep(2); savePng(shotName() + "-1")
+        web.swipeUp(); sleep(2); savePng(shotName() + "-2")
+        web.swipeUp(); sleep(3); savePng(shotName() + "-3")
+    }
 }
