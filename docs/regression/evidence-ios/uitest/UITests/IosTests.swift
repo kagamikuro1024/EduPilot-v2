@@ -116,7 +116,7 @@ final class IosTests: XCTestCase {
         dump(pwa, "pwa-checkin-form")
         let code = web.textFields.firstMatch
         XCTAssertTrue(code.waitForExistence(timeout: 10), "không thấy ô mã")
-        let raw = (try? String(contentsOfFile: "/Users/kuro/.config/edupilot-team/qc2-work/code.txt", encoding: .utf8)) ?? ""
+        let raw = ProcessInfo.processInfo.environment["PWA_CODE"].flatMap { $0.isEmpty ? nil : $0 } ?? ((try? String(contentsOfFile: "/Users/kuro/.config/edupilot-team/qc2-work/code.txt", encoding: .utf8)) ?? "")
         typeInto(pwa, field: code, raw.trimmingCharacters(in: .whitespacesAndNewlines))
         dump(pwa, "pwa-code-typed")
         let b = web.buttons.matching(NSPredicate(format: "label == 'Điểm danh'")).firstMatch

@@ -1,0 +1,84 @@
+Attributes: Application, 0x10766d400, pid: 78739, label: 'Web'
+Element subtree:
+ →Application, 0x10766d400, pid: 78739, label: 'Web'
+    Window (Main), 0x10766e440, {{0.0, 0.0}, {393.0, 852.0}}
+      Other, 0x10766e580, {{0.0, 0.0}, {393.0, 852.0}}
+        Other, 0x10766e6c0, {{0.0, 0.0}, {393.0, 852.0}}
+          Other, 0x10766fe80, {{0.0, 0.0}, {393.0, 852.0}}
+            Other, 0x10766f5c0, {{0.0, 0.0}, {393.0, 852.0}}
+              Other, 0x10766f700, {{0.0, 0.0}, {393.0, 852.0}}
+                Other, 0x10766f980, {{0.0, 0.0}, {786.0, 1704.0}}
+                  Other, 0x10766fd40, {{0.0, 0.0}, {393.0, 852.0}}
+                    Other, 0x10766fac0, {{0.0, 0.0}, {393.0, 852.0}}
+                      Other, 0x10766fc00, {{0.0, 0.0}, {393.0, 852.0}}
+                        Other, 0x10766f840, {{0.0, 0.0}, {393.0, 852.0}}
+                          Other, 0x10766ef80, {{0.0, 0.0}, {393.0, 852.0}}
+                            Other, 0x10766f340, {{0.0, 0.0}, {393.0, 852.0}}
+                              Other, 0x10766f480, {{0.0, 0.0}, {393.0, 852.0}}, identifier: 'BrowserView?IsPageLoaded=true&WebViewProcessID=78764'
+                                Other, 0x10766f0c0, {{0.0, 0.0}, {393.0, 20.0}}
+                                Other, 0x10766f200, {{0.0, 0.0}, {393.0, 59.0}}
+                                Other, 0x10766e800, {{0.0, 0.0}, {393.0, 852.0}}
+                                  Other, 0x10766e940, {{0.0, 0.0}, {393.0, 852.0}}
+                                    WebView, 0x10766ee40, {{0.0, 0.0}, {393.0, 852.0}}
+                                      WebView, 0x10766ebc0, {{0.0, 0.0}, {393.0, 852.0}}
+                                        Other, 0x10766ed00, {{0.0, 0.0}, {393.0, 59.0}}
+                                        Other, 0x10766ea80, {{0.0, 0.0}, {393.0, 852.0}}
+                                          Other, 0x10766db80, {{0.0, 0.0}, {393.0, 99.0}}
+                                        WebView, 0x10766dcc0, {{0.0, 0.0}, {393.0, 852.0}}
+                                          Other, 0x10766de00, {{0.0, 0.0}, {393.0, 852.0}}
+                                            Other, 0x10766e1c0, {{0.0, 0.0}, {393.0, 852.0}}
+                                              Other, 0x10766e300, {{0.0, 59.0}, {393.0, 852.0}}
+                                                Other, 0x10766e080, {{0.0, 59.0}, {393.0, 793.0}}, label: 'Hôm nay · EduPilot', Focused
+                                                  Other, 0x10766df40, {{0.0, 58.0}, {1.0, 1.0}}, label: 'alert', Focused
+                                                  Link, 0x10766d7c0, {{0.0, 77.0}, {136.0, 20.0}}, label: 'Bỏ qua điều hướng', Focused
+                                                    StaticText, 0x10766d900, {{0.0, 77.0}, {136.0, 20.0}}, label: 'Bỏ qua điều hướng', value: Bỏ qua điều hướng, Focused
+                                                  Other, 0x10766da40, {{0.0, 59.0}, {393.0, 56.0}}, label: 'banner', Focused
+                                                    Link, 0x10766d540, {{16.0, 72.0}, {28.0, 28.0}}, label: 'EduPilot — Hôm nay', Focused
+                                                      Link, 0x10766d680, {{16.0, 72.0}, {28.0, 28.0}}, label: 'EduPilot — Hôm nay', Focused
+                                                    Other, 0x10ff2c000, {{64.0, 64.0}, {139.0, 45.0}}, label: 'Chọn lớp, đang xem QC3M2 · QC3 mobile QC3M2', Focused
+                                                    Button, 0x10ff2c140, {{215.0, 64.0}, {44.0, 45.0}}, label: 'Tìm nhanh hoặc đi đến…', Focused
+                                                    Other, 0x10ff2c280, {{214.0, 86.0}, {1.0, 1.0}}, Focused
+                                                    Other, 0x10ff2c3c0, {{267.0, 64.0}, {44.0, 45.0}}, label: 'Thông báo', Focused
+                                                    Other, 0x10ff2c500, {{319.0, 64.0}, {62.0, 45.0}}, label: 'Tài khoản: QC Ba', Focused
+                                                  Other, 0x10ff2c640, {{0.0, 115.0}, {393.0, 737.0}}, label: 'main', Focused
+                                                    Other, 0x10ff2c780, {{12.0, 138.0}, {369.0, 37.0}}, Focused
+                                                      Other, 0x10ff2c8c0, {{12.0, 138.0}, {369.0, 37.0}}, label: 'Chào Ba', value: 1, Focused
+                                                        StaticText, 0x10ff2ca00, {{12.0, 138.0}, {117.0, 37.0}}, label: 'Chào Ba', value: Chào Ba, Focused
+                                                    Other, 0x10ff2cb40, {{12.0, 183.0}, {369.0, 20.0}}, Focused
+                                                      StaticText, 0x10ff2cc80, {{12.0, 184.0}, {90.0, 17.0}}, label: 'Thứ Năm, 26/11', value: Thứ Năm, 26/11, Focused
+                                                    Other, 0x10ff2cdc0, {{12.0, 234.0}, {168.0, 28.0}}, label: 'Việc nên làm tiếp', value: 2, Focused
+                                                      StaticText, 0x10ff2cf00, {{12.0, 234.0}, {168.0, 27.0}}, label: 'Việc nên làm tiếp', value: Việc nên làm tiếp, Focused
+                                                    Other, 0x10ff2d040, {{69.0, 358.0}, {254.0, 23.0}}, Focused
+                                                      StaticText, 0x10ff2d180, {{69.0, 358.0}, {254.0, 22.0}}, label: 'Hôm nay bạn không có việc gấp', value: Hôm nay bạn không ..., Focused
+                                                  Other, 0x10ff2d2c0, {{0.0, 761.0}, {393.0, 91.0}}, label: 'Điều hướng chính, navigation', Focused
+                                                    Link, 0x10ff2d400, {{13.0, 792.0}, {53.0, 17.0}}, label: 'Hôm nay', Focused
+                                                      StaticText, 0x10ff2d540, {{13.0, 792.0}, {53.0, 17.0}}, label: 'Hôm nay', value: Hôm nay, Focused
+                                                    Link, 0x10ff2d680, {{87.0, 792.0}, {62.0, 17.0}}, label: 'Chat riêng', Focused
+                                                      StaticText, 0x10ff2d7c0, {{87.0, 792.0}, {62.0, 17.0}}, label: 'Chat riêng', value: Chat riêng, Focused
+                                                    Link, 0x10ff2d900, {{173.0, 792.0}, {47.0, 17.0}}, label: 'Hỏi đáp', Focused
+                                                      StaticText, 0x10ff2da40, {{173.0, 792.0}, {47.0, 17.0}}, label: 'Hỏi đáp', value: Hỏi đáp, Focused
+                                                    Link, 0x10ff2db80, {{248.0, 792.0}, {54.0, 17.0}}, label: 'Luyện đề', Focused
+                                                      StaticText, 0x10ff2dcc0, {{248.0, 792.0}, {54.0, 17.0}}, label: 'Luyện đề', value: Luyện đề, Focused
+                                                    Button, 0x10ff2de00, {{314.0, 762.0}, {80.0, 56.0}}, label: 'Thêm', Focused
+                                        Other, 0x10ff2df40, {{0.0, 0.0}, {393.0, 852.0}}
+                                        Other, 0x10ff2e080, {{360.0, 59.0}, {30.0, 738.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                          Other, 0x10ff2e1c0, {{387.0, 62.0}, {3.0, 732.0}}
+                                        Other, 0x10ff2e300, {{55.0, 819.0}, {283.0, 30.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                                          Other, 0x10ff2e440, {{58.0, 846.0}, {277.0, 3.0}}
+                                        Other, 0x10ff2e580, {{360.0, 59.0}, {30.0, 738.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                          Other, 0x10ff2e6c0, {{387.0, 62.0}, {3.0, 732.0}}
+                                        Other, 0x10ff2e800, {{55.0, 819.0}, {283.0, 30.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                                          Other, 0x10ff2e940, {{58.0, 846.0}, {277.0, 3.0}}
+                  Other, 0x10ff2ea80, {{0.0, 0.0}, {393.0, 852.0}}
+                    Other, 0x10ff2ebc0, {{0.0, 0.0}, {393.0, 852.0}}
+                      Other, 0x10ff2ed00, {{0.0, 0.0}, {393.0, 852.0}}
+    Window, 0x10ff2ee40, {{0.0, 0.0}, {393.0, 852.0}}
+      Other, 0x10ff2ef80, {{0.0, 0.0}, {393.0, 852.0}}
+        Other, 0x10ff2f0c0, {{0.0, 0.0}, {393.0, 852.0}}
+Path to element:
+ →Application, 0x10766d400, pid: 78739, label: 'Web'
+Query chain:
+ →Find: Application 'com.apple.webapp'
+  Output: {
+    Application, 0x10ff2f200, pid: 78739, label: 'Web'
+  }

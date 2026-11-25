@@ -738,10 +738,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 84 | 0 | 2 |
+| qc3 iOS | 84 | 1 | 3 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (293 mã gốc − 41 trùng = 252)** | **193** | **0** | **59** |
+| **Hợp (324 mã gốc − 42 trùng = 282)** | **199** | **1** | **82** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -858,6 +858,13 @@ Còn lại của lô E (`PWA-06…12`, `14`, `15`, `17…21`) **N** trong phiên
 | PWA-11 | **N** | Chưa đi được đủ nhiều màn trong PWA để rà «mọi màn có đường quay lại» — nhãn nút điều hướng trong PWA khác Safari nên test tap theo nhãn «Điểm danh» trượt; cần Web Inspector/kiểm tay |
 
 `LIF-09/12`, `PRF-08`, `NAV-03/07/10` chưa chạy trong phiên này.
+
+### 9.14 Lô E — PWA: khoá phiên và ô mã (26/11, `09f2deb3`)
+
+- Dọn biểu tượng: chạm giữ → **Delete Bookmark**, còn đúng **1** biểu tượng EduPilot (`E-clean-menu3.txt`, `E-home3.png`).
+| TC-MOB-PWA-07 | **F** | Cài PWA khi Safari đang đăng nhập `sv.qc3`, mở PWA lần đầu → vào thẳng «Chào Ba» + «Việc nên làm tiếp», **không** hiện màn đăng nhập (`E-PWA-open`, `G-NAV-home`). Tức kho lưu trữ PWA chia sẻ cookie phiên với Safari trên iOS 27.2. Đây có thể là hành vi hệ điều hành mới (TC viết theo giả định kho tách rời) — **cần PM xác nhận**: nếu chấp nhận hành vi iOS mới thì sửa TC, nếu không thì mở defect bảo mật.
+| TC-MOB-PWA-08 | **N** |  Không điều khiển được ô mã trong PWA bằng XCUITest — cây phần tử của web app chỉ trả `Other`/`Button` **không nhãn** (`E-pwa-tree-tree.txt`), chạm theo toạ độ không mở được màn Điểm danh (script `testPwaCheckin` của qc2 dựa vào layout cũ, chạy qua nhưng không tạo dòng điểm danh nào trong DB). Cần 1 thao tác tay (Thêm → Điểm danh → gõ mã) hoặc mở Safari Develop.
+- `PWA-11`, `PWA-12`, `PWA-14/15`, `PWA-17…21` vẫn **N** cùng lý do trên.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

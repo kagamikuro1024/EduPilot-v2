@@ -10,6 +10,7 @@ PW=$(awk -F'\t' -v e="$EMAIL" '$1==e{print $2}' ~/.config/edupilot-team/secrets/
 export TEST_RUNNER_EMAIL="$EMAIL" TEST_RUNNER_PW="$PW" TEST_RUNNER_EVID="$HERE/shots"
 export TEST_RUNNER_SHOT="${SHOT:-shot}"
 export TEST_RUNNER_KBD_FORM="${KBD_FORM:-}"
+export TEST_RUNNER_PWA_CODE="${PWA_CODE:-}"
 xcodebuild test -project Qc2Ios.xcodeproj -scheme Qc2UITests -destination "id=$U" \
   -only-testing:"Qc2UITests/IosTests/$1" -derivedDataPath ~/.config/edupilot-team/qc3-work/dd-ios \
   2>&1 | grep -E "error:|Test Case|SUCCEEDED|FAILED|XCTAssert" | cut -c1-300
