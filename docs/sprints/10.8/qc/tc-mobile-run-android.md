@@ -183,3 +183,12 @@ Tổng: **57 TC = 47 P, 0 F, 10 N.**
 
 - **CL-8 = N**: emulator không có camera; thu hồi quyền camera vẫn không hiện «Chưa cấp quyền camera.» lẫn nút «Quét mã điểm danh», cấp lại cũng không đổi ⇒ không phân biệt được nhánh. Cần máy thật.
 - **CL-3 = P (đo lại theo PM)**: status bar/cutout = 126 px = 48,0 CSS px (DPR 2,625); h1 «Vận hành lớp học có trợ lý AI» top = **96 CSS px** ⇒ dưới mép cutout; 412×843, `visualViewport` 843, không dải trắng đáy (bottomGap ≈ −0,05). `env(safe-area-inset-top)` = 0 px trong WebView nên trang tự đệm.
+
+## 17. Lượt 13 (26/11) — VPS ae069d85: NET-02/03, MSG-07 P; NET-07 N
+
+Tổng: **63 TC = 51 P, 0 F, 12 N.**
+
+- **NET-02 = P**: máy bay khi đã gõ mã → 1,4 s «Chưa có mạng.» + «Thử lại», dải «Mất kết nối mạng.», mã giữ nguyên.
+- **NET-03 = P**: tắt máy bay + «Thử lại» → 1,4 s sạch lỗi, không tải lại, lần gửi tới máy chủ (nhận đúng câu lỗi mã sai).
+- **MSG-07 = P**: cùng bằng chứng NET-02 (một dòng, có «Thử lại», không mã kỹ thuật).
+- **NET-07 = N**: `adb emu network delay` hoãn cả tuyến chứ không riêng phản hồi, nên không ép được mốc 15 s; app chờ rồi báo «Đã điểm danh» sau ~20 s, DB 1 dòng. Cần proxy hoãn riêng phản hồi.
