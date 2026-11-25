@@ -229,3 +229,14 @@ Tổng: **68 TC = 58 P, 0 F, 10 N.**
 
 - **GEO-05 = N (tiến bộ)**: `adb root` + `cmd location providers add-test-provider gps` + `set-test-provider-location gps --location 10.7769,106.7009` lặp 1 s → `dumpsys location` = `Location[gps 10.7769,106.7009 … mock]`, fused cùng toạ độ. Sheet «Chọn lớp» có QCMOB2, nhưng bấm vào mục QCMOB2 KHÔNG đổi lớp đang xem (vẫn «QC3M1» của qc3) ⇒ mã QCMOB2 bị trả «Mã không đúng» và hộp quyền vị trí không hiện. Cần chạm thật bằng toạ độ uiautomator hoặc mở `/checkin?c=<QCMOB2>`.
 - Lưu ý tuyển SV: QCMOB2 chỉ có sv.qc, sv.qc2, sv.kha, sv.gioi — sv.qc-b/sv.qc2b không ở lớp này (đó là lý do sheet không liệt kê QCMOB2 ở lượt trước).
+
+## 23. Lượt 19 (26/11) — GEO-05: chạm toạ độ chọn được QCMOB2, nhưng lớp không có geofence
+
+Tổng: **68 TC = 58 P, 0 F, 10 N.**
+
+- Chạm TOẠ ĐỘ thật (`adb shell input tap`) chọn lớp: **thành công** — «Lớp của bạn» → **«Lớp QCMOB2»**. Các lần trước hỏng vì click bằng JS; mục lớp là `div` nên JS `click()` không kích hoạt.
+- Mock GPS thật (test provider `gps`) chạy 1 s/lần; `dumpsys location` = `Location[gps 10.7769,106.7009 … mock]`.
+- Quyền vị trí đã reset (`pm clear`): `ACCESS_FINE_LOCATION granted=false`, `ACCESS_COARSE_LOCATION granted=false`.
+- Gửi mã QCMOB2 → **«Đã điểm danh 04:17»** mà KHÔNG hiện hộp quyền.
+- **Nguyên nhân:** settings QCMOB2 = `attendance: require WEB, self_checkin true, late_after_min 15, rotate_seconds 10` — **không có cấu hình geofence**, nên app không gọi geolocation ⇒ không có hộp «Chính xác / Gần đúng». Cần lớp bật geofence rồi chạy lại.
+- Ghi nhận a11y: mục lớp trong sheet «Chọn lớp» là `div`, không phải `button`/`role=option` ⇒ trình đọc màn hình không nhận là lựa chọn.
