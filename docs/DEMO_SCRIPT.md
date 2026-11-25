@@ -4,7 +4,7 @@ Phiên bản 2 · 2026-11-15 · Luồng: `FLOWS.md` F2 → F3 → F5 → F7 (đi
 
 Câu hỏi còn mở: `docs/specs/FEAT-demo-script/QUESTIONS.md` (Q1–Q9). «Lớp 1» ở các bảng dưới = lớp 761987, «lớp 2» = 761988.
 
-Mạch truyện: một tuần của **Sinh viên B** (lớp 761987) và giảng viên phụ trách hai lớp. Sinh viên B hỏi điểm riêng tư → hỏi một câu tài liệu không có → giảng viên trả lời → cả lớp điểm danh bằng QR, B được ghi phát biểu → bài tập được chấm và công bố → điểm vào sổ → giảng viên xem lỗ hổng kiến thức của lớp → Admin đối chiếu nhật ký. Lớp 761988 dùng để demo vào lớp, công thức điểm chưa xác nhận và cách ly dữ liệu giữa hai lớp.
+Mạch truyện: một tuần của **Sinh viên B** (lớp 761987) và giảng viên phụ trách hai lớp. Sinh viên B hỏi điểm riêng tư → hỏi một câu tài liệu không có → giảng viên trả lời → cả lớp điểm danh bằng QR, B được ghi phát biểu → bài tập được chấm và công bố → điểm danh và phát biểu vào sổ điểm → giảng viên xem lỗ hổng kiến thức của lớp → Admin đối chiếu nhật ký. Lớp 761988 dùng để demo vào lớp, công thức điểm chưa xác nhận và cách ly dữ liệu giữa hai lớp.
 
 **Trạng thái kiểm (2026-11-15):** mục 2, 5 đã đối chiếu với mã `sprint/11-p10-eval`; Bước 4 (QR) viết theo SRS `FEAT-attendance-selfcheck` v1.6 vì 10.8 chưa vào `main`; **chưa chạy trọn trên stack demo ở mã mới** (xem mục 7, chạy sau merge). Chỗ chưa kiểm ghi `[CHƯA KIỂM]`.
 
@@ -139,7 +139,7 @@ Nếu hội đồng hỏi: nộp sau hạn khi bài không cho nộp muộn → 
 | 09:10 | Giảng viên | `/gradebook/scheme`, lớp 2 | Tải `seed/demo/quy-che-lop2.pdf` | Tiến độ xử lý nền; bản nháp: thành phần, trọng số, điểm cộng, mỗi mục cạnh đoạn trích có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận | P6 |
 | 09:50 | Giảng viên | `/gradebook/scheme` | Điền D5 → `Xác nhận công thức` → xác nhận trong hộp thoại nêu hậu quả | Trạng thái đã xác nhận | P6 |
 | 10:10 | Giảng viên | `/gradebook`, lớp 2 | Quay lại | Banner biến mất; `Chốt điểm` mở | P6 |
-| 10:20 | Giảng viên | `/gradebook`, lớp 1 | Đổi lớp, mở giải trình dòng Sinh viên B | Thành phần điểm có +0,25 từ bước 4 và điểm Bài tập 03 từ bước 5; dòng ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" | P6 (dữ liệu: P5, P7) |
+| 10:20 | Giảng viên | `/gradebook`, lớp 1 | Đổi lớp, mở giải trình dòng Sinh viên B | Thành phần điểm có +0,25 từ bước 4; **không** có điểm Bài tập 03 (công thức lớp 1 đã xác nhận chỉ gồm Giữa kỳ / Kiểm tra tuần / Cuối kỳ; ở `/assignments/[id]` Bài tập 03 hiện «Chưa tính vào điểm», FEAT-assignments SRS 4.2.6); dòng ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" | P6 (dữ liệu: P5, P7) |
 
 `Chốt điểm` lớp 1 không làm trực tiếp trong 15 phút (xem Q5).
 
@@ -184,7 +184,7 @@ Thêm theo thứ tự này; dừng khi tới mốc 13:30.
 
 ### Kết (12:00–12:15)
 
-> "Tám phần vừa xem đi qua cùng một dữ liệu: câu hỏi của sinh viên, câu trả lời của giảng viên, điểm danh, bài chấm và công thức điểm đều đổ về cùng một sổ điểm. Mọi quyết định về điểm do giảng viên bấm; AI chỉ soạn nháp."
+> "Tám phần vừa xem đi qua cùng một dữ liệu: câu hỏi của sinh viên, câu trả lời của giảng viên, điểm danh, phát biểu, bài chấm và công thức điểm cùng nằm trên một dữ liệu; điểm danh và phát biểu vào sổ điểm. Mọi quyết định về điểm do giảng viên bấm; AI chỉ soạn nháp."
 
 
 ## 5. Dự phòng cho ngày bảo vệ
