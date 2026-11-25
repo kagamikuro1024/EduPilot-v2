@@ -240,3 +240,11 @@ Tổng: **68 TC = 58 P, 0 F, 10 N.**
 - Gửi mã QCMOB2 → **«Đã điểm danh 04:17»** mà KHÔNG hiện hộp quyền.
 - **Nguyên nhân:** settings QCMOB2 = `attendance: require WEB, self_checkin true, late_after_min 15, rotate_seconds 10` — **không có cấu hình geofence**, nên app không gọi geolocation ⇒ không có hộp «Chính xác / Gần đúng». Cần lớp bật geofence rồi chạy lại.
 - ĐÍNH CHÍNH (PM): mục lớp KHÔNG phải div — `shared/ui/Menu.tsx:110-113` render `<li role=none><button role=menuitem|menuitemradio>`; click JS hỏng do trúng `span` con/thời điểm popover, không phải lỗi a11y. Không báo dev.
+
+## 24. Lượt 20 (26/11) — GEO-05 = P (hộp quyền hiện đủ Precise/Approximate)
+
+Tổng: **68 TC = 59 P, 0 F, 9 N.**
+
+- Bật geofence QCMOB2 qua `PUT /api/v1/courses/{id}/settings` (đúng route UI teacher dùng): body `{version, attendance:{self_checkin,require,rotate_seconds,late_after_min,geofence:{lat:10.7769,lng:106.7009,radius_m:200}}}` → `geo_check=true`. Đã **trả lại cấu hình cũ** sau khi xong (`geo_check=false`).
+- `pm clear` (chưa cấp quyền vị trí) + mock GPS thật (`test provider gps`, lặp 1 s) + gửi mã QCMOB2 → **hộp quyền hiện đủ hai lựa chọn**: «Precise» / «Approximate» + «While using the app» / «Only this time» / «Don't allow» (`shots/GEO-05-perm-geofence-round1.png`).
+- Đã chạm «Approximate» rồi «While using the app»: app hiện «Lớp này kiểm tra vị trí khi điểm danh.», lượt chưa hoàn tất (lần đầu báo «Chưa có mạng.», DB 0 dòng) vì emulator không có fix «gần đúng» thật (chỉ có test provider `gps`). Phần `GEO_WEAK`/`GEO_OK` chưa chấm được — cần test provider `network`/`fused` hoặc máy thật.
