@@ -397,3 +397,11 @@ Tổng: **102 TC = 85 P, 1 F, 16 N.**
 | Khoá ký APK release | INS-01, INS-02 | chờ khoá ký của chủ dự án |
 | Chặn POST thật ở gateway | NAV-05 | cần netem/gateway chậm thật |
 | AVD API 24–28 | INS-09 | đã chạy, ra F (WebView 66 không parse bundle) |
+
+### Cách dựng lại AVD API 28 để nghiệm DEF-MOB-12 (INS-09)
+
+Script: `docs/regression/evidence-mobile-android/avd-api28.sh` — `build` (cài image + tạo AVD + boot + cài APK debug), `check` (in bản WebView + grep `SyntaxError`), `rm` (tắt emulator + xoá AVD tạm).
+
+Bắt buộc: **headless + swiftshader** — `-gpu host` với image API 28 bị treo (`QEMU2 main loop` hanging). Chỉ một emulator chạy tại một thời điểm.
+
+Lưu ý khi nghiệm lại: lỗi nằm ở **bundle web** (cú pháp optional chaining/nullish trong chunk Next.js), không phải APK — chỉ cần VPS có build mới (hạ target/browserslist), giữ nguyên APK debug; mở `/checkin` bằng tài khoản sinh viên rồi xem khung nhập mã + logcat.
