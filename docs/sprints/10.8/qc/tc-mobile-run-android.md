@@ -222,3 +222,10 @@ Tổng: **68 TC = 57 P, 0 F, 11 N.**
 - **THM-02 = P**: `cmd uimode night yes` + force-stop + mở lại: `prefers-color-scheme` false, nền #fff, chữ #231f20, tương phản **16,3:1** ở «/» và `/checkin`; ô nhập + nút còn; trang tôn trọng `color-scheme: light`.
 - **DEV-06 = N (giữ), ghi chú theo PM**: vế web ĐẠT (201, có `NOT_APP`, SV không thấy); vế trong app chưa chấm được vì emulator luôn thất bại attestation ⇒ chờ máy thật.
 - **GEO-05 = N (chưa làm lại được)**: đã mở cửa sổ mới cho QCMOB2 nhưng app tự bind sang lớp **QCVPSD** («Chọn lớp, đang xem QCVPSD»), nên mã QCMOB2 bị trả «Mã không đúng»; vòng mock GPS của tôi không thực sự đặt vị trí (chỉ broadcast rỗng) ⇒ không có hộp quyền để chụp. Cần mock location thật + lớp đang mở khớp QCMOB2.
+
+## 22. Lượt 18 (26/11) — GEO-05: mock GPS đã thật, còn kẹt chọn lớp
+
+Tổng: **68 TC = 58 P, 0 F, 10 N.**
+
+- **GEO-05 = N (tiến bộ)**: `adb root` + `cmd location providers add-test-provider gps` + `set-test-provider-location gps --location 10.7769,106.7009` lặp 1 s → `dumpsys location` = `Location[gps 10.7769,106.7009 … mock]`, fused cùng toạ độ. Sheet «Chọn lớp» có QCMOB2, nhưng bấm vào mục QCMOB2 KHÔNG đổi lớp đang xem (vẫn «QC3M1» của qc3) ⇒ mã QCMOB2 bị trả «Mã không đúng» và hộp quyền vị trí không hiện. Cần chạm thật bằng toạ độ uiautomator hoặc mở `/checkin?c=<QCMOB2>`.
+- Lưu ý tuyển SV: QCMOB2 chỉ có sv.qc, sv.qc2, sv.kha, sv.gioi — sv.qc-b/sv.qc2b không ở lớp này (đó là lý do sheet không liệt kê QCMOB2 ở lượt trước).
