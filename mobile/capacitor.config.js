@@ -15,4 +15,9 @@ module.exports = {
     errorPath: "error.html", // WebView không tải được server.url → trang lỗi cục bộ có «Thử lại»
   },
   android: { allowMixedContent: false },
+  plugins: {
+    // targetSdk 36 ⇒ edge-to-edge bắt buộc: "css" = decor view được đệm theo thanh trạng thái / điều hướng / cắt góc / bàn phím (trang không có viewport-fit=cover);
+    // style LIGHT = nền sáng ⇒ biểu tượng thanh trạng thái và thanh điều hướng màu tối.
+    SystemBars: { insetsHandling: "css", style: "LIGHT" },
+  },
 };
