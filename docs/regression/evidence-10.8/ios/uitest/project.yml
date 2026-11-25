@@ -1,0 +1,20 @@
+name: Qc2Ios
+options:
+  bundleIdPrefix: vn.edupilot.qc2
+  deploymentTarget: {iOS: "17.0"}
+targets:
+  Qc2Host:
+    type: application
+    platform: iOS
+    sources: [App]
+    settings: {base: {GENERATE_INFOPLIST_FILE: YES, CODE_SIGNING_ALLOWED: NO, PRODUCT_BUNDLE_IDENTIFIER: vn.edupilot.qc2.host}}
+  Qc2UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies: [{target: Qc2Host}]
+    settings: {base: {GENERATE_INFOPLIST_FILE: YES, CODE_SIGNING_ALLOWED: NO, PRODUCT_BUNDLE_IDENTIFIER: vn.edupilot.qc2.uitests, TEST_TARGET_NAME: Qc2Host}}
+schemes:
+  Qc2UITests:
+    build: {targets: {Qc2Host: all, Qc2UITests: [test]}}
+    test: {targets: [Qc2UITests]}

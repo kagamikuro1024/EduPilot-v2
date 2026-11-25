@@ -318,3 +318,6 @@ Chi tiết, bước và nghi ngờ mã: `docs/regression/defects-10.8.md`.
 
 ## Phát hiện về hồi quy do sprint sau
 Không phát hiện hồi quy hành vi do sprint 10.9–11 trên đường điểm danh (API, UI, purge, thiết bị). Các lỗi trên đều có sẵn từ 10.8 hoặc không rõ; DEF-01 (axe) có thể lộ ra do phiên bản axe-core hiện tại.
+
+## TC-AS09-34 trên iOS Simulator (25/11, chưa xong: dừng ở mốc, chờ VPS)
+Đã cài Xcode 27.2 + iOS 27.2 Simulator (chủ dự án cài Xcode); thiết bị `qc2-iphone17` (iPhone 17), CA Caddy của ep-qc cài bằng `simctl keychain add-root-cert`. **Đã kiểm:** Safari iOS thật mở `https://localhost:943/login` qua HTTPS tin cậy, giao diện 375 px đúng (`evidence-10.8/ios/01-safari-login.png`); lớp QC `QCIOS1` trên ep-qc (GV `teacher`, SV `sv.kha`, `sv.gioi`, mở cửa sổ điểm danh bằng API) sẵn sàng; dự án XCUITest điều khiển Safari (`ios/uitest`, `ios_lib.py`) chạy được, nhập được email, chưa nhập được mật khẩu (`Failed to synthesize event: Neither element nor any descendant has keyboard focus` ở ô mật khẩu). **Chưa kiểm:** điểm danh, khoá WebCrypto/IndexedDB còn sau tắt mở Safari, Thêm vào Màn hình chính, phần > 7 ngày. PM dời stack lên VPS (HTTPS thật) nên dừng ở đây; chạy lại trên VPS. TC-AS09-34 giữ K(a) (không có dòng P/F mới).
