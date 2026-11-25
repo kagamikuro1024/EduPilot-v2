@@ -64,7 +64,7 @@ test("DEF-MOB-05 #token mới trong cùng tab (đổi hash): gửi token MỚI, 
   await page.goto(`/checkin?c=${COURSE}`); // liên kết QR: `?c=` + `#token`
   await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
   await page.evaluate(
-    (c) => sessionStorage.setItem("ep.checkin", JSON.stringify({ c, token: "v1.b2xk.abc", at: Date.now() - 61_000 })),
+    (c) => sessionStorage.setItem("ep.checkin", JSON.stringify({ c, token: "e7c1a1c2-1111-4c3d-8e9f-0a1b2c3d4e5f.3.ABCDEFGHIJKLMNOP", at: Date.now() - 61_000 })),
     COURSE,
   );
   await page.evaluate((t) => {
@@ -83,7 +83,7 @@ test("DEF-MOB-05 #token mới khi Safari phục hồi trang từ bfcache (pagesh
   await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
   await page.evaluate(
     ({ c, t }) => {
-      sessionStorage.setItem("ep.checkin", JSON.stringify({ c, token: "v1.b2xk.abc", at: Date.now() - 61_000 }));
+      sessionStorage.setItem("ep.checkin", JSON.stringify({ c, token: "e7c1a1c2-1111-4c3d-8e9f-0a1b2c3d4e5f.3.ABCDEFGHIJKLMNOP", at: Date.now() - 61_000 }));
       history.replaceState(null, "", `/checkin?c=${c}#${t}`); // bfcache: URL đã có token, KHÔNG có hashchange
       dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })); // Safari phục hồi
     },
@@ -92,4 +92,19 @@ test("DEF-MOB-05 #token mới khi Safari phục hồi trang từ bfcache (pagesh
   await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh");
   expect(log.posts).toHaveLength(1);
   expect(log.posts[0].body.token).toBe(TOKEN);
+});
+
+test("DEF-MOB-05b skip link «Bỏ qua điều hướng» ở /checkin: fragment #main không bị coi là token (0 POST, focus tới #main, ô mã còn)", async ({ page, context }) => {
+  const log = await checkinApi(page, context);
+  await page.goto(`/checkin?course=${COURSE}`);
+  const field = page.getByLabel("Mã điểm danh");
+  await expect(field).toBeVisible();
+  await page.keyboard.press("Tab"); // skip link chỉ hiện khi được focus bằng bàn phím
+  const skip = page.getByRole("link", { name: "Bỏ qua điều hướng" });
+  await expect(skip).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main")).toBeFocused();
+  expect(page.url()).toContain("#main"); // không bị replaceState xoá
+  expect(log.posts).toHaveLength(0);
+  await expect(field).toBeVisible(); // ô mã không biến mất
 });

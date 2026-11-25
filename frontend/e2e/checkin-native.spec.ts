@@ -37,7 +37,7 @@ test("checkin app: challenge → registerDevice → POST /me/devices → ký b�
   const calls = await page.evaluate(() => (window as unknown as { __plugin: Array<{ m: string; o?: { nonce?: string; message?: string } }> }).__plugin);
   expect(calls.map((c) => c.m)).toEqual(["registerDevice", "sign"]);
   expect(calls[0].o?.nonce).toBe("bm9uY2U");
-  expect(calls[1].o?.message).toMatch(/^edupilot-checkin-v1\|v1\./);
+  expect(calls[1].o?.message).toContain(`edupilot-checkin-v1|${TOKEN}|`); // P-11-144: TOKEN giả đổi sang đúng cú pháp uuid.bước.mac
 
   // trang mới: key_id đã cất ⇒ chỉ ký
   const p2 = await context.newPage();

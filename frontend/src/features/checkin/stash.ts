@@ -5,12 +5,14 @@ const KEY = "ep.checkin";
 /** `#token` mới vừa được cất (điều hướng chỉ đổi hash / trang phục hồi từ bfcache): màn `/checkin` đang dựng phải gửi token mới. */
 export const STASH_EVENT = "ep:checkin-stash";
 const MAX_AGE_MS = 60_000;
+/** Cú pháp token điểm danh (`attendance.ParseToken`, backend-go/internal/attendance/token.go): `uuid.bước.mac`. Fragment khác (vd skip link `#main`) KHÔNG phải token. */
+const TOKEN_RE = /^[0-9a-f-]{36}\.[0-9]+\.[A-Za-z0-9]{16}$/;
 
 export type Stash = { c: string; token: string; at: number };
 
 export function stashFromLocation(): void {
   const token = location.hash.slice(1);
-  if (!token) return;
+  if (!TOKEN_RE.test(token)) return; // không phải token: để nguyên URL (skip link `#main` phải còn tác dụng)
   try {
     sessionStorage.setItem(KEY, JSON.stringify({ c: new URLSearchParams(location.search).get("c") ?? "", token, at: Date.now() } satisfies Stash));
   } catch {
