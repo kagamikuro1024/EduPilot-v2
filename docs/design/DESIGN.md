@@ -865,6 +865,7 @@ States (one panel, content centred in the read column):
 - Only facts. No sentence explaining how check-in works, no install prompt, no tips.
 - The success check is the only red on the screen. Errors use the standard danger notice.
 - Scanner:
+  - "With `BarcodeDetector`" means more than the API and `qr_code` being listed: one trial `detect()` on a sample QR drawn in place must return a result; an error, zero results, or no answer within 3 s counts as no detector, and the screen shows only the `Mã điểm danh` field (P-11-131).
   - `getUserMedia({video: {facingMode: "environment"}})` + `BarcodeDetector({formats: ["qr_code"]})`, about 5 frames per second.
   - Accept only: `origin` = the app's origin, path `/checkin`, `c` a UUID, a non-empty hash. Other codes are ignored silently.
   - `track.stop()` on accept, `Thoát`, leaving the route, and `visibilitychange` to hidden.
