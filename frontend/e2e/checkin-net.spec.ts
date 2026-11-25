@@ -196,3 +196,27 @@ test("DEF-MOB-08 geofence + hộp quyền vị trí giữ 16 s rồi cấp: khô
   expect(log.posts).toHaveLength(1);
   expect(log.posts[0].body.geo).toMatchObject({ denied: true }); // trần định vị 10 s ⇒ coi như từ chối, không chờ 16 s
 });
+
+// DEF-MOB-09 (qc2 GEO-05): lớp geofence — hộp quyền vị trí phải mở NGAY khi vào màn (AC4), không chen vào lúc mã đang bay (mã rotate 10 s).
+test("DEF-MOB-09 geofence: geolocation được gọi TRƯỚC khi bấm gửi (câu «kiểm tra vị trí» hiện ở ô nhập mã), POST vẫn xong", async ({ page, context }) => {
+  test.slow();
+  const log = await checkinApi(page, context, { geoCheck: true });
+  await page.addInitScript(() => {
+    (window as unknown as { __geo: number }).__geo = 0;
+    navigator.geolocation.getCurrentPosition = (ok: PositionCallback) => {
+      (window as unknown as { __geo: number }).__geo++;
+      setTimeout(() => ok({ coords: { latitude: 10, longitude: 106, accuracy: 12 } as GeolocationCoordinates } as GeolocationPosition), 16_000);
+    };
+  });
+  await page.goto(`/checkin?course=${COURSE}`);
+  await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
+  await expect(page.getByText("Lớp này kiểm tra vị trí khi điểm danh.")).toBeVisible(); // câu hiện ở màn nhập mã
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __geo: number }).__geo)).toBeGreaterThan(0); // xin quyền TRƯỚC khi bấm
+  await page.getByLabel("Mã điểm danh").fill("abc 123");
+  const t0 = Date.now();
+  await page.getByRole("button", { name: "Điểm danh", exact: true }).first().click();
+  await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh", { timeout: 20_000 });
+  expect(Date.now() - t0).toBeLessThanOrEqual(15_000); // không chờ thêm hộp quyền lúc gửi
+  expect(log.posts).toHaveLength(1);
+  expect(log.posts[0].body.geo).toMatchObject({ denied: true }); // trần định vị 10 s đã chốt trước khi bấm
+});

@@ -94,6 +94,7 @@ export function CheckinScreen() {
     return { k: "sending" };
   });
   const [geoLine, setGeoLine] = useState(false);
+  const [geoAhead, setGeoAhead] = useState<Promise<Geo> | null>(null); // định vị đã xin TRƯỚC khi gửi (DEF-MOB-09): hộp quyền không chen vào lúc mã đang bay
   const [codeMode, setCodeMode] = useState(!canScan);
   useEffect(() => {
     if (!native || !hasBarcodeDetector()) return;
@@ -134,7 +135,8 @@ export function CheckinScreen() {
   // Lớp không bật điểm danh bằng mã (US-AS-15 AC16d): biết TRƯỚC khi sinh viên gõ gì; không ô nhập, không gọi POST. Chính sách do máy chủ trả cho mọi thành viên (US-AS-01 AC6).
   const policy = useQuery({
     queryKey: ["course-policy", course],
-    queryFn: ({ signal }) => apiClient.get<{ status?: string; attendance?: { self_checkin?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
+    queryFn: ({ signal }) =>
+      apiClient.get<{ status?: string; attendance?: { self_checkin?: boolean; geo_check?: boolean } }>(`/courses/${course}`, { signal }).then((r) => r.data),
     enabled: role === "student" && course !== "" && !stash,
     staleTime: 30_000,
   });
@@ -142,6 +144,13 @@ export function CheckinScreen() {
   const archived = !stash && policy.data?.status === "ARCHIVED";
   const disabled = !stash && !archived && view.k === "entry" && policy.data?.attendance?.self_checkin === false;
   const checking = !stash && view.k === "entry" && policy.isPending && policy.fetchStatus !== "idle"; // đang hỏi chính sách lớp: khung xương, chưa vẽ ô nhập
+
+  // DEF-MOB-09 (US-AS-15 AC4): biết lớp kiểm tra vị trí ⇒ hiện câu và xin định vị NGAY khi mở màn, để mã 10 s không hết hạn trong lúc sinh viên đọc hộp quyền.
+  const needsGeo = !stash && policy.data?.attendance?.geo_check === true;
+  useEffect(() => {
+    if (!needsGeo) return;
+    void nextFrame().then(() => setGeoAhead((p) => p ?? getGeoWithin())); // câu «kiểm tra vị trí» vẽ bằng `needsGeo` (dưới)
+  }, [needsGeo]);
 
   const submit = useCallback(
     async (inp: Input) => {
@@ -159,7 +168,7 @@ export function CheckinScreen() {
         if (policy?.geo_check) {
           setGeoLine(true); // câu thông báo hiện TRƯỚC khi gọi định vị (Luật 91/2025 Đ31 k3)
           await nextFrame();
-          geo = await getGeoWithin();
+          geo = await (geoAhead ?? getGeoWithin()); // đã xin lúc mở màn (DEF-MOB-09): dùng lại, không mở hộp quyền giữa lúc gửi
           if (hasAttestPlugin() && "lat" in geo) {
             const mock = await nativeMockLocation();
             if (mock !== undefined) geo = { ...geo, mock };
@@ -187,7 +196,7 @@ export function CheckinScreen() {
         setGeoLine(false);
       }
     },
-    [uid],
+    [uid, geoAhead],
   );
 
   /** Bắt đầu một lượt từ thao tác của người dùng: khung xương trước, rồi gửi. */
@@ -292,12 +301,8 @@ export function CheckinScreen() {
       {!stash && policy.isError && <ApiErrorNotice error={policy.error} showTechnical={false} onRetry={() => void policy.refetch()} />}
       <Panel>
         <div className={s.body} data-part="checkin" data-state={view.k} aria-live="polite">
-          {view.k === "sending" && (
-            <>
-              {geoLine && <p className={s.geo} data-part="geo-line">{GEO_LINE}</p>}
-              <Skeleton lines={2} />
-            </>
-          )}
+          {(geoLine || needsGeo) && view.k !== "done" && <p className={s.geo} data-part="geo-line">{GEO_LINE}</p>}
+          {view.k === "sending" && <Skeleton lines={2} />}
           {view.k === "done" && (
             <p className={`ep-data ${s.done}`} data-part="done">
               <Check aria-hidden className={s.check} />
