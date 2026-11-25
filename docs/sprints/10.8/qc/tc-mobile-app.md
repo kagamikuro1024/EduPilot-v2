@@ -648,9 +648,48 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 Ước lượng: W ~1 giờ; emulator ~6 giờ; iOS ~2 giờ; máy thật ~2 giờ. Số ca: 345.
 
 ## 9. Bảng kết quả (điền khi chạy)
-| Mã | Thiết bị / OS / WebView | KQ (P/F/N) | Ghi chú / ảnh / DEF |
+
+### 9.1 Pha 1 — Playwright trên VPS (Chromium), 25/11/2026
+Môi trường: VPS `f6113582`/`913aada5`, Chromium 1.63 (không WebKit), 390×844 (`isMobile`, `hasTouch`) và 1024×768; tài khoản `sv.qc3@edupilot.local` (QC3), lớp **QC3M1** (bật điểm danh, `rotate_seconds=10`) và **QC3M2** (tắt); Staff `teacher@`.
+Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evidence-mobile/<script>'`; script: `mrun.mjs` (ent/axe/sec/nav), `ent_probe.mjs`, `sec2.mjs`, `nav2.mjs`, `ent_fix.mjs`. Ảnh + JSON: `docs/regression/evidence-mobile/run1/`.
+
+| Mã | KQ | Ghi chú (số đo) | Ảnh |
 | --- | --- | --- | --- |
-| (mỗi mã ở mục 6) | | | |
+| TC-MOB-ENT-01 | P | Chromium 1024×768: 10 mục nav, có mục /checkin nhãn «Điểm danh» (thanh bên mở nhãn) | run1/shots/ENT-01-nav-1024.png |
+| TC-MOB-ENT-02 | P | 390×844: thanh dưới 5 mục; «Thêm» có «Điểm danh»; hộp chạm 342×48 | run1/shots/ENT-02-more-390.png |
+| TC-MOB-ENT-03 | P | «Tìm nhanh» gõ «diem danh» → có «Điểm danh» | run1/shots/ENT-03-palette-390.png |
+| TC-MOB-ENT-04 | P | QC3M1 (bật) / QCMOB5 (tắt) / QCMOB2 (bật): mục giống nhau (href/HTML) | — |
+| TC-MOB-ENT-05 | P | Mở cửa sổ vòng 1 trên buổi thật rồi tải lại: nav/«Thêm»/body không đổi, không câu «đang mở» | run1/shots/ENT-05-after-open.png |
+| TC-MOB-ENT-06 | P | API: buổi bắt đầu sau 40 phút → checkin_link=false; UI: hàng «Sắp tới» không liên kết (đo 23:19–23:45 VN) | run1/shots/dbg3-today.png |
+| TC-MOB-ENT-07 | P | API: buổi trong 15 phút trước giờ → checkin_link=true; UI: hàng có «Điểm danh» | run1/shots/dbg3-today.png |
+| TC-MOB-ENT-08 | P | API: buổi đang diễn ra → true; UI có liên kết | run1/shots/dbg3-today.png |
+| TC-MOB-ENT-09 | P | API: buổi vừa hết giờ → false; UI không liên kết | run1/shots/dbg3-today.png |
+| TC-MOB-ENT-10 | P | QC3M2 self_checkin=false: API=false, UI hàng không liên kết | run1/shots/TC-MOB-ENT-10.png |
+| TC-MOB-ENT-11 | P | `go test ./internal/today -run 'TestTimelineCheckinFlag|TestTodayQueryBudget'` trên VPS: ok (1,47 s) | — |
+| TC-MOB-ENT-12 | P | Chromium 390: ô «Mã điểm danh» + «Lớp QC3M1», KHÔNG nút quét (web) — phần app/PWA để pha 2/3 | run1/shots/ENT-12-checkin-web-390.png |
+| TC-MOB-ENT-13 | P | Lớp tắt: «Lớp này không điểm danh bằng mã.», 0 ô nhập | run1/shots/ENT-13-class-off-390.png |
+| TC-MOB-ENT-14 | P | Lớp chưa từng mở cửa sổ, mã bịa → «Mã không đúng hoặc đã hết hạn…»; không câu «Đã đóng» | run1/shots/ENT-14-code-nomatch-390.png |
+| TC-MOB-ENT-15 | P | sv.moi (chưa có lớp): nav 1 mục «Hôm nay», «Thêm» không có Điểm danh | run1/shots/ENT-15-noclass-390.png |
+| TC-MOB-ENT-16 | P | teacher/ta/admin: 0 mục «Điểm danh» ở nav | — |
+| TC-MOB-ENT-17 | P | 390: không điều khiển nav nào < 44 px; mục trong «Thêm» 342×48 | — |
+| TC-MOB-ENT-18 | P | Ở /checkin: mục nav /checkin có aria-current=page | run1/shots/ENT-18-checkin-active.png |
+| TC-MOB-ENT-19 | P | Bộ chọn lớp mở (105 mục); không có mục «Tất cả lớp» (ghi hành vi, chờ BA) | run1/shots/ENT-19-course-select-390.png |
+| TC-MOB-ENT-20 | P | «Hôm nay» 390: hàng buổi + liên kết không tràn ngang | run1/shots/ENT-06-10-today-390.png |
+| TC-MOB-A11-01 | P | axe /checkin Chromium 390: 0 vi phạm (0 critical/serious) | — |
+| TC-MOB-A11-16 | P | /checkin: lang=vi, title «Điểm danh · EduPilot» | — |
+| TC-MOB-A11-09 | — | Chưa đo đúng: lần chạy đầu đọc nhầm trang «Hôm nay» (không có ô mã). Chạy lại ở lượt sau | — |
+| TC-MOB-SEC-01 | P | Luồng token 63 ký tự: 0/31 request chứa token; hash rỗng sau khi tải | run1/shots/SEC-01-token-flow.png |
+| TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
+| TC-MOB-SEC-18 | P | localStorage không có token (chỉ ep_demo_state/ep_returning); document.cookie không thấy ep_rt | — |
+| TC-MOB-NAV-12 | P | Token flow: 1 POST /checkins; Back/Forward không gửi lại, không lặp lỗi | run1/shots/NAV-12-back-forward.png |
+
+**Chưa chạy trong pha 1** (không tính F): 6.J `THM-01…05,07,08` (thiết bị), `THM-06` (axe chế độ tối — chờ lượt chạy tiếp); 6.L `NAV-01…11` (phần Back trên thiết bị + bàn phím); 6.M `PRM-01…09,11,12` (quyền trên thiết bị); 6.Q `A11-02…08,10…15` (TalkBack/VoiceOver thiết bị); 6.T còn `SEC-02…06,08…17` (logcat/Keystore/APK); 6.V `PRF-01…03,05,06,08` (thiết bị) và `PRF-04,07` (Lighthouse/trace); 6.W `DAT-01…07`.
+
+**Quan sát (chưa phải lỗi, chờ PM/BA):**
+- Thanh bên 1024 px thu gọn nhãn: mục nav chỉ còn biểu tượng 55×34 px (nhãn nằm ở `aria-label`). Luật DESIGN «điều hướng chính trên desktop luôn có nhãn chữ» — nếu buộc áp cho 1024 thì cần quyết định thiết kế; AC13 chỉ áp 360–430 nên **không** tính F.
+- Bộ chọn lớp không có mục «Tất cả lớp của tôi» (105 mục, đều là lớp cụ thể) trong khi ENT-19 giả định có thể có.
+- `GET /me/today` giới hạn timeline 8 mục: sinh viên nhiều lớp có thể không thấy buổi của lớp cần điểm danh (đã gặp với sv.gioi 9 lớp). AC16(b) không nói tới giới hạn này.
+- `/checkin` không đặt `Referrer-Policy` (chỉ các trang liên kết một lần) — token nằm ở fragment và đã bị xoá nên rủi ro thấp.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

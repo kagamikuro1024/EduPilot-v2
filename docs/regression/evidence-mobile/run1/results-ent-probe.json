@@ -1,0 +1,27 @@
+[
+ {
+  "tc": "TC-MOB-ENT-06",
+  "kq": "F:bắt đầu sau ~40 phút → không liên kết (API=null UI=false)",
+  "note": "PUT 200; API checkin_link=null; UI hàng=Buổi 3 · QC3 mobile QC3M1 Ngày mai, 00:10–00:40 · QC3E-A_xa40 Sắp tới liên kết=false; mong đợi=false"
+ },
+ {
+  "tc": "TC-MOB-ENT-07",
+  "kq": "F:trong 15 phút trước giờ → có liên kết (API=null UI=null)",
+  "note": "PUT 409; API checkin_link=null; UI hàng=không thấy liên kết=null; mong đợi=true"
+ },
+ {
+  "tc": "TC-MOB-ENT-08",
+  "kq": "F:đang diễn ra → có liên kết (API=null UI=null)",
+  "note": "PUT 409; API checkin_link=null; UI hàng=không thấy liên kết=null; mong đợi=true"
+ },
+ {
+  "tc": "TC-MOB-ENT-09",
+  "kq": "F:vừa hết giờ → không liên kết (API=null UI=null)",
+  "note": "PUT 409; API checkin_link=null; UI hàng=không thấy liên kết=null; mong đợi=false"
+ },
+ {
+  "tc": "TC-MOB-ENT-10",
+  "kq": "P",
+  "note": "QC3M2 self_checkin=false: API=false, UI hàng=Buổi 1 · QC3 mobile QC3M2 Hôm nay, 22:59–23:59 · QC3E-E_tat Đang diễn ra liên kết=false"
+ }
+]

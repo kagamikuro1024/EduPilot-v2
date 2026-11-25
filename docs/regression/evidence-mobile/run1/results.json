@@ -1,0 +1,67 @@
+[
+ {
+  "tc": "TC-MOB-ENT-01",
+  "kq": "P",
+  "note": "1024px: 10 mục nav, mục /checkin=true, nhãn chữ «Điểm danh»=true (nhãn rỗng => thanh bên thu gọn)"
+ },
+ {
+  "tc": "TC-MOB-ENT-02",
+  "kq": "P",
+  "note": "390px bar [Hôm nay|Chat riêng|Hỏi đáp|Luyện đề|Thêm] «Thêm» [Bài tập|Bài thi|Điểm danh|Thư viện|Lịch|Kết quả của tôi] hộp Điểm danh={\"w\":342,\"h\":48}"
+ },
+ {
+  "tc": "TC-MOB-ENT-03",
+  "kq": "P",
+  "note": "«Tìm nhanh» mở=true; kết quả có «Điểm danh»=true"
+ },
+ {
+  "tc": "TC-MOB-ENT-04",
+  "kq": "P",
+  "note": "mục Điểm danh ở 3 lớp; giống nhau=true"
+ },
+ {
+  "tc": "TC-MOB-ENT-05",
+  "kq": "F:cửa sổ=false DOM đổi=false lộ chữ=false",
+  "note": "mở cửa sổ ({\"code\":\"TOKEN_INVALID\",\"message\":\"Phiên đăng nhập không hợp lệ.\",\"trace_id\":\"0f); DOM/«Thêm» đổi=false; chữ «đang mở»=false"
+ },
+ {
+  "tc": "TC-MOB-ENT-12",
+  "kq": "P",
+  "note": "web Chromium: ô «Mã điểm danh»=true; nút «Quét mã điểm danh»=false; «Lớp QC3M1»=true (phần PWA/app: pha 2/3)"
+ },
+ {
+  "tc": "TC-MOB-ENT-14",
+  "kq": "P",
+  "note": "lớp chưa từng mở cửa sổ, mã sai → «Mã không đúng hoặc đã hết hạn…»=true; «Đã đóng điểm danh.»=false"
+ },
+ {
+  "tc": "TC-MOB-ENT-13",
+  "kq": "P",
+  "note": "lớp tắt: «Lớp này không điểm danh bằng mã.»=true; số ô nhập=0"
+ },
+ {
+  "tc": "TC-MOB-ENT-15",
+  "kq": "P",
+  "note": "SV chưa có lớp: nav 0 mục [], «Thêm» []"
+ },
+ {
+  "tc": "TC-MOB-ENT-16",
+  "kq": "P",
+  "note": "số mục «Điểm danh» ở nav staff: {\"teacher\":0,\"ta\":0,\"admin\":0}"
+ },
+ {
+  "tc": "TC-MOB-ENT-17",
+  "kq": "P",
+  "note": "điều khiển nav < 44 px: 0 []; mục nav Điểm danh=null"
+ },
+ {
+  "tc": "TC-MOB-ENT-18",
+  "kq": "F:aria-current=null",
+  "note": "aria-current=null"
+ },
+ {
+  "tc": "TC-MOB-ENT-19",
+  "kq": "P",
+  "note": "bộ chọn lớp mở, 105 mục; có «Tất cả lớp»=false (ghi hành vi)"
+ }
+]

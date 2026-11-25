@@ -1,0 +1,12 @@
+[
+ {
+  "tc": "TC-MOB-ENT-18",
+  "kq": "P",
+  "note": "mục nav /checkin khi ở /checkin: [{\"cur\":\"page\",\"label\":\"Điểm danh\"}]"
+ },
+ {
+  "tc": "TC-MOB-ENT-05",
+  "kq": "P",
+  "note": "mở cửa sổ=ok; DOM nav/menu/body đổi=false; chữ lộ=false"
+ }
+]
