@@ -134,3 +134,12 @@ Tổng sau lượt: **46 TC = 39 P, 0 F, 7 N.**
 **Còn lại:** SCN (cần poster QR + shim), SAF-05…10 (iOS/PWA → pha 3), THM-02/03/05/06/08, NAV-02/03/05/06/08/10/11/12, PRM-02…09/11, LIF-01/02/04/06…13, CL-3/5/7/8/9/10/11/12/16, DEV-01…05/07…14, INS-08/13, GEO-05.
 
 **Ghi chú kỹ thuật:** TalkBack chỉ đọc được khi bật `enabled_accessibility_services` và bấm «Allow» hộp thông báo của Accessibility Suite; cây trợ năng (`uiautomator dump`) khi đó mới lộ nội dung WebView. Lỗi geofence làm nghẽn mọi ca trên lớp có geofence (app chờ định vị) ⇒ dùng lớp QCMOB1 cho ca chữ lỗi.
+
+## 11. Lượt 7 (26/11) — LIF-06, PRM-04 P; NAV-09 N
+
+Tổng: **49 TC = 41 P, 0 F, 8 N.**
+
+- **LIF-06 = P**: `am send-trim-memory … COMPLETE` + nền + `am kill`, mở lại vào `/checkin`, phiên còn, không crash/màn trắng.
+- **PRM-04 = P**: camera bị thu hồi → chỉ ô mã + nút, không hộp xin quyền lặp, không nút quét.
+- **NAV-09 = N**: chưa dựng đúng cảnh bàn phím mở + Back (toạ độ chạm sai sau khi app tự về «/»).
+- **Phát hiện quan trọng cho lượt sau:** điều hướng `location.href`/`p.goto` (tải lại toàn trang) làm app gọi `/auth/refresh` mỗi lần; lặp nhanh ⇒ refresh token bị thu hồi ⇒ rơi về `/login`. Đi đúng luồng trong app (bấm «Thêm» → «Điểm danh», client-side router) thì phiên giữ nguyên. Mọi ca sau phải dùng điều hướng client-side.
