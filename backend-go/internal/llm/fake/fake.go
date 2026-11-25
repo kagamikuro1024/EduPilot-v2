@@ -264,7 +264,12 @@ func lastUser(o provider.ChatOpts) string {
 }
 
 func answer(o provider.ChatOpts) string {
-	q := []rune(strings.TrimSpace(lastUser(o)))
+	u := lastUser(o)
+	if strings.HasPrefix(u, "<ngữ_cảnh>") { // tin user của agent: bỏ khối ngữ cảnh, chỉ giữ câu hỏi (khối đã bị quote() gỡ thẻ đóng nên thẻ đóng đầu tiên là thật)
+		_, u, _ = strings.Cut(u, "</ngữ_cảnh>")
+		u = strings.TrimPrefix(strings.TrimSpace(u), "Câu hỏi:")
+	}
+	q := []rune(strings.TrimSpace(u))
 	if len(q) > 60 {
 		q = q[:60]
 	}
