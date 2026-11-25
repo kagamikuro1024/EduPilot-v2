@@ -1,8 +1,8 @@
 # QC test case — ỨNG DỤNG ĐIỆN THOẠI (app Android + PWA iPhone) — US-AS-09…15 + `android-checklist.md`
 
-Viết 25/11/2026 (qc3) theo lệnh PM / chủ dự án: testcase ĐẦY ĐỦ cho app điện thoại, nhất là UI/UX; **CHẠY sau cùng**. **Chưa chạy gì** (không có kết quả P/F trong tệp này). Nguồn: `docs/specs/FEAT-attendance-selfcheck/{US,SRS}.md` (US-AS-09…15; US-AS-15 do BA `3018e3ce`, P-11-130 CHẤP NHẬN), `docs/design/DESIGN.md` §14.8.2, §16, §23, `docs/sprints/10.8/qc/android-checklist.md`, `docs/sprints/10.8/proposals.md` (P-108-1…12), mã `mobile/` và `frontend/src/features/checkin/` @`2c0dbe83` (đọc để biết chữ, nhãn, kích thước — ca vẫn viết hộp đen theo AC). Tệp này BỔ SUNG, không thay `tc-US-AS-09.md`, `tc-US-AS-10-12-13.md`, `tc-US-AS-11-14.md` (các tệp đó phủ API / web 375 px; ở đây phủ **thiết bị thật / giả lập** và mọi khía cạnh di động).
+Viết 25/11/2026 (qc3) theo lệnh PM / chủ dự án: testcase ĐẦY ĐỦ cho app điện thoại, nhất là UI/UX; **CHẠY sau cùng**. **Chưa chạy gì** (không có kết quả P/F trong tệp này). Nguồn: `docs/specs/FEAT-attendance-selfcheck/{US,SRS}.md` (US-AS-09…15; US-AS-15 do BA `3018e3ce`, P-11-130 CHẤP NHẬN; AC16, AC17 và nav SV 10 mục do BA `c57b94b9`, P-11-137 CHẤP NHẬN), `docs/design/DESIGN.md` §14.8.2, §16, §23, `docs/sprints/10.8/qc/android-checklist.md`, `docs/sprints/10.8/proposals.md` (P-108-1…12), mã `mobile/` và `frontend/src/features/checkin/` @`2c0dbe83` (nhóm Y + PWA-17…23 theo `697854ef`) (đọc để biết chữ, nhãn, kích thước — ca vẫn viết hộp đen theo AC). Tệp này BỔ SUNG, không thay `tc-US-AS-09.md`, `tc-US-AS-10-12-13.md`, `tc-US-AS-11-14.md` (các tệp đó phủ API / web 375 px; ở đây phủ **thiết bị thật / giả lập** và mọi khía cạnh di động).
 
-**Tổng: 316 TC** trong 24 nhóm; 24 ca đánh dấu «chỉ máy thật / điều kiện đặc biệt» (cột cuối).
+**Tổng: 345 TC** trong 25 nhóm; 25 ca đánh dấu «chỉ máy thật / điều kiện đặc biệt» (cột cuối).
 
 ## 1. Quy ước
 | Mục | Quy tắc |
@@ -81,7 +81,7 @@ Viết 25/11/2026 (qc3) theo lệnh PM / chủ dự án: testcase ĐẦY ĐỦ c
 | Phụ trợ | app GPS giả (cho GEO-10), ảnh QR dựng sẵn (R-CAM), proxy chậm/chặn (R-NET-*), `psql` chỉ đọc vào `ep-qc` / stack thử |
 
 ## 5. Quan sát tĩnh TRƯỚC khi chạy (đọc mã / tài nguyên ngày 25/11; chưa phải kết quả)
-Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng sẽ xác nhận hay bác bỏ khi chạy. Nếu xác nhận → mở DEF.
+Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17…23 theo `697854ef`); ca tương ứng sẽ xác nhận hay bác bỏ khi chạy. Nếu xác nhận → mở DEF.
 | # | Quan sát | Ca xác nhận |
 | --- | --- | --- |
 | 1 | Biểu tượng launcher (`mipmap-*/ic_launcher*.png`) và màn splash (`drawable*/splash.png`) là bộ mặc định của Capacitor (chữ X xanh), không phải logo EduPilot đỏ – trắng (đã mở ảnh đọc) | INS-05, INS-06, THM-05 |
@@ -91,7 +91,8 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 | 5 | `targetSdk 36`: từ Android 15 giao diện vẽ tràn dưới thanh trạng thái / thanh điều hướng (edge-to-edge) — mọi `env(safe-area-inset-*)` phải đúng | SAF-01…04 |
 | 6 | Manifest không đặt `windowSoftInputMode`; dock `/checkin` là `position: fixed` — bàn phím có thể che nút `Điểm danh` | KBD-01, KBD-02, TXT-08 |
 | 7 | Ngưỡng 44 px chỉ bật ở `(max-width: 719px), (pointer: coarse)`; điện thoại ngang ≥ 720 px vẫn có `pointer: coarse` nên đạt, nhưng khung chuyển sang thanh bên | TGT-06, UIW-17 |
-| 8 | iOS Safari không có `BarcodeDetector` và Simulator không có camera: quét QR chỉ kiểm được trên Android; iOS dùng ô nhập mã + camera hệ thống mở Safari | FLW-04, PWA-08, PWA-09 |
+| 8 | `nav.ts` @2c0dbe83 ghi `/checkin` «ngoài thanh điều hướng, mở từ QR»; «Hôm nay» dẫn sang Lịch; «Thêm» / «Tìm nhanh» không có «Điểm danh» → PWA / app chưa có lối vào (BA đã vá spec ở P-11-137; ca ENT-* xác nhận khi dev làm xong) | ENT-01…22 |
+| 9 | iOS Safari không có `BarcodeDetector` và Simulator không có camera: quét QR chỉ kiểm được trên Android; iOS dùng ô nhập mã + camera hệ thống mở Safari | FLW-04, PWA-08, PWA-09 |
 
 ## 6.A Cài đặt và vỏ app Android (APK, quyền, ký, biểu tượng, splash)
 | Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
@@ -132,7 +133,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 ## 6.C Luồng điểm danh chính (liên kết, quét, nhập mã, lặp, chọn lớp)
 | Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| TC-MOB-FLW-01 | US-AS-09 AC1; AC-3 | A | W1 đang mở (rotate 10 s); SV đã đăng nhập trong app; QR hiện trên laptop (hoặc ảnh poster của camera ảo, R-CAM) | Trong app mở `/checkin` (nav hoặc «Hôm nay»), bấm `Quét mã điểm danh`, quét QR trên màn chiếu | xin quyền camera lần đầu; thấy QR → «Đã điểm danh hh:mm» trong ≤ 3 s (đo 5 lần, PRF-02); dấu `Check` đỏ là chỗ đỏ DUY NHẤT; camera tắt (đèn camera tắt, `dumpsys media.camera` không còn client); DB `channel=APP` | TAY+SQL |  |
+| TC-MOB-FLW-01 | US-AS-09 AC1; AC-3 | A | W1 đang mở (rotate 10 s); SV đã đăng nhập trong app; QR hiện trên laptop (hoặc ảnh poster của camera ảo, R-CAM) | Trong app vào `/checkin` bằng mục «Điểm danh» (thanh điều hướng / «Thêm» / «Tìm nhanh»; US-AS-15 AC16), bấm `Quét mã điểm danh`, quét QR trên màn chiếu | xin quyền camera lần đầu; thấy QR → «Đã điểm danh hh:mm» trong ≤ 3 s (đo 5 lần, PRF-02); dấu `Check` đỏ là chỗ đỏ DUY NHẤT; camera tắt (đèn camera tắt, `dumpsys media.camera` không còn client); DB `channel=APP` | TAY+SQL |  |
 | TC-MOB-FLW-02 | US-AS-09 AC1 | I | W1 mở, iPhone Simulator Safari đã đăng nhập `sv.gioi` | `xcrun simctl openurl booted "$U"` (như camera hệ thống mở liên kết) | trang tự gửi MỘT `POST`, hiện «Đã điểm danh hh:mm» ≤ 3 s; `#token` biến khỏi thanh địa chỉ; không bấm gì; `channel=WEB` | SIMCTL+SQL |  |
 | TC-MOB-FLW-03 | US-AS-09 AC10; US-AS-03 AC3a | A | W1 mở; app đã đăng nhập; không dùng quét | `/checkin` → bấm `Nhập mã` (hoặc từ chối camera) → gõ mã ngắn đang hiện trên màn chiếu theo ba kiểu: `abc123`, `ABC 123`, `abc-123` → `Điểm danh` | cả ba kiểu được nhận (kiểu đầu tiên thành công; hai kiểu sau trả lượt cũ `200` — vẫn «Đã điểm danh hh:mm» cùng giờ); DB `channel=CODE`, đúng một dòng | TAY+SQL |  |
 | TC-MOB-FLW-04 | US-AS-09 AC10 | I, P | Safari và PWA đã đăng nhập; W1 mở | Mở `/checkin` không `#token` → hiện ô «Mã điểm danh» + «Lớp {mã lớp}» + nút `Điểm danh` → gõ mã đúng | «Đã điểm danh hh:mm»; chỉ ô nhập (không nút quét, không `BarcodeDetector` ở iOS); DB `channel=CODE` | TAY+SQL |  |
@@ -143,7 +144,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 | TC-MOB-FLW-09 | US-AS-03 AC1; US-AS-15 AC15 | A | `sv.gioi` thuộc lớp QCMOB1 và QCMOB2; mở W1 ở QCMOB1 | Chọn lớp bằng bộ chọn trên thanh trên: QCMOB2 rồi QCMOB1; điểm danh bằng mã | dòng «Lớp {mã lớp}» đổi theo lớp đang chọn; mã của QCMOB1 nhập khi chọn QCMOB2 → lỗi «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.»; chọn đúng lớp thì thành công | TAY |  |
 | TC-MOB-FLW-10 | US-AS-09 AC10 | A, I | SV chưa có lớp nào (`sv.moi` chưa vào lớp) | Mở `/checkin` | màn «Bạn chưa vào lớp nào.» chuẩn; không ô nhập mã; không lỗi | TAY |  |
 | TC-MOB-FLW-11 | US-AS-02; US-AS-05 | A | Vòng 2 mở sau vòng 1 (rotate 10 s) | SV đã điểm danh vòng 1 điểm danh tiếp vòng 2 trong app | lượt mới (`round=2`), «Đã điểm danh hh:mm» đúng giờ lượt 2; hai dòng khác nhau trong DB | TAY+SQL |  |
-| TC-MOB-FLW-12 | US-AS-03 AC8 | A | Lớp QCMOB5 `self_checkin` tắt | Mở `/checkin`, thử nhập mã | câu «Lớp này không điểm danh bằng mã.» (ở ô mã); không hộp lỗi kỹ thuật; không gọi `POST /checkins` | TAY+ADB |  |
+| TC-MOB-FLW-12 | US-AS-03 AC8; US-AS-15 AC16(d) | A | Lớp QCMOB5 `self_checkin` tắt | Vào `/checkin` từ mục «Điểm danh» | màn «Lớp này không điểm danh bằng mã.» (không ô nhập, không nút gửi theo US-AS-15 AC16(d); nếu app vẫn hiện ô mã rồi báo lỗi ở ô thì ghi nhận lệch AC16(d)); không hộp lỗi kỹ thuật; không gọi `POST /checkins` | TAY+ADB |  |
 | TC-MOB-FLW-13 | US-AS-03 AC8 | A | Lớp lưu trữ QCMOB4 | Mở `/checkin` ở lớp đó, thử điểm danh | câu tiếng Việt một dòng (lớp đã lưu trữ), không mã `COURSE_ARCHIVED`; không lượt | TAY |  |
 | TC-MOB-FLW-14 | US-AS-14 AC2 (di động) | W | Playwright thiết bị di động `Pixel 7` và `iPhone 15` | Chạy `attendance-checkin.spec.ts` (các ca web) với `isMobile`, `hasTouch`, viewport 375×812 và 412×915 | tất cả ca xanh; không cuộn ngang; không lỗi 5xx; đối chiếu với TC-AS09-01…39 | E2E |  |
 | TC-MOB-FLW-15 | US-AS-09 AC1; US-AS-11 AC3 | A | Hai SV (`sv.gioi`, `sv.kha`) trên hai AVD cùng quét một QR | Quét gần như đồng thời | mỗi người đúng 1 lượt; không lỗi 429 (hạn mức theo người); `round` giống nhau | TAY+SQL | hai AVD |
@@ -369,13 +370,20 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 | TC-MOB-PWA-07 | US-AS-15 AC11 | P | Safari đã đăng nhập `sv.gioi`; PWA vừa thêm | Mở PWA | phải đăng nhập lại trong PWA (kho lưu trữ tách khỏi Safari); không lỗi lạ; sau đăng nhập vào «Hôm nay» | TAY |  |
 | TC-MOB-PWA-08 | US-AS-15 AC11; US-AS-09 AC10 | P | PWA đã đăng nhập; W mở | Mở `/checkin` trong PWA | KHÔNG nút quét (web không quét trong trang); chỉ ô «Mã điểm danh» + `Điểm danh`; nhập mã đúng → «Đã điểm danh hh:mm» | TAY+SQL |  |
 | TC-MOB-PWA-09 | US-AS-15 AC11 | P + Safari | W mở; liên kết quét `U` | Mở `U` bằng `simctl openurl` khi PWA đã cài | liên kết mở SAFARI (không vào PWA); lượt web; `channel=WEB`; PWA không tự nổi lên | SIMCTL+SQL |  |
-| TC-MOB-PWA-10 | US-AS-15 AC11; US-AS-04 AC5 | P + Safari | `sv.gioi` điểm danh ở Safari (khoá Safari) rồi ở PWA (khoá PWA) | Điểm danh hai lần ở hai vòng | hai khoá khác nhau: mỗi nơi có thể có `DEVICE_NEW` MỘT lần (cờ, không chặn); SV không thấy cờ | TAY+SQL |  |
+| TC-MOB-PWA-10 | US-AS-15 AC17; US-AS-04 AC5 | P + Safari | `sv.gioi`: lượt 1 trong PWA (ô nhập mã), lượt 2 bằng QR camera hệ thống (Safari) | Điểm danh hai lần ở hai vòng; đọc `user_devices`, `attendance_checkins`, lưới Staff | hai `device_id` khác nhau (kho PWA ≠ kho Safari); mỗi khoá `DEVICE_NEW` MỘT lần; cùng `user_id` ⇒ KHÔNG `DEVICE_SHARED`; cờ chỉ Staff thấy, SV không thấy, không chặn | TAY+SQL |  |
 | TC-MOB-PWA-11 | US-AS-15 AC11 | P | PWA | Tìm nút Back / vuốt cạnh trái ở nhiều màn | không nút Back của trình duyệt; mọi màn có đường quay lại bằng điều hướng của khung; không màn cụt | TAY |  |
 | TC-MOB-PWA-12 | US-AS-09 AC6 | P, I | Duyệt Safari 10 phút ở `/checkin` | Quan sát: banner «Thêm vào Màn hình chính», `beforeinstallprompt` (Android Chrome) | KHÔNG lời mời cài đặt nào do app đưa ra (đếm = 0) | TAY |  |
-| TC-MOB-PWA-13 | US-AS-09 AC3; AC6 | P (+ iPhone thật) | PWA đã tạo khoá; đợi 8 ngày (hoặc iPhone thật dùng sẵn) | Điểm danh lần 8 ngày sau | khoá WebCrypto trong PWA còn (không `DEVICE_NEW`); Safari tab không dùng 7 ngày có thể mất khoá (ghi nhận); không kiểm được trong lượt chạy ngắn → KHÔNG KIỂM ĐƯỢC (thời gian) | TAY+SQL | 8 ngày / iPhone thật |
+| TC-MOB-PWA-13 | US-AS-09 AC6; US-AS-15 AC17 | P (+ iPhone thật) | PWA đã cài; `sv.gioi` đã điểm danh MỘT lần trong PWA (có `device_id` trong DB); chờ hơn 7 ngày KHÔNG mở Safari nhưng có mở PWA (hoặc iPhone thật dùng sẵn) | Điểm danh lần nữa TRONG PWA (nhập mã); đối chiếu `device_id` | khoá trong PWA còn: cùng `device_id`, KHÔNG `DEVICE_NEW` (kể cả sau > 7 ngày); không kiểm được trong lượt chạy ngắn (Simulator không đổi giờ) → KHÔNG KIỂM ĐƯỢC (thời gian), không tính F; WebKit Playwright chỉ kiểm `navigator.storage.persist` được gọi (PWA-22) | TAY+SQL | 8 ngày / iPhone thật |
 | TC-MOB-PWA-14 | US-AS-15 AC11; AC3 | P | PWA, `viewport-fit` chưa đặt | Cuộn trang dài (Hôm nay) và `/checkin` có bàn phím | thanh dưới và dock trên thanh Home; bàn phím không đẩy bố cục vỡ; overscroll (kéo xuống) không để lộ nền đen | TAY |  |
 | TC-MOB-PWA-15 | US-AS-15 AC11 | P | PWA; xoay ngang | Mở `/checkin` ngang | bố cục dùng được; nút không bị Dynamic Island/Home che (xem SAF-07) | TAY |  |
 | TC-MOB-PWA-16 | US-AS-09 AC6 | W | Phản hồi header của `/manifest.webmanifest` | `curl -sI` | `Content-Type` manifest hợp lệ; không `Cache-Control` làm kẹt bản cũ quá 1 ngày; HTTPS | E2E |  |
+| TC-MOB-PWA-17 | US-AS-15 AC17 | P | PWA mới cài + đăng nhập, CHƯA điểm danh trong PWA | Safari Web Inspector (Develop → Simulator → PWA) → Storage → IndexedDB; sau đó điểm danh bằng ô nhập mã | trước khi điểm danh: KHÔNG có khoá thiết bị trong IndexedDB của PWA; sau lượt đầu: có khoá ECDSA (không xuất được), `DEVICE_NEW` một lần | TAY+SQL |  |
+| TC-MOB-PWA-18 | US-AS-15 AC17 | P | Sau PWA-17 | Điểm danh vòng 2 trong PWA | cùng `device_id` với lượt đầu; không `DEVICE_NEW` | TAY+SQL |  |
+| TC-MOB-PWA-19 | US-AS-15 AC17 | P + Safari | PWA đã có khoá (PWA-18) | Quét QR bằng camera hệ thống → Safari điểm danh (vòng sau) | dùng khoá của SAFARI (kho khác): `DEVICE_NEW` một lần cho khoá đó, lượt Safari sau không; khoá PWA không bị dùng; khoá Safari không chuyển vào PWA | TAY+SQL |  |
+| TC-MOB-PWA-20 | US-AS-15 AC17; US-AS-04 AC4 | P + Safari | Sau PWA-19 (hai khoá cùng `user_id`) | Staff xem lưới `/attendance` và danh sách lượt | KHÔNG `DEVICE_SHARED` cho hai khoá cùng một sinh viên; chỉ `DEVICE_NEW` (cờ Staff, không chặn) | TAY+SQL |  |
+| TC-MOB-PWA-21 | US-AS-15 AC17 | P + Safari | Điểm danh ở Safari TRƯỚC khi cài PWA (khoá Safari có), sau đó cài PWA | Mở PWA, đăng nhập, điểm danh | PWA tạo khoá MỚI (không thừa hưởng khoá Safari): `DEVICE_NEW` một lần cho PWA; hai `device_id` khác nhau | TAY+SQL |  |
+| TC-MOB-PWA-22 | US-AS-15 AC17; US-AS-09 AC3 | W (WebKit) | Playwright dự án WebKit | Mở `/checkin`, điểm danh, kiểm `navigator.storage.persist` đã được gọi (bọc hàm bằng `addInitScript`) | `persist()` được gọi đúng một lần sau khi tạo khoá; không lỗi nếu bị từ chối | E2E |  |
+| TC-MOB-PWA-23 | US-AS-15 AC17 | IR | iPhone thật: Safari không mở > 7 ngày | Quét QR (Safari) điểm danh | có thể `DEVICE_NEW` lại ở Safari (iOS xoá kho sau 7 ngày không mở Safari); không chặn, vẫn 201; PWA không bị ảnh hưởng (PWA-18) | TAY+SQL | iPhone thật, 8 ngày |
 
 ## 6.Q Trợ năng: TalkBack, VoiceOver, axe (US-AS-15 AC12)
 | Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
@@ -505,19 +513,45 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 | TC-MOB-ATT-10 | US-AS-08 | I | GV iPhone mở `/attendance/display` (màn chiếu) | Mở trên điện thoại | màn chiếu hiển thị mã/QR (dùng để chiếu); không crash; Esc/`Thoát` có; không dùng để SV quét trên chính máy | TAY |  |
 | TC-MOB-ATT-11 | US-AS-10 AC7 | A, I | QCMOB2 có lượt `GEO_OUT`, `OFF_CAMPUS`; `teacher@`/`ta@` rồi `sv.gioi` | Staff xem danh sách lượt ở `/attendance`; SV mở mọi màn của mình | Staff thấy `geo_distance_m`, `in_campus`, cờ; SV KHÔNG thấy khoảng cách, cờ, mức tin cậy, thiết bị ở bất kỳ màn nào (đọc cả `/me/attendance`) | TAY+SQL |  |
 
+## 6.Y Lối vào Điểm danh trong app / PWA: nav, «Thêm», «Tìm nhanh», «Hôm nay» (US-AS-15 AC16, P-11-137)
+| Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| TC-MOB-ENT-01 | US-AS-15 AC16(a); US-AS-09 AC10 | W, A (R-ROT-land, ≥ 720 px), I (iPad-like không có; dùng Playwright 1024) | `sv.gioi` thuộc QCMOB1; viewport 1024×768 và 844×390 | Mở «Hôm nay» và đọc thanh điều hướng (bên) | có mục `Điểm danh` → `/checkin` (nhãn đúng «Điểm danh»), vị trí sau «Bài thi» theo SRS `FEAT-ui-foundation` 7.5; tổng mục SV = 10; bấm → `/checkin` hiện ô «Mã điểm danh» | E2E+TAY |  |
+| TC-MOB-ENT-02 | US-AS-15 AC16(a) | A (360/411), I (iPhone 15), P | Như ENT-01, điện thoại dọc (thanh dưới 5 mục) | Mở menu «Thêm» | thanh dưới giữ nguyên (Hôm nay, Chat riêng, Hỏi đáp, Luyện đề, Thêm); trong «Thêm» có `Điểm danh`; chạm → `/checkin`; vùng chạm ≥ 44 px; nhãn tiếng Việt; đúng thứ tự theo `nav.ts` | TAY+E2E |  |
+| TC-MOB-ENT-03 | US-AS-15 AC16(a) | W, A, I, P | SV có lớp | Mở «Tìm nhanh» (nút tìm trên thanh trên / phím tắt), gõ `diem danh` rồi `Điểm danh` | kết quả `Điểm danh` hiện (cả không dấu); Enter / chạm → `/checkin`; không kết quả lạ; bàn phím ảo không che danh sách | E2E+TAY |  |
+| TC-MOB-ENT-04 | US-AS-15 AC16(a); Q-A-7 | W, A | Ba lớp của SV: QCMOB1 (bật, cửa sổ ĐÃ đóng), QCMOB5 (`self_checkin` tắt), QCMOB2 (bật, chưa từng mở cửa sổ) | Chọn lần lượt từng lớp; đọc nav, «Thêm», «Tìm nhanh» | mục `Điểm danh` có ở cả ba lớp (không phụ thuộc bật/tắt hay cửa sổ); giao diện mục giống hệt nhau (không biểu tượng chấm, số, màu khác) | E2E+TAY |  |
+| TC-MOB-ENT-05 | US-AS-15 AC16(a); Q-A-7 | A, I | QCMOB1; SV mở sẵn app ở «Hôm nay» | Staff mở cửa sổ vòng 1; chờ 70 s (một vòng quét); chụp nav, «Thêm», «Hôm nay», trung tâm thông báo; Staff mở vòng 2 | KHÔNG có báo «điểm danh đang mở» ở bất kỳ đâu (không thông báo, huy hiệu, chấm, dòng chữ); nav / «Thêm» DOM không đổi so với trước khi mở; vòng 2 không báo trước | TAY+E2E |  |
+| TC-MOB-ENT-06 | US-AS-15 AC16(b) | W, A | QCMOB1 (bật); buổi hôm nay A: bắt đầu sau now+16 phút (ngoài khoảng) | Mở «Hôm nay» của SV | hàng buổi A KHÔNG có liên kết `Điểm danh` | E2E |  |
+| TC-MOB-ENT-07 | US-AS-15 AC16(b) | W, A | Buổi B: bắt đầu sau now+14 phút (trong 15 phút trước giờ) | Mở «Hôm nay» | hàng buổi B có liên kết `Điểm danh` → `/checkin`; chạm ≥ 44 px; không tràn ngang ở 360 px | E2E+TAY |  |
+| TC-MOB-ENT-08 | US-AS-15 AC16(b) | W, A | Buổi C: đang diễn ra (start = now−30', end = now+30'); buổi C2: end = now+1' | Mở «Hôm nay»; chờ 2 phút ở C2 (hoặc đặt end sát mốc) rồi tải lại | C: có liên kết; C2: có liên kết đến hết giờ buổi; sau end KHÔNG còn (ghi giờ chuyển mất ±60 s) | E2E |  |
+| TC-MOB-ENT-09 | US-AS-15 AC16(b) | W, A | Buổi D: end = now−1' (vừa hết giờ) | Mở «Hôm nay» | KHÔNG có liên kết `Điểm danh` (hoặc buổi không còn trong timeline); ghi rõ hành vi | E2E |  |
+| TC-MOB-ENT-10 | US-AS-15 AC16(b); (d) | W, A | Buổi E của lớp QCMOB5 (`self_checkin` tắt) đang diễn ra | Mở «Hôm nay» | KHÔNG có liên kết `Điểm danh` ở hàng buổi E; mục nav vẫn có (ENT-04) | E2E |  |
+| TC-MOB-ENT-11 | US-AS-15 AC16(b) | API | `go test ./internal/today -run 'TestTimelineCheckinFlag\|TestTodayQueryBudget'` chạy trên VPS (`ep-vps-test`); `GET /me/today` bằng token SV | So `timeline[]` và danh sách mục `today` | không mục `today` mới; hợp đồng `timeline[]` chỉ thêm MỘT cờ boolean (không dữ liệu cá nhân); SV giữ ≤ 8 truy vấn; `openapi.yaml` khớp | DIFF+API |  |
+| TC-MOB-ENT-12 | US-AS-15 AC16(c); US-AS-09 AC10 | A, I, P | SV có lớp bật; không `#token` | Vào `/checkin` từ mục `Điểm danh` ở app Android, Safari, PWA | app Android: nút chính `Quét mã điểm danh` + `Nhập mã`; Safari và PWA: CHỈ ô «Mã điểm danh» + `Điểm danh` (không nút quét); dòng «Lớp {mã lớp}» | TAY |  |
+| TC-MOB-ENT-13 | US-AS-15 AC16(d) | A, I, P | Lớp QCMOB5 (`self_checkin` tắt), SV chọn lớp đó | Vào `/checkin` từ mục `Điểm danh` | màn «Lớp này không điểm danh bằng mã.» — KHÔNG ô nhập, KHÔNG nút gửi, KHÔNG gọi `POST …/checkins` (gateway log trống) | TAY+ADB |  |
+| TC-MOB-ENT-14 | US-AS-15 AC16(e); US-AS-09 AC4; US-AS-03 AC3a | A, I, P | Lớp bật; (i) cửa sổ vừa đóng ≤ 15 phút, có mã ngắn của bước cuối; (ii) lớp chưa từng mở cửa sổ; (iii) có cửa sổ đã đóng > 15 phút; (iv) liên kết `#token` của cửa sổ đã đóng | Vào `/checkin` từ mục «Điểm danh»: (i) nhập mã ngắn của cửa sổ đã đóng; (ii) nhập mã bất kỳ đúng cú pháp; (iii) nhập mã của cửa sổ đóng > 15 phút; (iv) mở liên kết `#token` của cửa sổ đã đóng | (i) «Đã đóng điểm danh.» (mã khớp cửa sổ ĐÃ ĐÓNG, 409 `WINDOW_CLOSED`); (ii) «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» (chưa từng mở cửa sổ — không khớp cửa sổ nào trong 15 phút; không lộ cửa sổ có tồn tại, Q-A-7); (iii) như (ii); (iv) «Đã đóng điểm danh.»; không câu mới ngoài hai câu này (BA chốt `ab9cb871`) | TAY+SQL |  |
+| TC-MOB-ENT-15 | US-AS-15 AC16(f) | W, A, I | `sv.moi` (chưa vào lớp nào) | Đăng nhập, đọc nav, «Thêm», «Tìm nhanh»; gõ `/checkin` | mục `Điểm danh` KHÔNG hiện (thanh điều hướng chỉ `Hôm nay`, SRS `FEAT-ui-foundation` 4.3.2); gõ `/checkin` → màn «Bạn chưa vào lớp nào.» | E2E+TAY |  |
+| TC-MOB-ENT-16 | US-AS-15 AC16(g); US-AS-09 AC8 | W, A, I | `teacher@`, `ta@`, `admin@` | Đọc nav, «Thêm», «Tìm nhanh»; gõ `/checkin` | KHÔNG có mục `Điểm danh` ở cả ba vai; `/checkin` → màn chặn chuẩn, không gọi API điểm danh | E2E+TAY |  |
+| TC-MOB-ENT-17 | US-AS-15 AC16(h); AC13 | W, A | Mục `Điểm danh` ở nav, «Thêm», «Tìm nhanh», liên kết «Hôm nay» | Đo `getBoundingClientRect()`; đọc chữ | ≥ 44 × 44 px (đo hộp bấm); nhãn đúng «Điểm danh», tiếng Việt có dấu; KHÔNG câu giải thích, tooltip, huy hiệu (luật chữ UI 09/10) | E2E+TAY |  |
+| TC-MOB-ENT-18 | US-AS-15 AC16(a); AC12 | W, A | `/checkin` đang mở | Quan sát mục trong nav; duyệt bằng TalkBack/VoiceOver | mục `Điểm danh` ở trạng thái đang chọn (`aria-current=page`); trình đọc đọc «Điểm danh» + «đã chọn» | E2E+TAY |  |
+| TC-MOB-ENT-19 | US-AS-15 AC16(a) | W | SV 2 lớp (một bật, một tắt); chọn «Tất cả lớp của tôi» (nếu có) | Vào mục `Điểm danh` | mục hiện; `/checkin` yêu cầu chọn một lớp cụ thể hoặc hiện «Lớp {mã lớp}» của lớp đang chọn (ghi hành vi); không lỗi kỹ thuật | E2E+TAY |  |
+| TC-MOB-ENT-20 | US-AS-15 AC16(b); AC1 | W, A | «Hôm nay» có buổi + liên kết ở 360/375/430 px | Chụp, đo | hàng buổi + liên kết không cuộn ngang; liên kết thấy không cần cuộn nhiều; không chồng chữ | E2E+TAY |  |
+| TC-MOB-ENT-21 | US-AS-15 AC16; luật cứng 1 | API | Token SV | So `GET /me/today` trước/sau khi có cờ; tìm trường cá nhân thêm | không `student_id`, cờ, mức tin cậy, thiết bị, vị trí trong `timeline[]`; chỉ một boolean thêm | API |  |
+| TC-MOB-ENT-22 | US-AS-15 AC16(a); AC11 | P | PWA đã cài, đã đăng nhập | Từ «Hôm nay» trong PWA vào `/checkin` chỉ bằng điều hướng của khung | đi tới và quay lại được không cần trình duyệt; không màn cụt (PWA không có nút Back) | TAY |  |
+
 ## 7. Truy vết AC → TC
 | AC | TC thiết bị trong tệp này |
 | --- | --- |
 | US-AS-09 AC1 | ERR-17, FLW-01, FLW-02, FLW-08, FLW-15, PRF-08 |
 | US-AS-09 AC2 | ERR-06, SEC-02, SES-11, SES-12 |
-| US-AS-09 AC3 | FLW-18, PWA-13, SEC-12, SES-14 |
-| US-AS-09 AC4 | ERR-01, ERR-02, ERR-03, ERR-04, ERR-05, ERR-10, ERR-16, ERR-20, FLW-05, MSG-01, MSG-13, NET-02, SCN-05 |
+| US-AS-09 AC3 | FLW-18, PWA-22, SEC-12, SES-14 |
+| US-AS-09 AC4 | ENT-14, ERR-01, ERR-02, ERR-03, ERR-04, ERR-05, ERR-10, ERR-16, ERR-20, FLW-05, MSG-01, MSG-13, NET-02, SCN-05 |
 | US-AS-09 AC5 | DAT-02, FLW-05 |
 | US-AS-09 AC6 | PWA-01, PWA-12, PWA-13, PWA-16 |
 | US-AS-09 AC7 | FLW-17, UIW-08 |
-| US-AS-09 AC8 | ERR-01, ERR-07, ERR-08, ERR-19, SES-06 |
+| US-AS-09 AC8 | ENT-16, ERR-01, ERR-07, ERR-08, ERR-19, SES-06 |
 | US-AS-09 AC9 | FLW-08, SCN-10, SEC-01, SEC-02, SEC-17 |
-| US-AS-09 AC10 | ERR-11, ERR-12, ERR-13, FLW-03, FLW-04, FLW-10, MSG-12, PWA-08 |
+| US-AS-09 AC10 | ENT-01, ENT-12, ERR-11, ERR-12, ERR-13, FLW-03, FLW-04, FLW-10, MSG-12, PWA-08 |
 | US-AS-10 AC1 | GEO-07, PRM-10 |
 | US-AS-10 AC2 | GEO-02, GEO-03, GEO-05, GEO-12 |
 | US-AS-10 AC3 | GEO-13 |
@@ -557,7 +591,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 | US-AS-14 AC4 | DAT-06, PRF-04 |
 | US-AS-14 AC5 | DAT-07 |
 | US-AS-14 AC6 | — (bảng truy vết SRS mục 11: `tc-US-AS-11-14.md`; ở điện thoại: ERR + SEC) |
-| US-AS-15 AC1 | ATT-01, ATT-03, UIW-01, UIW-02, UIW-03, UIW-04, UIW-05, UIW-06, UIW-07, UIW-08, UIW-09, UIW-10, UIW-17, UIW-18, UIW-19, UIW-20, UIW-21, UIW-22 |
+| US-AS-15 AC1 | ATT-01, ATT-03, ENT-20, UIW-01, UIW-02, UIW-03, UIW-04, UIW-05, UIW-06, UIW-07, UIW-08, UIW-09, UIW-10, UIW-17, UIW-18, UIW-19, UIW-20, UIW-21, UIW-22 |
 | US-AS-15 AC2 | ATT-09, FLW-07, SCN-09, UIW-11, UIW-12, UIW-13, UIW-14, UIW-15, UIW-16, UIW-17 |
 | US-AS-15 AC3 | ATT-04, PWA-05, PWA-14, SAF-01, SAF-02, SAF-03, SAF-04, SAF-05, SAF-06, SAF-07, SAF-08, SAF-09, SAF-10 |
 | US-AS-15 AC4 | A11-15, ATT-05, TXT-01, TXT-02, TXT-03, TXT-04, TXT-05, TXT-06, TXT-07, TXT-08 |
@@ -567,11 +601,13 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 | US-AS-15 AC8 | GEO-04, GEO-08, GEO-09, GEO-11, PRM-01, PRM-02, PRM-03, PRM-04, PRM-05, PRM-06, PRM-07, PRM-08, PRM-09 |
 | US-AS-15 AC9 | NET-01, NET-02, NET-03, NET-04, NET-05, NET-07, NET-08, NET-09, NET-10, NET-11, NET-12, PRF-03 |
 | US-AS-15 AC10 | LIF-01, LIF-02, LIF-03, LIF-04, LIF-05, LIF-06, LIF-07, LIF-08, LIF-09, LIF-10, LIF-11, LIF-13, PRM-05, SCN-08, SES-02, SES-03, SES-09, SES-10 |
-| US-AS-15 AC11 | INS-05, LIF-10, NAV-08, NET-10, PWA-01, PWA-02, PWA-03, PWA-04, PWA-05, PWA-06, PWA-07, PWA-08, PWA-09, PWA-10, PWA-11, PWA-14, PWA-15, SAF-06 |
-| US-AS-15 AC12 | A11-01, A11-02, A11-03, A11-04, A11-05, A11-06, A11-07, A11-08, A11-09, A11-10, A11-11, A11-12, A11-13, A11-14, A11-15, A11-16, ATT-07 |
-| US-AS-15 AC13 | ATT-02, TGT-01, TGT-02, TGT-03, TGT-04, TGT-05, TGT-06, UIW-22 |
+| US-AS-15 AC11 | ENT-22, INS-05, LIF-10, NAV-08, NET-10, PWA-01, PWA-02, PWA-03, PWA-04, PWA-05, PWA-06, PWA-07, PWA-08, PWA-09, PWA-11, PWA-14, PWA-15, SAF-06 |
+| US-AS-15 AC12 | A11-01, A11-02, A11-03, A11-04, A11-05, A11-06, A11-07, A11-08, A11-09, A11-10, A11-11, A11-12, A11-13, A11-14, A11-15, A11-16, ATT-07, ENT-18 |
+| US-AS-15 AC13 | ATT-02, ENT-17, TGT-01, TGT-02, TGT-03, TGT-04, TGT-05, TGT-06, UIW-22 |
 | US-AS-15 AC14 | ERR-14, ERR-15, INS-10, LIF-12, MSG-01, MSG-02, MSG-03, MSG-04, MSG-05, MSG-06, MSG-07, MSG-08, MSG-09, MSG-10, MSG-11, MSG-12, MSG-13, MSG-14, MSG-15, MSG-16, NET-06, SCN-12 |
 | US-AS-15 AC15 | ATT-08, ERR-05, ERR-07, FLW-09, SES-06 |
+| US-AS-15 AC16 | ENT-01, ENT-02, ENT-03, ENT-04, ENT-05, ENT-06, ENT-07, ENT-08, ENT-09, ENT-10, ENT-11, ENT-12, ENT-13, ENT-14, ENT-15, ENT-16, ENT-17, ENT-18, ENT-19, ENT-20, ENT-21, ENT-22, FLW-12 |
+| US-AS-15 AC17 | PWA-10, PWA-13, PWA-17, PWA-18, PWA-19, PWA-20, PWA-21, PWA-22, PWA-23 |
 
 ### Bước `AC-n` của `android-checklist.md` → TC
 | Bước | TC |
@@ -609,7 +645,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng s
 2. **Emulator A theo nhóm trạng thái** để đỡ đổi cấu hình: (a) cài đặt, phiên, luồng, quét, lỗi; (b) đổi độ rộng 360 → 375 → 390 → 411 → 430 (UIW, SAF, TXT, TGT); (c) ngang; (d) tối/sáng; (e) bàn phím; (f) quyền; (g) mạng; (h) vòng đời; (i) bảo mật; (j) thiết bị/chứng thực. Sau mỗi nhóm trả cấu hình (R-SIZE reset, font 1.0, night no, rotation 0, network full).
 3. **iOS Simulator I và P**: liên kết, nhập mã, vị trí, an toàn vùng, PWA, trợ năng (VoiceOver nếu bật được).
 4. **Máy thật** (nếu có): DEV-01/02/07/08, GEO-10, SEC-13, SCN-16, PWA-13, A11-10/11.
-Ước lượng: W ~1 giờ; emulator ~6 giờ; iOS ~2 giờ; máy thật ~2 giờ. Số ca: 316.
+Ước lượng: W ~1 giờ; emulator ~6 giờ; iOS ~2 giờ; máy thật ~2 giờ. Số ca: 345.
 
 ## 9. Bảng kết quả (điền khi chạy)
 | Mã | Thiết bị / OS / WebView | KQ (P/F/N) | Ghi chú / ảnh / DEF |

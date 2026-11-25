@@ -3,6 +3,7 @@ from rows1 import INS,SES,FLW,SCN
 from rows2 import GEO,ERR,PRM,NET,LIF
 from rows3 import UIW,SAF,TXT,THM,KBD,NAV,TGT,MSG
 from rows4 import A11,PWA,SEC,DEV,PRF,DAT,ATT
+from rows5 import ENT
 GROUPS=[
 ("A","Cài đặt và vỏ app Android (APK, quyền, ký, biểu tượng, splash)","INS",INS),
 ("B","Phiên đăng nhập, vai và tài khoản trên điện thoại","SES",SES),
@@ -28,6 +29,7 @@ GROUPS=[
 ("V","Hiệu năng và nhịp tải","PRF",PRF),
 ("W","Seed, E2E, tải, dữ liệu 30 ngày nhìn từ điện thoại (US-AS-13, US-AS-14)","DAT",DAT),
 ("X","Staff trên điện thoại: `/attendance` (US-AS-15 phạm vi; US-AS-08)","ATT",ATT),
+("Y","Lối vào Điểm danh trong app / PWA: nav, «Thêm», «Tìm nhanh», «Hôm nay» (US-AS-15 AC16, P-11-137)","ENT",ENT),
 ]
 GROUPS=[(a,b,c,sorted(g,key=lambda r:r[0])) for a,b,c,g in GROUPS]
 rows=[r for _,_,_,g in GROUPS for r in g]
@@ -52,7 +54,7 @@ ACS={ '09':['AC1','AC2','AC3','AC4','AC5','AC6','AC7','AC8','AC9','AC10'],
  '12':['AC1','AC2','AC3','AC4','AC5','AC6','AC7','AC8','AC9'],
  '13':['AC1','AC2','AC3','AC4','AC5','AC6','AC7'],
  '14':['AC1','AC2','AC3','AC4','AC5','AC6'],
- '15':[f'AC{i}' for i in range(1,16)]}
+ '15':[f'AC{i}' for i in range(1,18)]}
 OTHER={ # AC không có thiết bị: phủ ở tệp khác hoặc ghi chú
  'US-AS-10 AC6':'API (422 hình dạng toạ độ/geofence): `tc-US-AS-10-12-13.md` TC-AS10-xx; ở điện thoại không tạo được thân sai từ giao diện',
  'US-AS-10 AC7':'phân quyền Staff/SV: `tc-US-AS-10-12-13.md`; ở điện thoại: ATT-01…10, ERR-07/08',
@@ -92,7 +94,7 @@ out=[]
 w=out.append
 w("# QC test case — ỨNG DỤNG ĐIỆN THOẠI (app Android + PWA iPhone) — US-AS-09…15 + `android-checklist.md`")
 w("")
-w("Viết 25/11/2026 (qc3) theo lệnh PM / chủ dự án: testcase ĐẦY ĐỦ cho app điện thoại, nhất là UI/UX; **CHẠY sau cùng**. **Chưa chạy gì** (không có kết quả P/F trong tệp này). Nguồn: `docs/specs/FEAT-attendance-selfcheck/{US,SRS}.md` (US-AS-09…15; US-AS-15 do BA `3018e3ce`, P-11-130 CHẤP NHẬN), `docs/design/DESIGN.md` §14.8.2, §16, §23, `docs/sprints/10.8/qc/android-checklist.md`, `docs/sprints/10.8/proposals.md` (P-108-1…12), mã `mobile/` và `frontend/src/features/checkin/` @`2c0dbe83` (đọc để biết chữ, nhãn, kích thước — ca vẫn viết hộp đen theo AC). Tệp này BỔ SUNG, không thay `tc-US-AS-09.md`, `tc-US-AS-10-12-13.md`, `tc-US-AS-11-14.md` (các tệp đó phủ API / web 375 px; ở đây phủ **thiết bị thật / giả lập** và mọi khía cạnh di động).")
+w("Viết 25/11/2026 (qc3) theo lệnh PM / chủ dự án: testcase ĐẦY ĐỦ cho app điện thoại, nhất là UI/UX; **CHẠY sau cùng**. **Chưa chạy gì** (không có kết quả P/F trong tệp này). Nguồn: `docs/specs/FEAT-attendance-selfcheck/{US,SRS}.md` (US-AS-09…15; US-AS-15 do BA `3018e3ce`, P-11-130 CHẤP NHẬN; AC16, AC17 và nav SV 10 mục do BA `c57b94b9`, P-11-137 CHẤP NHẬN), `docs/design/DESIGN.md` §14.8.2, §16, §23, `docs/sprints/10.8/qc/android-checklist.md`, `docs/sprints/10.8/proposals.md` (P-108-1…12), mã `mobile/` và `frontend/src/features/checkin/` @`2c0dbe83` (nhóm Y + PWA-17…23 theo `697854ef`) (đọc để biết chữ, nhãn, kích thước — ca vẫn viết hộp đen theo AC). Tệp này BỔ SUNG, không thay `tc-US-AS-09.md`, `tc-US-AS-10-12-13.md`, `tc-US-AS-11-14.md` (các tệp đó phủ API / web 375 px; ở đây phủ **thiết bị thật / giả lập** và mọi khía cạnh di động).")
 w("")
 w("**Tổng: %d TC** trong %d nhóm; %d ca đánh dấu «chỉ máy thật / điều kiện đặc biệt» (cột cuối)." % (nA,len(GROUPS),nMT))
 w("")
@@ -177,7 +179,7 @@ for k,v in [
 ]: w("| %s | %s |"%(k,v))
 w("")
 w("## 5. Quan sát tĩnh TRƯỚC khi chạy (đọc mã / tài nguyên ngày 25/11; chưa phải kết quả)")
-w("Những điểm sau suy ra từ tệp trong repo @`2c0dbe83`; ca tương ứng sẽ xác nhận hay bác bỏ khi chạy. Nếu xác nhận → mở DEF.")
+w("Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17…23 theo `697854ef`); ca tương ứng sẽ xác nhận hay bác bỏ khi chạy. Nếu xác nhận → mở DEF.")
 w("| # | Quan sát | Ca xác nhận |")
 w("| --- | --- | --- |")
 for i,(a,b) in enumerate([
@@ -188,6 +190,7 @@ for i,(a,b) in enumerate([
 ("`targetSdk 36`: từ Android 15 giao diện vẽ tràn dưới thanh trạng thái / thanh điều hướng (edge-to-edge) — mọi `env(safe-area-inset-*)` phải đúng","SAF-01…04"),
 ("Manifest không đặt `windowSoftInputMode`; dock `/checkin` là `position: fixed` — bàn phím có thể che nút `Điểm danh`","KBD-01, KBD-02, TXT-08"),
 ("Ngưỡng 44 px chỉ bật ở `(max-width: 719px), (pointer: coarse)`; điện thoại ngang ≥ 720 px vẫn có `pointer: coarse` nên đạt, nhưng khung chuyển sang thanh bên","TGT-06, UIW-17"),
+("`nav.ts` @2c0dbe83 ghi `/checkin` «ngoài thanh điều hướng, mở từ QR»; «Hôm nay» dẫn sang Lịch; «Thêm» / «Tìm nhanh» không có «Điểm danh» → PWA / app chưa có lối vào (BA đã vá spec ở P-11-137; ca ENT-* xác nhận khi dev làm xong)","ENT-01…22"),
 ("iOS Safari không có `BarcodeDetector` và Simulator không có camera: quét QR chỉ kiểm được trên Android; iOS dùng ô nhập mã + camera hệ thống mở Safari","FLW-04, PWA-08, PWA-09"),
 ],1): w("| %d | %s | %s |"%(i,a,b))
 w("")
