@@ -734,14 +734,14 @@ Công cụ: XCUITest headless (`docs/regression/evidence-ios/uitest/`, scheme `Q
 
 ### 9.4 Soát tổng theo MÃ TC (26/11/2026 — qc chốt lại `bb052c71`)
 
-Nguồn từng mã: qc3 iOS 59 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 22 mã trùng (12 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3), đều là P ở cả hai bên, không mã nào lệch nhãn trừ `TC-MOB-FLW-02` (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
+Nguồn từng mã: qc3 iOS 59 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md`), qc2 `results.jsonl` 68 mã, qc `tc-mobile-run-qc.tsv` 139 mã. 22 mã trùng (12 qc∩qc3, 5 qc∩qc2, 5 qc2∩qc3): 21 mã P ở cả hai bên, `FLW-02` P/qc3–N/qc, chỉ `TC-MOB-FLW-02` lệch nhãn (qc **N** vì pha 1 không có dữ liệu cấu hình `rotate_seconds`; qc3 **P** trên iOS với cửa sổ 60 s — giữ P).
 
 | Mã | P | F | N |
 |---|---|---|---|
 | qc3 iOS | 59 | 0 | 0 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 82 | 2 | 55 |
-| **Hợp (266 mã gốc − 22 trùng = 244)** | **176** | **2** | **66** |
+| **Hợp (266 mã gốc − 22 trùng = 244)** | **177** | **2** | **65** |
 | TC | 345 | | |
 
 2 F của qc: `TC-MOB-TGT-02`, `TC-MOB-ATT-02` — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
