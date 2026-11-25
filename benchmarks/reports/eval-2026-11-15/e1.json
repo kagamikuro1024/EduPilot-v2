@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "5233fa86",
-    "timestamp": "2026-11-15T23:05:11.162Z",
+    "commit": "b76148bc",
+    "timestamp": "2026-11-25T14:10:57.415Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 3,
     "config": {
@@ -15,9 +15,30 @@
     }
   },
   "status": "OK",
-  "labels": "WAITING_HUMAN",
-  "human_review": null,
-  "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); chủ dự án gán mù ≥ 50 mẫu phân tầng (P-11-3): gói e1-soat-nhan.csv → benchmarks/eval/human/e1_soat.csv.",
+  "labels": "SOÁT (53/57 đồng ý; bất đồng → BA phán: S6-13, S6-01, S6-26, S6-38; nhãn cuối sau phán 57/57 khớp)",
+  "human_review": {
+    "n": 57,
+    "positive": 32,
+    "negative": 25,
+    "agree": 53,
+    "disagree": [
+      "S6-13",
+      "S6-01",
+      "S6-26",
+      "S6-38"
+    ],
+    "kappa": 0.86,
+    "adjudicated": {
+      "S6-13": true,
+      "S6-01": true,
+      "S6-26": true,
+      "S6-38": true
+    },
+    "final_agree": 57,
+    "final_kappa": 1.0,
+    "status": "SOÁT (53/57 đồng ý; bất đồng → BA phán: S6-13, S6-01, S6-26, S6-38; nhãn cuối sau phán 57/57 khớp)"
+  },
+  "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); `giaovien` (người gán nhãn do chủ dự án chỉ định, từ 2026-11-25) gán mù 57 mẫu phân tầng (P-11-3): gói e1-soat-nhan.csv → benchmarks/eval/human/e1_soat.csv; bất đồng do BA phán (7c717d0b).",
   "main_run": "real",
   "channel": {
     "f1": 0.9796,

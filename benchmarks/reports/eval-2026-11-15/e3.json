@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "5233fa86",
-    "timestamp": "2026-11-15T23:05:11.841Z",
+    "commit": "b76148bc",
+    "timestamp": "2026-11-25T14:10:57.953Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
@@ -38,9 +38,37 @@
       "guidance_flag": "tắt"
     }
   },
-  "status": "WAITING_HUMAN",
-  "reason": "Chưa có điểm người chấm ≥ 60 bài (Q-E-18). Điểm LLM không được dùng làm chuẩn (vòng tròn). Gói chấm tay: e3-cham-tay.csv.",
-  "human_vs_ai": null,
+  "status": "OK",
+  "reason": null,
+  "human_vs_ai": [
+    {
+      "a": "P1r1",
+      "b": "người chấm",
+      "n": 60,
+      "qwk": 0.5289,
+      "mae": 1.1958,
+      "pearson": 0.8248,
+      "kind": "độ chính xác so với người"
+    },
+    {
+      "a": "P1r2",
+      "b": "người chấm",
+      "n": 60,
+      "qwk": 0.5358,
+      "mae": 1.1375,
+      "pearson": 0.8491,
+      "kind": "độ chính xác so với người"
+    },
+    {
+      "a": "P2r1",
+      "b": "người chấm",
+      "n": 24,
+      "qwk": 0.6565,
+      "mae": 0.6875,
+      "pearson": 0.8515,
+      "kind": "độ chính xác so với người"
+    }
+  ],
   "stability": [
     {
       "a": "P1r1",
