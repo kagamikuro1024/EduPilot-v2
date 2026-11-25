@@ -1,7 +1,7 @@
 # SRS FEAT-attendance-selfcheck Điểm danh tự phục vụ chống gian lận (web + app Android)
 Phiên bản 1.7 · 2026-11-16 · Trạng thái: **DRAFT** (**v1.7 (P-11-43, DEF-R10.8-02):** §9 + §11 + US.md trỏ test thật; 13 test còn thiếu đã được viết (bảng «Chưa có test» bỏ); PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22). **v1.2 (P-108-3):** hợp đồng API (`CourseDetail.attendance`, thay toàn bộ chính sách, trần 3 cửa sổ, `close` lần hai không audit / outbox). **v1.3 (P-108-4…10):** FR-20 ràng `public_key` với chứng chỉ lá (P-108-4); app chưa chứng thực ký Keystore gửi `WEB_KEY` → mức 2 (P-108-5); `NOT_APP` theo chữ ký `ANDROID_KEY` của khoá `attested` (P-108-6); màn chiếu giữ QR tới hạn hiệu lực theo giờ máy chủ (P-108-7); dựng lại APK một lệnh khi đổi host (P-108-9); `attendance.ForgetStudent` (P-108-10). P-108-8 (DESIGN §23.1) làm sau khi 10.7 vào main.
 
-Nguồn: `US.md` (US-AS-01…14), PRD M5, FLOWS F7 + F7b, `docs/sprints/10.8/techlead.md` TL-1, `docs/research/2026-11-14-attendance-anti-cheat.md` (viết tắt «research»), **P-108-1**. Phần lệch có chủ đích so với research ghi ở mục 10.
+Nguồn: `US.md` (US-AS-01…15; US-AS-15 thêm ở sprint 11, P-11-130), PRD M5, FLOWS F7 + F7b, `docs/sprints/10.8/techlead.md` TL-1, `docs/research/2026-11-14-attendance-anti-cheat.md` (viết tắt «research»), **P-108-1**. Phần lệch có chủ đích so với research ghi ở mục 10.
 
 ## 1. Mục đích và phạm vi
 
@@ -492,3 +492,4 @@ Tech Lead bổ sung `DESIGN.md` §14 cho `/attendance/display` và `/checkin` (n
 | M5 | F7b | L5 | US-AS-12 | FR-19, 20 | `TestAttestRealChains`, `TestAttestRejects`, `TestAttestRevocation`, `TestDeviceChallengeOnce` |
 | §5 riêng tư | F7b | L1 + L7 | US-AS-13 | FR-21 | `TestPurgeKeepsRecords`, `TestPurgeSkipsOpenWindow`, `TestForgetStudentKeepsOthers` (hàm xoá theo người; job xoá tài khoản nối ở phase PR) |
 | M5 | F7b | L7 | US-AS-14 | FR-24, 25 | seed, E2E, k6, contract |
+| M5 | F7b | sprint 11 (P-11-130) | US-AS-15 | giao diện 7.x (`/checkin`, khung app) | Playwright 5 độ rộng, axe, kiểm tay máy thật (Android, iPhone) |
