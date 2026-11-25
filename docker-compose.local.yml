@@ -105,7 +105,7 @@ services:
     build:
       context: ./backend-go
       target: mock-graph
-    image: edupilot-mock-graph
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-mock-graph
     ports: ["127.0.0.1:${EP_PORT_MOCK_GRAPH:-8090}:8090"] # seed / check-assignments-seed.mjs đọc nhật ký từ máy chủ
     healthcheck:
       test: ["CMD", "/mock-graph", "-healthcheck"]
@@ -118,7 +118,7 @@ services:
     build:
       context: ./backend-go
       target: mock-imap
-    image: edupilot-mock-imap
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-mock-imap
     ports: ["127.0.0.1:${EP_PORT_MOCK_IMAP:-8091}:8091"]
     healthcheck:
       test: ["CMD", "/mock-imap", "-healthcheck"]
@@ -131,7 +131,7 @@ services:
     build:
       context: ./backend-go
       target: gateway
-    image: edupilot-gateway
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-gateway
     entrypoint: ["/gateway", "migrate"]
     command: ["up"]
     environment:
@@ -149,7 +149,7 @@ services:
     build:
       context: ./backend-go
       target: gateway
-    image: edupilot-gateway
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-gateway
     volumes: ["./seed/demo:/seed/demo:ro"]
     environment:
       <<: *app-env
@@ -273,7 +273,7 @@ services:
     build:
       context: ./backend-go
       target: worker
-    image: edupilot-worker
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-worker
     volumes: ["./seed/demo:/seed/demo:ro"]
     environment:
       <<: *app-env
@@ -396,7 +396,7 @@ services:
     profiles: [ingest]
     build:
       context: ./infra/docling
-    image: edupilot-docling
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-docling
     environment:
       DOCLING_SERVE_ENG_LOC_NUM_WORKERS: "1"
       DOCLING_SERVE_LOAD_MODELS_AT_BOOT: "false"
@@ -414,7 +414,7 @@ services:
   judge:
     build:
       context: ./deploy/judge
-    image: edupilot-judge:dev
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-judge:dev
     environment:
       JUDGE_TOKEN: ${JUDGE_TOKEN:-}
       JUDGE_PARALLELISM: ${JUDGE_PARALLELISM:-2}

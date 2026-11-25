@@ -6,13 +6,13 @@ services:
   gateway:
     build:
       target: gateway-test
-    image: edupilot-gateway-test
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-gateway-test
     environment:
       APP_ENV: test
 
   worker:
     build:
       target: worker-test
-    image: edupilot-worker-test
+    image: ${COMPOSE_PROJECT_NAME:-edupilot}-worker-test
     environment:
       APP_ENV: test
