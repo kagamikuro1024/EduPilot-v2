@@ -18,3 +18,5 @@ var DefaultRetryWait = defaultRetryWait
 func CallWorker(w *Worker, ctx context.Context, system, user, schema string) (json.RawMessage, error) {
 	return w.call(ctx, system, user, schema)
 }
+
+var ShuffleOptions = shuffleOptions

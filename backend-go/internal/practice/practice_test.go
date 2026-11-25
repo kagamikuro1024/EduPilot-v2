@@ -473,6 +473,34 @@ func TestTodayWeakTopic(t *testing.T) {
 }
 
 // TestStemKey — US-P9-03 AC5 / TC-03-09 (DEF-R10S-16): so trùng chuẩn hoá cả số thứ tự đầu câu; «3.14…» / «3-way» không bị cắt.
+// E5: câu AI sinh đã lưu từ trước còn mã «[C18]» ở lời giải / stem / phương án ⇒ sinh viên không thấy (làm sạch lúc đọc, không sửa dữ liệu).
+func TestPracticeCleansStoredCiteMarkers(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	sv := r.student()
+	ids := r.approved("Mạng", 5)
+	for _, id := range ids {
+		r.exec(`update question_bank set stem = stem || ' [C3]', explanation = 'Vì B đúng [C18, C2].' where id = $1`, id)
+		r.exec(`update question_options set body = body || ' [C1]' where question_id = $1`, id)
+	}
+	ctx := t.Context()
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(5)}, uuid.Nil)
+	require.NoError(t, err)
+	for _, it := range v.Items {
+		require.NotContains(t, it.Question.Stem, "[C")
+		for _, o := range it.Question.Options {
+			require.NotContains(t, o.Body, "[C")
+		}
+	}
+	it := v.Items[0]
+	save, err := r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, opt(r.correctOption(it.ID)))
+	require.NoError(t, err)
+	require.Equal(t, "Vì B đúng.", *save.Feedback.Explanation)
+	got, err := r.svc.Get(ctx, sv, r.course, v.ID, uuid.Nil)
+	require.NoError(t, err)
+	require.Equal(t, "Vì B đúng.", *got.Items[0].Feedback.Explanation)
+}
+
 func TestStemKey(t *testing.T) {
 	const base = "Thiết bị nào chuyển khung theo địa chỉ MAC?"
 	for _, same := range []string{"12. " + base, "Câu 3) " + base, "  CÂU 12:  " + base, "7 - " + base, "THIẾT BỊ  nào chuyển khung theo địa chỉ MAC"} {
