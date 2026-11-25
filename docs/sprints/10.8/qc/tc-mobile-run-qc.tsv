@@ -36,7 +36,7 @@
 6.F	ERR-03	P	Sửa ký tự cuối → «Mã không đúng. Quét lại mã trên màn chiếu.»
 6.F	ERR-04	P	Cửa sổ đã đóng → «Đã đóng điểm danh.»
 6.F	ERR-05	P	sv.qc mở QCMOB6 → «Bạn không thuộc lớp này.», checked_in=0
-6.F	ERR-06	P	Để màn đăng nhập > 60 s → «Mã đã hết hạn…», 0 POST (ep.checkin còn lại, không thuộc AC)
+6.F	ERR-06	P	web/Chromium VPS 8d2ec456: >60 s → «Mã đã hết hạn…», 0 POST, ep.checkin rỗng; qc3 tái hiện F trên iOS @40281db4 — PM quyết
 6.F	ERR-07	P	teacher: màn chặn, 0 POST, token không lộ trong DOM
 6.F	ERR-08	P	ta + admin: như ERR-07, 0 POST, không lộ token
 6.F	ERR-09	P	6 mã sai liên tiếp: 5×422 rồi 429 (`Retry-After: 60`); UI «Thử lại sau 33 giây.» đếm ngược 33→32, nút Điểm danh khoá, **ô mã bị gỡ** trong lúc đếm; hết giờ về ô nhập. Lý do hiện trong panel, KHÔNG gắn aria lên nút (quan sát nhỏ, không chấm)
@@ -122,13 +122,13 @@
 6.N	NET-11	N	mất mạng khi đang mở màn chiếu (native)
 6.N	NET-12	N	mất mạng khi camera mở (native)
 6.R	TGT-01	P	360 và 430: mọi button/a/input trong main, topbar, thanh dưới ≥ 44×44
-6.R	TGT-02	F	/checkin 360: min 8 px, 0 cặp <8 → đạt. /attendance 360: **7 cặp 4 px** — nút mở hàng `.mHead` ↔ nút ghi phát biểu `.mPlus` (gap `--ep-space-1` = 4 px) → **DEF-MOB-06**
+6.R	TGT-02	P	sửa 8d2ec456: 4 phép đo (checkin/attendance x 360/375) min 8 px, 0 cặp <8 (trước: 7 cặp 4 px — DEF-MOB-06)
 6.R	TGT-03	P	dock đáy 683 = mép trên thanh dưới 683 (không đè); dock 61 px, thanh dưới 57 px
 6.R	TGT-04	N	uiautomator dump (native)
 6.R	TGT-05	P	/attendance 375 (GV): mọi nút/hàng ≥ 44×44
 6.R	TGT-06	N	ngang thấp + pointer:coarse dùng thanh đáy (M2) nên không đo thanh bên
 6.X	ATT-01	P	375: mở được buổi, cửa sổ, có «Mở màn chiếu», không cuộn ngang
-6.X	ATT-02	F	44×44 ĐẠT ở 375; nhưng TC còn đòi «hai điều khiển kề ≥ 8 px»: trên /attendance 360, `.mHead` ↔ `.mPlus` cách **4 px** (7 cặp) → **DEF-MOB-06** (cùng gốc TGT-02)
+6.X	ATT-02	P	44x44 đạt; vế kề >= 8 px nay đạt (min 8 px ở 360 và 375 sau 8d2ec456)
 6.X	ATT-03	P	TA 360: lưới cuộn trong khung riêng, trang không cuộn ngang
 6.X	ATT-04	N	safe-area (native)
 6.X	ATT-05	N	cỡ chữ 2,0× (native)

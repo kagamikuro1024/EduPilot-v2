@@ -64,7 +64,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | ERR-03 | **P** | Sửa ký tự cuối → «Mã không đúng. Quét lại mã trên màn chiếu.» |
 | ERR-04 | **P** | Cửa sổ đã đóng → «Đã đóng điểm danh.» |
 | ERR-05 | **P** | sv.qc mở QCMOB6 → «Bạn không thuộc lớp này.», checked_in=0 |
-| ERR-06 | **P** | Để màn đăng nhập > 60 s → «Mã đã hết hạn…», 0 POST (ep.checkin còn lại, không thuộc AC) |
+| ERR-06 | **P** (web) | Chromium, VPS 8d2ec456: để màn đăng nhập > 60 s → «Mã đã hết hạn…», 0 POST; kho cất `ep.checkin` nay **rỗng** sau 60 s. qc3 tái hiện **F trên iOS @40281db4** (về ô nhập, không có câu) — khác nền tảng, PM quyết |
 | ERR-07 | **P** | teacher: màn chặn, 0 POST, token không lộ trong DOM |
 | ERR-08 | **P** | ta + admin: như ERR-07, 0 POST, không lộ token |
 | ERR-09 | **P** | 6 mã sai liên tiếp: 5×422 rồi 429 (`Retry-After: 60`); UI «Thử lại sau 33 giây.» đếm ngược 33→32, nút Điểm danh khoá, **ô mã bị gỡ** trong lúc đếm; hết giờ về ô nhập. Lý do hiện trong panel, KHÔNG gắn aria lên nút (quan sát nhỏ, không chấm) |
@@ -180,7 +180,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | Mã | Kết quả | Lý do / bằng chứng |
 | --- | --- | --- |
 | TGT-01 | **P** | 360 và 430: mọi button/a/input trong main, topbar, thanh dưới ≥ 44×44 |
-| TGT-02 | **F** | /checkin 360: min 8 px, 0 cặp <8 → đạt. /attendance 360: **7 cặp 4 px** — nút mở hàng `.mHead` ↔ nút ghi phát biểu `.mPlus` (gap `--ep-space-1` = 4 px) → **DEF-MOB-06** |
+| TGT-02 | **P** | Sửa 8d2ec456: 4 phép đo (checkin/attendance × 360/375) min **8 px**, 0 cặp <8 — trước sửa: attendance 7 cặp 4 px (DEF-MOB-06) |
 | TGT-03 | **P** | dock đáy 683 = mép trên thanh dưới 683 (không đè); dock 61 px, thanh dưới 57 px |
 | TGT-04 | **N** | uiautomator dump (native) |
 | TGT-05 | **P** | /attendance 375 (GV): mọi nút/hàng ≥ 44×44 |
@@ -191,7 +191,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | Mã | Kết quả | Lý do / bằng chứng |
 | --- | --- | --- |
 | ATT-01 | **P** | 375: mở được buổi, cửa sổ, có «Mở màn chiếu», không cuộn ngang |
-| ATT-02 | **F** | 44×44 ĐẠT ở 375; nhưng TC còn đòi «hai điều khiển kề ≥ 8 px»: trên /attendance 360, `.mHead` ↔ `.mPlus` cách **4 px** (7 cặp) → **DEF-MOB-06** (cùng gốc TGT-02) |
+| ATT-02 | **P** | 44×44 ĐẠT ở 375; vế «hai điều khiển kề ≥ 8 px» nay đạt (min 8 px ở 360 và 375 sau 8d2ec456) |
 | ATT-03 | **P** | TA 360: lưới cuộn trong khung riêng, trang không cuộn ngang |
 | ATT-04 | **N** | safe-area (native) |
 | ATT-05 | **N** | cỡ chữ 2,0× (native) |
@@ -209,6 +209,7 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | FLW-13 | DEF-MOB-01 (578e809e) | **P** — «Lớp này đã được lưu trữ.», không POST |
 | NET-02 + MSG-07 | DEF-MOB-02 (ae069d85) | **P** — «Chưa có mạng.» + `Thử lại`, mã giữ nguyên, retry → `checked_in=1` |
 | NET-07 | DEF-MOB-03 (ae069d85) | **P** — sau 16 s có «Chưa có mạng.», trạng thái `entry` |
+| TGT-02 + ATT-02 | DEF-MOB-06 (8d2ec456) | **P** — `.mHead` ↔ `.mPlus` min 8 px ở 360 và 375, cả /checkin và /attendance |
 
 ### Chạy bù 6 mã trước để N vì thiếu dữ kiện (tài khoản `sv.qc-b`)
 
@@ -233,9 +234,9 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | 6.I Cỡ chữ, phóng | 1 | 0 | 7 | 8 |
 | 6.K Bàn phím che ô nhập (phần web) | 6 | 0 | 6 | 12 |
 | 6.N Mạng yếu, mất mạng | 4 | 0 | 8 | 12 |
-| 6.R Vùng chạm ≥ 44 px | 3 | 1 | 2 | 6 |
-| 6.X Staff trên điện thoại — /attendance | 6 | 1 | 4 | 11 |
-| **Cộng** | **82** | **2** | **55** | **139** |
+| 6.R Vùng chạm ≥ 44 px | 6 | 0 | 0 | 6 |
+| 6.X Staff trên điện thoại — /attendance | 7 | 0 | 4 | 11 |
+| **Cộng** | **84** | **0** | **55** | **139** |
 
 ## DEF mới
 
@@ -244,13 +245,13 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 | DEF-MOB-01 | ~~Thấp~~ **ĐÃ SỬA** (578e809e, nghiệm lại ae069d85: «Lớp này đã được lưu trữ.») | Lớp đã lưu trữ hiện «Lớp này không điểm danh bằng mã.» thay vì câu về lớp lưu trữ (FLW-13) | Máy chủ: lớp ARCHIVED trả `attendance.self_checkin=false`; giao diện chỉ có nhánh "tắt điểm danh" |
 | DEF-MOB-02 | ~~Trung bình~~ **ĐÃ SỬA** (ae069d85: có `Thử lại`, mã giữ nguyên, retry xong `checked_in=1`) | Mất mạng khi gửi **mã ngắn**: có «Chưa có mạng.» nhưng **không có nút `Thử lại`** (đường token thì có) (NET-02, MSG-07) | `CheckinScreen.describe` → `viaCode` chỉ đặt lỗi dưới ô, không gắn `retry` |
 | DEF-MOB-03 | ~~Trung bình~~ **ĐÃ SỬA** (ae069d85: sau 16 s có «Chưa có mạng.», về `entry`) | Máy chủ trả lời POST chậm 20 s: sau 16 s vẫn «đang gửi», không có «Chưa có mạng.» / hết giờ (NET-07) | Gọi `apiClient.post` không có hạn giờ; chỉ đổi trạng thái khi promise kết thúc |
-| DEF-MOB-06 | Thấp | `/attendance` dọc: nút mở hàng `.mHead` và nút ghi phát biểu `.mPlus` cách **4 px** (< 8 px) ở 360 px — 7 cặp (TGT-02, ATT-02) | `AttendanceGrid.module.css` `.mTop { gap: var(--ep-space-1) }` = 4 px |
+| DEF-MOB-06 | ~~Thấp~~ **ĐÃ SỬA** (8d2ec456, `gap: var(--ep-space-2)`; nghiệm lại 4 phép đo min 8 px ở 360/375) | `/attendance` dọc: nút mở hàng `.mHead` và nút ghi phát biểu `.mPlus` cách **4 px** (< 8 px) ở 360 px — 7 cặp (TGT-02, ATT-02) | `AttendanceGrid.module.css` `.mTop { gap: var(--ep-space-1) }` = 4 px |
 | DEF-MOB-04 | **RÚT** (P-11-143) | Mạng 400 kbit/s + RTT 2 s: khung 5 360 ms — **TC đặt ngưỡng 3 s không neo AC nên TC sai**, không phải lỗi sản phẩm; số đo giữ ở dòng NET-01 làm tham chiếu | — |
 
 ## Ghi chú
 
 - Quan sát tĩnh §5 của `tc-mobile-app.md` không chấm ở pha 1 trừ ca W tương ứng.
 - Mọi ca dựng trạng thái bằng `page.route` (gửi/đã gửi/lỗi/429) chỉ đo bố cục, không tạo lượt trong DB.
-- Số đếm đúng của phần qc là **139 mã = 82 P · 2 F · 55 N** sau khi chạy bù 6 mã thiếu dữ kiện (trước đó 78 P/0 F/61 N; lượt đầu báo 77 P do cột 6.N ghi 1 P trong khi thực tế có 4).
+- Số đếm đúng của phần qc là **139 mã = 84 P · 0 F · 55 N** sau khi chạy bù + nghiệm lại DEF-MOB-06 6 mã thiếu dữ kiện (trước đó 78 P/0 F/61 N; lượt đầu báo 77 P do cột 6.N ghi 1 P trong khi thực tế có 4).
 - Gộp §9 của qc3 (dedup theo mã, commit 582e0240): **244 mã = 177 P · 2 F · 65 N**; FLW-02 lấy P của qc3 (pha 3 iOS), phần tôi là N.
 - Cách dựng cho 6 mã chạy bù: `e2e/qc-mob-pha1-gap.spec.ts` (SES/ERR/TGT/MSG-15) + `e2e/qc-mob-pha1-err09api.spec.ts` (429/Retry-After qua API); SQL đối chiếu trên Postgres VPS (chỉ đọc).

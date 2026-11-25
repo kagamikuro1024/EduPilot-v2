@@ -192,6 +192,7 @@ test("TGT-02 360 px: khoảng cách kề giữa hai vùng chạm LÁ ≥ 8 px", 
   const ctx = await own(browser);
   const page = await ctx.newPage();
   await page.setViewportSize({ width: 360, height: 780 });
+  // PM: chạy lại ở 360 và 375 sau bản sửa DEF-MOB-06
   await loginRetry(page, "teacher");
   const measure = (name: string) =>
     page.evaluate(() => {
@@ -218,12 +219,15 @@ test("TGT-02 360 px: khoảng cách kề giữa hai vùng chạm LÁ ≥ 8 px", 
       const badN = Object.entries(hist).filter(([k]) => Number(k) < 8).reduce((n, [, c]) => n + c, 0);
       return { n: leaf.length, min: Math.round(min * 10) / 10, badN, sample };
     });
-  for (const [name, url] of [["/checkin", `/checkin?course=${C.QCMOB1}`], ["/attendance", "/attendance"]] as const) {
-    await page.goto(url);
-    await page.waitForTimeout(4000);
-    const r = await measure(name);
-    check(`TC-MOB-TGT-02 ${name} 360: khoảng cách kề ≥ 8 px`, r.min >= 8, `n=${r.n} min=${r.min} <8=${r.badN} ${r.sample.join(" ; ")}`.slice(0, 300));
-    await page.screenshot({ path: `${OUT}/TGT-02${name.replace("/", "-")}.png` });
+  for (const w of [360, 375]) {
+    await page.setViewportSize({ width: w, height: 812 });
+    for (const [name, url] of [["/checkin", `/checkin?course=${C.QCMOB1}`], ["/attendance", "/attendance"]] as const) {
+      await page.goto(url);
+      await page.waitForTimeout(4000);
+      const r = await measure(name);
+      check(`TC-MOB-TGT-02 ${name} ${w}: khoảng cách kề ≥ 8 px`, r.min >= 8, `n=${r.n} min=${r.min} <8=${r.badN} ${r.sample.join(" ; ")}`.slice(0, 280));
+      await page.screenshot({ path: `${OUT}/TGT-02${name.replace("/", "-")}-${w}.png` });
+    }
   }
   await ctx.close();
 });
