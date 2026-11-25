@@ -328,7 +328,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 ## 6.N Mạng yếu, mất mạng, khôi phục (US-AS-15 AC9)
 | Mã | AC | MT | Dữ liệu / tiền điều kiện | Bước | Kỳ vọng (đo được) | Kiểm | Chỉ máy thật / điều kiện |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| TC-MOB-NET-01 | US-AS-15 AC9 | A | SV đăng nhập; mạng chậm R-NET-slow (≈ 400 kbit/s, RTT 2 s) | Mở `/checkin` (nav), đo từ lúc chạm tới lúc thấy nội dung | khung (thanh trên, tiêu đề «Điểm danh») hiện ≤ 3 s, nội dung ≤ 8 s (ngưỡng QC đề xuất, PM chốt); có khung xương (`Skeleton`), không màn trắng; không cuộn ngang | TAY |  |
+| TC-MOB-NET-01 | US-AS-15 AC9 | A | SV đăng nhập; mạng chậm R-NET-slow (≈ 400 kbit/s, RTT 2 s) | Mở `/checkin` (nav) | Có phản hồi ngay khi chạm: khung xương/chờ (`Skeleton`, `aria-busy`) hiện thay vì màn trắng; nội dung cuối cùng hiện ra hoặc câu lỗi có «Thử lại» (không treo vô hạn); không cuộn ngang. **Không chấm theo ngưỡng thời gian** (bỏ 3 s/8 s — P-11-143, US-AS-15 AC9 chỉ yêu cầu hành vi) | TAY |  |
 | TC-MOB-NET-02 | US-AS-09 AC4; US-AS-15 AC9 | A | Đang ở ô nhập mã đã gõ mã đúng | Bật chế độ máy bay → `Điểm danh` | ≤ 15 s hiện «Chưa có mạng.» + `Thử lại`; dải offline (OfflineBanner) hiện; mã đã gõ giữ nguyên | TAY |  |
 | TC-MOB-NET-03 | US-AS-15 AC9 | A | Sau NET-02 | Tắt chế độ máy bay; bấm `Thử lại` | dải offline biến mất ≤ 3 s sau khi có mạng; `Thử lại` thành công «Đã điểm danh hh:mm»; một lượt; không tải lại trang | TAY+SQL |  |
 | TC-MOB-NET-04 | US-AS-15 AC9 | A | Mạng chập chờn (R-NET-flaky: bật/tắt 5 lần trong 20 s) khi quét QR | Quét Q-OK | không đăng xuất, không màn lỗi, không lượt thứ hai; cuối cùng thành công hoặc «Chưa có mạng.» + `Thử lại` | TAY+SQL |  |
