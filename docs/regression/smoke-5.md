@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · Stack ep-r + qc3s · Người chạy: qc2 (SmkC, SmkL), qc3 (lượt bù S/N, 2026-11-21) · Cập nhật: 2026-11-21
-Tổng TC cũ: 477 · Đạt: 460 · Trượt: 0 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 1   (P+F+K+LT+S = 477)
+Tổng TC cũ: 476 · Đạt: 460 · Trượt: 0 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 0   (P+F+K+LT+S = 476). Bỏ dòng mẫu «TC-id», không phải ca (477 → 476).
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -9,7 +9,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | S (chưa chạy mẫu) | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- |
-| US-PU-06 | 21 | 15 | 0 | 5 | 1 | |
+| US-PU-06 | 20 | 15 | 0 | 5 | 0 | |
 | US-PE-01 | 40 | 36 | 0 | 4 | 0 | |
 | US-PE-02 | 57 | 56 | 0 | 1 | 0 | |
 | US-PE-03 | 55 | 54 | 0 | 1 | 0 | |
@@ -23,7 +23,6 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
 | --- | --- | --- |
-| TC-id | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE01-01 | P | 13 bảng PE có đủ; phiên bản migration hiện tại 25 (gốc "5": sau sprint 5 có thêm migration — lệch dự kiến) |
 | TC-PE01-02 | P | p501-schema.py: 13 bảng/192 cột; 3 lệch đều giải thích được: question_bank.reject_reason do 00021 grading_guidance (sprint 10, LỖI THỜI về cột); code_testcases input/expected & source_sha256 là artefact đọc SRS của script (bpchar=char(64)) |
 | TC-PE01-03 | P | bảng có course_id đều ≥1 chỉ mục bắt đầu course_id; ngoại lệ ghi: []; bảng con không course_id: [] |
@@ -480,8 +479,8 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-29 | P | ui-antipatterns.sh rc=0, 32/32 ✓ (TC gốc 19/19: nay 32 phép), --selftest "32 / 32 phép bắt được" |
 | TC-PE09-30 | P | weekly_exam trong PROGRESS.md 2 dòng; report.md có; đủ 6 nợ (tách sandbox, precompiled header, checker tuỳ chỉnh, nối sổ điểm P6, chat khoá P3, retention RUN/exam_events) |
 | TC-PE09-31 | P | F19 trọn trên Chrome thật (ep-r @aba738ef, lớp R5C1, ảnh evidence-5/ui-r3/shots/f19-*.png và f19b-*.png, log logs-r3/ui5b.log, ui5e.log, f19-log.json): 1 GV tạo câu trắc nghiệm bằng UI (dialog «Câu trắc nghiệm mới», lỗi tại ô → sửa → tạo, DRAFT); 2 GV tạo bài nháp, bấm Lên lịch khi thiếu → danh sách 4 «Việc cần sửa» (nhánh lỗi), chọn 3 câu trắc nghiệm + 1 bài code từ ngân hàng, lưu, đặt giờ mở/đóng/thời lượng, Xem trước (không lộ đáp án/canary); TA mở cùng bài: 0 nút Lên lịch; GV Lên lịch → SCHEDULED; 3 SV r5s17 thấy bài ở /exams, màn bắt đầu 375 px có «≥ 1024 px», làm trắc nghiệm trên 375 bằng bàn phím (b / 1+3 / c, mỗi lần một câu) dưới 3G 400 kbps/RTT 400 ms rồi mất mạng 30 s (dải «Mất mạ |
-| TC-PU06-01 | LT | cấu hình lhci đổi sau sprint 5 (9 URL, LCP off) |
-| TC-PU06-02 | LT | cấu hình lhci đổi sau sprint 5 (9 URL, LCP off, TBT 200) |
+| TC-PU06-01 | LT | cấu hình lhci đổi sau sprint 5 (9 URL, LCP off): P-5#14 |
+| TC-PU06-02 | LT | cấu hình lhci đổi sau sprint 5 (9 URL, LCP off, TBT 200): P-5#14 (LCP off), P-11-20 / P-11-46 (TBT) |
 | TC-PU06-03 | LT | lighthouserc.json nay: LCP "off", TBT ≤ 200 (không còn ≤170, không cpuSlowdown) — đổi bởi sprint sau (P-5#14 → 10.x) |
 | TC-PU06-04 | P | gh run list --workflow ci.yml --branch sprint/5-pe: 3/3 success (HEAD 4d55c13e: Frontend + Go); log lhci HEAD: cảnh báo LCP chỉ ở /dev/ui (3102 ms, route dev được TC loại); 9 URL còn lại LCP 1500–1966, TBT 140–159, benchmarkIndex 2302–2447; (ghi: workflow CI nay còn đổi sau sprint 5) |
 | TC-PU06-05 | P | 3 lần chạy gần nhất của nhánh sprint/5-pe đều success; TBT lớn nhất 159 ms ≤ 170 ở mọi URL người dùng (log run 37967504151) |
