@@ -507,9 +507,9 @@ Ví dụ câu đạt cho UndoLine: "Không hoàn tác được. Thay đổi vẫ
 | Hiểu lớp học | `/insights` Insights · `/analytics` Analytics | — | 2 | 2 | — |
 | Hệ thống | `/observability` Quan sát AI · `/settings/llm` Cấu hình LLM · `/settings/integrations` Tích hợp | — | — | 3 | — |
 | Vận hành (Admin) | `/` Hôm nay · `/observability` Quan sát AI | — | — | — | 2 |
-| Quản trị | `/admin/courses` Lớp học · `/admin/users` Người dùng | — | — | — | 2 |
+| Quản trị | `/admin/courses` Lớp học · `/admin/users` Người dùng · `/admin/audit` Nhật ký (US-P10-14, P-11-30) | — | — | — | 3 |
 | Cấu hình | `/settings/llm` Cấu hình LLM · `/settings/integrations` Tích hợp | — | — | — | 2 |
-| **Tổng** | | **8** (chưa vào lớp: 1) | **13** | **16** (13 + Hệ thống 3) | **6** |
+| **Tổng** | | **9** (chưa vào lớp: 1) | **13** | **16** (13 + Hệ thống 3) | **7** (2 + 3 + 2) |
 
 Ma trận quyền mở route (tiền tố dài nhất thắng; giữ nguyên `ACCESS` của prototype): `/inbox /students /attendance /gradebook /grading /questions /documents /insights /analytics /class` → TA, GV; `/observability /settings` → GV, Admin; `/admin` → Admin; `/chat /practice /library /me /assignments /join` → Sinh viên; `/threads /calendar` → SV, TA, GV; `/exams` → SV, TA, GV (góp ý #1 sprint 5: phân vai **trong** màn — Sinh viên chỉ danh sách và `/exams/[id]/take`, `/exams/[id]` và `/exams/[id]/results` chỉ TA, GV; API thật trả 403 cho sai vai). Admin không mở route nội dung lớp (ADMIN không đọc nội dung lớp mặc định — `AGENTS.md`).
 
