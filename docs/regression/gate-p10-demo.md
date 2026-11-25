@@ -1,4 +1,156 @@
-# Gate P10 — chạy DEMO_SCRIPT.md trên stack demo (main 23c97510)
+# Gate P10 — LƯỢT 2: chạy lại DEMO_SCRIPT.md trên demo dựng lại (main b12d70b9)
+
+Người chạy: QC cặp 3 · 25/11/2026 06:48–07:12 (giờ VN) · stack demo `edupilot` dựng lại từ `main` b12d70b9 (gateway 06:46, frontend image a156331f91a1 06:52 — lúc đầu lượt FE vẫn là bản cũ 02:21, đã báo PM, PM dựng lại giữa lượt; mọi mục FE dưới đây chạy trên bản mới) · DB MỚI seed embedding thật (qwen3), chat/chấm LLM giả · kịch bản: `DEMO_SCRIPT.md` @origin/main (BA 8ab42c30, P-11-112/114).
+
+Cách chạy: như lượt 1 — 5 Chromium headless riêng (Admin, Giảng viên, SV B `sv.kha` 375, SV D `sv.moi` 375, SV X 375 cho `sv.nguyco`/`sv04`/`sv05`); camera không dùng được ⇒ «quét» = mở đúng `qr_url` lấy từ API `/checkin-windows/{id}/display` (tuổi ≤ 10 s). Không seed / reset / lệnh admin ghi dữ liệu; DB chỉ đọc. Bằng chứng: `evidence-gate-p10-r2/` (ảnh + `rec.json`).
+
+## L2.1 Kết quả
+
+**51 mục chấm: 44 P · 3 F · 4 N.** Lượt 1: 39 P · 9 F · 4 N.
+
+| Nhóm | P | F | N | Ghi chú |
+| --- | --- | --- | --- | --- |
+| Bước 1 | 4 | 0 | 0 | đạt |
+| Bước 2 | 3 | 0 | 0 | đạt; D1 «Chuyên cần»/«Phát biểu» (GP10-01 ĐÓNG) |
+| Bước 3 | 6 | 0 | 0 | đạt; chuông ở /chat (GP10-03 ĐÓNG); D3 chậm 25,6 s (embedding thật) |
+| Bước 4 | 5 | 1 | 1 | 4.1 N: buổi 10 hôm nay 09:00 chưa bắt đầu; 4.6 F: /me không có hàng «Điểm danh lúc» cho buổi hôm nay có mặt; 4.2b GP10-02 5/5 khung ĐÓNG |
+| Bước 5 | 5 | 1 | 0 | 5.1 F: «Đang chấm» không có dấu thời gian nộp |
+| Bước 6 | 4 | 0 | 1 | 6.5 N: BT03 chưa gắn cột điểm (seed) |
+| Bước 7 | 2 | 1 | 0 | ĐỎ→XANH một phần: chủ đề đúng tài liệu, GP10-05 đạt; 7.2 F: câu mẫu chỉ 1 (seed trùng) |
+| Bước 8 | 2 | 0 | 0 | đạt |
+| Hội đồng hỏi | 6 | 0 | 2 | H5 N (BT04 chưa quá hạn), H7 N (trần 3 báo cáo/giờ…) |
+| Còn giờ | 7 | 0 | 0 | đạt |
+
+**Dò lại các lỗi đã sửa (PM yêu cầu):**
+
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| GP10-01 (D1 khối «Chuyên cần»/«Phát biểu») | **ĐÓNG — P** | mục 2.1: Vắng 2 · Có mặt 6 · Muộn 1 · Có phép 0 · «Buổi vắng gần đây» 28/10, 07/10; «Số lần phát biểu» 2 · «Điểm cộng» 0,50 (khớp sổ); không khoá tiếng Anh/JSON, không tiêu đề «Kết quả»; 375 và 1440 px: `b2-1-d1-block-375.png`, `b2-1-d1-block-1440.png` |
+| GP10-02 / TC-AS08-30 (P-11-113) | **ĐÓNG — P** | mục 4.2b: 1024/1366/1440/1920/375 đều có mã ngắn NGAY DƯỚI QR, trong bề ngang QR, scrollW ≤ innerWidth, scrollH ≤ innerHeight, 0 phần tử tràn; `b4-4-display-{1024,1366,1440,1920,375}.png` |
+| GP10-03 (chuông ở /chat) | **ĐÓNG — P** | mục 3.5: bấm «Giảng viên đã trả lời…» khi đang ở /chat → `?session=…`, phiên hiện đủ trong 0,4 s, nhãn «Giảng viên · TS. Lê Thu Hà» |
+| GP10-05 (Bước 7 kỳ 30 ngày) | **ĐÓNG — P** | mục 7.1: #1 «Cảnh báo học vụ và bảo lưu» (Quy chế học vụ), #2 «Cơ chế hoạt động của ransomware» (Network Security Threats · Tuần 3), honeypot/firewall cùng chương; «Thời tiết Hà Nội hôm nay» KHÔNG có chương/tuần |
+| (GP10-04 đã rút) | — | một lần bấm «Mở điểm danh» vào thẳng màn chiếu CÙNG tab (AC1) |
+
+## L2.2 Thời gian
+
+Chỉ đo được độ trễ hệ thống; lời dẫn người trình bày không đo được ⇒ không kết luận được «≤ 15 phút». Toàn bộ lượt chạy tự động (gồm chuẩn bị #3, chụp ảnh, đọc DB) ≈ 24 phút đồng hồ — không phải thời gian trình bày.
+
+| Việc | Đo được |
+| --- | --- |
+| Chuẩn bị #3 «Chấm tất cả» BT03 (14 bài chưa chấm; 8 bài đã có) | xong < 5,8 phút (lượt 1: 22 bài ≈ 12–13 phút) |
+| D1 (có «Chuyên cần») | 1,0 s |
+| D2 | 0,9 s |
+| D3 → «AI chưa đủ chắc chắn» + «Đang chờ giảng viên» | **25,6 s** (lượt 1: 2,1 s) — embedding thật qua mạng ~20 s ở bước truy xuất |
+| Chuông → phiên chat có câu trả lời GV | 0,4 s |
+| Mở điểm danh → màn chiếu | ≈ 3 s |
+| Đóng → Đánh vắng → Muộn → +0,25 (4.4) | ≈ 28–42 s (gồm độ trễ công cụ) < 60 s |
+| Lưu điểm danh | 2,6 s |
+| Tải quy chế → bản nháp công thức | 4,4 s |
+| Chọn «30 ngày» → danh sách chủ đề | tức thì (báo cáo sinh sẵn) |
+
+## L2.3 Chuẩn bị — trạng thái demo lúc bắt đầu
+
+| # | Việc | Thực tế |
+| --- | --- | --- |
+| 3 | Bài chấm nháp BT03 | 8 bài đã duyệt (seed), 14 chưa chấm → QC bấm «Chấm tất cả» bằng giao diện (đã chọn Bài tập 03 trước; không chọn thì nút khoá «Chọn một bài tập trước.»); xong < 5,8 phút; 11 bài «Cần xem kỹ», SV B «Hai lượt chấm lệch hơn 1 điểm» ở vị trí 11/11 |
+| 4 | Báo cáo lỗ hổng | PM đã sinh sẵn: 761987 (06:41, 30 ngày, 79 câu · 20 SV · 32 cụm) và 761988 (06:39, 43 câu · 20 SV); QC KHÔNG bấm «Tạo báo cáo mới» |
+| 5 | Điểm danh bằng mã | công tắc 761987 đang TẮT → QC bật bằng UI (`/class/settings`). Có Buổi 10 = HÔM NAY 25/11 09:00–11:30 (seed theo ngày chạy) ⇒ khác lượt 1; «Mở điểm danh» dùng được từ 07:10 (trước giờ học), người quét ra «Có mặt», không «Muộn» |
+| 8 | Mailpit hộp thư trống | còn 36 thư cũ: KHÔNG xoá (dữ liệu PM) |
+
+## L2.4 Kết quả chi tiết từng mục
+
+| Mục | Việc | Kết quả | Ghi chú | Ảnh (`evidence-gate-p10-r2/`) |
+| --- | --- | --- | --- | --- |
+| 1.1 | Admin /admin/courses: hai lớp, đã gán giảng viên | P | 2 lớp 761987, 761988 hiển thị: 761988	INT1006 / 	TS. Lê Thu Hà	24 / 30	 / 761987	INT1006 / 	TS. Lê Thu Hà	30	 | `b1-1-admin-courses.png` |
+| 1.2 | Teacher chuông: phân công lớp + mã BX4P9TW; «Thiết lập lớp mới» ghi tên lớp 2 | P | Chuông có «Bạn được phân công lớp An ninh mạng – 761988» và «…761987»; Hôm nay (lớp 761988) có «Thiết lập lớp mới» 3/4 bước. LỆCH CHỮ nhỏ (như lượt 1): dòng chuông không kèm mã BX4P9TW; bộ chọn lớp GV mở ở lớp gần nhất (761988 lúc đầu), kịch bản ghi 761987 | `b1-2-teacher-bell.png` |
+| 1.3 | SV D (375) /join/BX4P9TW: xem trước + Tham gia lớp → chờ duyệt | P | Xem trước: «An ninh mạng · 761988 · TS. Lê Thu Hà · HK1 2026–2027», «Lớp này cần giảng viên duyệt.»; sau bấm: Đã gửi yêu cầu, chờ giảng viên duyệt. | `b1-3-svd-after.png` |
+| 1.4 | Teacher /class/members: duyệt SV D; 3 yêu cầu khác vẫn chờ | P | Tab «Chờ duyệt» 4 (sv.moi + sv52–54); sau «Duyệt» sv.moi: còn 3 yêu cầu chờ (sv54@edupilot.local, sv53@edupilot.local, sv52@edupilot.local) | `b1-4-after-approve.png` |
+| 1.x | Còn giờ B1: SV D tải lại / → bộ chọn lớp có 761988; không còn ô nhập mã | P | Đầu trang bộ chọn lớp hiện «761988 ; Buổi 4 · An ninh mạng ; Buổi 5 · An ninh mạng» (lớp 761988 sau khi được duyệt); ô nhập mã tham gia: không còn; «Chưa có lớp» biến mất | `x-b1-svd-reload.png` |
+| 2.1 | SV B (375 + 1440) D1 — dò GP10-01 trên FE mới | P | «Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI»; khối «Chuyên cần»: Vắng 2 · Có mặt 6 · Muộn 1 · Có phép 0 · «Buổi vắng gần đây» 28/10, 07/10; khối «Phát biểu»: Số lần phát biểu 2 · Điểm cộng 0,50 (số khớp sổ). Không còn khoá tiếng Anh/JSON/tiêu đề «Kết quả»; không có [[SV_1]]; D1 phản hồi 1,0 s | `b2-1-d1-block-375.png` |
+| 2.2 | SV B bấm Hữu ích | P | Nút đổi tại chỗ → «Đã ghi nhận · Hoàn tác» (dòng tĩnh), không toast nổi | `b2-2-helpful.png` |
+| 2.3 | SV B gõ D2 (hỏi về SV C) | P | «Mình chỉ xem được dữ liệu của chính bạn.» — không có con số nào về SV C; 0,9 s | `b2-3-d2.png` |
+| 3.1 | SV B gõ D3 → «AI chưa đủ chắc chắn» + «Đang chờ giảng viên · vừa gửi» | P | Có «AI chưa đủ chắc chắn về câu này» và «Đang chờ giảng viên · vừa gửi». QUAN SÁT: từ gửi tới thấy kết quả 25,6 s (lượt 1: 2,1 s) — embedding thật qwen3 qua mạng ~20 s ở bước truy xuất; câu dẫn của LLM giả ghi «Mình đã tra sổ của bạn…» (giả, không tính) | `b3-1-d3.png` |
+| 3.2 | GV mở ticket mới nhất ở lọc Open: câu hỏi gốc, thời gian chờ, lý do | P | Hàng chờ có 3 ticket; mới nhất «Bùi Thanh Khải · 0 phút · Thi cuối kỳ…» trạng thái «Đang chờ», độ tin cậy 0,16; có nút Nhận / Đóng không trả lời | `b3-3-ticket-open.png` |
+| 3.3 | GV bấm Nhận | P | «Đã nhận · 0 phút»; không hiện tên người nhận (đúng P-11-112); có Gửi trả lời / Bỏ nhận / Đóng không trả lời. Hai người cùng Nhận → 409: N (chỉ 1 GV) | `b3-4-claimed.png` |
+| 3.4 | GV gõ D4 → Gửi trả lời → Answered | P | Sau «Gửi trả lời» ticket chuyển «Đã trả lời»: Đã trả lời / Đã trả lời · 0 phút | `b3-5-answered.png` |
+| 3.5 | SV B mở chuông ở /chat → câu trả lời GV trong phiên chat (dò GP10-03) | P | FE mới (a156331f): bấm «Giảng viên đã trả lời…» khi đang ở /chat → URL ?session=…, phiên hiện đủ trong 374 ms, có câu trả lời của GV; không còn khung trống. Nhãn người trả lời: xem dòng sau | `b3-6b-after-bell.png` |
+| 3.6 | Mailpit: thư mới nhất tới sv.kha chứa câu trả lời + link về app | P | Thư «Giảng viên đã trả lời câu hỏi của bạn» tới sv.kha@edupilot.local: câu hỏi gốc, «Giảng viên TS. Lê Thu Hà trả lời: …», link https://localhost/chat?session=…&m=… . Lưu ý: Mailpit còn 36 thư cũ (chuẩn bị #8 «hộp thư trống» không làm: không xoá dữ liệu PM) | `b3-7-mailpit-open.png` |
+| 4.1 | GV chạm việc «Điểm danh buổi đang diễn ra – 761987» ở Hôm nay | N | Chưa kiểm được: lúc 07:12 buổi 10 (25/11 09:00–11:30) chưa bắt đầu nên «Hôm nay» chưa có việc điểm danh, chỉ có «Sắp tới: Buổi 10 · Hôm nay 09:00 · P.302». Đã chạy Bước 4 sớm (07:10) nên không còn kiểm lại được trong buổi; cần chạy trong 09:00–11:30 trên DB chưa điểm danh buổi 10 | `b4-1-today.png` |
+| 4.2 | GV /attendance Buổi 10 · Hôm nay: Mở điểm danh → màn chiếu /attendance/display | P | 1 lần bấm «Mở điểm danh» (Buổi 10 · 25/11 09:00–11:30; bấm lúc 07:10, trước giờ học vẫn mở được) → vào /attendance/display CÙNG tab (AC1, GP10-04 đã rút): QR, mã ngắn «MXA 1K2» NGAY DƯỚI QR, số đã điểm danh «0», «còn 09:45», Đóng điểm danh / Thoát. QUAN SÁT: số «0» không có nhãn chữ «đã điểm danh» | `b4-4-display-1440.png` |
+| 4.2b | GP10-02 / TC-AS08-30 (P-11-113): mã ngắn NGAY DƯỚI QR, trong bề ngang QR, không cuộn — 1024/1366/1440/1920/375 | P | 1024×768: QR 32,43,576,587; mã 109,644,500,725 (dưới QR true, trong bề ngang true); scrollW=1024≤1024, scrollH=768≤768 / 1366×768: QR 32,43,576,587; mã 109,644,500,725 (dưới QR true, trong bề ngang true); scrollW=1366≤1366, scrollH=768≤768 / 1440×900: QR 32,43,684,696; mã 124,759,592,857 (dưới QR true, trong bề ngang true); scrollW=1440≤1440, scrollH=900≤900 / 1920×1080: QR 32,44,831,844; mã 145,916,719,1036 (dưới QR true, trong bề ngang true); scrollW=1920≤1920, scrollH=1080≤1080 / 375×812: QR 32,70,357,395; mã 78,433,311,482 (dưới QR true, trong bề ngang true); scrollW=375≤375, scrollH=812≤812. 5/5 khung đạt; nút Đóng điểm danh/Thoát trong khung, 0 phần tử tràn | `b4-4-display-375.png` |
+| 4.3 | 2 SV quét QR (mở qr_url từ màn chiếu, ≤10 s tuổi): «Đã điểm danh hh:mm»; số trên màn chiếu tăng | P | Camera hệ thống không dùng được (headless): mở đúng qr_url «/checkin?c=…#<window>.<…>» lấy từ API display (tuổi 8 s và 1 s) cho sv.kha (B) và sv.nguyco: mỗi người thấy «Điểm danh · Đã điểm danh 07:05», không có nút nào; màn chiếu 0 → 2 sau ≤ 10 s | `b4-5-scan-sv.kha.png` |
+| 4.4 | GV (375) /attendance: Đóng; Đánh vắng chưa quét; Muộn cho 1; phát biểu +0,25 cho SV B (<60 s) | P | Sau «Đóng»: «Đã ghi 4 có mặt · 0 muộn · 26 chưa điểm danh» (buổi 10, chưa tới 09:00 vẫn «Có mặt»); «Cần xem (3)» = 3 SV «Cùng máy với bạn khác» (sv.nguyco, sv04, sv05) + chip «Nhập mã» (sv04, sv05); nút «Đánh vắng 26 SV chưa điểm danh» → hộp «Đánh vắng 26 sinh viên?» → 26 dòng «Vắng»; chạm tên Bùi Khánh Việt → radio Có mặt/Muộn/Vắng phép/Vắng → «Muộn»; «Ghi phát biểu · Bùi Thanh Khải» → dòng «+1 · +0,25×1»; mỗi SV quét có «Điểm danh lúc hh:mm»; sinh viên chưa quét «Chưa điểm danh». Toàn bộ thao tác ≈ 42 s (<60 s ✔) | `b4-6-after-marks.png` |
+| 4.5 | GV Lưu điểm danh: xác nhận tại chỗ, không toast «Thành công» | P | Đã lưu 07:08 / Đã lưu điểm danh · 30 sinh viên · vắng 25; Buổi 10 trong chọn buổi: Buổi 10 · 25/11 · Đã điểm danh; toast: «Đã lưu điểm danh · 30 sinh viên · vắng 25» | `b4-7-saved.png` |
+| 4.6 | SV B (375) /me: hàng buổi hôm nay «Điểm danh lúc hh:mm»; chuyên cần + điểm cộng thêm +0,25; giải trình phép tính | F | ĐẠT: «Điểm cộng 0,75 · tối đa 1» (0,50 → 0,75), «Phát biểu 3 lần · +0,75 · 25/11 ×3», giải trình phép tính («Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5», «7,75 → 8,5»), trang cao 1 516 px ≤ 1 600. KHÔNG ĐẠT: không có hàng «Buổi 10 · 25/11 … Điểm danh lúc 07:05»: RealMe.tsx chỉ liệt kê buổi KHÁC «Có mặt» (Buổi 6, 4, 3), hàng «Điểm danh lúc» chỉ hiện cho buổi Muộn/Vắng có lượt quét; buổi hôm nay «Có mặt» chỉ nằm trong câu «có mặt 8/10 buổi». Lệch kịch bản/SRS 411 vs UI — Thấp | `b4-8-me-375.png` |
+| 5.1 | SV B (375) mở Bài tập 03: đã nộp, dấu thời gian, nhãn nộp muộn, đang chấm, không điểm nháp | F | Có «Đang chấm · Nộp muộn 1 ngày» và KHÔNG có điểm nháp (✔) nhưng KHÔNG có dấu thời gian nộp: khi bài ở trạng thái GRADING (sau chuẩn bị #3) StudentAssignment.tsx chỉ in «Đang chấm{lateTag}», dấu thời gian chỉ có ở trạng thái SUBMITTED («Đã nộp CN 08/11 · 20:04…», lượt 1). Lệch kịch bản vs UI — Thấp; PM chốt sửa chữ kịch bản hay UI | `b5-1-assignment-sv-submission.png` |
+| 5.2 | GV /grading Hàng chờ, lọc mặc định «Cần xem kỹ»+«Chưa duyệt»: bài SV B + lý do cờ | P | 11 bài; dòng Bùi Thanh Khải: «Hai lượt chấm lệch hơn 1 điểm», 6,50, Chưa duyệt — ở vị trí 11/11 (xếp theo giờ nộp). Kịch bản mới (#3) đã ghi «không nhất thiết ở đầu danh sách» ⇒ đạt | `b5-2-queue.png` |
+| 5.3 | GV /grading/[id]: đọc bài + 4 tiêu chí; sửa điểm lệch + 1 nhận xét; tổng tính lại ngay | P | Trái: bài nộp; phải: 4 tiêu chí mỗi tiêu chí có đoạn trích “…”; cảnh báo ở «Phân tích tấn công»: «Lệch 1,5 điểm so với lượt 2 (1,00 và 2,50)»; sửa điểm 1,00→2,00 + nhận xét: Tổng điểm 6,50 → 7,50 ngay (đã trừ nộp muộn 1 ngày) | `b5-3-edited.png` |
+| 5.4 | GV bấm Duyệt bài → Đã duyệt | P | Đã duyệt · / Đã duyệt 1/11 / Đã duyệt | `b5-4-approved.png` |
+| 5.5 | GV chọn bài vừa duyệt → Công bố | P | Hộp xác nhận «Công bố 1 bài · 1 sinh viên nhận thư · không tính vào sổ điểm (bài chưa gắn vào cột điểm)» → «Công bố»; lọc «Đã công bố» có dòng Bùi Thanh Khải. SEED: BT03 chưa gắn cột điểm ⇒ điểm không vào sổ (ảnh hưởng 6.5). Chỉ GV thấy hành động: kiểm riêng ở TA/SV: N | `b5-5-published.png` |
+| 5.6 | SV B tải lại /assignments/[id]: điểm, nhận xét theo tiêu chí, đoạn trích | P | «Kết quả 7,50 / 10,00»; 4 tiêu chí «2,00 / 2,50» + nhận xét (kể cả câu GV sửa «Cần thêm bằng chứng về kỹ thuật khai thác khoá SAML.») + đoạn trích từ bài của chính SV | `b5-6-sv-result.png` |
+| 6.1 | GV /gradebook lớp 2: banner công thức chưa xác nhận; Chốt điểm khoá + lý do | P | Banner «Công thức điểm chưa xác nhận»; «Chốt điểm» disabled, mô tả/tooltip «Chưa có công thức điểm đã xác nhận» | `b6-1-gradebook-lop2.png` |
+| 6.2 | GV tải quy-che-lop2.pdf ở /gradebook/scheme lớp 2 | P | Tiến độ xử lý nền ≈ 4.353 s → «Bản nháp»: Giữa kỳ 25% / Bài thực hành 25% / Thi cuối kỳ 50% (Tổng 100%), điểm cộng +0,25/lần phát biểu (tối đa +1,5), điểm trừ −0,5/buổi vắng (miễn 1), mỗi mục kèm «Trang n»; «Còn 1 mục chưa rõ: làm tròn» (chặn xác nhận) | `b6-2-draft.png` |
+| 6.3 | GV điền D5 (làm tròn 0,1) → Xác nhận công thức → hộp thoại hậu quả → xác nhận | P | Chọn «Làm tròn đến 0,1» → nút mở khoá; hộp thoại «Áp cho 25 sinh viên · điểm học phần của 0 sinh viên sẽ đổi … · 0 điểm đã nhập được giữ · … bị bỏ»; sau xác nhận: Đã xác nhận · Hôm nay, 06:57 | `b6-3-confirmed.png` |
+| 6.4 | GV /gradebook lớp 2 sau xác nhận: banner biến mất, Chốt điểm mở | P | Banner «chưa xác nhận»: false; Chốt điểm states=[] | `b6-4-gradebook-lop2-after.png` |
+| 6.5 | GV /gradebook lớp 1: giải trình SV B có +0,25 (bước 4) và điểm BT03 (bước 5); dòng «điểm chính thức…» | N | ĐẠT: «Điểm cộng min(0,75; 1) = 0,75» (đã gồm +0,25 từ Bước 4; trước Bước 4 là 0,5), «Điểm trừ», «Điểm quá trình 7,75 + 0,75 → 8,5», «Điểm học phần thô 7,3 → làm tròn 0,5 = 7,5», chữ B; có «Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.». KHÔNG KIỂM ĐƯỢC: điểm Bài tập 03 (7,50) không là thành phần nào vì BT03 chưa gắn vào cột điểm (dữ liệu seed; hộp công bố đã báo «không tính vào sổ điểm») | `b6-5-explain-after4.png` |
+| 7.1 | GV /insights 761987 kỳ «30 ngày»: danh sách «Chủ đề nên dạy lại» + GP10-05 | P | Báo cáo 25/11 06:41 · 79 câu · 20 SV · 32 cụm. Top: #1 «Cảnh báo học vụ và bảo lưu» (Quy chế học vụ; 6 SV · 7 câu), #2 «Cơ chế hoạt động của ransomware» (Network Security Threats · Tuần 3; 5 SV · 6 câu), #3 «Thời tiết Hà Nội hôm nay» KHÔNG có chương/tuần ✔ (GP10-05). Mỗi chủ đề có «Nên làm». QUAN SÁT (không chặn): #4 và #8 tên «Nhóm chưa có câu hỏi» (cụm 0 câu mẫu: #4 cong/gom/nau = nhóm lạc đề «công thức nấu…», 2 SV «Ít người hỏi»; #8 3 SV gắn «Quy chế học vụ») HIỆN TRÊN MÀN; từ hạng 9 trở đi tên là từ khoá («cross, scripting, site»); hạng 3 là chủ đề lạc đề «Thời tiết» đứng trên chủ đề ôn thật; 3 cụm 1-SV gắn chương «Forecasting (QMB ch. 6b)» | `b7-1-insights-30.png` |
+| 7.2 | GV mở «Câu hỏi mẫu» của chủ đề ransomware: 3–5 câu ẩn danh, không tên/MSSV; chủ đề «Ít người hỏi» không có mẫu | F | Câu hỏi mẫu của «Cơ chế hoạt động của ransomware» chỉ có 1 câu («Ransomware hoạt động như thế nào?»), không phải 3–5: seed có 5 câu giống hệt (distinct = 1; chat_messages: «Ransomware hoạt động như thế nào?» ×5) + 1 câu khác không được chọn. Ẩn danh ✔ (không tên/MSSV); chủ đề «Ít người hỏi» (#4, <3 SV) không có mẫu và không «Câu hỏi mẫu» ✔. Nguyên nhân dữ liệu seed — Thấp; PM chốt sửa seed hay chữ «3–5 câu» | `b7-2-examples-ransomware.png` |
+| 7.3 | GV «Tạo thread ghim» chủ đề ransomware → form tại chỗ → Đăng | P | Form mở TẠI CHỖ dưới chủ đề (Tiêu đề «Chủ đề đang vướng: Cơ chế hoạt động của ransomware», Nội dung điền sẵn, Đăng/Huỷ), không hộp thoại; sau «Đăng» thread ghim xuất hiện ở /threads: true | `b7-3-posted.png` |
+| 8.1 | Admin /admin/audit (24 giờ): dòng vừa tạo ở Bước 4–6 với thời điểm, người làm kèm vai, thực thể, hành động, khoá đổi | P | Có: attendance (complete / save / absent_unchecked), participation create, checkin_window.open/close, grading_results (grading_result.edit/review/publish), grade_schemes (extract/edit/confirm) — mỗi dòng giờ, «TS. Lê Thu Hà · Giảng viên», thực thể, hành động, khoá đổi (changes, counts, points, …); không giá trị cũ/mới. Ngoài ra gradebook.export, escalation_ticket.*, audit_log VIEW_LIST (chính việc mở nhật ký) | `b8-1-audit-final.png` |
+| 8.2 | Admin /admin/audit: ô «Thực thể» gõ grade_schemes → chỉ dòng công thức của Bước 6 | P | 6 dòng, toàn bộ grade_schemes extract/edit/confirm (06:57 25-11, giảng viên); kịch bản đã sửa tên thực thể (lượt 1 là F) | `b8-2-audit-filter.png` |
+| H1 | Hội đồng hỏi B1: nhập sai mã tham gia | P | sv.nguyco vào /join/ZZ2K4MQ: 5 lần liên tiếp cùng một thông báo «Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.»; lần 6: «Bạn đã thử quá nhiều lần. Thử lại sau 09:46» (429 RATE_LIMITED, retry_after ≈ 580 s, Redis TTL 580 s = 10 phút; chữ «09:46» là đếm ngược mm:ss, dễ đọc nhầm thành giờ — Thấp). Mã tạo lại → mã cũ bị từ chối: không kiểm (không đổi mã lớp trên demo) | `h1-wrong-code.png` |
+| H3 | Hội đồng hỏi B3: ticket chờ quá 72 giờ nổi lên Hôm nay | P | Hôm nay của GV (761987): «Gấp · 5 — Câu hỏi chờ giảng viên: 1 câu hỏi chờ quá 72 giờ làm việc · lâu nhất 145 giờ» ✔. Hai người cùng «Nhận» → 409: N (chỉ 1 GV); mail lỗi thử lại 3 lần: N (mail mock) | `b3-2-today-761987.png` |
+| H4a | Hội đồng hỏi B4: mã QR cũ hết hạn | P | qr_url cũ (41 s, >2 chu kỳ 10 s) mở bằng sv04: «Mã đã hết hạn. Quét lại mã trên màn chiếu.» | `h4a-expired.png` |
+| H4b | Hội đồng hỏi B4: SV không thuộc lớp quét QR hợp lệ → «Bạn không thuộc lớp này.» | P | sv.moi (chỉ thuộc 761988) quét QR hợp lệ của 761987 → Bạn không thuộc lớp này. (kịch bản mới P-11-112: câu «Bạn không thuộc lớp này.» 403, không nêu lớp khác) | `h4b-svd-outsider.png` |
+| H4c | Hội đồng hỏi B4: hai SV cùng một điện thoại → dòng bị gắn cờ «Cần xem» | P | Cùng trình duyệt: sv.nguyco (quét), sv04 và sv05 (nhập mã) → 3 dòng ở «Cần xem (3)» với chip «Cùng máy với bạn khác» (sv04, sv05 thêm chip «Nhập mã»), điểm danh lúc 07:05/07:06/07:07; sv.kha (máy khác) không bị cờ. (Quan sát: SV thuộc 2 lớp phải chọn đúng lớp trước khi nhập mã: ở lớp khác báo «Mã không đúng hoặc đã hết hạn.») | `b4-6-need-review.png` |
+| H5 | Hội đồng hỏi B5: nộp sau hạn khi không cho nộp muộn → chặn | N | Không kiểm được trên demo mới: Bài tập 04 có hạn 02/12 (chưa quá hạn) và nút «Nộp bài» hoạt động; lượt 1 hạn đã qua. (Nội dung BT04 vẫn là bản sao BT03: ghi «Nộp muộn: được, trừ 0,5 điểm/ngày», «[BT03] <MSSV>» — Thấp, seed.) Worker chết giữa chừng: N |  |
+| H7 | Hội đồng hỏi B7: khoảng 7/14/30/toàn kỳ; chưa đủ dữ liệu 409; 3 báo cáo/giờ; hai người cùng bấm | N | Có 4 nút kỳ 7 / 14 / 30 ngày / Toàn kỳ nhưng chúng chỉ chọn kỳ cho lần «Tạo báo cáo mới»: danh sách luôn là báo cáo mới nhất (30 ngày, 06:41) bất kể chip, không ghi kỳ của báo cáo đang xem (QUAN SÁT Thấp). 409 «Chưa đủ dữ liệu», trần 3 báo cáo/giờ, hai người cùng bấm: không kiểm (PM dặn không bấm «Tạo báo cáo mới»; 1 GV)  | `h7-761988-toan-ky.png` |
+| H8 | Hội đồng hỏi B8: chỉ Admin vào /admin/audit; chính việc mở nhật ký được ghi | P | GV và SV vào /admin/audit: «Bạn không có quyền xem màn này» (UI); Admin lọc «Thực thể» = audit_log → 4 dòng VIEW_LIST (việc mở nhật ký được ghi; ô lọc cần tên đầy đủ «audit_log», gõ «audit» → 0 dòng). API 403 cho TA: không kiểm | `h8-admin-audit-self.png` |
+| x.B3 | Còn giờ B3: SV B bấm «Đã rõ» → câu hỏi được đóng | P | Đã đóng / Đã đóng / Đã đóng / Hoàn tác | `x-b3-da-ro.png` |
+| x.B4a | Còn giờ B4: SV không quét được nhập mã ngắn dưới QR → Đã điểm danh | P | sv04 /checkin: ô «Mã điểm danh» + nút «Điểm danh»; nhập «6YN PH2» → Đã điểm danh 07:06 (chip «Nhập mã» ở /attendance: kiểm ở bước đóng) | `x-b4a-code-sv04.png` |
+| x.B4b | Còn giờ B4: GV (375) tắt mạng → chạm 1 ô → bật mạng: xếp hàng rồi tự đồng bộ, không mất | P | Offline (emulate): chạm «Ghi phát biểu · Đỗ Bảo Hải» → «Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.»; bật mạng → sau ≤ 5 s «Đã lưu 07:10»; DB: participation_events +0,25 của Đỗ Bảo Hải lúc 07:10:11 (đúng 1 dòng, không trùng) | `x-b4b-online.png` |
+| x.B6 | Còn giờ B6: Xuất XLSX sổ điểm lớp 1 | P | Menu «Thêm hành động» → «Xuất XLSX» tải so-diem.xlsx (8,4 KB): tiêu đề An ninh mạng / 761987 / «Bản xem trước — chưa chốt», cột MSSV, Họ tên, Giữa kỳ, Kiểm tra hằng tuần, Thi cuối kỳ, Điểm cộng, Điểm trừ, Điểm quá trình, …, Điểm học phần; có dòng «Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.» | `x-b6-xlsx.png` |
+| x.B7 | Còn giờ B7: Menu ⋯ → xuất Markdown báo cáo lỗ hổng | P | Menu «Thêm hành động» có «Xuất Markdown» / «Xuất PDF»; tải lo-hong-kien-thuc.md (3,8 KB): bảng chủ đề 1., 2., 3.… số SV/câu, khuyến nghị, câu mẫu; không có tên/MSSV/email (kiểm regex). Tệp ghi «30 ngày gần nhất» | `x-b6-xlsx.png` |
+| x.B7b | Còn giờ B7: /insights đổi lớp 761988 → chủ đề TCP/UDP đứng đầu; hai lớp không lẫn | P | 761988: báo cáo 25/11 06:39 · 43 câu · 20 SV; hạng 1 «So sánh khái niệm mạng» (16 SV; câu mẫu gồm «UDP khác TCP ở điểm nào?», HTTP/HTTPS, Router/switch, IP/MAC), hạng 3 «Quy trình giao thức mạng» (TCP bắt tay ba bước, DNS). Không có chủ đề mã độc / quy chế của 761987 → dữ liệu hai lớp không lẫn. Tên do LLM đặt nên không phải chữ «TCP / UDP» cứng (kịch bản mới không đọc cứng) | `x-b7b-insights-761988.png` |
+
+## L2.5 Phát hiện còn lại (PM chốt mức)
+
+| # | Mục | Mức đề xuất | Mô tả | Gợi ý |
+| --- | --- | --- | --- | --- |
+| G1 | 7.2 | Thấp (seed) | Câu mẫu của chủ đề ransomware chỉ có 1 câu: seed có 5 câu giống hệt («Ransomware hoạt động như thế nào?» ×5) nên distinct = 1; kịch bản ghi «3–5 câu» | sửa seed (thêm câu khác nhau) hoặc đổi chữ kịch bản |
+| G2 | 7.1 (quan sát) | Thấp–TB | Top 4 của 761987 có «Nhóm chưa có câu hỏi» (#4: cụm lạc đề «công thức nấu…», 2 SV «Ít người hỏi»; #8 cũng tên đó, 3 SV, gắn «Quy chế học vụ», 0 mẫu) HIỆN TRÊN MÀN; hạng 9+ tên là từ khoá («cross, scripting, site»); #3 là chủ đề lạc đề «Thời tiết» đứng trên chủ đề ôn thật; 3 cụm 1-SV gắn chương «Forecasting (QMB ch. 6b)» | đặt tên dự phòng từ câu đại diện hoặc ẩn cụm 0 mẫu; người trình bày đừng cuộn quá hạng 3 |
+| G3 | 4.6 | Thấp | /me không có hàng «Điểm danh lúc hh:mm» cho buổi hôm nay «Có mặt» (`RealMe.tsx` chỉ liệt kê buổi khác Có mặt) — lệch kịch bản/SRS dòng 411 | PM chốt: sửa kịch bản hay UI |
+| G4 | 5.1 | Thấp | Khi bài ở trạng thái «Đang chấm» (đúng luồng sau chuẩn bị #3) trang SV không có dấu thời gian nộp, chỉ «Đang chấm · Nộp muộn 1 ngày» | như G3 |
+| G5 | 3.1 (quan sát) | Thấp | D3 mất 25,6 s với embedding thật (lượt 1: 2,1 s); người trình bày có thể chờ lâu ở Bước 3; SLO D47 (sự kiện SSE đầu ≤ 300 ms) không đo | PM xem embedding cache / làm nóng |
+| G6 | H1 | Thấp | «Thử lại sau 09:46» là đếm ngược mm:ss (retry_after ≈ 580 s), dễ đọc nhầm thành giờ | đổi thành «sau 10 phút» |
+| G7 | H7 (quan sát) | Thấp | Chip 7/14/30 ngày/Toàn kỳ chỉ chọn kỳ cho lần «Tạo báo cáo mới»; danh sách luôn là báo cáo mới nhất và không ghi kỳ | ghi kỳ vào dòng «Báo cáo …» |
+| G8 | 4.2 (quan sát) | Thấp | Màn chiếu: số «0»/«2» không có nhãn chữ «đã điểm danh» | – |
+| G9 | H4c (quan sát) | Thấp | SV thuộc 2 lớp nhập mã ngắn khi đang xem lớp khác → «Mã không đúng hoặc đã hết hạn.» (không gợi ý đổi lớp) | tự chọn lớp theo cửa sổ đang mở hoặc gợi ý |
+| G10 | seed (đã biết) | Thấp | BT04 hạn 02/12, nội dung vẫn là bản sao BT03 («[BT03] <MSSV>», «Nộp muộn: được…») ⇒ H5 không kiểm được; BT03 chưa gắn cột điểm ⇒ 6.5 N | seed |
+
+Đã biết (PM dặn, KHÔNG tính lỗi): thread «· Phreaker» SKIPPED; 2 thread lạc đề (bóng đá, cà phê muối); 5 thread tri thức ẩn/bỏ ẩn trong nhật ký kiểm duyệt (thấy ở /admin/audit: `thread.hide/unhide`, `escalation_ticket.knowledge_saved`); «Nhóm chưa có câu hỏi» xem G2.
+
+## L2.6 Dữ liệu QC TẠO thêm trên demo (PM quyết giữ / dọn)
+
+| # | Dữ liệu | Chi tiết |
+| --- | --- | --- |
+| D1 | `sv.moi` vào lớp 761988 | gửi yêu cầu từ `/join/BX4P9TW`, GV duyệt (còn 3 yêu cầu chờ: sv52–54) |
+| D2 | Chat riêng `sv.kha` (761987) | 1 phiên: D1, D2, D3; 1 ticket «Thi cuối kỳ… A4» đã nhận → trả lời → SV bấm «Đã rõ» (CLOSED); 1 thư tới sv.kha trong Mailpit; 1 «Hữu ích» |
+| D3 | Công tắc «Điểm danh bằng mã» 761987 | BẬT |
+| D4 | Buổi 10 (25/11) lớp 761987 | 1 cửa sổ check-in mở rồi đóng; 4 lượt (sv.kha, sv.nguyco QR; sv04, sv05 nhập mã); 25 Vắng, 1 Muộn (Bùi Khánh Việt), 5 Có mặt; «Đã điểm danh» (đã lưu) |
+| D5 | Điểm phát biểu +0,25 | Bùi Thanh Khải (sv.kha, 07:08) và Đỗ Bảo Hải (07:10, từ thử offline) |
+| D6 | BT03 lớp 761987 | 14 kết quả chấm nháp (DRAFT) mới; bài sv.kha sửa (6,50→7,50) → duyệt → CÔNG BỐ; SV nhận thư |
+| D7 | Lớp 761988 | tài liệu quy-che-lop2.pdf, công thức ĐÃ XÁC NHẬN (làm tròn 0,1), 25 SV |
+| D8 | Thread ghim 761987 | «Chủ đề đang vướng: Cơ chế hoạt động của ransomware» |
+| D9 | Khoá nhập mã join | `sv.nguyco` bị khoá 10 phút (Redis `ep:join:fail:*`), tự hết ≈ 07:13 |
+| D10 | `audit_log` | thêm các dòng thao tác ở trên + `VIEW_LIST` ×≈6 (mở nhật ký) + `gradebook.export` ×1 |
+| D11 | KHÔNG tạo | báo cáo lỗ hổng mới, bài nộp mới, đổi mã tham gia, đổi mật khẩu, xoá thư Mailpit |
+
+Hoàn tác (gợi ý PM): D3 tắt công tắc; D4 mở khoá lại buổi 10 hoặc seed lại nếu cần demo đúng «Hôm nay có buổi đang diễn ra»; D6 bài sv.kha công bố 7,50 — nếu demo cần trạng thái «chưa công bố» thì không hoàn tác bằng UI được ⇒ seed lại. **Lưu ý demo thật:** Bước 4 và Bước 5 đã bị QC chạy trên chính DB này; muốn trình bày đúng từ đầu cần DB seed lại (buổi 10 «Chưa», BT03 chưa công bố, 761988 chưa xác nhận công thức, sv.moi chưa vào lớp).
+
+---
+
+# Gate P10 — LƯỢT 1 (lưu để đối chiếu): chạy DEMO_SCRIPT.md trên stack demo (main 23c97510)
 
 Người chạy: QC cặp 3 · ngày 25/11/2026 02:20–03:30 (giờ VN) · stack demo `edupilot` (https://localhost, API https://localhost/api/v1, LLM giả, migrate 29, dữ liệu demo của chủ dự án giữ nguyên, bản sao lưu ở `~/Documents/EduPilot-demo-backups/`) · kịch bản: `docs/DEMO_SCRIPT.md` @`origin/main` (v2, 245 dòng).
 
