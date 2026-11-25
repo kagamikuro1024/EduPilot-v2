@@ -56,3 +56,31 @@ Người chạy: QC + chủ dự án (máy thật). Mỗi bước ghi **PASS / F
 
 ## Chốt (P-108-12, PM)
 Chủ dự án **không có máy Android thật**: AC-5, AC-5b, AC-6, AC-9b, AC-11, AC-13, AC-17, AC-19 ghi **KHÔNG KIỂM ĐƯỢC** (không FAIL). Mức 3 kiểm bằng fixture `user_devices` + chuỗi chứng thực mẫu ở `docs/research/poc/attendance-checkin/testdata` (Go test); emulator vẫn kiểm mức 2 (AC-0, 1–4, 7, 8, 9, 12, 14–16, 18).
+
+## Bổ sung P-11-130 (US-AS-15): bước tay trên điện thoại (qc3, 25/11/2026)
+
+Bộ ca đầy đủ ở `tc-mobile-app.md` (mã `TC-MOB-*`); bảng dưới là **trình tự bước tay** để người chạy đi một lượt trên emulator (Pixel, API 35) và iPhone (Simulator / thật), mỗi bước trỏ tới ca có số liệu đo. Ghi **PASS / FAIL / KHÔNG KIỂM ĐƯỢC** vào bảng «Kết quả US-AS-15» cuối mục. Công thức lệnh `R-*` / `S-*` ở `tc-mobile-app.md` mục 3.
+
+| Mã | AC | Bước tay (tóm tắt) | Mong đợi | Ca |
+| --- | --- | --- | --- | --- |
+| **CL-1** | AC1 | Đặt cỡ máy 360, 375, 390, 411, 430 (R-SIZE); ở mỗi cỡ mở `/checkin` qua 6 trạng thái (đang gửi, đã điểm danh, nhập mã, đang quét, lỗi, 429) và `/attendance` của GV; chụp | không cuộn ngang; nút chính và nội dung trong MỘT màn; chữ không cắt dấu; khung camera vuông rộng bằng panel | UIW-01…10, 17…22 |
+| **CL-2** | AC2 | Xoay ngang 667×375, 844×390, 915×412; mở `/checkin`; xoay giữa lúc «Đang gửi» và giữa lúc quét | nút / ô / `Thoát` không bị thanh dưới hay tai thỏ che; khung camera co theo chiều cao; đúng MỘT lượt trong DB; mã đã gõ còn; camera không treo | UIW-11…16, SCN-09, FLW-07 |
+| **CL-3** | AC3 | Bật cutout (R-CUT tall / corner / double / hole), thanh cử chỉ và ba nút (R-NAV); iPhone 15 Safari và PWA, dọc và ngang | tiêu đề, thanh trên, thanh dưới, dock không dưới vùng bị che; lề ngang lớn hơn tai thỏ; không dải trắng dưới đáy | SAF-01…10 |
+| **CL-4** | AC4 | Cỡ chữ 1,3× rồi lớn nhất (R-FONT); Safari phóng 200 %; iOS chữ lớn nhất | không cuộn ngang; không chữ chồng / cắt; dock không che quá 1/3 màn và không che lỗi; nút chạm được | TXT-01…08 |
+| **CL-5** | AC5 | Máy tối (R-DARK-on, S-DARK) + «Override force-dark» + Chrome tối ép buộc | `/checkin` và khung vẫn sáng; AA; ô nhập và `Check` còn; thanh trạng thái đọc được | THM-01…08 |
+| **CL-6** | AC6 | Chạm ô «Mã điểm danh» dọc và ngang; gõ `abc 123`; bấm «Đi»; đóng bàn phím; xoay; bấm hai lần | ô và `Điểm danh` thấy cùng lúc trên bàn phím; lỗi không bị che; mã không mất; một POST | KBD-01…12, FLW-06 |
+| **CL-7** | AC7 | Back / vuốt khi đang quét; sau «Đã điểm danh»; sau đăng nhập từ liên kết QR; Back ở màn gốc | thoát khung quét (đèn camera tắt); không lượt hai, không lỗi cũ; không về `/login`; app xuống nền không đăng xuất | NAV-01…12 |
+| **CL-8** | AC8 | Từ chối camera → cấp lại ở Cài đặt → quay lại; từ chối vị trí (lớp QCMOB2) → cấp lại; chặn vĩnh viễn | cấp lại không cần đăng nhập lại / tải lại; nút `Quét mã điểm danh` trở lại, «Chưa cấp quyền camera.» biến mất; không vòng lặp xin quyền; điểm danh bằng mã luôn được | PRM-01…12, GEO-04, GEO-08, GEO-09, GEO-11 |
+| **CL-9** | AC9 | R-NET-slow (400 kbit/s, RTT 2 s) rồi máy bay ngay sau khi thấy QR; quét lại cùng QR; token hết hạn trong lúc chờ | «Đang gửi» ≤ 300 ms; camera đã dừng; một POST/token; ≤ 15 s «Chưa có mạng.» + `Thử lại`; hết hạn → câu hết hạn + nút quét; không đăng xuất | NET-01…12, SCN-10, SCN-13 |
+| **CL-10** | AC10 | Home / khoá màn / cuộc gọi khi quét và khi gửi; `am kill`; mở lại sau khi cửa sổ đóng | camera tắt khi ra nền, quay lại màn nhập mã + `Quét mã điểm danh`; đang gửi → đúng kết quả, không gửi lại; đóng → «Đã đóng điểm danh.»; giết nền → phiên còn, không màn trắng | LIF-01…13, SCN-08, SES-02/03 |
+| **CL-11** | AC11 | iPhone Safari → Thêm vào Màn hình chính; mở PWA; đăng nhập; thử quét QR bằng camera hệ thống; xoay; Back | tên «EduPilot» + icon thương hiệu; toàn màn hình; thanh trạng thái đọc được; chỉ ô nhập mã; lần đầu phải đăng nhập lại; liên kết quét mở Safari; có đường quay lại; không lời mời cài | PWA-01…16, SAF-06, NAV-08 |
+| **CL-12** | AC12 | Bật TalkBack / VoiceOver; duyệt `/checkin` mọi trạng thái; quét; gây lỗi; gây 429 | `h1` đọc đầu; ô có nhãn; nút có tên; thứ tự đọc đúng; «Đang gửi» / «Đã điểm danh» đọc một lần; lỗi (`alert`); 429 không đọc mỗi giây | A11-01…16 |
+| **CL-13** | AC13 | `uiautomator dump` hoặc đo Playwright ở 360 và 430 | mọi điều khiển ≥ 44 × 44 px, kề nhau ≥ 8 px; dock không đè thanh dưới | TGT-01…06, ATT-02 |
+| **CL-14** | AC14 | Gây mọi lỗi: hết hạn, sai, đóng, tắt, lớp khác, 429, mất mạng, từ chối camera, camera lỗi, WebView không tải; quét chuỗi cấm trong chữ hiển thị | 100 % tiếng Việt có dấu, một câu; 0 mã kỹ thuật / JSON / `undefined` / trang lỗi tiếng Anh | MSG-01…16, INS-10, SCN-12 |
+
+### Kết quả US-AS-15 (điền khi chạy)
+| Mã | Máy / bản Android / WebView / iOS | Kết quả | Ghi chú / ảnh |
+| --- | --- | --- | --- |
+| CL-1 … CL-14 | | | |
+
+Ghi chú: AC15 (phân quyền, không đổi) kiểm bằng ERR-05/07/08, SES-05/06, ATT-08 trong `tc-mobile-app.md`. Ca chỉ máy thật / điều kiện đặc biệt ghi **KHÔNG KIỂM ĐƯỢC** (không tính FAIL) kèm lý do, theo P-108-12.
