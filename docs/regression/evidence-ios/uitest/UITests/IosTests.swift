@@ -116,7 +116,7 @@ final class IosTests: XCTestCase {
         dump(pwa, "pwa-checkin-form")
         let code = web.textFields.firstMatch
         XCTAssertTrue(code.waitForExistence(timeout: 10), "không thấy ô mã")
-        let raw = (try? String(contentsOfFile: "/Users/kuro/.config/edupilot-team/qc2-work/code.txt", encoding: .utf8)) ?? ""
+        let raw = ProcessInfo.processInfo.environment["PWA_CODE"].flatMap { $0.isEmpty ? nil : $0 } ?? ((try? String(contentsOfFile: "/Users/kuro/.config/edupilot-team/qc2-work/code.txt", encoding: .utf8)) ?? "")
         typeInto(pwa, field: code, raw.trimmingCharacters(in: .whitespacesAndNewlines))
         dump(pwa, "pwa-code-typed")
         let b = web.buttons.matching(NSPredicate(format: "label == 'Điểm danh'")).firstMatch
@@ -493,5 +493,17 @@ final class IosTests: XCTestCase {
             sleep(4); savePng(shotName() + "-checkin")
             web.swipeRight(); sleep(3); savePng(shotName() + "-back2")
         }
+    }
+
+    /// PWA: về «Hôm nay» (toạ độ) và chụp — kiểm phiên còn sống sau khi Safari đăng xuất (P-11-148).
+    func testPwaHomeState() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch.tap()
+        sleep(9)
+        let app = XCUIApplication(bundleIdentifier: "com.apple.webapp")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.08)).tap(); sleep(2)
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.10, dy: 0.915)).tap(); sleep(4)
+        savePng(shotName())
     }
 }
