@@ -343,3 +343,19 @@ Tổng: **97 TC = 80 P, 0 F, 17 N.**
 - **SCN-09 = P**: tường camera để **trống** (nếu còn poster cũ thì xoay làm lộ QR cũ → «hết hạn», làm nhiễu kết quả). Xoay dọc↔ngang 4 lần: video vẫn chạy (480/640), khung quét còn, không câu lỗi, `topResumedActivity` **không đổi** (`ActivityRecord{12507920 …MainActivity t45}`) ⇒ không tạo lại Activity; quét sau khi xoay → 2,3 s, DB 1 dòng.
 - **SCN-13 = P**: tắt wifi+data **trước** khi đưa poster (camera vẫn chạy offline) → «Chưa có mạng.» sau 1,8 s + «Thử lại», DB 0 dòng; bật mạng lại, bấm «Thử lại» → «Đã điểm danh 06:16», DB đúng **1 dòng**.
 - **SCN-10 = P**: mạng bình thường (không đặt delay để khỏi làm chậm khung hình virtualscene): nhận QR → «Đã điểm danh» sau 2,5 s, DB đúng **1 dòng**. Ghi rõ: mốc «Đang gửi ≤ 300 ms» **chưa đo được** (chuỗi đó không xuất hiện trong `innerText` khi theo dõi bằng MutationObserver).
+
+## 34. Lượt 30 (26/11) — SCN-10 đo được 7 ms = P; LIF-11 = N
+
+Tổng: **97 TC = 80 P, 0 F, 17 N.**
+
+- **SCN-10 = P (đo theo hướng dẫn PM):** trong WebView, gắn `BarcodeDetector` riêng + MutationObserver theo `data-part="checkin" data-state`; đặt `adb emu network delay 3000` **sau khi camera đã mở** để POST bay lâu. Kết quả: QR phát hiện ở 6913 ms, trạng thái `sending` ở 6920 ms ⇒ **phản hồi 7 ms** (≤ 300 ms); DB đúng **1 dòng** (một POST/token).
+- **LIF-11 = N**: `am force-stop` để nhả camera, bật `low_power=1`, mở lại app (video 0×0 lúc đầu) rồi quét: nhận QR và «Đã điểm danh» nhưng mất **16,7 s** (> 5 s) trên AVD; không đo được nhịp ≥ 3 khung/giây. Không crash, scan vẫn chạy — chưa đủ để P.
+
+## 35. Lượt 31 (26/11) — NAV-05 = N (chưa dựng được cảnh POST đang bay)
+
+Tổng: **97 TC = 80 P, 0 F, 17 N.**
+
+- Theo hướng dẫn PM: `adb emu network delay 10000` → «Nhập mã» → nhập mã → «Điểm danh» → chờ 2 s → Back.
+- Thực tế POST xong trong **< 2 s** (đã «Đã điểm danh 06:22», DB 1 dòng) nên không đúng cảnh «đang gửi»; Back về «/» (không thoát app); mở lại app về «/», **không hiện lại kết quả**.
+- Muốn chấm được vế «mở lại thấy kết quả» cần làm POST chậm thật (chặn phía gateway), không dùng delay mạng của emulator.
+- Đã trả QCMOB2 về `rotate_seconds=10`, không geofence.
