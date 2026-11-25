@@ -1,0 +1,2 @@
+menus=["Paste", "AutoFill"]
+value=ABC-123

@@ -390,11 +390,12 @@ final class IosTests: XCTestCase {
         safari.activate(); sleep(2)
         let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
         let f = web.textFields.firstMatch; _ = f.waitForExistence(timeout: 12)
+        f.tap(); sleep(2)
         f.press(forDuration: 1.0); sleep(2)
         savePng(shotName() + "-menu")
         var log: [String] = ["menus=\(safari.menuItems.allElementsBoundByIndex.map(\.label).prefix(7))"]
         let paste = safari.menuItems.matching(NSPredicate(format: "label IN %@", ["Paste", "Dán"])).firstMatch
-        if paste.exists { paste.tap() } else { safari.typeText("") }
+        if paste.exists { paste.tap() }
         sleep(2)
         let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         let allow = spring.buttons.matching(NSPredicate(format: "label IN %@", ["Allow Paste", "Cho phép dán"])).firstMatch

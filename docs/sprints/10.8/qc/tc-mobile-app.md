@@ -738,10 +738,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 80 | 0 | 0 |
+| qc3 iOS | 81 | 0 | 0 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (287 mã gốc − 40 trùng = 247)** | **190** | **0** | **57** |
+| **Hợp (288 mã gốc − 41 trùng = 247)** | **190** | **0** | **57** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -823,9 +823,10 @@ Máy: `qc3-se3` (375×667), `qc3-iphone15` (390×844), `qc3-iphone15pm` (430×93
 | TC-MOB-KBD-02 | P | SE3 ngang 667×375, bàn phím mở, chạm ô: `webViews.buttons["Điểm danh"].isHittable` = **true** ngay lần đầu (log `C-KBD02-strict-log.txt`: `btn_exists=true hit0=true final_hit=true`); ô nhập thấy trước, không bị che (`C-KBD-02b`, `C-KBD02-strict-0`) |
 | TC-MOB-KBD-03 | P | Mã sai + phím «Đi»: câu lỗi hiện ngay dưới ô, KHÔNG bị bàn phím che, nút chính thấy được (`C-KBD-err`) |
 | TC-MOB-KBD-05 | P | Phím Enter/«Đi» gửi như nút: nhận phản hồi từ máy chủ (`C-KBD-err` hiện câu lỗi mã sai do POST) |
+| TC-MOB-KBD-09 | P | Clipboard `abc-123` (`simctl pbcopy`) → chạm ô rồi chạm giữ 1.0 s → menu **Paste** (log `C-KBD09-strict2-log.txt`: `menus=["Paste","AutoFill"]`) → giá trị ô sau dán = **ABC-123** (chữ hoa, giữ gạch, không tràn) |
 | TC-MOB-KBD-04 | P | Gõ ba dạng trên ô trống (SE3): `abc 123` → **ABC 123**, `ABC-123` → **ABC-123**, `abc123` → **ABC123** — chữ hoa, giữ dấu cách/gạch, không tự sửa (`C-KBD04-f1..f3`). Thuộc tính ô (mã nguồn `CheckinScreen.tsx`): `autoCapitalize="characters"`, `autoComplete="off"`, `autoCorrect="off"`, `spellCheck={false}`, `enterKeyHint="go"`, `inputMode="text"`, `maxLength={12}`, `onChange` đổi `toUpperCase()` |
 
-**N (chưa dựng được):** `KBD-09` (`simctl pbcopy` + chạm giữ không hiện menu Dán trong ảnh `C-KBD09-menu`, cần thao tác tay).
+
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
