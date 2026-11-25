@@ -3165,6 +3165,7 @@ type ExamAttempt struct {
 	Version        int32
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	FinishFailures int16
 }
 
 type ExamEvent struct {

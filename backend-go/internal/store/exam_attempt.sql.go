@@ -90,7 +90,7 @@ func (q *Queries) AnswersUpsert(ctx context.Context, arg AnswersUpsertParams) er
 }
 
 const attemptByStudent = `-- name: AttemptByStudent :one
-select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at from exam_attempts where course_id = $1 and exam_id = $2 and student_id = $3
+select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures from exam_attempts where course_id = $1 and exam_id = $2 and student_id = $3
 `
 
 type AttemptByStudentParams struct {
@@ -124,6 +124,7 @@ func (q *Queries) AttemptByStudent(ctx context.Context, arg AttemptByStudentPara
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
 }
@@ -149,7 +150,7 @@ update exam_attempts
 set status = $1, submitted_at = $2, submit_reason = $3,
     auto_score = $4, graded_at = $5, breakdown = $6, version = version + 1
 where course_id = $7 and id = $8 and status = 'IN_PROGRESS'
-returning id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at
+returning id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures
 `
 
 type AttemptFinishParams struct {
@@ -198,8 +199,28 @@ func (q *Queries) AttemptFinish(ctx context.Context, arg AttemptFinishParams) (E
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
+}
+
+const attemptFinishFailed = `-- name: AttemptFinishFailed :one
+update exam_attempts set finish_failures = least(finish_failures + 1, 32000)
+where course_id = $1 and id = $2 and status = 'IN_PROGRESS'
+returning finish_failures
+`
+
+type AttemptFinishFailedParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+// Tick tự nộp thất bại một lần: cộng đếm (chạy NGOÀI transaction đã lùi). Trả đếm mới để biết lúc nào chạm ngưỡng.
+func (q *Queries) AttemptFinishFailed(ctx context.Context, arg AttemptFinishFailedParams) (int16, error) {
+	row := q.db.QueryRow(ctx, attemptFinishFailed, arg.CourseID, arg.ID)
+	var finish_failures int16
+	err := row.Scan(&finish_failures)
+	return finish_failures, err
 }
 
 const attemptInsert = `-- name: AttemptInsert :one
@@ -207,7 +228,7 @@ const attemptInsert = `-- name: AttemptInsert :one
 insert into exam_attempts (course_id, exam_id, student_id, started_at, deadline_at, writer_tab, writer_seen_at)
 values ($1, $2, $3, $4, $5, $6, $4)
 on conflict (exam_id, student_id) do nothing
-returning id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at
+returning id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures
 `
 
 type AttemptInsertParams struct {
@@ -253,12 +274,13 @@ func (q *Queries) AttemptInsert(ctx context.Context, arg AttemptInsertParams) (E
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
 }
 
 const attemptLock = `-- name: AttemptLock :one
-select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at from exam_attempts
+select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures from exam_attempts
 where course_id = $1 and exam_id = $2 and id = $3 and student_id = $4
 for update
 `
@@ -301,12 +323,13 @@ func (q *Queries) AttemptLock(ctx context.Context, arg AttemptLockParams) (ExamA
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
 }
 
 const attemptLockByID = `-- name: AttemptLockByID :one
-select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at from exam_attempts where course_id = $1 and id = $2 for update
+select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures from exam_attempts where course_id = $1 and id = $2 for update
 `
 
 type AttemptLockByIDParams struct {
@@ -339,12 +362,13 @@ func (q *Queries) AttemptLockByID(ctx context.Context, arg AttemptLockByIDParams
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
 }
 
 const attemptOwn = `-- name: AttemptOwn :one
-select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at from exam_attempts
+select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures from exam_attempts
 where course_id = $1 and exam_id = $2 and id = $3 and student_id = $4
 `
 
@@ -386,6 +410,7 @@ func (q *Queries) AttemptOwn(ctx context.Context, arg AttemptOwnParams) (ExamAtt
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
 }
@@ -416,12 +441,13 @@ const attemptsDue = `-- name: AttemptsDue :many
 select a.id, a.course_id, a.exam_id, a.student_id, a.deadline_at, (a.deadline_at >= e.closes_at)::boolean as by_close
 from exam_attempts a
 join exams e on e.course_id = a.course_id and e.id = a.exam_id
-where a.status = 'IN_PROGRESS' and a.deadline_at + make_interval(secs => $1::int) < $2::timestamptz
+where a.status = 'IN_PROGRESS' and a.finish_failures < $1::smallint and a.deadline_at + make_interval(secs => $2::int) < $3::timestamptz
 order by a.deadline_at, a.id
 limit 200
 `
 
 type AttemptsDueParams struct {
+	MaxFailures  int16
 	GraceSeconds int32
 	Now          time.Time
 }
@@ -435,9 +461,9 @@ type AttemptsDueRow struct {
 	ByClose    bool
 }
 
-// Lượt IN_PROGRESS đã quá deadline + grace (lô 200). `by_close`: hạn do giờ đóng của lớp (CLOSED) hay do thời lượng (TIMEOUT).
+// Lượt IN_PROGRESS đã quá deadline + grace (lô 200), trừ lượt tự nộp lỗi quá `max_failures` lần. `by_close`: hạn do giờ đóng của lớp (CLOSED) hay do thời lượng (TIMEOUT).
 func (q *Queries) AttemptsDue(ctx context.Context, arg AttemptsDueParams) ([]AttemptsDueRow, error) {
-	rows, err := q.db.Query(ctx, attemptsDue, arg.GraceSeconds, arg.Now)
+	rows, err := q.db.Query(ctx, attemptsDue, arg.MaxFailures, arg.GraceSeconds, arg.Now)
 	if err != nil {
 		return nil, err
 	}

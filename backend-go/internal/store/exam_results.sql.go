@@ -250,7 +250,7 @@ const attemptAdjust = `-- name: AttemptAdjust :one
 update exam_attempts
 set adjusted_score = $1, adjusted_reason = $2, adjusted_by = $3, adjusted_at = $4, version = version + 1
 where course_id = $5 and id = $6 and status = 'GRADED' and version = $7
-returning id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at
+returning id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures
 `
 
 type AttemptAdjustParams struct {
@@ -296,6 +296,7 @@ func (q *Queries) AttemptAdjust(ctx context.Context, arg AttemptAdjustParams) (E
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
 }
@@ -371,7 +372,7 @@ func (q *Queries) AttemptFinalSubmissions(ctx context.Context, arg AttemptFinalS
 }
 
 const attemptGetByID = `-- name: AttemptGetByID :one
-select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at from exam_attempts where course_id = $1 and id = $2
+select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at, finish_failures from exam_attempts where course_id = $1 and id = $2
 `
 
 type AttemptGetByIDParams struct {
@@ -404,6 +405,7 @@ func (q *Queries) AttemptGetByID(ctx context.Context, arg AttemptGetByIDParams) 
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 	)
 	return i, err
 }
@@ -450,7 +452,7 @@ func (q *Queries) AttemptSetGraded(ctx context.Context, arg AttemptSetGradedPara
 }
 
 const attemptStaffHead = `-- name: AttemptStaffHead :one
-select a.id, a.course_id, a.exam_id, a.student_id, a.status, a.started_at, a.deadline_at, a.submitted_at, a.submit_reason, a.writer_tab, a.writer_seen_at, a.auto_score, a.adjusted_score, a.adjusted_reason, a.adjusted_by, a.adjusted_at, a.breakdown, a.graded_at, a.version, a.created_at, a.updated_at, u.full_name, coalesce(u.student_code, '') as student_code
+select a.id, a.course_id, a.exam_id, a.student_id, a.status, a.started_at, a.deadline_at, a.submitted_at, a.submit_reason, a.writer_tab, a.writer_seen_at, a.auto_score, a.adjusted_score, a.adjusted_reason, a.adjusted_by, a.adjusted_at, a.breakdown, a.graded_at, a.version, a.created_at, a.updated_at, a.finish_failures, u.full_name, coalesce(u.student_code, '') as student_code
 from exam_attempts a join users u on u.id = a.student_id
 where a.course_id = $1 and a.exam_id = $2 and a.id = $3
 `
@@ -483,6 +485,7 @@ type AttemptStaffHeadRow struct {
 	Version        int32
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	FinishFailures int16
 	FullName       string
 	StudentCode    string
 }
@@ -512,6 +515,7 @@ func (q *Queries) AttemptStaffHead(ctx context.Context, arg AttemptStaffHeadPara
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.FinishFailures,
 		&i.FullName,
 		&i.StudentCode,
 	)

@@ -636,10 +636,21 @@ func gradeOne(t quiz.Type, points decimal.Decimal, key json.RawMessage, answer j
 	return got, err
 }
 
+// maxFinishFailures: lượt tự nộp lỗi từng đó lần thì bị bỏ khỏi AttemptsDue (DEF-R7S-EXAMTICK).
+const maxFinishFailures = 5
+
+// noteFinishFailed cộng đếm lỗi của lượt; đúng lần chạm ngưỡng ghi MỘT dòng log (chỉ id, không PII). Lượt vẫn IN_PROGRESS để người có quyền xử lý bằng tay.
+func (s *Service) noteFinishFailed(ctx context.Context, courseID, examID, attemptID uuid.UUID) {
+	n, err := store.New(s.Pool).AttemptFinishFailed(ctx, store.AttemptFinishFailedParams{CourseID: courseID, ID: attemptID})
+	if err == nil && n == maxFinishFailures {
+		s.logger().ErrorContext(ctx, "exam.tick: lượt tự nộp lỗi quá ngưỡng, bỏ khỏi quét", "attempt_id", attemptID, "exam_id", examID, "course_id", courseID, "failures", n)
+	}
+}
+
 // AutoSubmitDue (bước 3 của exam.tick): nộp các lượt IN_PROGRESS đã quá `deadline_at + EXAM_GRACE_SECONDS` (lô 200). `submitted_at = deadline_at`;
 // `CLOSED` nếu hạn là giờ đóng của lớp, ngược lại `TIMEOUT`. Mỗi lượt một transaction nên một lượt lỗi không chặn các lượt khác.
 func (s *Service) AutoSubmitDue(ctx context.Context) (int, error) {
-	due, err := store.New(s.Pool).AttemptsDue(ctx, store.AttemptsDueParams{GraceSeconds: int32(s.Attempt.grace() / time.Second), Now: s.now()}) //nolint:gosec // ≤ 300
+	due, err := store.New(s.Pool).AttemptsDue(ctx, store.AttemptsDueParams{MaxFailures: maxFinishFailures, GraceSeconds: int32(s.Attempt.grace() / time.Second), Now: s.now()}) //nolint:gosec // ≤ 300
 	if err != nil {
 		return 0, fmt.Errorf("exam: lượt quá hạn: %w", err)
 	}
@@ -670,6 +681,7 @@ func (s *Service) AutoSubmitDue(ctx context.Context) (int, error) {
 			if firstErr == nil {
 				firstErr = fmt.Errorf("lượt %s: %w", d.ID, err)
 			}
+			s.noteFinishFailed(ctx, d.CourseID, d.ExamID, d.ID)
 			continue
 		}
 		s.refreshLock(ctx, d.StudentID)
