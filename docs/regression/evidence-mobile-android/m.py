@@ -145,12 +145,18 @@ console.log("HAS_THOAT:" + await p.ev("!!document.body.innerText.match(/^Thoát$
 p.close();''')
     r = subprocess.run(f"cd {EV} && SHOTS={SHOTS} node {WORK}/_s.mjs", shell=True, capture_output=True, text=True, timeout=150); return (r.stdout + r.stderr).strip()
 
-def js(body, timeout=90):
+def js(body, timeout=90, tries=3):
     open(WORK + "/_j.mjs", "w").write(f'import {{ connect, sleep, shot }} from "{EV}/cdp.mjs";\nimport {{ SHIM }} from "{EV}/shim.mjs";\n' + body)
-    r = subprocess.run(f"cd {EV} && SHOTS={SHOTS} node {WORK}/_j.mjs", shell=True, capture_output=True, text=True, timeout=timeout)
-    out = (r.stdout + r.stderr).strip()
-    if r.returncode: out = "ERR " + out[-300:]
-    return out
+    out = ""
+    for _ in range(tries):
+        if not sh("pidof " + PKG).strip():
+            sh(f"am start -n {PKG}/.MainActivity >/dev/null"); time.sleep(4)
+        adb("forward --remove tcp:9222 >/dev/null 2>&1")
+        r = subprocess.run(f"cd {EV} && SHOTS={SHOTS} node {WORK}/_j.mjs", shell=True, capture_output=True, text=True, timeout=timeout)
+        out = (r.stdout + r.stderr).strip()
+        if r.returncode == 0: return out
+        time.sleep(2)
+    return "ERR " + out[-300:]
 
 def nav(path="/checkin", wait=2500):
     return js(f'const p = await connect(); await p.goto("{vps.HOST}" + {json.dumps(path)}); await sleep({wait}); console.log("URL " + await p.url()); p.close();')

@@ -79,6 +79,13 @@ Lượt chạy dừng vì hai chặn kỹ thuật của emulator, ghi rõ ở §
 4. **`pm clear` xoá phiên**: sau mỗi lần xoá dữ liệu phải đăng nhập lại; đăng nhập qua form trong WebView hay bị chặn tạm (429) sau ~5 lượt/15 phút trên cùng IP.
 5. **APK debug** ⇒ INS-01 chỉ kết luận được phần manifest/permission.
 
+## 7. Bổ sung lượt 3 (26/11, sau chỉ đạo PM)
+
+- **Vị trí giả bằng công cụ Android (không cài APK lạ):** `adb root` (emulator userdebug) rồi `cmd location providers add-test-provider gps` + `set-test-provider-enabled gps true` + `set-test-provider-location gps --location <lat>,<lon> --accuracy 5` **CHẠY ĐƯỢC**; `navigator.geolocation.getCurrentPosition` trong WebView trả đúng điểm đặt (21,0991/105,8965) với `accuracy` 2000 m (độ chính xác do provider mạng). Ghi nhận: gọi bằng shell thường (uid 2000) bị `SecurityException: not allowed to perform MOCK_LOCATION`, phải `adb root` trước. Đây là nguyên nhân GEO-03 trước đó không chạy được (không phải app).
+- **Đổi geofence bằng API:** `PUT /api/v1/courses/{id}/settings` bằng `teacher@` với `attendance.geofence` trả 200 và **có hiệu lực** (GET sau đó trả đúng tâm mới). Đã trả lại QCVPSC về `21,0285/105,8542 r200` sau khi thử. Ghi nhận: `GET /courses/{id}` trả `attendance` ở **khoá cấp ngoài** `course.attendance`, không nằm trong `settings` — lý do lượt trước tôi kết luận sai là «PUT không có hiệu lực».
+- **Chưa hoàn tất trong lượt 3:** phiên app `sv.qc2` không giữ được sau `pm clear`/đăng nhập lại (đăng nhập API trả 200 nhưng màn vẫn ở trang giới thiệu ⇒ không vào được `/checkin` để chấm lại GEO). Cần một trong: (a) giữ app đã đăng nhập rồi mới chạy ca, (b) cho phép dùng form đăng nhập trong WebView với tài khoản không bị chặn 429, (c) dev xác nhận luồng `POST /auth/login` + tải lại trang có tự vào app không. Vì vậy GEO-03/05 và các ca cần một lượt điểm danh mới **vẫn chưa có kết quả**.
+- **TalkBack:** chưa bật trong lượt này; cần `settings put secure enabled_accessibility_services com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService` (kiểm gói TalkBack có trên AVD `google_apis`) — xếp lượt sau.
+
 ## 6. Lỗi phát hiện
 - **DEF-R10.8-05 (Back native)**: ĐÓNG — xác nhận trên ep-api36.
 - **DEF-R10.8-07 (mới, Thấp)**: cỡ chữ 2,0× làm dock «Điểm danh» bị thanh điều hướng đè 45 % trên `/checkin`.
