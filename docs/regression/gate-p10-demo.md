@@ -435,3 +435,15 @@ VPS `https://v2202609419695521098.happysrv.de`, GV `teacher@`, Admin `admin@`. e
 | 8 | «24 giờ qua» mục riêng, nhãn khớp dữ liệu | **P** | Admin 1440 + 375: «24 giờ qua» (62 yêu cầu · p95 2,6 s…) và «7 ngày qua» (bảng theo ngày) là hai mục có tiêu đề riêng; không còn tiền tố «24 giờ qua:» |
 
 Không cuộn ngang ở cả ba trang (scrollWidth ≤ innerWidth). Quan sát (không chấm): (a) `/attendance` 375: nhãn ô Buổi bị cắt «…Chưa điểm danl» (bề ngang ô); (b) `/observability` Admin: tiêu đề «Thư chưa gửi được» rồi dòng chú «Thư chưa gửi được, mới nhất trước» lặp chữ.
+
+### L2.12b Chấm nốt (4)(5)(6) trên VPS — báo cáo insights ở 761987 (PM đồng ý, 1 lần bấm «Tạo báo cáo mới»)
+
+QCVPSD không đủ câu hỏi («Chưa đủ câu hỏi để gom (cần ≥ 20)»); báo cáo tạo ở `761987`: «Báo cáo 25/11/2026, 20:34 · 27 câu hỏi · 11 sinh viên» (kỳ 14 ngày, LLM giả). Ảnh `ins-761987-1440.png`, `ins-761987-375.png`.
+
+| # | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| 4 dải kỳ cách tiêu đề (có báo cáo) | **P** | 1440: cách tiêu đề 68 px; 375: dải 7/14/30/Toàn kỳ xuống dòng riêng sau «Tạo báo cáo mới», không cuộn ngang |
+| 5 TC-05-18 (có báo cáo) | **P** | 0 chữ «ẩn danh» trên trang ở 1440 + 375; dòng duy nhất dưới tiêu đề là «Báo cáo <ngày> · 27 câu hỏi · 11 sinh viên» |
+| 6 «Nên làm» không đỏ | **P** (CSS) / hàng thực **K-VPS** | không hàng nào có nhãn «Nên làm» (nhãn chỉ hiện khi LLM đặt khuyến nghị; cụm LLM giả «Chưa đặt được tên chủ đề» không có khuyến nghị); CSS đã triển khai: `.actionLabel { color: var(--ep-ink); font-weight: 600 }` — không đỏ; không có chữ đỏ nào trong `main` |
+
+Dữ liệu QC tạo thêm trên VPS: 1 báo cáo insights ở 761987 (kỳ 14 ngày).
