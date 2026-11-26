@@ -32,7 +32,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" className={beVietnamPro.variable} suppressHydrationWarning>
-      <head>
+      <body>
         {/* WebView cũ (minSdk 24; AVD API 28 = Chromium 66) không có `globalThis` (Chromium 71), mà runtime Next/Turbopack và mọi chunk đọc nó ngay dòng đầu ⇒
             phải vá TRƯỚC mọi `<script src>` của Next. Chỉ một dòng, chạy vô hại trên trình duyệt mới. */}
         <script
@@ -49,8 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <script dangerouslySetInnerHTML={{ __html: EARLY_PAINT_SCRIPT }} />
-      </head>
-      <body>
         <QueryProvider>
           <OfflineBanner />
           <AuthProvider>{children}</AuthProvider>

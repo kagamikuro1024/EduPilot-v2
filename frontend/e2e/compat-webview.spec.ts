@@ -61,3 +61,24 @@ test("webview cũ: /login hydrate sạch (không React #418 / lỗi console)", a
   await page.waitForTimeout(1500);
   expect(errs).toEqual([]);
 });
+
+// DEF-MOB-12c (qc2 acb1e84b): APK Capacitor (JSInjector.getInjectedStream) chèn vào CHUỖI HTML ngay sau «<head>»: "\n<script type=\"text/javascript\">window.Capacitor=…</script>\n"
+// ⇒ <head> có thêm một script inline và hai nút chữ trắng đứng trước script của app; HTML máy chủ không có ⇒ React lệch cây head khi hydrate (#418).
+test("webview Capacitor: HTML bị chèn script sau <head> không làm hydrate lỗi", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "một ca là đủ");
+  await page.route("**/login", async (route) => {
+    if (route.request().resourceType() !== "document") return route.continue();
+    const res = await route.fetch();
+    const html = (await res.text()).replace("<head>", '<head>\n<script type="text/javascript">window.Capacitor = { DEBUG: true };</script>\n');
+    await route.fulfill({ response: res, body: html });
+  });
+  const errs: string[] = [];
+  page.on("console", (m) => m.type() === "error" && !m.text().startsWith("Failed to load resource") && errs.push(m.text()));
+  page.on("pageerror", (e) => errs.push(e.message));
+  await page.route("**/api/v1/auth/refresh", (r) => r.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ code: "UNAUTHENTICATED", message: "x", trace_id: "c".repeat(32) }) }));
+  await page.goto("/login");
+  await expect(page.getByRole("button", { name: "Đăng nhập" })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { Capacitor?: unknown }).Capacitor !== undefined)).toBe(true); // chèn thật sự xảy ra
+  await page.waitForTimeout(1500);
+  expect(errs).toEqual([]);
+});
