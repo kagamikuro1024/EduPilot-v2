@@ -405,3 +405,15 @@ Script: `docs/regression/evidence-mobile-android/avd-api28.sh` — `build` (cài
 Bắt buộc: **headless + swiftshader** — `-gpu host` với image API 28 bị treo (`QEMU2 main loop` hanging). Chỉ một emulator chạy tại một thời điểm.
 
 Lưu ý khi nghiệm lại: lỗi nằm ở **bundle web** (cú pháp optional chaining/nullish trong chunk Next.js), không phải APK — chỉ cần VPS có build mới (hạ target/browserslist), giữ nguyên APK debug; mở `/checkin` bằng tài khoản sinh viên rồi xem khung nhập mã + logcat.
+
+## 39. Lượt 35 (26/11) — nghiệm DEF-MOB-12 trên VPS f9b38838: CHƯA ĐẠT, còn một tầng lỗi khác
+
+AVD API 28 (`avd-api28.sh build`), WebView **66.0.3359.158**, APK debug.
+
+**Đã khỏi**: hết `SyntaxError`/`Unexpected token` trong logcat; trang giới thiệu, `/login`, `/checkin` đều vẽ ra; `/checkin` có ô **«Mã điểm danh»**, không có nút «Quét mã». DEF-MOB-12 (bundle parse) đúng là đã vá.
+
+**Còn chặn** (ghi nhận mới, không phải DEF-MOB-12): **hydration thất bại** — mỗi lần tải trang logcat ghi `Minified React error #418`; app **không gọi một request `/api/v1` nào** (`/events` là telemetry; `/me`, `/me/courses` không bao giờ chạy — bắt bằng cách bọc `window.fetch`). Hệ quả: bấm «Đăng nhập» không sinh `POST /auth/login` và không báo lỗi JS nào; app đứng ở «Bản mô phỏng · dữ liệu giả», nút «Điểm danh» luôn khoá ⇒ **không thể điểm danh bằng mã**.
+
+Bằng chứng: `shots/DEF-MOB-12-landing.png`, `shots/DEF-MOB-12-checkin.png`, `shots/DEF-MOB-12-api28-checkin-final.png`, `shots/DEF-MOB-12-api28-logcat.txt`.
+
+Ghi chú cho dev2: nghi vấn các API thiếu trên Chrome 66 mà `apiClient`/`authSession` dùng (`crypto.randomUUID`, `AbortSignal.timeout`, `AbortSignal.any`) và khác biệt `Intl`/định dạng ngày; nên kiểm bằng `Page.addScriptToEvaluateOnNewDocument` polyfill để tách nguyên nhân. AVD đã xoá, không còn emulator chạy.
