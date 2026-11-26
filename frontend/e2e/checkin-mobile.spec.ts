@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { COURSE, TOKEN, checkinApi, json } from "./support/checkin-fixtures";
+import { CHECKED_IN_AT, COURSE, TOKEN, checkinApi, json } from "./support/checkin-fixtures";
 
 // US-AS-15 (P-11-130): /checkin dùng được trên mọi điện thoại. Playwright giả lập bề rộng / hướng; không giả được bàn phím ảo, tai thỏ thật
 // (đó là phần kiểm tay trên máy thật của QC, android-checklist.md). Đo trên project desktop (tự đặt viewport).
@@ -207,6 +207,133 @@ test("checkin: «Đã điểm danh» nằm trong vùng aria-live polite", async 
   await expect(page.locator('[data-part=done]')).toBeVisible();
   const live = await page.locator("[data-part=done]").evaluate((e) => !!e.closest('[aria-live="polite"], [role="status"]'));
   expect(live).toBe(true);
+});
+
+// AC12 (DEF-MOB-15): «Đang gửi» là chữ thật; lỗi là role=alert (không lồng trong vùng polite); đếm ngược 429 không làm vùng thông báo đổi mỗi giây
+test("checkin AC12: đang gửi nói «Đang gửi», không còn nhãn «Đang tải»", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await reach(page, context, "sending");
+  await expect(page.getByRole("status").filter({ hasText: /^Đang gửi$/ })).toHaveCount(1);
+  await expect(page.locator('[data-part=checkin] [aria-label="Đang tải"]')).toHaveCount(0);
+});
+
+test("checkin AC12: câu lỗi là role=alert, ở ô nhập mã và ở màn token, không nằm trong vùng aria-live", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await checkinApi(page, context, { post: (r) => r.fulfill(json({ code: "CHECKIN_TOKEN_INVALID", message: "m", trace_id: "d".repeat(32) }, 400)) });
+  await page.goto("/checkin");
+  await page.getByLabel("Mã điểm danh").fill("ABC123");
+  await page.getByRole("button", { name: "Điểm danh" }).click();
+  const a = page.getByRole("alert").filter({ hasText: "Mã không đúng hoặc đã hết hạn." });
+  await expect(a).toHaveCount(1);
+  expect(await a.evaluate((e) => !!e.parentElement?.closest('[aria-live="polite"]'))).toBe(false);
+});
+
+test("checkin AC12: lỗi mạng ở màn token là role=alert, không nằm trong vùng aria-live", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await reach(page, context, "error");
+  const b = page.getByRole("alert").filter({ hasText: "Chưa có mạng." });
+  await expect(b).toHaveCount(1);
+  expect(await b.evaluate((e) => !!e.closest('[aria-live="polite"]'))).toBe(false);
+});
+
+test("checkin AC12: đếm ngược 429 không làm vùng thông báo đổi mỗi giây; báo lúc bắt đầu và lúc hết", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  let n = 0;
+  await checkinApi(page, context, { post: (r) => (++n === 1 ? r.fulfill(json({ code: "RATE_LIMITED", message: "m", trace_id: "e".repeat(32), retry_after: 4 }, 429)) : r.fulfill(json({ checked_in_at: CHECKED_IN_AT, round: 1 }, 201))) });
+  await page.goto("/checkin");
+  await page.getByLabel("Mã điểm danh").fill("ABC123");
+  await page.getByRole("button", { name: "Điểm danh" }).click();
+  const live = page.getByRole("status").filter({ hasText: /^Thử lại sau 4 giây\.$/ });
+  await expect(live).toHaveCount(1);
+  const muts = await page.evaluate(
+    (ms) =>
+      new Promise<number>((res) => {
+        let c = 0;
+        const sel = '[aria-live]:not([aria-live=off]), [role=status], [role=alert]';
+        const mo = new MutationObserver((list) => {
+          for (const m of list) if ((m.target as Node).parentElement?.closest(sel) || (m.target as Element).closest?.(sel)) c++;
+        });
+        mo.observe(document.body, { subtree: true, childList: true, characterData: true });
+        setTimeout(() => (mo.disconnect(), res(c)), ms);
+      }),
+    2000,
+  );
+  expect(muts).toBe(0);
+  await expect(page.getByRole("status").filter({ hasText: /^Thử lại$/ })).toHaveCount(1, { timeout: 5000 });
+});
+
+test("checkin AC12 (DEF-MOB-15b): đếm ngược 429 — cây trợ năng không đổi trong 3 s (không nút nào đổi tên / mô tả, không nút nào đổi nội dung ngoài aria-hidden)", async ({ page, context }) => {
+  for (const [w, h] of [[390, 844], [1440, 900]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await checkinApi(page, context, { post: (r) => r.fulfill(json({ code: "RATE_LIMITED", message: "m", trace_id: "f".repeat(32), retry_after: 9 }, 429)) });
+    await page.goto("/checkin");
+    await page.getByLabel("Mã điểm danh").fill("ABC123");
+    await page.getByRole("button", { name: "Điểm danh" }).last().click();
+    await expect(page.locator("[data-part=limited]")).toBeVisible();
+    await expect(page.locator("[data-part=limited]")).toHaveText(/Thử lại sau [1-9] giây\./); // chữ nhìn thấy vẫn có
+    const before = await page.locator("body").ariaSnapshot();
+    const muts = await page.evaluate(
+      (ms) =>
+        new Promise<string[]>((res) => {
+          const out: string[] = [];
+          const hidden = (n: Node) => !!(n instanceof Element ? n : n.parentElement)?.closest('[aria-hidden="true"]');
+          const mo = new MutationObserver((list) => {
+            for (const m of list) {
+              if (m.type === "attributes" && !/^aria-|^title$|^role$/.test(m.attributeName ?? "")) continue;
+              if (!hidden(m.target)) out.push(`${m.type}:${m.attributeName ?? ""}:${(m.target as Element).nodeName ?? ""}`);
+            }
+          });
+          mo.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true });
+          setTimeout(() => (mo.disconnect(), res(out)), ms);
+        }),
+      3000,
+    );
+    expect(muts, `${w}px`).toEqual([]);
+    expect(await page.locator("body").ariaSnapshot(), `${w}px`).toBe(before);
+  }
+});
+
+test("checkin AC12 (DEF-MOB-15c): đổi trạng thái (429, lỗi, xong) không để focus rơi về body — focus nằm trong khu checkin hoặc ở nút còn lại", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const focusOk = () => page.evaluate(() => { const a = document.activeElement; return !!a && a !== document.body && !!a.closest("[data-part=checkin], [data-part=checkin-dock]"); });
+  for (const [status, body, wait] of [[429, { code: "RATE_LIMITED", message: "m", trace_id: "a".repeat(32), retry_after: 9 }, "[data-part=limited]"], [400, { code: "CHECKIN_TOKEN_INVALID", message: "m", trace_id: "a".repeat(32) }, "[role=alert]"], [201, { checked_in_at: CHECKED_IN_AT, round: 1 }, "[data-part=done]"]] as const) {
+    await checkinApi(page, context, { post: (r) => r.fulfill(json(body, status)) });
+    await page.goto("/checkin");
+    await page.getByLabel("Mã điểm danh").fill("ABC123");
+    await page.getByRole("button", { name: "Điểm danh" }).last().click();
+    await expect(page.locator(wait).first()).toBeVisible();
+    expect(await focusOk(), `HTTP ${status}`).toBe(true);
+  }
+});
+
+test("checkin AC12 (DEF-MOB-15d): MỘT vùng status bền, chữ đổi đúng một lần mỗi kết cục; focus ở nút vừa bấm không bị gỡ", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const [status, body, texts] of [
+    [429, { code: "RATE_LIMITED", message: "m", trace_id: "a".repeat(32), retry_after: 9 }, ["Đang gửi", "Thử lại sau 9 giây."]],
+    [400, { code: "CHECKIN_TOKEN_INVALID", message: "m", trace_id: "a".repeat(32) }, ["Đang gửi"]],
+  ] as const) {
+    await checkinApi(page, context, { post: (r) => r.fulfill(json(body, status)) });
+    await page.goto("/checkin");
+    await page.getByLabel("Mã điểm danh").fill("ABC123");
+    await expect(page.locator("[data-part=checkin] [role=status]")).toHaveCount(1);
+    const btn = page.getByRole("button", { name: "Điểm danh" }).last();
+    await btn.focus();
+    await page.evaluate(() => {
+      const w = window as unknown as { __live: string[]; __btn: Element | null };
+      w.__btn = document.activeElement;
+      w.__live = [];
+      const el = document.querySelector("[data-part=checkin] [role=status]")!;
+      new MutationObserver(() => w.__live.push(el.textContent ?? "")).observe(el, { subtree: true, childList: true, characterData: true });
+    });
+    await btn.click();
+    await expect(page.locator(status === 429 ? "[data-part=limited]" : "[role=alert]").first()).toBeVisible();
+    const r = await page.evaluate(() => {
+      const w = window as unknown as { __live: string[]; __btn: Element | null };
+      return { live: w.__live.filter((t) => t !== ""), same: document.activeElement === w.__btn && w.__btn!.isConnected };
+    });
+    expect(r.live, `HTTP ${status}`).toEqual(texts);
+    expect(r.same, "nút dock còn và còn focus").toBe(true);
+  }
 });
 
 // AC11 + AC5: PWA iPhone — biểu tượng, tên, toàn màn, thanh trạng thái khớp thanh trên trắng

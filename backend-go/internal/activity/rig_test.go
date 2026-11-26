@@ -113,7 +113,8 @@ func newRig(t *testing.T, opts ...func(map[string]string)) *rig {
 	t.Cleanup(func() { _ = rdb.Close() })
 
 	logs := &bytes.Buffer{}
-	clk := clock.NewFake(time.Now().UTC().Truncate(30 * time.Second)) // đầu một khung 30 s: test dịch đồng hồ giả theo khung
+	n := time.Now().In(ict) // 10:00 ICT hôm nay: phiên giả dài tới ~100 phút không vắt qua 00:00 ICT (khoá Redis theo ngày ICT), bất kể giờ chạy thật
+	clk := clock.NewFake(time.Date(n.Year(), n.Month(), n.Day(), 10, 0, 0, 0, ict).UTC())
 	d := httpapi.Deps{
 		Cfg: cfg, Log: slog.New(slog.NewTextHandler(logs, &slog.HandlerOptions{Level: slog.LevelDebug})),
 		DB: pool, Redis: rdb, Clock: clk, State: httpapi.NewState(),

@@ -1,6 +1,7 @@
 package vn.edupilot.app;
 
 import android.os.Bundle;
+import android.webkit.CookieManager;
 import android.webkit.WebView;
 import androidx.activity.OnBackPressedCallback;
 import com.getcapacitor.BridgeActivity;
@@ -23,5 +24,18 @@ public class MainActivity extends BridgeActivity {
                 getOnBackPressedDispatcher().onBackPressed();
             }
         });
+    }
+
+    // DEF-MOB-16: CookieManager chỉ ghi cookie xuống đĩa theo chu kỳ; app bị tắt / kill ngay sau đăng nhập thì ep_rt mất, mở lại phải đăng nhập.
+    @Override
+    public void onPause() {
+        CookieManager.getInstance().flush();
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        CookieManager.getInstance().flush();
+        super.onStop();
     }
 }
