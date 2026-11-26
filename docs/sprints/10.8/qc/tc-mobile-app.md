@@ -697,6 +697,9 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-PRF-08 | P | `system.open` liên kết QR → «Đã điểm danh» ×5 (mỗi lần vòng mới, trang về «Hôm nay» giữa các lần): **trung vị 652 ms, lớn nhất 1 624 ms** (lần chạy đầu, máy nguội: 730 / 3 347 ms); DB 5/5 lượt | shots/PRF-08b-log.txt, shots/PRF-08-log.txt |
 | TC-MOB-NAV-07 | P | «Hôm nay» → liên kết QR → «Đã điểm danh» → **nút Back của Safari** (cử chỉ vuốt cạnh trái không bơm được bằng XCUITest): về trang trước («Mã điểm danh» của lượt xem trước), không lượt hai (DB 1 lượt), không «Mã đã hết hạn»/lỗi cũ | shots/NAV-07c-log.txt |
 | TC-MOB-SES-12 | P (DEF-MOB-13 đã sửa, VPS `87cac77c`) | Nghiệm lại đúng nhánh PHIÊN BỊ THU HỒI trên Safari iOS 27.2 (Simulator): SV đăng nhập trong Safari (cookie còn) → thu hồi phiên từ phiên API khác (`DELETE /me/sessions` = 200) sau khi trang tải xong → mở link QR **mới** → về `/login?…revoked=revoked_by_user` (có biểu ngữ «Bạn đã bị đăng xuất…») → đăng nhập (nhập xong ở ~10 s) → **«Đã điểm danh»** sau ~12,4 s, DB đúng **1 lượt**. Chính sách lớp `rotate_seconds`=60: **3/3 lần**. Với `rotate_seconds`=10 (nguyên trạng): 2/3 «Đã điểm danh» (1 lượt DB mỗi vòng), lần 3 «Mã đã hết hạn» vì token chỉ sống 10–20 s và đăng nhập + chuyển trang mất ~12 s — đúng kỳ vọng thời hạn, không phải lỗi (DB 0 lượt cho vòng đó). Trước bản sửa (`0316ef2b`): 5/5 ô mã trống. Đọc bookmarklet «ep-probe» trước bản sửa: (a) và (b) đều ở `/login?next=%2Fcheckin%3Fc%3D…&revoked=revoked_by_user`, không `#hash`, `ep.checkin=co`; (c) chưa đọc được (hộp thoại alert của Safari không lộ cho XCUITest, chỉ chụp màn hình). Vế Back không lặp `/login` giữ nguyên | shots/SES-12-fix-log.txt, SES-12-fix60-log.txt, PROBE-rev2-a-noalert.png |
+| TC-MOB-LIF-09 | P | Safari iPhone (sv.qc3): `/checkin` mở sẵn → ra nền (Home) **300 s** → quay lại: trang còn nguyên («Mã điểm danh», «Lớp QCMOB1»), không màn trắng/đen; mở vòng mới, nhập mã hiện tại → «Đã điểm danh 21:14»; DB đúng **1** lượt cho vòng đó (không lượt hai) | shots/LIF-09-*.png, LIF-09-log.txt |
+| TC-MOB-SAF-09 | P | PWA đã cài (sv.qc3, Màn hình chính) vào `/checkin` qua «Thêm → Điểm danh», đo ảnh 1178×2556 (3×): thanh dưới bắt đầu ở **761 pt** trên màn 852 pt ⇒ cao **91 pt = 56 + 34 (inset đáy) + viền 1**; dock «Điểm danh» có viền trên ở 700 pt, đáy nút ở 752 pt ⇒ khoảng cách tới thanh dưới **9 pt ≥ 0**, không chồng nhau; dock nằm ngay trên thanh dưới | shots/SAF-09-2.png |
+| TC-MOB-FLW-10 | P | `sv.qc-trong` (STUDENT, 0 lớp) mở `/checkin` trên Safari iOS: «Bạn chưa vào lớp nào» + nút «Tham gia lớp bằng mã»; **không** có ô nhập mã (không điều khiển nhập liệu nào), không lỗi. Quan sát (không đổi nhãn): có băng «Bản mô phỏng · dữ liệu giả» dưới thanh trên cho tài khoản 0 lớp | shots/FLW-10.png, FLW-10-frames.txt |
 | TC-MOB-SEC-02 | P | iOS Safari Simulator: `localStorage` chỉ có `ep_demo_state` (không token, không `ep.device`); IndexedDB đúng một CSDL `edupilot.device.v1/store keys` = một `CryptoKey`; `ep.checkin` chỉ ở `sessionStorage`, xoá khi dùng, hết hạn 60 s (`stash.ts`); khoá `extractable=false` | shots/sec02-localstorage.sqlite3, shots/sec02-indexeddb.sqlite3 |
 | TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
 | TC-MOB-SEC-18 | P | localStorage không có token (chỉ ep_demo_state/ep_returning); document.cookie không thấy ep_rt | — |
@@ -758,10 +761,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 105 | 0 | 3 |
+| qc3 iOS | 108 | 0 | 3 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (349 mã gốc − 51 trùng = 298)** | **238** | **0** | **60** |
+| **Hợp (352 mã gốc − 52 trùng = 300)** | **241** | **0** | **59** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -915,7 +918,7 @@ Hai bước một vòng, lặp 3 lần: đăng nhập `sv.gioi` trong Safari, th
 - Giải pháp sinh dữ liệu: `POST /sessions/generate` tạo buổi 105–114 hôm nay trên QCMOB1 (mỗi buổi 3 vòng); chính sách lớp ghim `rotate_seconds` tạm 60 s cho SES-12 rồi **trả về 10 s** (DB xác nhận nguyên trạng). Khung test: token GV cấp một lần bởi `tok.py` (cache `.cache/` không commit), 429 chờ `Retry-After`, mọi URL qua `openLink` có guard — sự cố crash `Qc2UITests-Runner` 20:19 do `openRound` trả URL rỗng khi buổi 113 hết vòng (`ROUND_LIMIT`), **không phải lỗi app**; không ghi P/F từ lượt đó.
 - `SES-12` **P sau sửa** (`DEF-MOB-13`, nghiệm lại ở mục dưới; từng **F** ở `0316ef2b`): QR → đăng nhập trên Safari iOS không tự điểm danh; WebKit của Playwright thì đúng ⇒ khác biệt Safari/WebKit trên thiết bị, cần dev dò (stash `ep.checkin` có bị mất khi Safari phục hồi/chuyển trang?).
 - `NAV-07` dùng nút Back của Safari thay vuốt cạnh trái (XCUITest không bơm được cử chỉ cạnh).
-- `DEV-12` chuyển **P** (chạy trên Docker của VPS), `TGT-06` và `UIW-22` **P** (WebKit). Còn `LIF-09` (nền 5 phút), `FLW-10` (`sv.moi`), `SAF-09` (PWA đã mất phiên, phải đăng nhập lại trong PWA rồi vào `/checkin`): dừng vì guard mới — swap tăng +1,5 GB (3 600 → 5 155 MB) trong một lô có boot Simulator, free 29 %. Đo một phần SAF-09 trên PWA «Hôm nay»: đường kẻ thanh dưới ở 761 pt/852 pt ⇒ cao 91 pt = 56 + 34 + viền (chưa có ảnh dock).
+- `DEV-12` chuyển **P** (chạy trên Docker của VPS), `TGT-06` và `UIW-22` **P** (WebKit). `LIF-09`, `FLW-10`, `SAF-09` đã chạy ở lô sau (xem các hàng tương ứng); từng dừng vì guard cũ — swap tăng +1,5 GB (3 600 → 5 155 MB) trong một lô có boot Simulator, free 29 %. Đo một phần SAF-09 trên PWA «Hôm nay»: đường kẻ thanh dưới ở 761 pt/852 pt ⇒ cao 91 pt = 56 + 34 + viền (chưa có ảnh dock).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

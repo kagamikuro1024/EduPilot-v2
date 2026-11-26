@@ -913,4 +913,49 @@ final class IosTests: XCTestCase {
         try? lines.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
         print(lines.joined(separator: "\n"))
     }
+
+    /// Mở PWA bằng biểu tượng Màn hình chính rồi chụp (không thao tác).
+    func testPwaLaunchShot() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        let icon = spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch
+        XCTAssertTrue(icon.waitForExistence(timeout: 8), "không thấy biểu tượng EduPilot"); icon.tap()
+        sleep(10); savePng(shotName())
+    }
+    /// Đăng nhập trong PWA bằng toạ độ chuẩn hoá (cây phần tử của web app không nhãn): env LX,LY (nút Đăng nhập), EX,EY (ô email), PX,PY (ô mật khẩu).
+    func testPwaLoginCoord() {
+        let env = ProcessInfo.processInfo.environment
+        func f(_ k: String) -> CGFloat { CGFloat(Double(env[k] ?? "0") ?? 0) }
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        let icon = spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch
+        XCTAssertTrue(icon.waitForExistence(timeout: 8), "không thấy biểu tượng EduPilot"); icon.tap(); sleep(9)
+        let app = XCUIApplication(bundleIdentifier: "com.apple.webapp")
+        if f("LX") > 0 { app.coordinate(withNormalizedOffset: CGVector(dx: f("LX"), dy: f("LY"))).tap(); sleep(5) }
+        savePng(shotName() + "-form")
+        if env["STOP"] == "1" { return }
+        app.coordinate(withNormalizedOffset: CGVector(dx: f("EX"), dy: f("EY"))).tap(); sleep(2)
+        app.typeText(env["EMAIL"] ?? ""); sleep(1)
+        app.coordinate(withNormalizedOffset: CGVector(dx: f("PX"), dy: f("PY"))).tap(); sleep(2)
+        app.typeText((env["PW"] ?? "") + "\n"); sleep(8)
+        let nn = app.buttons["Not Now"]; if nn.waitForExistence(timeout: 4) { nn.tap() }
+        sleep(2); savePng(shotName() + "-after")
+    }
+
+    /// PWA: mở, chạm danh sách toạ độ chuẩn hoá (env TAPS="x,y;x,y"), chụp sau mỗi lần chạm.
+    func testPwaTaps() {
+        let env = ProcessInfo.processInfo.environment
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        let icon = spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch
+        XCTAssertTrue(icon.waitForExistence(timeout: 8), "không thấy biểu tượng EduPilot"); icon.tap(); sleep(8)
+        let app = XCUIApplication(bundleIdentifier: "com.apple.webapp")
+        savePng(shotName() + "-0")
+        for (i, t) in (env["TAPS"] ?? "").split(separator: ";").enumerated() {
+            let xy = t.split(separator: ",").compactMap { Double($0) }
+            guard xy.count == 2 else { continue }
+            app.coordinate(withNormalizedOffset: CGVector(dx: xy[0], dy: xy[1])).tap(); sleep(4)
+            savePng(shotName() + "-\(i + 1)")
+        }
+    }
 }
