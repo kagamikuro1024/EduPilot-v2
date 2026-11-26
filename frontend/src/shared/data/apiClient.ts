@@ -3,7 +3,7 @@ import { dropSession, EARLY_GET_KEY, refreshSession } from "./authSession";
 import { API_BASE as BASE, API_ORIGIN } from "./endpoint";
 import { netStatus } from "./netStatus";
 import { tokenStore } from "./tokenStore";
-import { newUuid, timeoutSignal } from "../lib/compat";
+import { anySignal, newUuid, timeoutSignal } from "../lib/compat";
 
 // Máy khách HTTP duy nhất của frontend (cấm fetch trần ngoài shared/data — luật ep/no-raw-fetch). SRS FEAT-ui-foundation 6.1–6.3.
 export { API_ORIGIN };
@@ -152,7 +152,7 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
     if (cached) headers["If-None-Match"] = cached.etag;
 
     const timeout = timeoutSignal(opts.timeoutMs ?? TIMEOUT_MS);
-    const signal = opts.signal ? AbortSignal.any([opts.signal, timeout]) : timeout;
+    const signal = opts.signal ? anySignal([opts.signal, timeout]) : timeout; // DEF-MOB-12b: AbortSignal.any chỉ có từ Chrome 116
     let res: Response;
     try {
       res = await fetch(url, { method: upper, headers, body: !hasBody ? undefined : body instanceof FormData ? body : JSON.stringify(body), credentials: "include", signal, keepalive: opts.keepalive });
