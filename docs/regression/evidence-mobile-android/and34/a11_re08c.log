@@ -1,0 +1,22 @@
+== nen
+NEN (khong lam gi, 25 s): TTS + 0 []
+== 429 dem TTS (khong CDP)
+1 state entry
+2 state entry
+3 state entry
+4 state entry
+5 state entry
+6 state limited
+khong CDP trong luc dem: TTS + 14 | 10 s dau: 6 | [(2, 1), (3, 2), (4, 3), (5, 4), (6, 5), (10, 6), (14, 7), (15, 8), (16, 9), (17, 10), (20, 11), (21, 12), (23, 13), (24, 14)]
+== 429 nhat ky thay doi
+1 state entry
+2 state entry
+3 state entry
+4 state entry
+5 state entry
+6 state limited
+vung thong bao (toan bo, tu luc bat dau nhap sai): [{"ms": 63172, "k": "role=status", "txt": "Thử lại"}]
+so lan doi vung thong bao: 1
+TTS + 18 theo giay: [(1, 1), (2, 2), (3, 4), (7, 5), (12, 7), (13, 8), (14, 9), (16, 10), (18, 12), (22, 13), (23, 14), (25, 15), (26, 16), (37, 17)]
+phan tu co chu «giay/Thu lai» doi noi dung (so lan): {"DIV.checkin.CheckinScreen-module__8i | Thử lại sau 39 giây.\n\nThử lạ": 4, "DIV..Layout-module__rM7QnW__p | Điểm danh\n\nThử lại sau 39 gi": 1, "P.limited. | Thử lại sau 38 giây.": 1, "P.limited. | Thử lại sau 37 giây.": 1, "P.limited. | Thử lại sau 36 giây.": 1, "P.limited. | Thử lại sau 35 giây.": 1, "P.limited. | Thử lại sau 34 giây.": 1, "P.limited. | Thử lại sau 33 giây.": 1, "P.limited. | Thử lại sau 32 giây.": 1, "P.limited. | Thử lại sau 31 giây.": 1, "P.limited. | Thử lại sau 30 giây.": 1, "P.limited. | Thử lại sau 29 giây.": 1, "P.limited. | Thử lại sau 28 giây.": 1, "P.limited. | 
+primary: [{"txt":"Điểm danh","aria":null,"desc":null,"dis":false}]

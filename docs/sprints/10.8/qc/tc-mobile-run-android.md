@@ -573,3 +573,13 @@ Guard: swap đã dùng +2 063 MB so với mốc sau-boot (ngưỡng 1,5 GB), fre
 Evidence: `and34/a11_re.json`, `a11_re08.json`, `a11_re*.log`, `a11_re08b.py`, `persist_new_swipe.json`, `shots/A11-0[678]-re.png`, `DEF16-new-swipe-1.png`.
 
 Tổng `results.jsonl`: 141 TC = 116 P, 1 F, 24 N.
+
+## 48. A11-08 nghiệm lại — VPS 125c2f79 (DEF-MOB-15b), 26/11: **vẫn F**, nhưng đã hết đọc mỗi giây
+
+AVD `-no-audio`, TalkBack bật lúc đo rồi tắt, đọc qua DOM + đếm TTS.
+
+- **Đã sửa**: lúc đếm ngược `<p data-part=limited aria-hidden=true>` (chữ đổi mỗi giây, ẩn khỏi cây trợ năng) + `<p role=status class=ep-sr-only data-part=limited-live>` «Thử lại sau n giây.» đứng yên; a11y dump `and34/a11dump/d1.xml`, `d2.xml` (cách nhau 5 s) **giống hệt**; vùng `role=status` đổi đúng: «Đang gửi» → «Thử lại sau 38 giây.» → «Thử lại» (hết giờ). Đo sạch (gõ mã khi TalkBack tắt, 429 bằng API): **0 lượt TTS từ giây 8 đến 39**; 2 lượt lúc hết giờ.
+- **Còn lại**: ngay sau khi bấm, TalkBack phát **7 lượt trong 7 giây đầu** (tiêu chí ≤ 2 lượt/10 s **không đạt**); không gán được nội dung (không nghe giọng). Nghi do đổi màn hình nhập → «limited» (mất ô nhập đang focus) hơn là đếm ngược. Các số +6/10 s ở lần đo trước phần lớn là tồn đọng TTS của các lần nhập sai liền trước.
+- Ghi chú đo: `uiautomator events/dump` làm TalkBack tạm tắt (UiAutomation), nên không dùng được để đếm TTS cùng lúc; events chỉ ghi `TYPE_WINDOWS_CHANGED`.
+
+Evidence: `and34/a11_re08c.log`, `a11_diag.log`, `a11_re08d.log`, `a11_re08e.log/.json`, `a11dump/d1.xml`, `d2.xml`, `shots/A11-08-re2.png`. Tổng `results.jsonl`: 141 TC = 116 P, 1 F, 24 N.

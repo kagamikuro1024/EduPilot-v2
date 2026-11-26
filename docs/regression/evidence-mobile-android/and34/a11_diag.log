@@ -1,0 +1,10 @@
+mem: free 45% | swap used 3861.25M (+-83M vs sau-boot)
+1 entry
+2 entry
+3 entry
+4 entry
+5 entry
+6 limited
+HTML: <div class="CheckinScreen-module__8inm9a__body" data-part="checkin" data-state="limited"><p data-part="limited" aria-hidden="true">Thử lại sau 38 giây.</p><p role="status" class="ep-sr-only" data-part="limited-live">Thử lại sau 39 giây.</p></div>
+aria-hidden dat tren p.limited: <p data-part="limited" aria-hidden="true">Thử lại sau 37 giây.</p>
+SAU aria-hidden: TTS + 6 trong 14 s: [(4, 1), (7, 2), (9, 3), (10, 4), (11, 5), (12, 6)]
