@@ -33,10 +33,10 @@ type Input = { course: string; token: string } | { course: string; code: string 
 type View =
   | { k: "sending" }
   | { k: "done"; at: string }
-  | { k: "entry"; error?: string; cam?: "denied" | "failed"; retry?: () => void }
+  | { k: "entry"; error?: string; cam?: "denied" | "failed"; retry?: () => void; ready?: true }
   | { k: "scanning" }
   | { k: "error"; message: string; offline?: boolean; retry?: () => void }
-  | { k: "limited"; until: number; retry?: () => void };
+  | { k: "limited"; until: number; secs: number; retry?: () => void };
 
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
@@ -195,7 +195,7 @@ export function CheckinScreen() {
         if (e instanceof ApiError && (e.status === 429 || e.code === "RATE_LIMITED")) {
           const secs = Math.max(1, Math.ceil(e.retryAfter ?? 10));
           setLeft(secs);
-          return setView({ k: "limited", until: Date.now() + secs * 1000, retry: viaCode ? undefined : retry });
+          return setView({ k: "limited", until: Date.now() + secs * 1000, secs, retry: viaCode ? undefined : retry });
         }
         const d = describe(e, viaCode);
         setView(viaCode ? { k: "entry", error: d.message, retry: d.offline ? retry : undefined } : { k: "error", message: d.message, offline: d.offline, retry: d.offline ? retry : undefined });
@@ -230,7 +230,7 @@ export function CheckinScreen() {
     return () => clearTimeout(t);
   }, [role, uid, submit, stash]);
 
-  // 429: đếm ngược từng giây; hết giờ thì mã ngắn quay về ô nhập, token tự gửi lại
+  // 429: đếm ngược từng giây (chỉ chữ nhìn thấy; trình đọc nghe lúc bắt đầu và lúc hết, US-AS-15 AC12); hết giờ thì mã ngắn quay về ô nhập, token tự gửi lại
   useEffect(() => {
     if (view.k !== "limited") return;
     const tick = () => {
@@ -238,7 +238,7 @@ export function CheckinScreen() {
       setLeft(n);
       if (n === 0) {
         if (view.retry) view.retry();
-        else setView({ k: "entry" });
+        else setView({ k: "entry", ready: true });
       }
     };
     const t = setInterval(tick, 1000);
@@ -308,11 +308,16 @@ export function CheckinScreen() {
       <PageHeader title="Điểm danh" primary={primary} />
       {!stash && policy.isError && <ApiErrorNotice error={policy.error} showTechnical={false} onRetry={() => void policy.refetch()} />}
       <Panel>
-        <div className={s.body} data-part="checkin" data-state={view.k} aria-live="polite">
+        <div className={s.body} data-part="checkin" data-state={view.k} >
           {(geoLine || needsGeo) && view.k !== "done" && <p className={s.geo} data-part="geo-line">{GEO_LINE}</p>}
-          {view.k === "sending" && <Skeleton lines={2} />}
+          {view.k === "sending" && (
+            <>
+              <p role="status" className="ep-sr-only">Đang gửi</p>
+              <div aria-hidden><Skeleton lines={2} label="Đang gửi" /></div>
+            </>
+          )}
           {view.k === "done" && (
-            <p className={`ep-data ${s.done}`} data-part="done">
+            <p className={`ep-data ${s.done}`} data-part="done" role="status">
               <Check aria-hidden className={s.check} />
               Đã điểm danh {view.at}
             </p>
@@ -340,7 +345,7 @@ export function CheckinScreen() {
                 if (code.trim() !== "") sendCode();
               }}
             >
-              <Field label="Mã điểm danh" error={view.error}>
+              <Field label="Mã điểm danh" error={view.error && <span role="alert">{view.error}</span>}>
                 {(id, d) => (
                   <Input
                     id={id}
@@ -361,11 +366,14 @@ export function CheckinScreen() {
                 )}
               </Field>
               {classCode && <p className="ep-meta">Lớp {classCode}</p>}
-              {view.cam && <StatusText tone="amber">{view.cam === "denied" ? "Chưa cấp quyền camera." : "Không mở được camera."}</StatusText>}
+              {view.cam && <span role="alert"><StatusText tone="amber">{view.cam === "denied" ? "Chưa cấp quyền camera." : "Không mở được camera."}</StatusText></span>}
             </form>
           ))}
           {view.k === "error" && <InlineNotice tone="danger" compact>{view.message}</InlineNotice>}
-          {view.k === "limited" && <p data-part="limited">Thử lại sau {left} giây.</p>}
+          {view.k === "limited" && <p data-part="limited" aria-hidden>Thử lại sau {left} giây.</p>}
+          {(view.k === "limited" || (view.k === "entry" && view.ready)) && (
+            <p role="status" className="ep-sr-only" data-part="limited-live">{view.k === "limited" ? `Thử lại sau ${view.secs} giây.` : "Thử lại"}</p>
+          )}
         </div>
       </Panel>
       {primary && (
