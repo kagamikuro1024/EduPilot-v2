@@ -258,6 +258,7 @@ services:
       REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-}
       SESSION_ABSOLUTE_TTL: ${SESSION_ABSOLUTE_TTL:-}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-} # chỉ đúng chữ "false" tắt Secure của cookie ep_rt (HTTP thuần trong LAN); rỗng / khác = Secure
       BCRYPT_COST: ${BCRYPT_COST:-}
       MAX_BODY_BYTES: ${MAX_BODY_BYTES:-}
       EXAM_TESTZIP_MAX_BYTES: ${EXAM_TESTZIP_MAX_BYTES:-}
@@ -519,6 +520,8 @@ services:
   caddy:
     image: caddy:2.11
     ports: ["${EP_PORT_HTTP:-80}:80", "${EP_PORT_HTTPS:-443}:443"]
+    environment:
+      EP_LAN_SITE: ${EP_LAN_SITE:-http://lan.disabled.invalid} # chế độ LAN: http://<IP LAN>; mặc định không khớp host nào
     volumes:
       - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

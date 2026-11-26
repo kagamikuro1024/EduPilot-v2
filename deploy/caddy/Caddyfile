@@ -17,7 +17,8 @@
 	}
 }
 
-localhost {
+# Nội dung phục vụ chung của các khối site bên dưới.
+(app) {
 	# Log truy cập CHỈ che liên kết bí mật (FEAT-account-security US-P2-04 AC13): `?token=…` của /verify-email, /reset-password và
 	# `/invite/<token>` không bao giờ vào log; US-P2-09: mã tham gia `/join/<mã>` cũng che (`/join/REDACTED`). Giá trị đổi thành REDACTED trước khi ghi.
 	log {
@@ -33,7 +34,6 @@ localhost {
 	}
 
 	header {
-		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options nosniff
 		-Server
 	}
@@ -86,4 +86,16 @@ localhost {
 		encode zstd gzip
 		reverse_proxy frontend:3000
 	}
+}
+
+# https://localhost (mặc định).
+localhost {
+	header Strict-Transport-Security "max-age=31536000"
+	import app
+}
+
+# Chế độ LAN (điện thoại, HTTP thuần): đặt EP_LAN_SITE=http://<IP LAN> (vd http://192.168.41.4). Tiền tố http:// tắt tự chuyển https cho khối này.
+# Mặc định là host không tồn tại ⇒ khối không bao giờ khớp. KHÔNG gửi HSTS ở đây.
+{$EP_LAN_SITE:http://lan.disabled.invalid} {
+	import app
 }

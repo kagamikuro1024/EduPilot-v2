@@ -98,6 +98,7 @@ type Config struct {
 	RefreshTokenTTL    time.Duration
 	SessionAbsoluteTTL time.Duration
 	CookieDomain       string
+	CookieInsecure     bool // AUTH_COOKIE_SECURE=false: cookie ep_rt không Secure (chỉ để chạy HTTP thuần trong LAN); zero value = Secure
 	AuthResendWindow   time.Duration
 	// Giới hạn đăng nhập và hành động công khai (FEAT-account-security SRS 4.2.2 / 8.1).
 	AuthLoginIPPerMin      int
@@ -358,6 +359,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 		l.bad("SESSION_ABSOLUTE_TTL", "phải ≥ REFRESH_TOKEN_TTL")
 	}
 	c.CookieDomain = l.str("COOKIE_DOMAIN", "")
+	c.CookieInsecure = l.raw("AUTH_COOKIE_SECURE") == "false" // chỉ đúng chữ "false" mới tắt Secure (HTTP thuần trong LAN, điện thoại); giá trị khác / thiếu = Secure
 	c.AuthResendWindow = time.Duration(l.num("AUTH_RESEND_SECONDS", 60, 1, 3600)) * time.Second
 	c.AuthLoginIPPerMin = l.num("AUTH_LOGIN_IP_PER_MIN", 10, 1, 1_000_000)
 	c.AuthLoginIPFailPer15m = l.num("AUTH_LOGIN_IP_FAIL_PER_15M", 30, 1, 1_000_000)

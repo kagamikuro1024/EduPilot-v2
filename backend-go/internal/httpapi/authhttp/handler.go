@@ -142,7 +142,7 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) writeSession(w http.ResponseWriter, res auth.Result) {
 	http.SetCookie(w, &http.Cookie{
 		Name: CookieName, Value: res.RefreshToken, Path: CookiePath, Domain: h.Cfg.CookieDomain,
-		MaxAge: int(res.RefreshTTL.Seconds()), HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode,
+		MaxAge: int(res.RefreshTTL.Seconds()), HttpOnly: true, Secure: !h.Cfg.CookieInsecure, SameSite: http.SameSiteLaxMode,
 	})
 	httpx.WriteJSON(w, http.StatusOK, sessionBody{AccessToken: res.AccessToken, TokenType: "Bearer", ExpiresIn: res.ExpiresIn, User: res.User})
 }
@@ -150,7 +150,7 @@ func (h *Handler) writeSession(w http.ResponseWriter, res auth.Result) {
 func (h *Handler) clearCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name: CookieName, Value: "", Path: CookiePath, Domain: h.Cfg.CookieDomain,
-		MaxAge: -1, HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode,
+		MaxAge: -1, HttpOnly: true, Secure: !h.Cfg.CookieInsecure, SameSite: http.SameSiteLaxMode,
 	})
 }
 
