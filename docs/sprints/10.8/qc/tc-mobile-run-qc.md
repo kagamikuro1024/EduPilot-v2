@@ -255,3 +255,9 @@ Tệp kết quả RIÊNG của qc cho pha 1 của `tc-mobile-app.md` (qc3 chủ 
 - Số đếm đúng của phần qc là **139 mã = 84 P · 0 F · 55 N** sau khi chạy bù + nghiệm lại DEF-MOB-06 6 mã thiếu dữ kiện (trước đó 78 P/0 F/61 N; lượt đầu báo 77 P do cột 6.N ghi 1 P trong khi thực tế có 4).
 - Gộp §9 của qc3 (dedup theo mã, commit 582e0240): **244 mã = 177 P · 2 F · 65 N**; FLW-02 lấy P của qc3 (pha 3 iOS), phần tôi là N.
 - Cách dựng cho 6 mã chạy bù: `e2e/qc-mob-pha1-gap.spec.ts` (SES/ERR/TGT/MSG-15) + `e2e/qc-mob-pha1-err09api.spec.ts` (429/Retry-After qua API); SQL đối chiếu trên Postgres VPS (chỉ đọc).
+
+## Ghi chú dữ liệu (VPS)
+
+- 26/11 dọn dữ liệu demo theo lệnh PM: tài khoản demo `sv.gioi` + `sv.kha` đã bị ghi danh vào 10 lớp QC (QCVPSA–D, QCMOB1/2/4/5, QC3M1/2). 18 lượt mời ra bằng `DELETE /courses/{id}/members/{uid}` (phiên GV, 200 REMOVED); lượt điểm danh giữ nguyên; lớp demo 761987 + 761988 không đụng.
+- 26/11 PM duyệt UPDATE tay 2 hàng `enrollments` QCMOB4 (lớp lưu trữ; API trả 409 `COURSE_ARCHIVED`, không có API khôi phục): ghi danh `01a2136f-075a-718b-af99-70b6b519bdb5`, `01a2136f-0ae9-7614-8da4-2c8997947d44` — `status=REMOVED`, `previous_status=ACTIVE`, `removed_at/status_changed_at/status_changed_by` đặt, `version` 1→2 (khớp hàng do API tạo). Hoàn tác = set `status='ACTIVE'`, `previous_status=NULL`, `removed_at=NULL`. Bằng chứng trước/sau (có MSSV nên không đưa vào repo): `as-emu-evidence/work/qcmob4-enrollments-before-after.txt`.
+- Sau dọn: `GET /me/courses` — sv.gioi = 761987 + 761988; sv.kha = 761987.
