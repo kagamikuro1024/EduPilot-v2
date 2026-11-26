@@ -86,3 +86,9 @@ Xong: DEF-R5-03, R5-04, R8-A2 (mỗi cái 1 commit, test đỏ-trước). Còn (
 
 ## Chạy Playwright cục bộ: kiểm cổng máy chủ giả trống (dev2, 25/11)
 `playwright.config.ts` đặt `reuseExistingServer: true` cho cả Next (`E2E_PORT`) lẫn máy chủ giả (`E2E_API_PORT`). Tiến trình lạ trên cổng đó (ví dụ `lighthouse-api.mjs` do `lhci` bỏ lại) được dùng thay máy chủ giả e2e, trả 401 cho đường không giả → app chuyển `/login` → ca LCP / practice đỏ giả. Trước khi chạy: `lsof -tiTCP:$E2E_API_PORT -sTCP:LISTEN` phải rỗng (hoặc đúng tiến trình `api-server.mjs` của mình).
+
+## Kiểm bundle trên WebView cũ (Chromium 66) bằng AVD API 28 — dev2, 26/11
+Máy dev dựng được AVD API 28 có đúng engine QC gặp: `sdkmanager --install "platforms;android-28" "system-images;android-28;google_apis;arm64-v8a"`, `avdmanager create avd -n ep-api28 -k "system-images;android-28;google_apis;arm64-v8a" -d pixel_6`, chạy `emulator -avd ep-api28 -no-snapshot -no-audio -gpu swiftshader_indirect`. `dumpsys webviewupdate` cho `com.google.android.webview 66.0.3359.158`.
+Không cần APK/Capacitor: `org.chromium.webview_shell` (có sẵn trong image) mở URL http localhost; `adb reverse tcp:3410 tcp:3410` + `adb reverse tcp:3412 tcp:3412` cho Next (`next start -p 3410`) và máy chủ giả (`API_PORT=3412 node e2e/support/api-server.mjs`, nạp kịch bản qua `/__ctl/script`).
+Đọc lỗi: `adb logcat -d | grep CONSOLE` (giống logcat QC gửi). Điều khiển DOM: `adb forward tcp:9222 localabstract:webview_devtools_remote_<pid>` rồi CDP `ws://localhost:9222` — Chrome 66 chỉ nói protocol 1.3 nên Playwright không nối được; dùng client WebSocket nhỏ (Node 24 có sẵn) và **không dùng cú pháp mới trong `Runtime.evaluate`** (chuỗi `?.` cũng làm hỏng script chạy trên trang).
+Bundle phải qua được `acorn.parse(code, {ecmaVersion: 2018})` cho MỌI chunk (dùng `node_modules/next/dist/compiled/acorn` — không cần cài thêm).
