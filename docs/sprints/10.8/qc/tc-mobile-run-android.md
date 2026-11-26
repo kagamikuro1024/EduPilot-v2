@@ -484,3 +484,29 @@ AVD API 28, WebView 66.0.3359.158, APK debug. Xác nhận trước: HTML `/login
 | logcat sau khi xoá (đăng nhập + `/checkin`) | 0 dòng `SyntaxError`/`ReferenceError`/`TypeError`/`React error` |
 
 Không điểm danh trong lượt này (không dùng thêm vòng). Bằng chứng: `def-mob-12c/12c2-a-cold.txt`, `12c2-b-warm.txt`, `cdp12c2.mjs`, `DEF-MOB-12c-home.png`, `DEF-MOB-12c-checkin.png`. AVD đã xoá.
+
+## 44. Lô Android-only «chờ qc2» (37 mã) — lô 1 (26/11) — **DỪNG theo guard bộ nhớ**
+
+Emulator `ep-api36-ps` (API 36, Play Store), APK debug, VPS `87cac77c`, `sv.qc2`. Evidence: `and34/` (+ `shots/`).
+
+| Mã | KQ | Ghi chú |
+|---|---|---|
+| SEC-06 | P | `http://10.0.2.2:8080/` → `net::ERR_CLEARTEXT_NOT_PERMITTED`, trang lỗi tiếng Việt «Không kết nối được máy chủ. / Thử lại»; `http://VPS` → chuyển sang HTTPS |
+| SEC-08 | P | `openssl`: ZeroSSL, hợp lệ tới 23/02/2027, TLS 1.3 (1.2 vẫn nhận) |
+| SEC-09 | P | `vn.edupilot.app://checkin` → «unable to resolve Intent» |
+| SEC-10 | P | chỉ `MainActivity` exported; còn `ProfileInstallReceiver` (androidx, có `DUMP` permission) — ghi nhận |
+| SEC-11 | P | `user_devices`: chỉ khoá công khai + băm, `label` NULL (110/110) |
+| SEC-14 | P | challenge: SV 200, GV/TA/Admin 403, không token 401 |
+| SEC-15 | P | `student_id`/`user_id` trong thân → 422 `unknown` |
+| SEC-04, SEC-05 | N | cần APK release (APK debug `debuggable=true`) — chờ khoá ký |
+| GEO-01 | P | video 30 fps: dòng «Lớp này kiểm tra vị trí…» hiện ~0,2 s TRƯỚC hộp quyền |
+| GEO-04 | P | từ chối → «Đã điểm danh», `GEO_DENIED`, 1,8 s |
+| GEO-08 | P | cấp lại ở Cài đặt, không đăng nhập lại/tải lại; `GEO_OUT` + `geo_distance_m`, không `GEO_DENIED` |
+| GEO-09 | P | từ chối 2 lần → hộp quyền không hiện lại ở lần 3 (`USER_FIXED`) |
+| SCN-11 | P | dùng evidence API 28 / WebView 66 (§40) |
+| GEO-11 | N | ca iOS (simctl) — thuộc làn iOS qc3 |
+| PWA-23 | N | cần iPhone thật + 8 ngày |
+
+**Dừng giữa chừng**: sau GEO-09 guard báo `swap used` = +1 136 MB so với mốc sau-boot (ngưỡng 1 GB), free 75 %. Đã tắt emulator (`adb emu kill`). Chưa chạy: A11-05..08, A11-13, A11-15, DEV-04, DEV-05, GEO-10, GEO-12, GEO-13, INS-08, LIF-13, PRF-01/02/03/05/06, PRM-06, SCN-12, SEC-03, SEC-13, THM-08.
+
+Tổng `results.jsonl`: 118 TC = 98 P, 0 F, 20 N.
