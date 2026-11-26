@@ -395,7 +395,7 @@ Những điểm sau suy ra từ tệp trong repo @`2c0dbe83` (nhóm Y + PWA-17�
 | TC-MOB-A11-05 | US-AS-15 AC12 | A (TalkBack) | Đang quét | Chạm khung camera; kích hoạt `Thoát` bằng cử chỉ hai lần chạm | khung đọc «Camera quét mã điểm danh»; `Thoát` dùng được; camera tắt | TAY | TalkBack |
 | TC-MOB-A11-06 | US-AS-15 AC12 | A (TalkBack) | Gửi mã đúng | Quan sát lời đọc | thông báo MỘT lần «Đang gửi» (`polite`), rồi «Đã điểm danh hh:mm» (`polite`); không đọc trùng | TAY | TalkBack |
 | TC-MOB-A11-07 | US-AS-15 AC12 | A (TalkBack) | Mã sai | Gây lỗi | câu lỗi được đọc ngay (`role=alert`), một lần; không đọc lại khi cuộn | TAY | TalkBack |
-| TC-MOB-A11-08 | US-AS-15 AC12 | A (TalkBack) | 429 đếm ngược | Gây 429 | thông báo lúc bắt đầu «Thử lại sau {n} giây.» và lúc hết giờ; KHÔNG đọc mỗi giây (đếm số lời đọc trong 10 s ≤ 2) | TAY | TalkBack |
+| TC-MOB-A11-08 | US-AS-15 AC12 | A (TalkBack) | 429 đếm ngược | Gây 429 | thông báo lúc bắt đầu «Thử lại sau {n} giây.» và lúc hết giờ; KHÔNG đọc mỗi giây (đếm số lời đọc của vùng thông báo / đếm ngược của app trong 10 s ≤ 2; KHÔNG tính lượt TalkBack đọc lại chính nút vừa bấm chuyển sang disabled và thông báo «keyboard hidden» của hệ thống — làm rõ theo P-11-151) | TAY | TalkBack |
 | TC-MOB-A11-09 | US-AS-15 AC12 | W, A | Dấu `Check` đỏ | Kiểm DOM | `Check` có `aria-hidden`; chữ «Đã điểm danh hh:mm» đọc đủ; trạng thái không chỉ truyền bằng màu (lỗi có chữ + biểu tượng) | E2E+TAY |  |
 | TC-MOB-A11-10 | US-AS-15 AC12 | I (VoiceOver — simulator bật VoiceOver bằng phím tắt hoặc iPhone thật) | VoiceOver bật | Safari `/checkin` nhập mã: duyệt bằng vuốt phải | như A11-02…08 (`h1` đầu; ô có nhãn; nút có tên; kết quả đọc một lần; 429 không đọc mỗi giây) | TAY | iPhone thật (Simulator giới hạn) |
 | TC-MOB-A11-11 | US-AS-15 AC12 | P | VoiceOver trong PWA | Duyệt `/checkin` và thanh dưới | như A11-10; thanh dưới có tên «Hôm nay», «Chat riêng», «Hỏi đáp», «Luyện đề», «Thêm» | TAY | iPhone thật |
@@ -730,9 +730,9 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-PWA-21 | N | PWA: cây phần tử web app không nhãn, chạm toạ độ không ăn — PM chấp nhận N «máy thật» (thao tác tay) | — |
 | TC-MOB-PWA-23 | N | Theo qc2 (`tc-mobile-run-android.md`, `results.jsonl` @ `711c182f`) | `evidence-mobile-android/` |
 | TC-MOB-A11-05 | P | Theo qc2 (`tc-mobile-run-android.md`, `results.jsonl` @ `711c182f`) | `evidence-mobile-android/` |
-| TC-MOB-A11-06 | F | Theo qc2 (`tc-mobile-run-android.md`, `results.jsonl` @ `711c182f`) | `evidence-mobile-android/` |
-| TC-MOB-A11-07 | F | Theo qc2 (`tc-mobile-run-android.md`, `results.jsonl` @ `711c182f`) | `evidence-mobile-android/` |
-| TC-MOB-A11-08 | F | Theo qc2 (`tc-mobile-run-android.md`, `results.jsonl` @ `711c182f`) | `evidence-mobile-android/` |
+| TC-MOB-A11-06 | P | Theo qc2 (`tc-mobile-run-android.md` §50, VPS `7b6b5ab3`, DEF-MOB-15d, `80119514`) | `evidence-mobile-android/` |
+| TC-MOB-A11-07 | P | Theo qc2 (`tc-mobile-run-android.md` §50, VPS `7b6b5ab3`, DEF-MOB-15d, `80119514`) | `evidence-mobile-android/` |
+| TC-MOB-A11-08 | P | Theo qc2 (`tc-mobile-run-android.md` §50, VPS `7b6b5ab3`, DEF-MOB-15d, `80119514`) — vùng thông báo: «Đang gửi» ×1, «Thử lại sau n giây.» ×1, «Thử lại» ×1, 0 lượt giữa đếm (đếm theo P-11-151) | `evidence-mobile-android/` |
 | TC-MOB-A11-10 | N | VoiceOver: Simulator không bật được bằng XCUITest; cần máy thật hoặc thao tác tay | — |
 | TC-MOB-A11-11 | N | VoiceOver trong PWA: cùng lý do, cây phần tử web app không nhãn | — |
 | TC-MOB-A11-13 | P | Theo qc2 (`tc-mobile-run-android.md`, `results.jsonl` @ `711c182f`) | `evidence-mobile-android/` |
@@ -822,12 +822,12 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 | Mã | P | F | N |
 |---|---|---|---|
 | qc3 iOS | 108 | 0 | 26 |
-| qc2 Android | 114 | 3 | 24 |
+| qc2 Android | 117 | 0 | 24 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (414 mã gốc − 54 trùng = 360)** | **268** | **3** | **89** |
+| **Hợp (414 mã gốc − 54 trùng = 360)** | **271** | **0** | **89** |
 | TC | 345 | | |
 
-Lúc qc chốt lại 26/11: 0 F (sau đó qc2 lô Android 2 `711c182f` thêm 3 F: `A11-06/07/08`, AC12 — xem §9.19). `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
+Lúc qc chốt lại 26/11: 0 F (sau đó qc2 lô Android 2 `711c182f` thêm 3 F: `A11-06/07/08`, AC12; đã P sau `DEF-MOB-15d` — xem §9.19). `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
 
 **Trùng mã lỗi cần PM đổi số:** qc đặt việc trên là `DEF-MOB-05`, nhưng `DEF-MOB-05` đã dùng cho lỗi stash /checkin của qc3 (đã sửa `ce30065e`+`e039b61f`, PM đóng). Đề nghị đánh số lại thành `DEF-MOB-06`.
 
@@ -980,14 +980,12 @@ Hai bước một vòng, lặp 3 lần: đăng nhập `sv.gioi` trong Safari, th
 - `NAV-07` dùng nút Back của Safari thay vuốt cạnh trái (XCUITest không bơm được cử chỉ cạnh).
 - `DEV-12` chuyển **P** (chạy trên Docker của VPS), `TGT-06` và `UIW-22` **P** (WebKit). `LIF-09`, `FLW-10`, `SAF-09` đã chạy ở lô sau (xem các hàng tương ứng); từng dừng vì guard cũ — swap tăng +1,5 GB (3 600 → 5 155 MB) trong một lô có boot Simulator, free 29 %. Đo một phần SAF-09 trên PWA «Hôm nay»: đường kẻ thanh dưới ở 761 pt/852 pt ⇒ cao 91 pt = 56 + 34 + viền (chưa có ảnh dock).
 
-### 9.19 Đối chiếu 345 mã (chốt sau qc2 `711c182f`)
+### 9.19 Đối chiếu 345 mã (chốt sau qc2 `80119514`)
 
-- **345 mã định nghĩa: 345 mã có kết quả — 258 P / 3 F / 84 N. Không còn mã «chờ qc2».**
-- Nguồn bổ sung so với lượt trước:
-  - qc2 giao 37 mã Android-only (`results.jsonl` @ `711c182f`, 141 TC): 27 P / 3 F / 7 N, hàng đã ghi vào bảng trên. `F`: `A11-06`, `A11-07`, `A11-08` (AC12, vùng `aria-live`). `N` (cần APK release / máy thật / điều kiện ngoài): `PWA-23`, `SEC-03`, `SEC-04`, `SEC-05`, `SEC-13`, `DEV-04`, `DEV-05`.
-  - 19 mã nền iOS/PWA ghi N ở lượt trước giữ nguyên: PWA ×13, A11-10/11, ENT-22, NAV-08, GEO-11, GEO-12.
-  - `DEV-01, 02, 07, 08`: N theo qc2 («Chốt pha 2»: cần máy Android thật); qc2 chưa có hàng kết quả mới.
-- 15 mã `CL-*` (10 P / 0 F / 5 N) nằm ngoài bảng 345 mã; cộng vào hợp theo mã: **360 mã = 268 P / 3 F / 89 N**.
+- **345 mã định nghĩa: 345 mã có kết quả — 261 P / 0 F / 84 N. Không còn mã «chờ qc2».**
+- qc2 Android (`results.jsonl`, 141 TC): 117 P / 0 F / 24 N. Trong đó 37 mã Android-only giao ở `711c182f`: 30 P / 0 F / 7 N. `A11-06/07/08` F → **P** sau `DEF-MOB-15d` (VPS `7b6b5ab3`, `80119514`; A11-08 đếm lượt theo P-11-151). N (cần APK release / máy thật / điều kiện ngoài): `PWA-23`, `SEC-03`, `SEC-04`, `SEC-05`, `SEC-13`, `DEV-04`, `DEV-05`.
+- 19 mã nền iOS/PWA ghi N giữ nguyên: PWA ×13, A11-10/11, ENT-22, NAV-08, GEO-11, GEO-12. `DEV-01, 02, 07, 08`: N theo qc2 («Chốt pha 2»: cần máy Android thật).
+- 15 mã `CL-*` (10 P / 0 F / 5 N) nằm ngoài bảng 345 mã; hợp theo mã: **360 mã = 271 P / 0 F / 89 N**.
 - Nhãn «không áp dụng iOS» không được tính là N của cả bộ.
 
 ## 10. Ghi chú
