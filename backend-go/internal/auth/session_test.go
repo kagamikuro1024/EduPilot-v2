@@ -240,7 +240,10 @@ func TestRefreshStoresHashOnly(t *testing.T) {
 	require.Equal(t, "1", r.scalar(`select count(*)::text from auth_sessions where refresh_hash = $1 and prev_refresh_hash = $2`, hashOf(s2.rt), hashOf(s1.rt)))
 }
 
-// US-P2-02 AC4: kẻ trộm dùng lại token cũ sau khi nạn nhân đã xoay.
+// afterGrace: quá refreshGrace (10 s, P-11-140) — các ca «dùng lại» sau đây xảy ra NGOÀI ân hạn.
+const afterGrace = 11 * time.Second
+
+// US-P2-02 AC4 (P-11-140): kẻ trộm dùng lại token cũ sau ân hạn, khi nạn nhân đã xoay.
 func TestRefreshReuseRevokesSession(t *testing.T) {
 	r := newSessRig(t)
 	email := uniq("reuse")
@@ -248,7 +251,8 @@ func TestRefreshReuseRevokesSession(t *testing.T) {
 	t1 := r.mustLogin(email)
 	t2 := sessionOf(t, r.refresh(t1.rt)) // nạn nhân xoay trước
 
-	res := r.refresh(t1.rt) // kẻ trộm trình T1
+	r.clk.Advance(afterGrace)
+	res := r.refresh(t1.rt) // kẻ trộm trình T1 sau ân hạn
 	require.Equal(t, http.StatusUnauthorized, res.code)
 	require.Equal(t, "SESSION_REVOKED", res.errCode())
 	require.EqualValues(t, -1, res.cookie("ep_rt").MaxAge, "xoá cookie")
@@ -269,6 +273,7 @@ func TestRefreshReuseThiefFirst(t *testing.T) {
 	r.user(email, store.UserRoleSTUDENT, store.UserStatusACTIVE)
 	t1 := r.mustLogin(email)
 	thief := sessionOf(t, r.refresh(t1.rt))
+	r.clk.Advance(afterGrace)
 	res := r.refresh(t1.rt)
 	require.Equal(t, "SESSION_REVOKED", res.errCode())
 	require.Equal(t, "SESSION_REVOKED", r.refresh(thief.rt).errCode(), "token vừa phát cho kẻ trộm cũng chết")
@@ -280,6 +285,7 @@ func TestRefreshReuseVictimFirst(t *testing.T) {
 	r.user(email, store.UserRoleSTUDENT, store.UserStatusACTIVE)
 	t1 := r.mustLogin(email)
 	victim := sessionOf(t, r.refresh(t1.rt))
+	r.clk.Advance(afterGrace)
 	require.Equal(t, http.StatusUnauthorized, r.refresh(t1.rt).code)
 	require.Equal(t, http.StatusUnauthorized, r.refresh(victim.rt).code)
 	require.Equal(t, http.StatusUnauthorized, r.api(victim.access).code)
@@ -291,6 +297,7 @@ func TestRefreshReuseAudit(t *testing.T) {
 	r.user(email, store.UserRoleSTUDENT, store.UserStatusACTIVE)
 	t1 := r.mustLogin(email)
 	t2 := sessionOf(t, r.refresh(t1.rt))
+	r.clk.Advance(afterGrace)
 	r.refresh(t1.rt)
 	var before, after *string
 	require.NoError(t, r.pool.QueryRow(t.Context(), `select before::text, after::text from audit_log where entity = 'auth_session' and entity_id = $1`, t1.sid).Scan(&before, &after))
@@ -301,28 +308,105 @@ func TestRefreshReuseAudit(t *testing.T) {
 	}
 }
 
-// AC4 (làm rõ Q-QC-P202-1): hai refresh song song cùng cookie → một 200, một 401, rồi cả phiên chết.
+// P-11-140 (thay Q-QC-P202-1 «không ân hạn»): N refresh song song cùng cookie → tất cả 200, CÙNG một refresh token mới, phiên sống, đúng một lần xoay.
 func TestRefreshConcurrentSameToken(t *testing.T) {
 	r := newSessRig(t)
 	email := uniq("race")
 	r.user(email, store.UserRoleSTUDENT, store.UserStatusACTIVE)
 	s := r.mustLogin(email)
 	var wg sync.WaitGroup
-	out := make([]resp, 2)
+	out := make([]resp, 6)
 	for i := range out {
 		wg.Add(1)
 		go func() { defer wg.Done(); out[i] = r.refresh(s.rt) }()
 	}
 	wg.Wait()
-	codes := []int{out[0].code, out[1].code}
-	sort.Ints(codes)
-	require.Equal(t, []int{http.StatusOK, http.StatusUnauthorized}, codes)
+	next := ""
 	for _, o := range out {
-		if o.code == http.StatusOK {
-			require.Equal(t, "SESSION_REVOKED", r.refresh(sessionOf(t, o).rt).errCode(), "token vừa phát cũng chết")
+		require.Equal(t, http.StatusOK, o.code, string(o.body))
+		got := sessionOf(t, o)
+		require.NotEqual(t, s.rt, got.rt)
+		if next == "" {
+			next = got.rt
 		}
+		require.Equal(t, next, got.rt, "mọi yêu cầu nhận cùng token mới")
+		require.Equal(t, s.sid, got.sid)
 	}
-	require.Equal(t, "REFRESH_REUSE", r.scalar(`select revoked_reason from auth_sessions where id = $1`, s.sid))
+	require.Equal(t, "1", r.scalar(`select count(*)::text from auth_sessions where id = $1 and revoked_at is null and refresh_hash = $2 and prev_refresh_hash = $3`, s.sid, hashOf(next), hashOf(s.rt)))
+	require.Equal(t, 0, countRows(t, r, `select count(*) from audit_log where action = 'refresh_reuse' and entity_id = $1`, s.sid))
+}
+
+// P-11-140: tải lại giữa lúc xoay — trong 10 s, trình T1 nhận LẠI đúng T2; không xoay thêm, không phiên mới, không audit; T2 vẫn dùng được.
+func TestRefreshGraceReplay(t *testing.T) {
+	r := newSessRig(t)
+	email := uniq("grace")
+	u := r.user(email, store.UserRoleSTUDENT, store.UserStatusACTIVE)
+	t1 := r.mustLogin(email)
+	res2 := r.refresh(t1.rt)
+	t2 := sessionOf(t, res2)
+	rotatedAt := r.scalar(`select rotated_at::text from auth_sessions where id = $1`, t1.sid)
+
+	r.clk.Advance(4 * time.Second)
+	res := r.refresh(t1.rt) // trình duyệt tải lại, chỉ còn cookie cũ
+	require.Equal(t, http.StatusOK, res.code, string(res.body))
+	again := sessionOf(t, res)
+	require.Equal(t, t2.rt, again.rt, "đúng token đã phát")
+	require.Equal(t, t1.sid, again.sid)
+	require.Equal(t, res2.cookie("ep_rt").MaxAge-4, res.cookie("ep_rt").MaxAge, "hạn cookie tính theo giờ còn lại của phiên")
+	require.Equal(t, 1, countRows(t, r, `select count(*) from auth_sessions where user_id = $1`, u.ID), "không tạo phiên")
+	require.Equal(t, rotatedAt, r.scalar(`select rotated_at::text from auth_sessions where id = $1`, t1.sid), "không xoay thêm")
+	require.Equal(t, hashOf(t2.rt), r.scalar(`select refresh_hash from auth_sessions where id = $1`, t1.sid))
+	require.Equal(t, 0, countRows(t, r, `select count(*) from audit_log where action = 'refresh_reuse'`))
+	require.Equal(t, http.StatusNotFound, r.api(again.access).code, "access mới dùng được (404 = đã xác thực)")
+
+	// bản mã không chứa token rõ; log không có token
+	for _, plain := range []string{t1.rt, t2.rt} {
+		require.Zero(t, countRows(t, r, `select count(*) from auth_sessions where position(convert_to($1, 'UTF8') in refresh_enc) > 0`, plain))
+		require.NotContains(t, r.logs.String(), plain)
+	}
+	t3 := sessionOf(t, r.refresh(t2.rt)) // T2 vẫn xoay bình thường
+	require.NotEqual(t, t2.rt, t3.rt)
+	require.Equal(t, 0, countRows(t, r, `select count(*) from auth_sessions where revoked_at is not null and id = $1`, t1.sid))
+}
+
+// P-11-140: biên của ân hạn — đúng 10 s vẫn nhận lại, quá 10 s là dùng lại (thu hồi + audit).
+func TestRefreshGraceBoundary(t *testing.T) {
+	r := newSessRig(t)
+	for _, c := range []struct {
+		after   time.Duration
+		revoked bool
+	}{{10 * time.Second, false}, {10*time.Second + time.Millisecond, true}} {
+		email := uniq("bound")
+		r.user(email, store.UserRoleSTUDENT, store.UserStatusACTIVE)
+		t1 := r.mustLogin(email)
+		t2 := sessionOf(t, r.refresh(t1.rt))
+		r.clk.Advance(c.after)
+		res := r.refresh(t1.rt)
+		if c.revoked {
+			require.Equal(t, "SESSION_REVOKED", res.errCode(), c.after.String())
+			require.Equal(t, "REFRESH_REUSE", r.scalar(`select revoked_reason from auth_sessions where id = $1`, t1.sid))
+			require.Equal(t, 1, countRows(t, r, `select count(*) from audit_log where action = 'refresh_reuse' and entity_id = $1`, t1.sid))
+			require.Equal(t, "SESSION_REVOKED", r.refresh(t2.rt).errCode())
+			continue
+		}
+		require.Equal(t, http.StatusOK, res.code, c.after.String())
+		require.Equal(t, t2.rt, sessionOf(t, res).rt)
+	}
+}
+
+// P-11-140: bản mã hỏng / chép từ phiên khác (AAD khác) ⇒ đóng an toàn: coi là dùng lại, thu hồi.
+func TestRefreshGraceBlobTampered(t *testing.T) {
+	r := newSessRig(t)
+	a, b := uniq("tamper.a"), uniq("tamper.b")
+	r.user(a, store.UserRoleSTUDENT, store.UserStatusACTIVE)
+	r.user(b, store.UserRoleSTUDENT, store.UserStatusACTIVE)
+	a1, b1 := r.mustLogin(a), r.mustLogin(b)
+	require.Equal(t, http.StatusOK, r.refresh(a1.rt).code)
+	require.Equal(t, http.StatusOK, r.refresh(b1.rt).code)
+	_, err := r.pool.Exec(t.Context(), `update auth_sessions set refresh_enc = (select refresh_enc from auth_sessions where id = $2) where id = $1`, a1.sid, b1.sid)
+	require.NoError(t, err)
+	require.Equal(t, "SESSION_REVOKED", r.refresh(a1.rt).errCode())
+	require.Equal(t, "REFRESH_REUSE", r.scalar(`select revoked_reason from auth_sessions where id = $1`, a1.sid))
 }
 
 // AC5.

@@ -26,6 +26,7 @@ func TestAuthSchema(t *testing.T) {
 			"user_agent": {"text", nl, ""}, "device_label": {"text", nl, ""}, "ip": {"inet", nl, ""}, "created_at": now,
 			"rotated_at": {ts, nl, ""}, "last_used_at": now, "expires_at": {ts, nn, ""}, "absolute_expires_at": {ts, nn, ""},
 			"revoked_at": {ts, nl, ""}, "revoked_reason": {"text", nl, ""}, "updated_at": now,
+			"refresh_enc": {"bytea", nl, ""}, "grace_until": {ts, nl, ""}, // P-11-140 (00032)
 		},
 		"auth_tokens": {
 			"id": idCol, "user_id": {"uuid", nn, ""}, "kind": {"auth_token_kind", nn, ""}, "token_hash": {"character(64)", nn, ""},

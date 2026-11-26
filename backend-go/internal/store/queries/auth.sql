@@ -37,6 +37,8 @@ for update;
 update auth_sessions
 set prev_refresh_hash = refresh_hash,
     refresh_hash = sqlc.arg(new_hash),
+    refresh_enc = sqlc.narg(refresh_enc),
+    grace_until = sqlc.narg(grace_until)::timestamptz,
     rotated_at = sqlc.arg(now)::timestamptz,
     last_used_at = sqlc.arg(now)::timestamptz,
     expires_at = sqlc.arg(expires_at)

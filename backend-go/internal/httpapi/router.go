@@ -24,6 +24,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
+	"github.com/edupilot/backend-go/internal/platform/crypto"
 	"github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/user"
 	"github.com/go-chi/chi/v5"
@@ -131,9 +132,10 @@ func withDefaults(d Deps) Deps {
 		d.Jobs = jobs.NewService(d.DB)
 	}
 	if d.Sessions == nil && d.DB != nil {
+		cipher, _ := crypto.ParseKey(d.Cfg.AppEncryptionKey) // gateway bắt buộc khoá hợp lệ (config); lỗi ⇒ cipher nil ⇒ không ân hạn
 		cfg := auth.SessionConfig{
 			AccessTTL: d.Cfg.AccessTokenTTL, RefreshTTL: d.Cfg.RefreshTokenTTL,
-			AbsoluteTTL: d.Cfg.SessionAbsoluteTTL, BcryptCost: d.Cfg.BcryptCost, Limits: authLimits(d.Cfg), Mail: queueMail,
+			AbsoluteTTL: d.Cfg.SessionAbsoluteTTL, BcryptCost: d.Cfg.BcryptCost, Limits: authLimits(d.Cfg), Mail: queueMail, Cipher: cipher,
 		}
 		d.Sessions = auth.NewSessions(d.DB, d.Redis, d.Clock, auth.NewIssuer(d.Cfg.JWTSecretKey, d.Cfg.AccessTokenTTL, d.Clock), cfg, d.Log)
 	}

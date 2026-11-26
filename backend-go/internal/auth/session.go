@@ -20,6 +20,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/platform/crypto"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -38,6 +39,9 @@ const (
 
 // revocationGrace: khoá thu hồi sống thêm chừng này sau hạn access token để chịu lệch đồng hồ.
 const revocationGrace = 60 * time.Second
+
+// refreshGrace (P-11-140): sau khi xoay, token vừa bị thay (prev) trong chừng này vẫn đổi được ĐÚNG cặp token mới nhất (không xoay thêm). Quá hạn = dùng lại.
+const refreshGrace = 10 * time.Second
 
 // refreshBytes: 32 byte → 43 ký tự base64url (cùng cỡ với token một lần).
 const refreshBytes = 32
@@ -62,6 +66,7 @@ type SessionConfig struct {
 	BcryptCost  int
 	Limits      Limits    // ngưỡng chờ / khoá / chặn IP (US-P2-05)
 	Mail        MailQueue // xếp thư account_locked cùng transaction; nil = không gửi (test)
+	Cipher      *crypto.Cipher // mã hoá refresh token mới nhất cho ân hạn; nil = không ân hạn (dùng lại là thu hồi ngay)
 }
 
 // Sessions là dịch vụ phiên: đăng nhập, làm mới xoay vòng, đăng xuất, thu hồi. Gói duy nhất chạm auth_sessions.
@@ -347,7 +352,7 @@ func (s *Sessions) result(u store.User, sid uuid.UUID, refresh string, refreshTT
 }
 
 // Refresh đổi refresh token hiện tại lấy access token mới và refresh token mới (xoay vòng).
-// Token ở thế hệ trước (prev) = dùng lại → thu hồi cả phiên. Không có ân hạn (Q9).
+// Token ở thế hệ trước (prev): trong refreshGrace kể từ lần xoay → nhận lại ĐÚNG cặp mới nhất (P-11-140, không xoay thêm); ngoài hạn = dùng lại → thu hồi cả phiên.
 func (s *Sessions) Refresh(ctx context.Context, refresh, userAgent, ip string) (Result, error) {
 	hash := HashToken(refresh)
 	now := s.clk.Now()
@@ -369,7 +374,12 @@ func (s *Sessions) Refresh(ctx context.Context, refresh, userAgent, ip string) (
 	if sess.RevokedAt != nil {
 		return Result{}, &SessionRevokedError{Reason: reasonOut(sess.RevokedReason)}
 	}
-	if sess.PrevRefreshHash != nil && *sess.PrevRefreshHash == hash { // token cũ đã bị xoay ⇒ bị đánh cắp hoặc đua
+	reused := sess.PrevRefreshHash != nil && *sess.PrevRefreshHash == hash // token đã bị xoay: trong ân hạn là tải lại / đua hợp lệ, ngoài hạn là bị đánh cắp
+	replay := ""
+	if reused {
+		replay = s.graceToken(sess, now)
+	}
+	if reused && replay == "" {
 		if _, err := q.RevokeAuthSession(ctx, store.RevokeAuthSessionParams{ID: sess.ID, Now: now, Reason: ReasonRefreshReuse}); err != nil {
 			return Result{}, fmt.Errorf("auth: thu hồi phiên: %w", err)
 		}
@@ -403,18 +413,53 @@ func (s *Sessions) Refresh(ctx context.Context, refresh, userAgent, ip string) (
 		return Result{}, &SessionRevokedError{Reason: "account_disabled"}
 	}
 
+	if replay != "" { // P-11-140: trong ân hạn trả lại đúng token vừa xoay; không xoay thêm, không ghi gì
+		return s.result(u, sess.ID, replay, sess.ExpiresAt.Sub(now))
+	}
 	next, err := newRefreshToken()
 	if err != nil {
 		return Result{}, err
 	}
 	exp := minTime(now.Add(s.cfg.RefreshTTL), sess.AbsoluteExpiresAt)
-	if err := q.RotateAuthSession(ctx, store.RotateAuthSessionParams{ID: sess.ID, NewHash: HashToken(next), Now: now, ExpiresAt: exp}); err != nil {
+	enc, graceUntil, err := s.sealRefresh(sess.ID, next, now)
+	if err != nil {
+		return Result{}, err
+	}
+	if err := q.RotateAuthSession(ctx, store.RotateAuthSessionParams{ID: sess.ID, NewHash: HashToken(next), RefreshEnc: enc, GraceUntil: graceUntil, Now: now, ExpiresAt: exp}); err != nil {
 		return Result{}, fmt.Errorf("auth: xoay refresh: %w", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return Result{}, fmt.Errorf("auth: commit xoay: %w", err)
 	}
 	return s.result(u, sess.ID, next, exp.Sub(now))
+}
+
+// refreshAAD gắn bản mã refresh_enc với phiên: chép sang hàng khác thì giải mã thất bại.
+func refreshAAD(sid uuid.UUID) []byte { return []byte("auth_sessions:" + sid.String()) }
+
+// sealRefresh mã hoá token vừa phát để trả lại trong ân hạn. Không có Cipher ⇒ (nil, nil): không ân hạn cho thế hệ này.
+func (s *Sessions) sealRefresh(sid uuid.UUID, next string, now time.Time) ([]byte, *time.Time, error) {
+	if s.cfg.Cipher == nil {
+		return nil, nil, nil
+	}
+	enc, err := s.cfg.Cipher.Encrypt([]byte(next), refreshAAD(sid))
+	if err != nil {
+		return nil, nil, fmt.Errorf("auth: mã hoá refresh: %w", err)
+	}
+	until := now.Add(refreshGrace)
+	return enc, &until, nil
+}
+
+// graceToken: token mới nhất của phiên nếu sess còn trong ân hạn; "" khi hết hạn / không có bản mã / giải mã hỏng (khi đó coi là dùng lại).
+func (s *Sessions) graceToken(sess store.AuthSession, now time.Time) string {
+	if s.cfg.Cipher == nil || sess.RefreshEnc == nil || sess.GraceUntil == nil || now.After(*sess.GraceUntil) {
+		return ""
+	}
+	plain, err := s.cfg.Cipher.Decrypt(sess.RefreshEnc, refreshAAD(sess.ID))
+	if err != nil {
+		return ""
+	}
+	return string(plain)
 }
 
 // Logout thu hồi phiên của refresh token (nếu còn). Luôn thành công — kể cả khi token lạ hoặc phiên đã chết.
