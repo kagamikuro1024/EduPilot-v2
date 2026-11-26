@@ -684,7 +684,9 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-ATT-10 | P | Bấm «Mở màn chiếu» → `/attendance/display` hiện QR + «Mã điểm danh S3C OVX» + đếm «còn 46:30» + «Đóng điểm danh» + «Thoát»; không crash | shots/ATT-10b.png |
 | TC-MOB-ATT-11 | P | Ghim `geofence` 150 m + `campus_cidrs` trên QCMOB1, điểm danh bằng API với toạ độ cách 6 km: staff thấy cờ `GEO_OUT` «Ngoài khu vực lớp», `OFF_CAMPUS` «Ngoài mạng trường», `geo_distance_m` 6016, `in_campus` false, `assurance` 1; SV chỉ thấy `session_no/starts_at/status/checked_in_at`; route staff dưới JWT SV → 403 | shots/ATT-11-staff.json, shots/ATT-11-sv.json |
 | TC-MOB-PWA-16 | P | `curl -sI /manifest.webmanifest`: HTTP/2 200, `content-type: application/manifest+json`, `cache-control: public, max-age=0, must-revalidate` (không kẹt bản cũ), HTTPS | — |
-| TC-MOB-DEV-12 | N | `go test ./internal/attendance/attest -run 'TestAttestRealChains\|TestAttestRejects'` cần Docker (redis/postgres testcontainers); colima đang tắt theo guard bộ nhớ — không chạy | — |
+| TC-MOB-DEV-12 | P | Chạy trên VPS (Docker thật, Go `/opt/go`): `go test ./internal/attendance/attest -run 'TestAttestRealChains\|TestAttestRejects' -count=1 -v` → `caiman_sdk36_SB_EC_RKP`, `caiman_sdk36_TEE_EC_RKP`, `akita_sdk34_TEE_EC_NONE` PASS (đúng ca `boot_verified`), `TestAttestRejects` PASS (chứng chỉ giả bị từ chối); `attest.go` và `attest_test.go` trên VPS trùng md5 với `sprint/11-p10-eval` | — |
+| TC-MOB-TGT-06 | P | Playwright WebKit iPhone 15 ngang 844×390 `pointer: coarse` = true: `/checkin` 24 điều khiển, **0 cái < 44×44** (thanh bên 169×56 ×5: Hôm nay, Chat riêng, Hỏi đáp, Luyện đề, Thêm); màn chiếu `/attendance/display` (GV): «Về Điểm danh» 130×44. Ghi chú phạm vi: «Thoát», «Nhập mã», «Thử lại» không xuất hiện ở các trạng thái này (cần luồng quét camera/lỗi mạng); đã đo mọi điều khiển hiện có | shots/TGT-06-*.png |
+| TC-MOB-UIW-22 | P | iPhone SE 375×667 và iPhone 15 Pro Max 430×932 (WebKit, cảm ứng): `/checkin` `scrollWidth` = bề rộng (không cuộn ngang), 0 điều khiển < 44 px, 0 cặp khung chữ chồng nhau | shots/UIW-22-*.png |
 | TC-MOB-ENT-21 | P | `GET /me/today` (sv.gioi, đang có lượt mang cờ `GEO_OUT`/`OFF_CAMPUS`): `timeline[]` chỉ có `at, ends_at, title, place, state, course{id,class_code}, checkin_link` — không `student_id`, cờ, mức tin cậy, thiết bị, vị trí; đúng một boolean `checkin_link` | shots/ENT-21-today.json |
 | TC-MOB-DAT-06 | P | axe (wcag2a+aa) `/checkin` 375×812 Chromium trên VPS: 0 vi phạm | pw/ios_w.mjs |
 | TC-MOB-A11-14 | P | `prefers-reduced-motion: reduce`: media query khớp, 0 hoạt ảnh vô hạn, 0 chuyển/hoạt ảnh > 0,2 s, đo 6 lần ở 2 trạng thái `/checkin` | pw/ios_w.mjs |
@@ -756,10 +758,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 101 | 1 | 4 |
+| qc3 iOS | 104 | 1 | 3 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (347 mã gốc − 49 trùng = 298)** | **234** | **1** | **63** |
+| **Hợp (349 mã gốc − 51 trùng = 298)** | **237** | **1** | **60** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -909,7 +911,7 @@ Còn lại của lô E (`PWA-06…12`, `14`, `15`, `17…21`) **N** trong phiên
 - Giải pháp sinh dữ liệu: `POST /sessions/generate` tạo buổi 105–114 hôm nay trên QCMOB1 (mỗi buổi 3 vòng); chính sách lớp ghim `rotate_seconds` tạm 60 s cho SES-12 rồi **trả về 10 s** (DB xác nhận nguyên trạng). Khung test: token GV cấp một lần bởi `tok.py` (cache `.cache/` không commit), 429 chờ `Retry-After`, mọi URL qua `openLink` có guard — sự cố crash `Qc2UITests-Runner` 20:19 do `openRound` trả URL rỗng khi buổi 113 hết vòng (`ROUND_LIMIT`), **không phải lỗi app**; không ghi P/F từ lượt đó.
 - `SES-12` **F** (đề nghị mở `DEF-MOB-13`, PM đánh số): QR → đăng nhập trên Safari iOS không tự điểm danh; WebKit của Playwright thì đúng ⇒ khác biệt Safari/WebKit trên thiết bị, cần dev dò (stash `ep.checkin` có bị mất khi Safari phục hồi/chuyển trang?).
 - `NAV-07` dùng nút Back của Safari thay vuốt cạnh trái (XCUITest không bơm được cử chỉ cạnh).
-- Chưa chạy vì guard bộ nhớ (swap > 90 %): `LIF-09` (nền 5 phút), `FLW-10` (`sv.moi`), `SAF-09` (cần ảnh /checkin trong PWA không có bàn phím), `TGT-06`, `UIW-22`.
+- `DEV-12` chuyển **P** (chạy trên Docker của VPS), `TGT-06` và `UIW-22` **P** (WebKit). Còn `LIF-09` (nền 5 phút), `FLW-10` (`sv.moi`), `SAF-09` (PWA đã mất phiên, phải đăng nhập lại trong PWA rồi vào `/checkin`): dừng vì guard mới — swap tăng +1,5 GB (3 600 → 5 155 MB) trong một lô có boot Simulator, free 29 %. Đo một phần SAF-09 trên PWA «Hôm nay»: đường kẻ thanh dưới ở 761 pt/852 pt ⇒ cao 91 pt = 56 + 34 + viền (chưa có ảnh dock).
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

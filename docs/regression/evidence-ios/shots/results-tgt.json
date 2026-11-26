@@ -1,0 +1,22 @@
+[
+ {
+  "tc": "TC-MOB-TGT-06a",
+  "kq": "P",
+  "note": "/checkin ngang 844×390 pointer:coarse=true: 24 điều khiển, <44: []; mục thanh bên/dưới: 5 (Hôm nay 169×56; Chat riêng 169×56; Hỏi đáp 169×56; Luyện đề 169×56; Thêm 169×56); gặp «Thoát/Nhập mã/Thử lại»: []"
+ },
+ {
+  "tc": "TC-MOB-TGT-06b",
+  "kq": "P",
+  "note": "/attendance/display ngang: coarse=true, điều khiển: Về Điểm danh 130×44"
+ },
+ {
+  "tc": "TC-MOB-UIW-22-iPhoneSE3",
+  "kq": "P",
+  "note": "iPhone SE 3 375px: scrollWidth=375, điều khiển<44: [], chồng khung chữ=0"
+ },
+ {
+  "tc": "TC-MOB-UIW-22-iPhone15ProMax",
+  "kq": "P",
+  "note": "iPhone 15 Pro Max 430px: scrollWidth=430, điều khiển<44: [], chồng khung chữ=0"
+ }
+]

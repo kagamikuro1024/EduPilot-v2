@@ -765,4 +765,17 @@ final class IosTests: XCTestCase {
         try? out.write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
         print(out); closeRound(tok, wid: wid)
     }
+
+    /// SAF-09: mở PWA từ biểu tượng, vào /checkin bằng thanh dưới, chụp (không gõ gì, không bàn phím).
+    func testPwaCheckinShot() {
+        let spring = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        spring.activate(); sleep(2)
+        spring.icons.matching(NSPredicate(format: "label == %@", "EduPilot")).firstMatch.tap()
+        sleep(9)
+        let app = XCUIApplication(bundleIdentifier: "com.apple.webapp")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.70, dy: 0.915)).tap(); sleep(5)
+        savePng(shotName())
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.12)).tap(); sleep(1)   // bỏ focus nếu ô mã đang giữ bàn phím
+        savePng(shotName() + "-nokbd")
+    }
 }
