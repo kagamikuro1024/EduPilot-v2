@@ -1,0 +1,11 @@
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 66.2 MB/s (462712 bytes in 0.007s)
+{'tag': 'n1', 'ok': True, 'fps': 60, 'A_s': 5.37, 'C_minus_A_ms': 83, 'R_minus_A_s': 0.8}
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 87.3 MB/s (324362 bytes in 0.004s)
+{'tag': 'n2', 'ok': True, 'fps': 60, 'A_s': 2.71, 'C_minus_A_ms': 166, 'R_minus_A_s': 0.93}
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 106.9 MB/s (307129 bytes in 0.003s)
+{'tag': 'n3', 'ok': True, 'fps': 60, 'A_s': 2.74, 'C_minus_A_ms': 150, 'R_minus_A_s': 0.8}
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 81.5 MB/s (327011 bytes in 0.004s)
+{'tag': 'n4', 'ok': True, 'fps': 60, 'A_s': 2.7, 'C_minus_A_ms': 167, 'R_minus_A_s': 0.92}
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 82.0 MB/s (296991 bytes in 0.003s)
+{'tag': 'n5', 'ok': True, 'fps': 60, 'A_s': 2.59, 'C_minus_A_ms': 83, 'R_minus_A_s': 0.85}
+XONG normal

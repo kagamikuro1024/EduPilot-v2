@@ -1,0 +1,7 @@
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 69.7 MB/s (320809 bytes in 0.004s)
+{'tag': 's1', 'ok': True, 'fps': 60, 'A_s': 2.69, 'C_minus_A_ms': 150, 'R_minus_A_s': 0.95}
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 99.5 MB/s (318596 bytes in 0.003s)
+{'tag': 's2', 'ok': True, 'fps': 60, 'A_s': 2.88, 'C_minus_A_ms': 183, 'R_minus_A_s': 0.88}
+/sdcard/prf.mp4: 1 file pulled, 0 skipped. 75.3 MB/s (343219 bytes in 0.004s)
+{'tag': 's3', 'ok': True, 'fps': 60, 'A_s': 2.65, 'C_minus_A_ms': 215, 'R_minus_A_s': 0.93}
+XONG slow

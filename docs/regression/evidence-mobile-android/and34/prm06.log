@@ -1,0 +1,11 @@
+mem: free 60% | swap used 3424.50M (+-728M vs sau-boot)
+hop quyen camera hien: True
+chon Only this time: True
+quet lan 1, video: {"paused":false,"ready":4,"w":480}
+CAMERA: android.permission.CAMERA: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|ONE_TIM
+de nen 80 s...
+CAMERA sau nen: android.permission.CAMERA: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|ONE_TIME]
+quay lai: url /
+quet lan 2: nobtn
+ket qua lan 2: camera mo (khong hoi lai) 0.3 s |  Chào Hai / Thứ Năm, 26/11 / Việc nên làm tiếp /  / Hôm nay bạn không có việc gấp /  / Hôm nay / Buổ
+crash/ANR: 0

@@ -1,0 +1,6 @@
+# GEO-12 (26/11) — tìm toạ độ 21.0285/105.8542 (đã đặt ở GEO-10, hàng chục lượt GEO-xx), IP egress 104.28.x.x (Cloudflare WARP), tên máy sdk_gphone
+logcat -d của emulator (31 641 dòng): 21.028=0  105.854=0  104.28.=0  sdk_gphone=27 (toàn dịch vụ HỆ THỐNG: NavigationModeController 20, BluetoothSystemServer 3, ExoPlayerImpl 2, zygote64 1, idmap2d 1; 0 dòng từ app/Capacitor/chromium)
+gateway (docker logs edupilot-gateway-1 --since 3h, 3 567 dòng): 21.028=0  105.854=0  104.28.=0  sdk_gphone=0
+DB (psql, ::text ~ '21\.028|105\.854|104\.28\.|sdk_gphone'):
+  attendance_checkins: 0 | audit_log: 0 | user_devices: 0 | checkin_windows: 0
+  courses.settings: 1 (QCVPSC — vị trí lớp do giáo viên cấu hình ở GEO-02; đúng thiết kế «Chỉ ở courses.settings», không phải dữ liệu điểm danh)

@@ -36,7 +36,7 @@ def poster(url, tag):
     from PIL import Image
     qa = f"{WORKD}/_q.png"; segno.make(url, error="l").save(qa, scale=14, border=4)
     im = Image.open(qa).convert("RGB"); c = Image.new("RGB", (1024, 1024), "white"); c.paste(im.resize((720, 720), Image.NEAREST), (152, 228))
-    p = f"{AVD}/poster.png"; c.save(p); adb(f"emu virtualscene-image wall {p}"); return p
+    p = f"{AVD}/qr-{tag}-{int(time.time()*1000)}.png"; c.save(p); adb(f"emu virtualscene-image wall {p}"); return p
 def txt(): return m.cdp("document.body.innerText.replace(/\\n/g,' / ')")
 def click(label): return m.cdp("(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.innerText.trim()===" + json.dumps(label) + "&&!x.disabled&&x.offsetParent); if(!b) return 'nobtn'; b.click(); return 'ok'})()")
 def type_code(code):
@@ -75,3 +75,32 @@ def submit_code(w, wait=15):
         if r: break
         time.sleep(0.2)
     return round(time.time() - t0, 1), r
+def qr_url(w):
+    d = display(w); return d["qr_url"].replace("https://localhost", m.vps.HOST, 1), d
+def home():
+    m.cdp("(()=>{const a=[...document.querySelectorAll('a')].find(x=>x.getAttribute('href')==='/'||/Hôm nay/.test(x.textContent)&&x.offsetParent); if(a){a.click()}})()"); time.sleep(2.0)
+def open_scan(grant=True):
+    """Bấm «Quét mã điểm danh»; nếu hộp quyền camera hiện thì cấp «While using the app». Trả True khi <video> chạy."""
+    r = click("Quét mã điểm danh")
+    if r != "ok": return False
+    for _ in range(25):
+        if "GrantPermissionsActivity" in adb("shell dumpsys window | grep -m1 GrantPermissionsActivity"):
+            if grant: tap_text("While using the app")
+            else: return "dialog"
+        if m.cdp("(()=>{const v=document.querySelector('video'); return !!(v&&v.readyState>=2&&v.videoWidth>0&&!v.paused)})()"): return True
+        time.sleep(0.4)
+    return False
+def blank_poster():
+    from PIL import Image
+    p = f"{AVD}/blank-{int(time.time()*1000)}.png"; Image.new("RGB", (1024, 1024), "white").save(p); adb(f"emu virtualscene-image wall {p}")
+def analyze(mp4, tag):
+    """Từ video: A = khung QR hiện trong xem trước (độ lệch chuẩn vùng giữa tăng), C = khung xem trước biến mất (đang gửi). Trả (A_s, C_s, fps, n)."""
+    import glob, shutil
+    from PIL import Image, ImageStat
+    d = f"{WORKD}/an_{tag}"; shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
+    subprocess.run(f"ffmpeg -loglevel error -i '{mp4}' -vf scale=108:-1 {d}/f%04d.png", shell=True)
+    fr = sorted(glob.glob(d + "/f*.png")); st = []
+    for f in fr:
+        im = Image.open(f).convert("L"); W, H = im.size; box = im.crop((int(W*.1), int(H*.15), int(W*.9), int(H*.65)))
+        s = ImageStat.Stat(box); st.append((s.mean[0], s.stddev[0]))
+    return fr, st

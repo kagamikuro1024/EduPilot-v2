@@ -510,3 +510,38 @@ Emulator `ep-api36-ps` (API 36, Play Store), APK debug, VPS `87cac77c`, `sv.qc2`
 **Dừng giữa chừng**: sau GEO-09 guard báo `swap used` = +1 136 MB so với mốc sau-boot (ngưỡng 1 GB), free 75 %. Đã tắt emulator (`adb emu kill`). Chưa chạy: A11-05..08, A11-13, A11-15, DEV-04, DEV-05, GEO-10, GEO-12, GEO-13, INS-08, LIF-13, PRF-01/02/03/05/06, PRM-06, SCN-12, SEC-03, SEC-13, THM-08.
 
 Tổng `results.jsonl`: 118 TC = 98 P, 0 F, 20 N.
+
+## 45. Lô Android-only «chờ qc2» — lô 2 (26/11): 23 mã còn lại + tổng lô
+
+Emulator `ep-api36-ps` (API 36, Play Store), APK debug, VPS `87cac77c`, `sv.qc2`. RAM AVD 2 GB (đã là 2 GB sẵn). Guard: ngưỡng swap +1,5 GB / free < 20 % (không vượt trong lô này). Evidence: `and34/` (+ `shots/`).
+
+| Mã | KQ | Ghi chú |
+|---|---|---|
+| GEO-10 | P | appop `mock_location` cho shell + `cmd location providers add-test-provider`: plugin `isMockLocation` = true → `GEO_MOCK`, assurance 2 |
+| GEO-12 | P | 0 toạ độ/IP ở logcat, gateway, `attendance_checkins`, `audit_log`; tên máy chỉ ở log hệ thống |
+| GEO-13 | P | ngoài CIDR → `OFF_CAMPUS`; trong CIDR (dải egress Cloudflare WARP) → không cờ; IP không vào DB. Không có Wi-Fi trường thật |
+| INS-08 | P | gỡ/cài lại: khoá mới, không đăng nhập sẵn, `DEVICE_NEW` đúng một lần |
+| SCN-12 | P | camera bị chặn (sensor privacy) → «Không mở được camera.» + ô nhập mã |
+| LIF-13 | P | trim-memory lặp + 4 app nền: camera mở, không crash. Quan sát: 1 lần renderer WebView bị kill → trang lỗi «Không kết nối được máy chủ», «Thử lại» tải lại được nhưng mất phiên |
+| PRF-01 | P | TotalTime trung vị 447/464 ms, lớn nhất 511 ms. Quan sát: cookie `ep_rt` chưa ghi xuống đĩa nếu tắt app ≤ ~20 s sau khi đăng nhập/làm mới → mở lại phải đăng nhập |
+| PRF-02 | P | QR vào khung → «Đã điểm danh»: trung vị 0,85 s, lớn nhất 0,93 s (60 fps) |
+| PRF-03 | P | QR vào khung → bắt đầu gửi: lớn nhất 215 ms (≤ 300 ms) |
+| PRF-05 | P | 10 lần mở/đóng quét: bộ nhớ không tăng (-3 MB), camera tắt mỗi lần |
+| PRF-06 | P | 60 s quét: không ANR; số giật theo thang mới ~99 % do render phần mềm emulator (ghi nhận) |
+| PRM-06 | P | «Chỉ lần này» hết hạn sau 80 s nền → hộp quyền hiện lại, không treo |
+| THM-08 | P | tương phản 16,3:1 (đã điểm danh), 5,57:1 (lỗi) |
+| A11-05 | P | khung camera có `aria-label` «Camera quét mã điểm danh», `Thoát` kích hoạt bằng cử chỉ TalkBack |
+| **A11-06** | **F** | trạng thái gửi là khung xương «Đang tải», không có «Đang gửi» (AC12) |
+| **A11-07** | **F** | lỗi nằm trong vùng `aria-live=polite`, không có `role="alert"` (AC12) |
+| **A11-08** | **F** | vùng thông báo đổi mỗi giây (38 lần/38 s) thay vì chỉ lúc bắt đầu/hết giờ (AC12) |
+| A11-13 | P | thứ tự Tab theo thứ tự nhìn, viền focus đỏ rõ, không bẫy focus ở khung quét |
+| A11-15 | P | tương phản cao + chữ 1,5 + 133 %: không tràn ngang; tên lớp thu thành «…» |
+| DEV-04 | N | cần dev chặn egress `android.googleapis.com` ở VPS |
+| DEV-05 | N | emulator bị từ chối ở bước `chain` trước khi kiểm gói/vân tay |
+| SEC-03 | N | cần APK release; APK debug in `public_key`/`signature`/`nonce` ở logcat (Capacitor DEBUG), 0 token/mật khẩu |
+| SEC-13 | N | TEE/StrongBox chỉ máy thật; emulator: `sign` ×2 hợp lệ, khoá Software |
+| PWA-23, GEO-11 | N | iPhone thật + 8 ngày; ca iOS (qc3) |
+
+**Phương pháp TalkBack (theo lệnh PM)**: âm thanh emulator đã tắt; TalkBack chỉ bật khi đo, đọc kết quả qua DOM (`MutationObserver`) và đếm lượt TTS trong logcat — **không nghe giọng**, nên A11-06/07/08 dựa trên cây DOM/ARIA; TalkBack đã tắt (`enabled_accessibility_services` rỗng). Lần khởi động sau phải kèm `-no-audio`.
+
+Ba F đều thuộc nhóm A11 (AC12 trình đọc màn hình); **không có lỗi sản phẩm nào khác** trong 37 mã. Tổng `results.jsonl`: 141 TC = 114 P, 3 F, 24 N. Đã dừng emulator, trả policy QCMOB2 (rotate 10, không geofence/CIDR).
