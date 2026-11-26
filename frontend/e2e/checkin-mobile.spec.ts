@@ -293,6 +293,19 @@ test("checkin AC12 (DEF-MOB-15b): đếm ngược 429 — cây trợ năng khôn
   }
 });
 
+test("checkin AC12 (DEF-MOB-15c): đổi trạng thái (429, lỗi, xong) không để focus rơi về body — focus nằm trong khu checkin hoặc ở nút còn lại", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const focusOk = () => page.evaluate(() => { const a = document.activeElement; return !!a && a !== document.body && !!a.closest("[data-part=checkin], [data-part=checkin-dock]"); });
+  for (const [status, body, wait] of [[429, { code: "RATE_LIMITED", message: "m", trace_id: "a".repeat(32), retry_after: 9 }, "[data-part=limited]"], [400, { code: "CHECKIN_TOKEN_INVALID", message: "m", trace_id: "a".repeat(32) }, "[role=alert]"], [201, { checked_in_at: CHECKED_IN_AT, round: 1 }, "[data-part=done]"]] as const) {
+    await checkinApi(page, context, { post: (r) => r.fulfill(json(body, status)) });
+    await page.goto("/checkin");
+    await page.getByLabel("Mã điểm danh").fill("ABC123");
+    await page.getByRole("button", { name: "Điểm danh" }).last().click();
+    await expect(page.locator(wait).first()).toBeVisible();
+    expect(await focusOk(), `HTTP ${status}`).toBe(true);
+  }
+});
+
 // AC11 + AC5: PWA iPhone — biểu tượng, tên, toàn màn, thanh trạng thái khớp thanh trên trắng
 test("checkin: có apple-touch-icon, tên «EduPilot», chạy toàn màn (iOS) và theme-color khớp thanh trên", async ({ page, context }) => {
   await checkinApi(page, context);

@@ -246,6 +246,14 @@ export function CheckinScreen() {
   }, [view]);
 
   // Back / vuốt quay lại khi đang quét: thoát khung quét về ô nhập mã, không rời /checkin (US-AS-15 AC7a). Vào khung quét đẩy một mục lịch sử; thoát bằng cách lùi mục đó.
+  // Đổi trạng thái gỡ phần tử đang focus (ô nhập, nút) ⇒ focus rơi về body và TalkBack đọc lần lượt cả trang (DEF-MOB-15c): đặt focus vào mỏ neo rỗng của khối trạng thái, không thêm chữ.
+  const anchor = useRef<HTMLSpanElement>(null);
+  const firstView = useRef(true);
+  useEffect(() => {
+    if (firstView.current) return void (firstView.current = false);
+    const a = document.activeElement;
+    if (view.k !== "scanning" && (!a || a === document.body)) anchor.current?.focus({ preventScroll: true });
+  }, [view.k]);
   const scanning = view.k === "scanning";
   useEffect(() => {
     if (!scanning) return;
@@ -309,6 +317,7 @@ export function CheckinScreen() {
       {!stash && policy.isError && <ApiErrorNotice error={policy.error} showTechnical={false} onRetry={() => void policy.refetch()} />}
       <Panel>
         <div className={s.body} data-part="checkin" data-state={view.k} >
+          <span ref={anchor} tabIndex={-1} className={s.anchor} data-part="checkin-anchor" />
           {(geoLine || needsGeo) && view.k !== "done" && <p className={s.geo} data-part="geo-line">{GEO_LINE}</p>}
           {view.k === "sending" && (
             <>

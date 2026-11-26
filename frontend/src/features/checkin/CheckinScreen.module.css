@@ -1,5 +1,6 @@
 /* /checkin (DESIGN §14.8.2): một Panel, nội dung căn giữa cột đọc; dấu ✓ là chỗ đỏ DUY NHẤT (nghĩa «đã xác nhận»); lỗi dùng thông báo danger chuẩn */
 .body { display: grid; gap: var(--ep-space-4); justify-items: center; text-align: center; min-height: 160px; align-content: center; padding-block: var(--ep-space-6); }
+.anchor { position: absolute; width: 1px; height: 1px; overflow: hidden; outline: none; }
 .done { margin: 0; display: inline-flex; align-items: center; gap: var(--ep-space-3); }
 .check { color: var(--ep-red); width: 1.5rem; height: 1.5rem; }
 .form { display: grid; gap: var(--ep-space-3); width: min(100%, 320px); text-align: start; justify-items: stretch; }
