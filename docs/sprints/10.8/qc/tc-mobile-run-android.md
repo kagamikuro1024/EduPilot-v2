@@ -419,3 +419,17 @@ Bằng chứng: `shots/DEF-MOB-12-landing.png`, `shots/DEF-MOB-12-checkin.png`, 
 Tiêu chuẩn áp cho ca này: cam kết **WebView ≥ 64** (P-11-149) — WebView 66 của AVD **nằm trong** phạm vi hứa, nên đây là **lỗi sản phẩm**, giữ **F**; PM giao dev3 thành **DEF-MOB-12b**.
 
 Ghi chú cho dev2: nghi vấn các API thiếu trên Chrome 66 mà `apiClient`/`authSession` dùng (`crypto.randomUUID`, `AbortSignal.timeout`, `AbortSignal.any`) và khác biệt `Intl`/định dạng ngày; nên kiểm bằng `Page.addScriptToEvaluateOnNewDocument` polyfill để tách nguyên nhân. AVD đã xoá, không còn emulator chạy.
+
+## 40. Lượt 36 (26/11) — nghiệm lại INS-09 trên VPS 0316ef2b (DEF-MOB-12b): **P**
+
+AVD API 28, WebView 66.0.3359.158, APK debug; một lần đăng nhập `sv.qc2` (giới hạn 10/phút/IP).
+
+| Tiêu chí | Kết quả |
+|---|---|
+| `SyntaxError`/`ReferenceError`/`TypeError` | **0** |
+| `React error #418` | **1 dòng** (lúc tải `/login`); hydration vẫn chạy đủ — **không đạt tuyệt đối**, ghi nhận để PM quyết |
+| Request thật | `POST /auth/login` 200 → `/me/courses` 200 → `/courses/{id}/today` 200; hết «Bản mô phỏng» |
+| `/checkin` | có ô «Mã điểm danh», không có «Quét mã»; nút khoá khi rỗng, bật khi gõ mã |
+| Điểm danh bằng mã (QCVPSB, mã xoay 10 s) | mã cũ → 422 «Mã không đúng hoặc đã hết hạn» (đúng nghiệp vụ); mã mới → «Đã điểm danh 19:46»; `GET checkins`: 1 dòng, round 1, `CODE`, assurance 2, QC Hai |
+
+Tổng: **102 TC = 86 P, 0 F, 16 N.** Bằng chứng: `shots/DEF-MOB-12b-*.png`, `shots/DEF-MOB-12b-api28-logcat.txt`. Mở cửa sổ điểm danh dùng thêm 1 vòng QCVPSB (QCMOB1/QCMOB2/QCVPSA đã hết `ROUND_LIMIT`, QCMOB5 tắt điểm danh).
