@@ -159,6 +159,7 @@ export function CheckinScreen() {
       const viaCode = "code" in inp;
       const retry = () => again.current(inp);
       let timer: ReturnType<typeof setTimeout> | undefined;
+      let keepStash = false;
       try {
         const msg = `edupilot-checkin-v1|${"code" in inp ? `code:${inp.code}` : inp.token}|${uid}`;
         // Định vị TRƯỚC: thời gian đọc hộp quyền không bị tính vào trần mạng (DEF-MOB-08)
@@ -189,6 +190,8 @@ export function CheckinScreen() {
         }, { signal: ctrl.signal });
         setView({ k: "done", at: fmtHM(data.checked_in_at) });
       } catch (e) {
+        // Phiên mất giữa lúc gửi (401 / SESSION_REVOKED): máy chủ chưa dùng token ⇒ giữ lại cho lượt sau đăng nhập (DEF-MOB-13, qc3 iOS SES-12)
+        keepStash = e instanceof ApiError && (e.status === 401 || e.code === "SESSION_REVOKED");
         if (e instanceof ApiError && (e.status === 429 || e.code === "RATE_LIMITED")) {
           const secs = Math.max(1, Math.ceil(e.retryAfter ?? 10));
           setLeft(secs);
@@ -197,6 +200,7 @@ export function CheckinScreen() {
         const d = describe(e, viaCode);
         setView(viaCode ? { k: "entry", error: d.message, retry: d.offline ? retry : undefined } : { k: "error", message: d.message, offline: d.offline, retry: d.offline ? retry : undefined });
       } finally {
+        if ("token" in inp && !keepStash) clearStash(); // đã có kết cục: không để dùng lại sau khi tải lại
         if (timer) clearTimeout(timer);
         setGeoLine(false);
       }
@@ -220,8 +224,7 @@ export function CheckinScreen() {
     const t = setTimeout(() => {
       if (sent.current.has(stash.token)) return; // effect chạy lại (tải lại nền / bfcache): mỗi token chỉ dùng một lần
       sent.current.add(stash.token);
-      clearStash();
-      setView({ k: "sending" });
+      setView({ k: "sending" }); // token chỉ bị xoá khi lượt gửi có kết cục (xem `submit`): mất phiên giữa chừng thì còn để gửi lại sau đăng nhập
       void submit({ course: stash.c, token: stash.token });
     }, 0);
     return () => clearTimeout(t);

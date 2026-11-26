@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { COURSE, CHECKED_IN_AT, TOKEN, checkinApi, item, json } from "./support/checkin-fixtures";
-import { asDemo } from "./support/session";
+import { BASE_URL } from "./support/env";
+import { asDemo, sessionBody } from "./support/session";
 
 // DEF-MOB-02/03 (TC mobile pha 1, NET-02/NET-07): đường mã ngắn và đường token phải cùng một cách báo lỗi mạng; lượt gửi có trần 15 s.
 test("DEF-MOB-02 mất mạng khi gửi mã ngắn: «Chưa có mạng.» + nút «Thử lại», giữ mã; gửi lại được", async ({ page, context }) => {
@@ -252,3 +253,37 @@ test("DEF-MOB-10 hộp quyền vị trí giữ 16 s rồi CẤP: lượt gửi l
   expect(log.posts[0].body.geo).toMatchObject({ lat: 10.5, lng: 106.5 });
   expect(log.posts[0].body.geo).not.toHaveProperty("denied");
 });
+
+// DEF-MOB-13 (qc3 iOS SES-12): phiên đã bị thu hồi PHÍA MÁY CHỦ nhưng làm mới lúc tải trang vẫn ra token ⇒ màn /checkin dựng, bắt đầu gửi, và LỜI GỌI ĐẦU TIÊN
+// (GET chính sách lớp / POST) trả 401 SESSION_REVOKED ⇒ cổng đưa về /login?revoked=1. Token QR chưa hết 60 s phải CÒN sau lượt hỏng đó và tự gửi sau đăng nhập.
+for (const where of ["GET chính sách lớp", "POST điểm danh"] as const) {
+  test(`DEF-MOB-13 ${where} trả 401 SESSION_REVOKED giữa lúc gửi → đăng nhập lại → token QR (<60 s) tự gửi, «Đã điểm danh»`, async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await asDemo(context, "student"); // làm mới lúc tải trang thành công
+    const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+    await context.route("**/api/v1/auth/login", (r) => r.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody("STUDENT", { email: "sv.kha@edupilot.local" })) }));
+    const revoked = { status: 401, contentType: "application/json", headers: cors, body: JSON.stringify({ code: "SESSION_REVOKED", message: "Phiên đã bị thu hồi.", trace_id: "0".repeat(32), details: { reason: "revoked" } }) };
+    let hit = 0;
+    const posts: string[] = [];
+    await page.route(`**/api/v1/courses/${COURSE}`, (r) => {
+      if (where === "GET chính sách lớp" && ++hit === 1) return r.fulfill(revoked);
+      return r.fulfill(json({ id: COURSE, class_code: "761988", status: "ACTIVE", attendance: { self_checkin: true, require: "WEB", geo_check: false } }));
+    });
+    await page.route(`**/api/v1/courses/${COURSE}/checkins`, (r) => {
+      posts.push(r.request().postData() ?? "");
+      if (where === "POST điểm danh" && posts.length === 1) return r.fulfill(revoked);
+      return r.fulfill(json({ checked_in_at: CHECKED_IN_AT, round: 1 }, 201));
+    });
+    await page.goto(`/checkin?c=${COURSE}#${TOKEN}`);
+    await expect(page).toHaveURL(/\/login/, { timeout: 20_000 });
+    await expect(page).toHaveURL(/revoked=/);
+    await page.locator("input[type=email]").fill("sv.kha@edupilot.local");
+    await page.locator("input[type=password]").fill("x-password-1");
+    await page.keyboard.press("Enter");
+    await expect(page.locator("[data-part=done]")).toContainText("Đã điểm danh", { timeout: 20_000 });
+    expect(posts.at(-1)).toContain(TOKEN); // lượt thành công mang đúng token của liên kết
+    expect(await page.evaluate(() => sessionStorage.getItem("ep.checkin"))).toBeNull(); // dùng xong thì xoá
+    await context.close();
+  });
+}
