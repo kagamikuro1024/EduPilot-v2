@@ -416,4 +416,6 @@ AVD API 28 (`avd-api28.sh build`), WebView **66.0.3359.158**, APK debug.
 
 Bằng chứng: `shots/DEF-MOB-12-landing.png`, `shots/DEF-MOB-12-checkin.png`, `shots/DEF-MOB-12-api28-checkin-final.png`, `shots/DEF-MOB-12-api28-logcat.txt`.
 
+Tiêu chuẩn áp cho ca này: cam kết **WebView ≥ 64** (P-11-149) — WebView 66 của AVD **nằm trong** phạm vi hứa, nên đây là **lỗi sản phẩm**, giữ **F**; PM giao dev3 thành **DEF-MOB-12b**.
+
 Ghi chú cho dev2: nghi vấn các API thiếu trên Chrome 66 mà `apiClient`/`authSession` dùng (`crypto.randomUUID`, `AbortSignal.timeout`, `AbortSignal.any`) và khác biệt `Intl`/định dạng ngày; nên kiểm bằng `Page.addScriptToEvaluateOnNewDocument` polyfill để tách nguyên nhân. AVD đã xoá, không còn emulator chạy.
