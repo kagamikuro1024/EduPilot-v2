@@ -545,3 +545,15 @@ Emulator `ep-api36-ps` (API 36, Play Store), APK debug, VPS `87cac77c`, `sv.qc2`
 **Phương pháp TalkBack (theo lệnh PM)**: âm thanh emulator đã tắt; TalkBack chỉ bật khi đo, đọc kết quả qua DOM (`MutationObserver`) và đếm lượt TTS trong logcat — **không nghe giọng**, nên A11-06/07/08 dựa trên cây DOM/ARIA; TalkBack đã tắt (`enabled_accessibility_services` rỗng). Lần khởi động sau phải kèm `-no-audio`.
 
 Ba F đều thuộc nhóm A11 (AC12 trình đọc màn hình); **không có lỗi sản phẩm nào khác** trong 37 mã. Tổng `results.jsonl`: 141 TC = 114 P, 3 F, 24 N. Đã dừng emulator, trả policy QCMOB2 (rotate 10, không geofence/CIDR).
+
+## 46. DEF-MOB-16 (77cd8461, flush cookie WebView khi xuống nền) — nghiệm lại **dở dang** (26/11)
+
+APK mới `app-debug-vps-HEAD.apk` (sha256 `40cd4279…fca68`, đã kiểm), AVD `-no-audio`, `sv.qc2`, VPS thật.
+
+| Kịch bản | Kết quả |
+|---|---|
+| Đăng nhập → 3 s → HOME → `am force-stop` → mở lại (3 lần, `pm clear` mỗi lần) | **3/3 vẫn đăng nhập**: vào «Hôm nay» sau 2,1 / 2,5 / 2,0 s, `/auth/refresh` **200** mỗi lần (gateway log), path `/` |
+| Đối chứng APK cũ (`prev`) | **chưa chạy** — guard dừng |
+| Đăng nhập → vuốt khỏi Recents sau 1 s → mở lại | **chưa chạy** — guard dừng |
+
+Guard: swap đã dùng +2 063 MB so với mốc sau-boot (ngưỡng 1,5 GB), free 58 % — đã `adb emu kill`. Evidence: `and34/persist.py`, `persist_new_home.json/.log`, `shots/DEF16-new-home-{1,2,3}.png`.

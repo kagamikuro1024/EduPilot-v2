@@ -1,0 +1,6 @@
+mem: free 39% | swap used 2658.12M (+0M vs sau-boot)
+{'rep': 1, 'dang_nhap_truoc': True, 'tien_trinh_con_sau_tat': False, 'vao_lai_dang_nhap_sau_s': 2.1, 'path': '/', 'refresh': ['2026-11-26T15:42:10\t200']}
+mem: free 37% | swap used 2658.12M (+0M vs sau-boot)
+{'rep': 2, 'dang_nhap_truoc': True, 'tien_trinh_con_sau_tat': False, 'vao_lai_dang_nhap_sau_s': 2.5, 'path': '/', 'refresh': ['2026-11-26T15:42:43\t200']}
+mem: free 39% | swap used 3775.00M (+1117M vs sau-boot)
+{'rep': 3, 'dang_nhap_truoc': True, 'tien_trinh_con_sau_tat': False, 'vao_lai_dang_nhap_sau_s': 2.0, 'path': '/', 'refresh': ['2026-11-26T15:43:17\t200']}
