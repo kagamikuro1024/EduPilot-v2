@@ -32,7 +32,7 @@
 
 ## Chờ chủ dự án
 1. **P-11-140** (auth): tải lại nhanh / nhiều tab văng /login do xoay refresh token không ân hạn. Chọn A (ân hạn ~10 s, khuyến nghị) / B (giữ) / C.
-2. **PR #17**: merge khi CI xanh; muốn chắc INS-09 thì cho qc2 chạy `docs/regression/evidence-mobile-android/avd-api28.sh` (≈10 phút).
+2. **PR #17 — CI ĐỎ lúc dừng (chưa merge)**: 1 ca e2e `today.spec.ts:248` («Thiết lập lớp mới» → «Bỏ qua»: hàng biến mất nhưng KHÔNG có POST `…/setup/dismiss`), 419 ca khác xanh. Nghi hồi quy từ `0316ef2b`/`980b705d` (compat: `anySignal`, `newUuid` thay `crypto.randomUUID`) trên đường mutation — cần dev xem trước khi merge. Muốn chắc INS-09 thì chạy thêm `docs/regression/evidence-mobile-android/avd-api28.sh` (≈10 phút).
 3. Bìa, cảm ơn, cam đoan; thân bài 88 tr < 110 (muốn dài thêm thì chỉ mục).
 4. H4.7 (tuỳ chọn); đổi khoá OpenCode Go khi xong; xoá/giữ 3 thư mục `backup/wt-*`; khoá ký APK release (INS-01/02).
 5. VPS (đã xong, chỉ để biết): chạy `0316ef2b`; giới hạn đăng nhập ĐÃ TRẢ về mặc định 10 / 300 / 30 (kiểm: 10 lượt sai → 401, lượt 11 → 429). Dữ liệu QC còn lại: lớp QCMOB1 có thêm buổi 104 (đã có điểm danh, không xoá được).
