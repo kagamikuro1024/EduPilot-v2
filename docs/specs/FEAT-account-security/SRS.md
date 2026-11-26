@@ -1,7 +1,5 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1.8 · 2026-11-27 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
-
-**v1.8 (2026-11-27) — P-11-140 (chủ dự án chọn phương án A; PM `ACCEPTED`):** xoay refresh token có **ân hạn 10 s** (`REFRESH_REUSE_GRACE`): trình lại đúng token vừa xoay trong 10 s nhận lại **đúng** cặp mới (cookie = `T2`, access mới cùng `sid`), không xoay thêm, không tạo phiên mới; quá 10 s = dùng lại ⇒ thu hồi cả phiên + `audit_log` như cũ. `T2` chỉ lưu **mã hoá** (`grace_refresh_enc`, AES-256-GCM) + `grace_until`, không lưu rõ. Đổi: SRS 4.1 (đoạn Refresh token, lưu đồ), 5.2 (2 cột + migration), 8.1, 4.3 (FR-11, thêm FR-11a), bảo mật; US-P2-02 AC4 (nay chỉ là ngoài ân hạn), **thêm AC4a, AC4b**, AC9; Q9 + Q-QC-P202-1 (bỏ «không có khoảng ân hạn»). Hợp đồng ngoài không đổi: `POST /auth/refresh` vẫn `200` / `401` cùng dạng; thêm 1 migration (dev lấy số kế tiếp sau `00031`).
+Phiên bản 1.7 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
 
 **v1.7 (2026-10-03)** — góp ý #10 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "`FEAT-account-security` 4.2.5 chỉ cho 3 truy vấn sqlc nhắc `student_code` trong điều kiện… Thêm đúng MỘT tên (`ListMembers`) vào danh sách trắng trong test, kèm chú thích: truy vấn chỉ lọc hiển thị trong lớp của người xem, không nối tài khoản, không mở dữ liệu. **ACCEPTED có điều kiện** — `q` theo MSSV chỉ cho TEACHER / TA"). Không đổi số AC. Đổi: `SRS.md` 4.2.5 (danh sách trắng thành bốn truy vấn: thêm `ListMembers`).
 
@@ -65,10 +63,7 @@ sequenceDiagram
   alt khớp refresh_hash hiện tại
     G->>D: xoay: prev = hiện tại, hiện tại = mới
     G-->>B: access mới (cùng sid) + cookie mới
-  else khớp prev_refresh_hash, now < grace_until (≤ 10 s sau xoay)
-    G->>D: giải mã grace_refresh_enc → T2 (không xoay)
-    G-->>B: access mới (cùng sid) + cookie ĐÚNG T2
-  else khớp prev_refresh_hash, quá ân hạn (dùng lại)
+  else khớp prev_refresh_hash (dùng lại)
     G->>D: revoke phiên (REFRESH_REUSE) + audit_log
     G->>R: SET rev:sid
     G-->>B: 401 SESSION_REVOKED + xoá cookie
@@ -132,7 +127,7 @@ stateDiagram-v2
 
 **Access token** (HS256): claims của PG (`sub, role, email, jti, iat, nbf, exp, iss, aud`) **cộng `sid`** (uuid phiên). `exp = iat + ACCESS_TOKEN_TTL`. `Principal` thêm `SessionID`. Token dev của `gateway token` không có `sid` (bỏ qua kiểm thu hồi; **từ chối ở `APP_ENV=production`**).
 
-**Refresh token**: 32 byte `crypto/rand`, base64url (43 ký tự), DB lưu `sha256` hex. Xoay mỗi lần dùng; `prev_refresh_hash` giữ **một** thế hệ để phát hiện dùng lại. `expires_at` trượt `REFRESH_TOKEN_TTL` kể từ lần dùng nhưng không quá `absolute_expires_at = created_at + SESSION_ABSOLUTE_TTL`. Khoá hàng (`SELECT … FOR UPDATE`) để hai yêu cầu cùng phiên tuần tự. **Ân hạn xoay `REFRESH_REUSE_GRACE` = 10 s (Q9, P-11-140):** mỗi lần xoay `T1`→`T2` ghi thêm `grace_refresh_enc` = AES-256-GCM(`T2`) (khoá `APP_ENCRYPTION_KEY`, IV ngẫu nhiên mỗi lần, AAD = `sid`; **không** lưu `T2` rõ) và `grace_until = now() + 10 s`. Khi `T1` (đang ở `prev_refresh_hash`) được trình lại lúc `now() < grace_until`, phiên chưa thu hồi và chưa hết hạn, người dùng còn hoạt động, `Origin` hợp lệ, trong giới hạn tốc độ ⇒ **không xoay**: `refresh_hash`, `prev_refresh_hash`, `rotated_at`, `expires_at` giữ nguyên, không tạo phiên mới, không `audit_log`; giải mã và trả **đúng `T2`** ở `Set-Cookie` cùng access token mới (cùng `sid`, `jti` mới, `exp = iat + ACCESS_TOKEN_TTL`; access token không lưu). Hai `refresh` song song cùng `T1` hoặc tải lại trang giữa lúc xoay ⇒ cả hai nhận cùng `T2`, không phiên nào bị thu hồi. `T1` trình lúc `now() ≥ grace_until` ⇒ dùng lại ⇒ 401 `SESSION_REVOKED` + thu hồi cả phiên + `audit_log` (`REFRESH_REUSE`) như cũ (Q-QC-P202-1, đã sửa). Token cũ hơn **một** thế hệ (không còn ở `refresh_hash` / `prev_refresh_hash`) vẫn là token lạ: 401 `TOKEN_INVALID`, không thu hồi (AC5). Thu hồi / đăng xuất đặt `grace_refresh_enc`, `grace_until` về NULL; bản quá hạn còn lại tới lần xoay kế (ghi đè); dọn định kỳ là Nợ PR. `REFRESH_REUSE_GRACE=0` tắt ân hạn (quay về hành vi cũ). **Rủi ro ghi nhận:** (i) kẻ giữ `T1` nhận được `T2` nếu trình trong 10 s sau lần xoay của nạn nhân (đổi lấy việc tải lại trang không văng `/login`); (ii) kẻ có cả DB lẫn `APP_ENCRYPTION_KEY` đọc được refresh hiện tại ở cột này (trước đây DB chỉ có băm).
+**Refresh token**: 32 byte `crypto/rand`, base64url (43 ký tự), DB lưu `sha256` hex. Xoay mỗi lần dùng; `prev_refresh_hash` giữ **một** thế hệ để phát hiện dùng lại. `expires_at` trượt `REFRESH_TOKEN_TTL` kể từ lần dùng nhưng không quá `absolute_expires_at = created_at + SESSION_ABSOLUTE_TTL`. Khoá hàng (`SELECT … FOR UPDATE`) để hai yêu cầu cùng phiên tuần tự. **Không có khoảng ân hạn** (Q9): hai `refresh` song song cùng một cookie → một thành công, yêu cầu còn lại thấy token ở `prev_refresh_hash` ⇒ dùng lại ⇒ 401 `SESSION_REVOKED` + thu hồi cả phiên (Q-QC-P202-1).
 
 **Thu hồi:** thu hồi một phiên = `auth_sessions.revoked_at/reason` + `SET ep:auth:rev:sid:{sid}` (TTL `ACCESS_TOKEN_TTL + 60 s`); thu hồi mọi phiên của người dùng = cập nhật DB + `SET ep:auth:rev:user:{uid}` = mốc ms (access token có `iat*1000 ≤ mốc` bị từ chối). Middleware kiểm bằng một `MGET` sau khi xác minh chữ ký; Redis lỗi → chấp nhận token + log `error` (≤ 1 lần / 30 s).
 
@@ -186,8 +181,7 @@ Mọi bộ đếm theo email dùng `sha256(email chữ thường)` nên **không
 | FR-8 | `login`: access 15 phút + `sid` + cookie `ep_rt` đúng cờ; thân không có refresh | 02-AC1 |
 | FR-9 | Lỗi đăng nhập đồng nhất, cân bằng thời gian | 02-AC2 |
 | FR-10 | `refresh` xoay vòng, chỉ lưu băm, trượt + trần tuyệt đối | 02-AC3 |
-| FR-11 | Dùng lại refresh cũ **quá ân hạn 10 s** ⇒ thu hồi cả phiên + audit | 02-AC4 |
-| FR-11a | Ân hạn 10 s: trình lại token vừa xoay nhận lại đúng cặp mới, không xoay thêm; `T2` chỉ lưu mã hoá; cùng cổng `Origin` / giới hạn tốc độ / trạng thái phiên (P-11-140) | 02-AC4a, AC4b |
+| FR-11 | Dùng lại refresh cũ ⇒ thu hồi cả phiên + audit | 02-AC4 |
 | FR-12 | Các nhánh lỗi của refresh; `logout` idempotent | 02-AC5, AC6 |
 | FR-13 | Kiểm `Origin` / `Sec-Fetch-Site`, chỉ `POST` JSON cho endpoint cookie | 02-AC7 |
 | FR-14 | Middleware kiểm thu hồi (sid / mốc người dùng) qua Redis, mở cửa khi Redis chết; token dev | 02-AC8 |
@@ -242,8 +236,6 @@ Migration `backend-go/db/migrations/00004_auth_hardening.sql` (goose; `-- +goose
 | `user_id` | `uuid` | NOT NULL | — | `REFERENCES users(id) ON DELETE CASCADE` |
 | `refresh_hash` | `char(64)` | NOT NULL | — | sha256 hex của refresh hiện tại; `CHECK (refresh_hash ~ '^[0-9a-f]{64}$')`; UNIQUE |
 | `prev_refresh_hash` | `char(64)` | NULL | — | thế hệ trước; cùng CHECK khi có giá trị |
-| `grace_refresh_enc` | `bytea` | NULL | — | (P-11-140) AES-256-GCM của refresh **hiện tại** (`T2`): `IV ‖ ciphertext ‖ tag`, khoá `APP_ENCRYPTION_KEY`, AAD = `id` (`sid`); chỉ để trả lại cho `T1` trong ân hạn; không bao giờ ra API / log / `audit_log` |
-| `grace_until` | `timestamptz` | NULL | — | (P-11-140) `rotated_at + REFRESH_REUSE_GRACE`; `CHECK ((grace_refresh_enc IS NULL) = (grace_until IS NULL))` |
 | `user_agent` | `text` | NULL | — | cắt ≤ 300 ký tự |
 | `device_label` | `text` | NULL | — | suy ra khi tạo, ví dụ "Chrome trên macOS" (≤ 80) |
 | `ip` | `inet` | NULL | — | IP đầy đủ; **không** trả ra API |
@@ -255,8 +247,6 @@ Migration `backend-go/db/migrations/00004_auth_hardening.sql` (goose; `-- +goose
 | `revoked_at` | `timestamptz` | NULL | — | |
 | `revoked_reason` | `text` | NULL | — | `CHECK` ∈ {`LOGOUT`,`REVOKED_BY_USER`,`PASSWORD_CHANGED`,`PASSWORD_RESET`,`REFRESH_REUSE`,`ACCOUNT_DISABLED`,`ROLE_CHANGED`,`ADMIN`}; `CHECK ((revoked_at IS NULL) = (revoked_reason IS NULL))` |
 | `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
-
-Migration mới `000NN_auth_refresh_grace.sql` (số kế tiếp sau `00031`; goose; **không** sửa `00004`): `ALTER TABLE auth_sessions ADD COLUMN grace_refresh_enc bytea, ADD COLUMN grace_until timestamptz` + `CHECK` ở trên; `Down` bỏ hai cột + `CHECK`.
 
 Index: PK · `auth_sessions_refresh_hash_key` UNIQUE (refresh_hash) · `auth_sessions_prev_hash_idx` (prev_refresh_hash) WHERE prev_refresh_hash IS NOT NULL · `auth_sessions_user_active_idx` (user_id, last_used_at DESC, id DESC) WHERE revoked_at IS NULL · `auth_sessions_expires_idx` (expires_at) (cho việc dọn — Nợ PR).
 
@@ -389,7 +379,7 @@ Các thao tác 3, 10, 12, 14, 18 và đường `register` công khai bổ sung /
 - **verify-email** `{token}` → 200 `{"status":"verified"}`.
 - **resend-verification** `{email?}` (bắt buộc khi không có JWT) → 202 `{"message":"Nếu email này cần xác minh, chúng tôi đã gửi lại thư."}`.
 - **login** `{email, password}` → 200 `{access_token, token_type:"Bearer", expires_in:900, user:{id,email,full_name,role,status,email_verified}}`.
-- **refresh** (không thân) → 200 cùng dạng `login` (trong ân hạn: cookie = đúng cookie đã phát ở lần xoay trước, SRS 4.1).
+- **refresh** (không thân) → 200 cùng dạng `login`.
 - **forgot-password** `{email}` → 202 `{"message":"Nếu email này có tài khoản, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu."}`.
 - **reset-password** `{token, new_password}` → 200 `{"status":"password_reset"}`.
 - **accept-invite** `{token, password}` → 200 cùng dạng `login` (cookie mới).
@@ -496,7 +486,6 @@ Màn mock vẫn hiển thị dải "Bản mô phỏng · dữ liệu giả"; tr�
 | `ACCESS_TOKEN_TTL` | `15m` | 1 phút–1 giờ; **thay** `JWT_EXPIRATION` |
 | `REFRESH_TOKEN_TTL` | `336h` | ≥ 1 giờ |
 | `SESSION_ABSOLUTE_TTL` | `720h` | ≥ `REFRESH_TOKEN_TTL` |
-| `REFRESH_REUSE_GRACE` | `10s` | 0–60 s; `0` = tắt ân hạn (P-11-140) |
 | `COOKIE_DOMAIN` | rỗng | rỗng = chỉ host hiện tại |
 | `APP_PUBLIC_URL` | **bắt buộc** | `https://…` (dev: `https://localhost`); dựng liên kết thư |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | dev: `mailpit`, `1025`, rỗng, rỗng, `EduPilot <no-reply@edupilot.local>` | bắt buộc ở worker |
@@ -535,7 +524,7 @@ Màn mock vẫn hiển thị dải "Bản mô phỏng · dữ liệu giả"; tr�
 
 ### 8.3 Bảo mật (tóm tắt các bất biến)
 
-Token và mật khẩu: chỉ băm ở DB (**ngoại lệ có kiểm soát, P-11-140:** refresh hiện tại còn một bản **mã hoá** AES-256-GCM ở `grace_refresh_enc` trong ≤ 10 s ân hạn, không bao giờ rõ), không ở log / `audit_log` / `outbox` / `mail_outbox` / Redis; refresh chỉ ở cookie `httpOnly`; access chỉ ở bộ nhớ; `Cache-Control: no-store` ở `/auth/*`; so sánh hằng thời gian; bcrypt ≤ 72 byte (từ chối, không cắt); phản hồi đồng nhất chống dò email / tài khoản; thời gian cân bằng; CSRF: Origin + `SameSite=Lax` + `POST` JSON; liên kết một lần nguyên tử; thu hồi tức thì; admin không thấy / đặt mật khẩu; MSSV tự khai không mở dữ liệu; `gateway token` bị chặn ở production; `safeNext`; `Referrer-Policy: no-referrer` ở trang có token trong URL; không từ kỹ thuật cho sinh viên. Bảo mật thư: SPF / DKIM / SMTP relay của trường là việc của PR. **Log truy cập:** Caddy và frontend **không** ghi giá trị token trong query (`token`) hay đường dẫn `/invite/*` (bộ lọc log che bằng `REDACTED`, hoặc tắt log đường đó); các trang chứa token gửi `Referrer-Policy: no-referrer` (Q-QC-P204-2).
+Token và mật khẩu: chỉ băm ở DB, không ở log / `audit_log` / `outbox` / `mail_outbox` / Redis; refresh chỉ ở cookie `httpOnly`; access chỉ ở bộ nhớ; `Cache-Control: no-store` ở `/auth/*`; so sánh hằng thời gian; bcrypt ≤ 72 byte (từ chối, không cắt); phản hồi đồng nhất chống dò email / tài khoản; thời gian cân bằng; CSRF: Origin + `SameSite=Lax` + `POST` JSON; liên kết một lần nguyên tử; thu hồi tức thì; admin không thấy / đặt mật khẩu; MSSV tự khai không mở dữ liệu; `gateway token` bị chặn ở production; `safeNext`; `Referrer-Policy: no-referrer` ở trang có token trong URL; không từ kỹ thuật cho sinh viên. Bảo mật thư: SPF / DKIM / SMTP relay của trường là việc của PR. **Log truy cập:** Caddy và frontend **không** ghi giá trị token trong query (`token`) hay đường dẫn `/invite/*` (bộ lọc log che bằng `REDACTED`, hoặc tắt log đường đó); các trang chứa token gửi `Referrer-Policy: no-referrer` (Q-QC-P204-2).
 
 ### 8.4 Dữ liệu cá nhân và lưu giữ (đề xuất; Q6 — [CHỦ DỰ ÁN])
 
