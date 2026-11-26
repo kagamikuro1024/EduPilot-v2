@@ -1,0 +1,44 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { test } from "@playwright/test";
+import { needReal, shot, uiLogin } from "./qc-real-lib";
+
+needReal();
+const S = JSON.parse(readFileSync("/tmp/q9s/ui.json", "utf8")) as { course: string; aid2: string; sub2: Record<string, string> };
+const out: Record<string, unknown> = {};
+const save = () => writeFileSync("/tmp/q9s/ui8.json", JSON.stringify(out, null, 1));
+const REASON = "Em cho rằng tiêu chí 2 chưa ghi nhận phần phân tích chuỗi tấn công đã nêu ở đoạn 3.";
+test("@real UI8 B gửi yêu cầu xem lại (10-01, 10-11)", async ({ page, context }) => {
+  await page.addInitScript((c) => localStorage.setItem("ep:ui:course", c), S.course);
+  await uiLogin(page, "sv.kha");
+  await page.goto(`/assignments/${S.aid2}?course=${S.course}`); await page.locator("main").waitFor(); await page.waitForTimeout(3500);
+  const open1 = page.getByRole("button", { name: /Yêu cầu xem lại/ }); if (await open1.count()) await open1.first().click(); await page.waitForTimeout(800);
+  const dlg = page.locator("main");
+  out.dialogText = (await page.locator("main").innerText()).split("Yêu cầu xem lại").slice(-1)[0].replace(/\n+/g, " | ").slice(0, 700);
+  out.dialogInputs = await dlg.locator("input, textarea, button").evaluateAll((els) => els.map((e) => ({ tag: e.tagName, type: (e as HTMLInputElement).type, label: e.getAttribute("aria-label") ?? (e.closest("label")?.textContent ?? e.textContent ?? "").trim().slice(0, 50) })));
+  await shot(page, "p710-dialog");
+  const ta = page.getByRole("textbox", { name: /Lý do/ }); await ta.fill(REASON.slice(0, 40));
+  await context.setOffline(true); await page.waitForTimeout(3500); await context.setOffline(false); await page.reload(); await page.locator("main").waitFor(); await page.waitForTimeout(3500);
+  const open2 = page.getByRole("button", { name: /Yêu cầu xem lại/ }); if (await open2.count()) await open2.first().click(); await page.waitForTimeout(800);
+  const dlg2 = page.locator("main");
+  out.draftRestored = (await page.getByRole("textbox", { name: /Lý do/ }).inputValue()).startsWith(REASON.slice(0, 40));
+  await page.getByRole("textbox", { name: /Lý do/ }).fill(REASON);
+  const c2 = page.getByRole("checkbox", { name: "Phân tích tấn công" }); out.c2Count = await c2.count(); if (await c2.count()) await c2.first().check();
+  const reqs: string[] = []; page.on("response", (r) => { if (/\/appeal/.test(r.url()) && r.request().method() === "POST") reqs.push(`${r.status()} ${r.request().postData()?.slice(0, 160)}`); });
+  const send = page.getByRole("button", { name: /^Gửi$/ }); out.sendBtn = await send.allInnerTexts();
+  await send.first().dblclick(); await page.waitForTimeout(4000);
+  out.reqs = reqs; out.afterText = (await page.locator("main").innerText()).split("\n").filter((l) => /xem lại|Đã gửi/.test(l)).slice(0, 4);
+  await shot(page, "p710-sent");
+  save();
+});
+test("@real UI8 GV mở bài có phúc khảo (10-04)", async ({ page }) => {
+  await page.addInitScript((c) => localStorage.setItem("ep:ui:course", c), S.course);
+  await uiLogin(page, "teacher");
+  await page.goto(`/?course=${S.course}`); await page.locator("main").waitFor(); await page.waitForTimeout(4000);
+  const link = page.locator("main a[href^='/grading/']").filter({ hasText: /xem lại/ }).first(); out.todayLink = await link.count() ? await link.getAttribute("href") : null;
+  await page.goto(out.todayLink ? String(out.todayLink) : `/grading/${S.sub2["sv.kha"]}?course=${S.course}`); await page.locator("main").waitFor(); await page.waitForTimeout(3500);
+  const t = await page.locator("main").innerText(); const i = t.indexOf("Yêu cầu xem lại");
+  out.block = t.slice(Math.max(0, i), i + 900).replace(/\n+/g, " | "); out.hasDraft = t.includes("7,00"); out.hasPub = t.includes("7,50");
+  out.btns = (await page.locator("main button").allInnerTexts()).filter((b) => /Giữ nguyên|Sửa điểm|Gửi|Quyết/.test(b));
+  out.respField = await page.locator("main textarea").count();
+  await shot(page, "p710-decide"); save();
+});
