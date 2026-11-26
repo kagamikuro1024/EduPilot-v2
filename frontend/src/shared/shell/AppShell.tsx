@@ -174,7 +174,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Không dựng ở lần vẽ phía máy chủ (chưa có phiên ⇒ `realCourseId` null ⇒ trông như mô phỏng): HTML sẽ tham chiếu gói lười và mọi phiên thật tải nó.
   // Đang tải /me/courses cũng chưa phải mô phỏng.
   const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
-  const demo = mounted && !realPending && !realCourseId && role !== "admin";
+  const demo = mounted && !realPending && !realCourses && role !== "admin"; // `realCourses` = [] (phiên thật, 0 lớp) KHÔNG phải mô phỏng (DEF-MOB-14); chỉ null (chưa có phiên / tải lớp lỗi) mới là bản mô phỏng
   const [badges, setBadges] = useState({ inbox: 0, grading: 0 });
 
   // Chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus).
