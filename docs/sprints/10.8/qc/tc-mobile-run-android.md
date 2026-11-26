@@ -599,3 +599,20 @@ Cách đo: AVD `-no-audio`; TalkBack > Advanced > Developer settings > **Log out
 **10 s đầu = 6 lượt (tiêu chí ≤ 2 không đạt).** Nguyên nhân còn lại: (1) mỗi thông báo `role=status` bị phát **hai lần** (`windowContentChanged`, `nodeLiveRegion=1`, ~70 ms); (2) focus vẫn nhảy sang phần tử có hành động ngay sau khi bấm (gợi ý «Actions available…» ×2) — giữ focus (DEF-MOB-15c) chưa đạt.
 
 Evidence: `and34/a11_final.py`, `a11_final_rows.json`, `a11_final_talkback_excerpt.log`, `a11_final_logcat_raw.log.gz`. Cài đặt TalkBack VERBOSE/«Display speech output» vẫn bật trên AVD. Tổng `results.jsonl`: 141 TC = 116 P, 1 F, 24 N.
+
+## 50. A11-06/07/08 — VPS 7b6b5ab3 (DEF-MOB-15d), 27/11: **A11-06 P, A11-07 P, A11-08 P (ghi chú để PM quyết)**
+
+Cách đo như §49 (VERBOSE) nhưng lấy các lượt **nói thật**: dòng `SpeechControllerImpl: Speaking fragment text=… utteranceId=talkback_N` (gộp theo `utteranceId`; chữ «status»/«alert» là nhãn vai trò đọc kèm). Gõ mã khi TalkBack tắt, tắt/bật TalkBack để xoá hàng đợi, 0 lượt trước khi bấm.
+
+| TC | Lượt đọc (giây sau khi bấm) |
+|---|---|
+| A11-08 (429) | focus «Điểm danh» +0,25 · «Đang gửi» +0,29 · focus «Điểm danh / Button. disabled» +3,1 · «keyboard hidden» +5,8 · «Thử lại sau 23 giây.» +6,9 *(phát sinh +1,4 s, hàng đợi đọc xong ~7 s)* · im lặng đến +24,4 · «Thử lại» +24,4 |
+| A11-07 (mã sai) | focus «Điểm danh» · «Đang gửi» · **«Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» + «alert» ×1** · «keyboard hidden» |
+| A11-06 (mã đúng, rotate 60 s) | focus «Điểm danh» · «Đang gửi» ×1 · focus «Điểm danh / Button. disabled» · «Đã điểm danh 00:04» ×1 |
+
+- Mục tiêu PM đạt: «Đang gửi» ×1 + «Thử lại sau n giây.» ×1 trong 10 s đầu, **0 «Actions available»**, hết giờ «Thử lại» ×1, không còn thông báo phát đôi, giữa đếm ngược im lặng.
+- **Ghi chú:** 10 s đầu còn 6 lượt nói vì 3 lượt không thuộc vùng status: focus nút «Điểm danh» đọc lại ×2 (nút vừa bấm chuyển `aria-disabled`) và «keyboard hidden» (hệ thống). Cả ba xuất hiện ở **mọi lần gửi** (A11-06/07 cũng có), không đến từ đếm ngược. Nếu TC đọc là «≤ 2 lượt TỔNG trong 10 s» thì A11-08 vẫn F — PM quyết.
+- Thử chạm đúp thật bằng `adb input tap` (`a11_real.py`) không kích hoạt được nút (state không sang `limited`) nên không có số đo theo cử chỉ thật.
+- A11-06 chạy với `rotate_seconds=60` để mã không đổi trong lúc tắt/bật TalkBack (mã 10 s đổi trước khi bấm → lần đầu ra «mã sai»); đã khôi phục 10 s.
+
+Evidence: `and34/a11_final.py` (+ `a11_final2.log`, `tb-final2-*`), `a11_0607v.py`, `a11_06v.py`, `a11_real.py`, `parse_sp.py`, `tb-a1106-*`, `tb-a1107-*`, `shots/A11-06-re2.png`. Tổng `results.jsonl`: 141 TC = 117 P, 0 F, 24 N.

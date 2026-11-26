@@ -1,0 +1,4 @@
+mem: free 43% | swap used 4131.19M (+274M vs sau-boot)
+policy 60: 200
+DOM 06: [{"ms": 281, "k": "role=status", "nestedLive": false, "txt": "Đang gửi"}, {"ms": 954, "k": "role=status", "nestedLive": false, "txt": "Đã điểm danh 00:04"}] | rows: 1
+policy 10: 200

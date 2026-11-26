@@ -1,0 +1,3 @@
+mem: free 50% | swap used 4171.25M (+315M vs sau-boot)
+DOM 07: {"alerts":["Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu."],"status":[""]} | thong bao: [{"ms": 294, "k": "role=status", "nestedLive": false, "txt": "Đang gửi"}]
+DOM 06 thong bao: [{"ms": 38639, "k": "role=status", "nestedLive": false, "txt": "Đang gửi"}] | rows: 0
