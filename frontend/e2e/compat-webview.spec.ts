@@ -48,3 +48,16 @@ test("webview cũ: điểm danh bằng mã vẫn gửi POST và báo Đã điể
   await expect(page.locator("[data-part=done]")).toHaveText("Đã điểm danh 07:03");
   expect(log.posts).toHaveLength(1);
 });
+
+test("webview cũ: /login hydrate sạch (không React #418 / lỗi console)", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "một ca là đủ");
+  await page.addInitScript(CHROME66_GAPS);
+  const errs: string[] = [];
+  page.on("console", (m) => m.type() === "error" && !m.text().startsWith("Failed to load resource") && errs.push(m.text())); // 401 của refresh là cố ý
+  page.on("pageerror", (e) => errs.push(e.message));
+  await page.route("**/api/v1/auth/refresh", (r) => r.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ code: "UNAUTHENTICATED", message: "x", trace_id: "c".repeat(32) }) }));
+  await page.goto("/login");
+  await expect(page.getByRole("button", { name: "Đăng nhập" })).toBeVisible();
+  await page.waitForTimeout(1500);
+  expect(errs).toEqual([]);
+});
