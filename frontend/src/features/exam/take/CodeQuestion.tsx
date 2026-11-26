@@ -12,6 +12,7 @@ import { RunResult, SubmissionList, visible } from "./CodeResults";
 import type { TakeItem } from "./takeApi";
 import { useCodeDraft } from "./useCodeDraft";
 import s from "./CodeQuestion.module.css";
+import { newUuid } from "../../../shared/lib/compat";
 
 const POLL_MS = 2000;
 const hhmmss = (ms: number) => new Date(ms + 7 * 3600_000).toISOString().slice(11, 19);
@@ -108,7 +109,7 @@ function WideEditor({ item, number, courseId, examId, attemptId, tab, clock, can
   async function doRun() {
     setRunErr(null);
     setRunBusy(true);
-    runKey.current ??= crypto.randomUUID();
+    runKey.current ??= newUuid();
     try {
       const r = await runCode(courseId, examId, attemptId, item.item_id, tab, runKey.current, { language: lang, source });
       runKey.current = null;
@@ -179,7 +180,7 @@ function WideEditor({ item, number, courseId, examId, attemptId, tab, clock, can
   async function doSubmit() {
     setSubErr(null);
     setSubBusy(true);
-    subKey.current ??= crypto.randomUUID();
+    subKey.current ??= newUuid();
     try {
       await draft.flush();
       await submitCode(courseId, examId, attemptId, item.item_id, tab, subKey.current, { language: lang, source });

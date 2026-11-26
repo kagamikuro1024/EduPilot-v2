@@ -15,6 +15,7 @@ import { useIntegrityEvents } from "./useIntegrityEvents";
 import { saveAnswers, sleep, submitAttempt, takeover, type Running, type SubmitSummary, type TakeItem } from "./takeApi";
 import { useWriter } from "./useWriter";
 import s from "./Take.module.css";
+import { newUuid } from "../../../shared/lib/compat";
 
 const LETTERS = "ABCDEFGH";
 const hhmmss = (ms: number) => new Date(ms + 7 * 3600_000).toISOString().slice(11, 19);
@@ -148,7 +149,7 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
   async function submit() {
     setSubmitting(true);
     setSubmitErr(null);
-    submitKey.current ??= crypto.randomUUID();
+    submitKey.current ??= newUuid();
     const delays = [1000, 2000, 4000, 8000, 15000];
     for (let n = 0; ; n++) {
       try {

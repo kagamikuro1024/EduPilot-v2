@@ -2,6 +2,12 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "browserslist": [
+    "chrome >= 64",
+    "safari >= 14",
+    "firefox >= 78",
+    "edge >= 79"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

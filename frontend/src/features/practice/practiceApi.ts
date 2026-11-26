@@ -4,6 +4,7 @@ import { apiClient, newIdempotencyKey, type ApiResult } from "@/shared/data";
 import { openChatStream } from "@/shared/data/chatStream"; // SSE qua POST có Authorization; không qua barrel (ngân sách JS mỗi route)
 import type { ExamClock } from "@/shared/lib/examClock";
 import { useSession } from "@/shared/session/session";
+import { newUuid } from "../../shared/lib/compat";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/courses/{id}/practice…`, thao tác 5–14 của SRS FEAT-practice 6).
 export type QType = "MCQ_SINGLE" | "MCQ_MULTI" | "TRUE_FALSE" | "SHORT" | "ESSAY";
@@ -60,7 +61,7 @@ export function useStudentCourse(): { state: "loading" } | { state: "none" } | {
 }
 
 /** `X-Practice-Tab`: sinh mỗi lần tải trang, chỉ ở bộ nhớ của trang. */
-export const newTabId = () => crypto.randomUUID();
+export const newTabId = () => newUuid();
 const tabH = (tab?: string) => (tab ? { "X-Practice-Tab": tab } : undefined);
 
 async function timed<T extends { server_now?: string }>(clock: ExamClock | null, run: () => Promise<ApiResult<T>>): Promise<ApiResult<T>> {

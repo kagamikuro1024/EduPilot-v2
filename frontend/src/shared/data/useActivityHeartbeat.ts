@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { ApiError } from "./ApiError";
 import { apiClient } from "./apiClient";
+import { newUuid } from "../lib/compat";
 
 /** Khu vực đo theo đường dẫn (SRS crm-360 4.6.3): chỉ năm khu vực; mọi route khác — kể cả `/exams/**` và `/me` — không gửi. */
 export function areaOf(pathname: string): "CHAT" | "THREADS" | "PRACTICE" | "LIBRARY" | "CALENDAR" | null {
@@ -38,7 +39,7 @@ let lastBeatArea = "";
 export function useActivityHeartbeat({ courseId, area, enabled }: { courseId: string | null; area: string | null; enabled: boolean }) {
   useEffect(() => {
     if (!enabled || !courseId || !area) return;
-    const tabId = crypto.randomUUID();
+    const tabId = newUuid();
     const ctl = new AbortController();
     if (lastInput === 0) lastInput = Date.now(); // vào trang là thao tác đầu tiên của tab
     let lastMove = 0;
