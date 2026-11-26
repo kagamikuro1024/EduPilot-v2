@@ -433,3 +433,10 @@ AVD API 28, WebView 66.0.3359.158, APK debug; một lần đăng nhập `sv.qc2`
 | Điểm danh bằng mã (QCVPSB, mã xoay 10 s) | mã cũ → 422 «Mã không đúng hoặc đã hết hạn» (đúng nghiệp vụ); mã mới → «Đã điểm danh 19:46»; `GET checkins`: 1 dòng, round 1, `CODE`, assurance 2, QC Hai |
 
 Tổng: **102 TC = 86 P, 0 F, 16 N.** Bằng chứng: `shots/DEF-MOB-12b-*.png`, `shots/DEF-MOB-12b-api28-logcat.txt`. Mở cửa sổ điểm danh dùng thêm 1 vòng QCVPSB (QCMOB1/QCMOB2/QCVPSA đã hết `ROUND_LIMIT`, QCMOB5 tắt điểm danh).
+
+## 41. TỔNG PHA 2 (26/11) — chốt
+
+**102 TC: 86 P / 0 F / 16 N.** PM nhận INS-09 = P.
+
+- **DEF-MOB-12c** (mức Thấp, không chặn): `React error #418` còn 1 dòng lúc tải `/login` trên WebView 66; hydration vẫn chạy đủ. Giao dev3.
+- 16 N còn lại cần điều kiện ngoài (máy Android/iPhone thật, TalkBack, khoá ký release, chặn POST thật, ngưỡng 5 s) — danh sách ở §38.
