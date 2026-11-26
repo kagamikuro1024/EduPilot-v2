@@ -20,9 +20,9 @@ func (r *rig) seed(course, uid any, daysAgo int, area string, secs int) {
 
 func TestMeStudyTimeOwnOnly(t *testing.T) {
 	r := newRig(t)
+	r.clk.Set(time.Now().UTC()) // seed theo ngày DB thật; đặt TRƯỚC đăng nhập để token cấp theo cùng đồng hồ
 	w := r.world(true)
 	a, b := w.student(true), w.student(true)
-	r.clk.Set(time.Now().UTC())
 	r.seed(w.course, a.u.ID, 0, "CHAT", 190)
 	r.seed(w.course, a.u.ID, 0, "THREADS", 130)
 	r.seed(w.course, b.u.ID, 0, "CHAT", 3000)
@@ -77,6 +77,7 @@ func TestStudyTimeReadRBAC(t *testing.T) {
 
 func TestStudyTimeWeeksRange(t *testing.T) {
 	r := newRig(t)
+	r.clk.Set(time.Now().UTC()) // seed theo ngày DB thật; đặt TRƯỚC đăng nhập để token cấp theo cùng đồng hồ
 	w := r.world(true)
 	s := w.student(true)
 	base := "/courses/" + w.course.String() + "/me/study-time"
@@ -87,7 +88,6 @@ func TestStudyTimeWeeksRange(t *testing.T) {
 		require.Equal(t, http.StatusOK, r.call(http.MethodGet, base+"?weeks="+q, s.s, nil).code, q)
 	}
 	// weeks giới hạn cửa sổ: dữ liệu cách 3 tuần không có ở weeks=1
-	r.clk.Set(time.Now().UTC())
 	r.seed(w.course, s.u.ID, 21, "CHAT", 120)
 	res := r.call(http.MethodGet, base+"?weeks=1", s.s, nil)
 	require.Equal(t, []any{}, res.json()["weeks"])
