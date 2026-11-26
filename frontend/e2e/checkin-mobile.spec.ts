@@ -306,6 +306,36 @@ test("checkin AC12 (DEF-MOB-15c): đổi trạng thái (429, lỗi, xong) không
   }
 });
 
+test("checkin AC12 (DEF-MOB-15d): MỘT vùng status bền, chữ đổi đúng một lần mỗi kết cục; focus ở nút vừa bấm không bị gỡ", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const [status, body, texts] of [
+    [429, { code: "RATE_LIMITED", message: "m", trace_id: "a".repeat(32), retry_after: 9 }, ["Đang gửi", "Thử lại sau 9 giây."]],
+    [400, { code: "CHECKIN_TOKEN_INVALID", message: "m", trace_id: "a".repeat(32) }, ["Đang gửi"]],
+  ] as const) {
+    await checkinApi(page, context, { post: (r) => r.fulfill(json(body, status)) });
+    await page.goto("/checkin");
+    await page.getByLabel("Mã điểm danh").fill("ABC123");
+    await expect(page.locator("[data-part=checkin] [role=status]")).toHaveCount(1);
+    const btn = page.getByRole("button", { name: "Điểm danh" }).last();
+    await btn.focus();
+    await page.evaluate(() => {
+      const w = window as unknown as { __live: string[]; __btn: Element | null };
+      w.__btn = document.activeElement;
+      w.__live = [];
+      const el = document.querySelector("[data-part=checkin] [role=status]")!;
+      new MutationObserver(() => w.__live.push(el.textContent ?? "")).observe(el, { subtree: true, childList: true, characterData: true });
+    });
+    await btn.click();
+    await expect(page.locator(status === 429 ? "[data-part=limited]" : "[role=alert]").first()).toBeVisible();
+    const r = await page.evaluate(() => {
+      const w = window as unknown as { __live: string[]; __btn: Element | null };
+      return { live: w.__live.filter((t) => t !== ""), same: document.activeElement === w.__btn && w.__btn!.isConnected };
+    });
+    expect(r.live, `HTTP ${status}`).toEqual(texts);
+    expect(r.same, "nút dock còn và còn focus").toBe(true);
+  }
+});
+
 // AC11 + AC5: PWA iPhone — biểu tượng, tên, toàn màn, thanh trạng thái khớp thanh trên trắng
 test("checkin: có apple-touch-icon, tên «EduPilot», chạy toàn màn (iOS) và theme-color khớp thanh trên", async ({ page, context }) => {
   await checkinApi(page, context);

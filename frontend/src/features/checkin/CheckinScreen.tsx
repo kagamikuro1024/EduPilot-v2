@@ -31,7 +31,7 @@ export function normalizeCode(raw: string): string | null {
 
 type Input = { course: string; token: string } | { course: string; code: string };
 type View =
-  | { k: "sending" }
+  | { k: "sending"; btn?: string } // btn = nhãn nút dock vừa bấm: «đang gửi» giữ đúng nút đó (aria-disabled) để focus không rơi
   | { k: "done"; at: string }
   | { k: "entry"; error?: string; cam?: "denied" | "failed"; retry?: () => void; ready?: true }
   | { k: "scanning" }
@@ -130,7 +130,7 @@ export function CheckinScreen() {
     return () => window.removeEventListener(STASH_EVENT, pick);
   }, []);
   const sent = useRef(new Set<string>()); // token đã gửi (StrictMode chạy effect hai lần: cùng token chỉ gửi một lần)
-  const again = useRef<(i: Input) => void>(() => undefined); // gửi lại cùng đầu vào (Thử lại, hết 429)
+  const again = useRef<(i: Input, btn?: string) => void>(() => undefined); // gửi lại cùng đầu vào (Thử lại, hết 429)
   const uid = identity?.sub ?? "";
   const course = realCourseId && realCourseId !== "all" ? realCourseId : "";
   const classCode = realCourses?.find((c) => c.id === course)?.class_code ?? "";
@@ -157,7 +157,8 @@ export function CheckinScreen() {
   const submit = useCallback(
     async (inp: Input) => {
       const viaCode = "code" in inp;
-      const retry = () => again.current(inp);
+      const retry = () => again.current(inp, "Thử lại");
+      const retryAuto = () => again.current(inp, "Điểm danh"); // hết 429: gửi lại token, nút dock vẫn là «Điểm danh» đang khoá
       let timer: ReturnType<typeof setTimeout> | undefined;
       let keepStash = false;
       try {
@@ -195,7 +196,7 @@ export function CheckinScreen() {
         if (e instanceof ApiError && (e.status === 429 || e.code === "RATE_LIMITED")) {
           const secs = Math.max(1, Math.ceil(e.retryAfter ?? 10));
           setLeft(secs);
-          return setView({ k: "limited", until: Date.now() + secs * 1000, secs, retry: viaCode ? undefined : retry });
+          return setView({ k: "limited", until: Date.now() + secs * 1000, secs, retry: viaCode ? undefined : retryAuto });
         }
         const d = describe(e, viaCode);
         setView(viaCode ? { k: "entry", error: d.message, retry: d.offline ? retry : undefined } : { k: "error", message: d.message, offline: d.offline, retry: d.offline ? retry : undefined });
@@ -209,8 +210,8 @@ export function CheckinScreen() {
   );
 
   /** Bắt đầu một lượt từ thao tác của người dùng: khung xương trước, rồi gửi. */
-  function begin(inp: Input) {
-    setView({ k: "sending" });
+  function begin(inp: Input, btn?: string) {
+    setView({ k: "sending", btn });
     void submit(inp);
   }
   useEffect(() => {
@@ -252,7 +253,9 @@ export function CheckinScreen() {
   useEffect(() => {
     if (firstView.current) return void (firstView.current = false);
     const a = document.activeElement;
-    if (view.k !== "scanning" && (!a || a === document.body)) anchor.current?.focus({ preventScroll: true });
+    if (view.k === "scanning" || (a && a !== document.body)) return;
+    const dock = document.querySelector<HTMLElement>("[data-part=checkin-dock] button"); // giữ nút dock nếu đang hiện (di động), không thì mỏ neo
+    (dock?.offsetParent ? dock : anchor.current)?.focus({ preventScroll: true });
   }, [view.k]);
   const scanning = view.k === "scanning";
   useEffect(() => {
@@ -287,11 +290,12 @@ export function CheckinScreen() {
 
   if (role !== "student") return null;
 
+  const liveText = view.k === "sending" ? "Đang gửi" : view.k === "done" ? `Đã điểm danh ${view.at}` : view.k === "limited" ? `Thử lại sau ${view.secs} giây.` : view.k === "entry" && view.ready ? "Thử lại" : "";
   const norm = normalizeCode(code);
   function sendCode() {
     if (!course) return;
     if (!norm) return setView({ k: "entry", error: "Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu." });
-    begin({ course, code: norm });
+    begin({ course, code: norm }, "Điểm danh");
   }
   function onScanned(v: { c: string; token: string }) {
     begin({ course: v.c, token: v.token });
@@ -309,6 +313,8 @@ export function CheckinScreen() {
     else if (canScan) primary = { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true };
   } else if (view.k === "limited") {
     primary = { label: "Điểm danh", disabled: true, docked: true }; // không `reason`: lý do có số giây đổi mỗi giây ⇒ TalkBack đọc lại nút đang focus (DEF-MOB-15b)
+  } else if (view.k === "sending" && view.btn) {
+    primary = { label: view.btn, disabled: true, docked: true };
   }
 
   return (
@@ -319,18 +325,12 @@ export function CheckinScreen() {
         <div className={s.body} data-part="checkin" data-state={view.k} >
           <span ref={anchor} tabIndex={-1} className={s.anchor} data-part="checkin-anchor" />
           {(geoLine || needsGeo) && view.k !== "done" && <p className={s.geo} data-part="geo-line">{GEO_LINE}</p>}
-          {view.k === "sending" && (
-            <>
-              <p role="status" className="ep-sr-only">Đang gửi</p>
-              <div aria-hidden><Skeleton lines={2} label="Đang gửi" /></div>
-            </>
-          )}
-          {view.k === "done" && (
-            <p className={`ep-data ${s.done}`} data-part="done" role="status">
-              <Check aria-hidden className={s.check} />
-              Đã điểm danh {view.at}
-            </p>
-          )}
+          {/* MỘT vùng thông báo bền, mỗi kết cục đổi chữ đúng một lần (AC12; DEF-MOB-15d). Lúc xong nó là dòng nhìn thấy «Đã điểm danh». */}
+          <div className={s.liveWrap}>
+            {view.k === "done" && <Check aria-hidden className={s.check} />}
+            <p role="status" className={view.k === "done" ? `ep-data ${s.done}` : "ep-sr-only"} data-part={view.k === "done" ? "done" : "checkin-live"}>{liveText}</p>
+          </div>
+          {view.k === "sending" && <div aria-hidden><Skeleton lines={2} label="Đang gửi" /></div>}
           {view.k === "scanning" && (
             <Scanner
               onCode={onScanned}
@@ -380,14 +380,11 @@ export function CheckinScreen() {
           ))}
           {view.k === "error" && <InlineNotice tone="danger" compact>{view.message}</InlineNotice>}
           {view.k === "limited" && <p data-part="limited" aria-hidden>Thử lại sau {left} giây.</p>}
-          {(view.k === "limited" || (view.k === "entry" && view.ready)) && (
-            <p role="status" className="ep-sr-only" data-part="limited-live">{view.k === "limited" ? `Thử lại sau ${view.secs} giây.` : "Thử lại"}</p>
-          )}
         </div>
       </Panel>
       {primary && (
         <div className={s.dock} data-part="checkin-dock" data-ep-header-dock>
-          <Button variant="primary" disabled={primary.disabled} onClick={primary.onClick}>{primary.label}</Button>
+          <Button variant="primary" aria-disabled={primary.disabled || undefined} onClick={primary.disabled ? undefined : primary.onClick}>{primary.label}</Button>
         </div>
       )}
     </Page>
