@@ -45,12 +45,11 @@ export function TodayActions({ actions, showClass, canDismiss }: { actions: Toda
   async function dismiss(a: TodayItem) {
     if (!a.course) return;
     setFailed(null);
-    setGone((g) => new Set(g).add(a.id)); // ẩn ngay; máy chủ ghi sau
     try {
       await apiClient.post(`/courses/${a.course.id}/setup/dismiss`);
+      setGone((g) => new Set(g).add(a.id)); // ẩn khi máy chủ đã nhận: không có hoàn tác nên không cần lạc quan; hàng không biến mất khi lời gọi chưa đi
       await qc.invalidateQueries({ queryKey: TODAY_KEY });
     } catch {
-      setGone((g) => new Set([...g].filter((x) => x !== a.id)));
       setFailed("Chưa bỏ qua được. Hãy thử lại.");
     }
   }

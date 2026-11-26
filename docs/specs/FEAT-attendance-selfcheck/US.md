@@ -238,6 +238,7 @@ Quy ước: `Staff` = TA + TEACHER `ACTIVE` của lớp. ADMIN bị từ chối 
 - AC5 (CSP). Given `Content-Security-Policy` của web Then không cho nguồn script ngoài tên miền ứng dụng (mọi trang trên tên miền đều gọi được plugin); `script-src` không `unsafe-eval` ở `/checkin`.
 - AC6 (nhánh lỗi). Given plugin lỗi / không có Keystore → app không gửi `device` (mức 1, `NO_DEVICE_KEY`), không treo; đăng ký thiết bị thất bại → xem AC4 (ký Keystore, gửi `WEB_KEY`, mức 2); WebView lỗi tải → trang lỗi chuẩn + `Thử lại`; APK sai chữ ký → xem US-AS-12 AC4; `getUserMedia` lỗi → AC3a.
 - AC7 (phân quyền). Given tài khoản TA / TEACHER đăng nhập trong app → các màn như web (`/checkin` chặn theo vai); app không lưu mật khẩu / token ngoài cơ chế cookie của WebView hiện có.
+- AC8 (WebView tối thiểu — P-11-149). Given app Android Then yêu cầu **Android System WebView ≥ 64** (Chromium 64; máy Android 7+ có Play Store tự cập nhật WebView), ghi trong `mobile/README.md` và trang tải app; trên máy có WebView < 64 (Android 7 chưa từng cập nhật) app có thể trắng trang — **giới hạn đã biết**, không dựng màn chặn native ở sprint này (nợ `PROGRESS.md`); không đổi `minSdk`, không đổi hợp đồng API.
 - AC8 (kiểm). Có kịch bản kiểm tay trên emulator (khoá phần mềm: đăng ký `ATTESTATION_FAILED`, app gửi `WEB_KEY` → mức 2) và trên máy thật nếu có (`docs/sprints/10.8/qc/android-checklist.md`); không bắt buộc máy thật để PASS story, nhưng AC mức 3 của US-AS-12 chỉ chứng minh được bằng chuỗi chứng chỉ thật (`testdata`).
 
 ### Ngoài phạm vi của story này

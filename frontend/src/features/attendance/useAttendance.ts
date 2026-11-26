@@ -5,6 +5,7 @@ import { ApiError, apiClient } from "@/shared/data";
 import { SaveQueue, type QueueState, type Sender } from "@/shared/lib/saveQueue";
 import { notifyUnsaved, registerUnsaved } from "@/shared/lib/unsavedWork";
 import { queueKey, type Conflict, type Grid, type PutResult, type SpeakCreated, type Status } from "./attendanceApi";
+import { newUuid } from "../../shared/lib/compat";
 
 /** Việc chờ gửi: đổi trạng thái (khoá = mã sinh viên) hoặc một lần phát biểu (khoá = `speak:<client_event_id>`). */
 type Item = { kind: "mark"; status: Status } | { kind: "speak"; student_id: string };
@@ -226,7 +227,7 @@ export function useAttendance({ course, userId, grid, blank = false }: { course:
   /** Ghi một lần phát biểu: đếm tăng ngay, gửi ngay (không chờ 2 s). Trả mã sự kiện để hoàn tác. */
   const speak = useCallback(
     (studentId: string): string => {
-      const eventId = crypto.randomUUID();
+      const eventId = newUuid();
       queue.set(`speak:${eventId}`, { kind: "speak", student_id: studentId });
       setDelta((d) => ({ ...d, [studentId]: (d[studentId] ?? 0) + 1 }));
       queue.resume();

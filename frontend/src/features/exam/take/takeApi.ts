@@ -2,6 +2,7 @@ import { apiClient, type ApiResult } from "@/shared/data";
 import type { ExamKind, StudentExam } from "../examApi";
 import type { ExamClock } from "@/shared/lib/examClock";
 import type { Answer } from "@/shared/lib/saveQueue";
+import { newUuid } from "../../../shared/lib/compat";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/courses/{id}/exams/{eid}/attempts…`, thao tác 29–31, 39–41 của SRS FEAT-weekly-exam 6.2).
 export type TakeItem = {
@@ -36,7 +37,7 @@ export const examBase = (courseId: string, examId: string) => `/courses/${course
 
 /** `X-Exam-Tab`: mã tab sinh MỖI LẦN TẢI TRANG và giữ trong bộ nhớ của trang (không ở sessionStorage — trình duyệt sao chép nó khi nhân bản tab; góp ý #12). */
 export function newTabId(): string {
-  return crypto.randomUUID();
+  return newUuid();
 }
 const tabHeader = (tab: string) => ({ "X-Exam-Tab": tab });
 

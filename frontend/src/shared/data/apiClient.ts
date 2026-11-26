@@ -3,6 +3,7 @@ import { dropSession, EARLY_GET_KEY, refreshSession } from "./authSession";
 import { API_BASE as BASE, API_ORIGIN } from "./endpoint";
 import { netStatus } from "./netStatus";
 import { tokenStore } from "./tokenStore";
+import { anySignal, newUuid, timeoutSignal } from "../lib/compat";
 
 // Máy khách HTTP duy nhất của frontend (cấm fetch trần ngoài shared/data — luật ep/no-raw-fetch). SRS FEAT-ui-foundation 6.1–6.3.
 export { API_ORIGIN };
@@ -30,7 +31,7 @@ export type RequestOpts = {
 
 const KEY_RE = /^[A-Za-z0-9._:-]{8,128}$/;
 export function newIdempotencyKey(): string {
-  return `ep-${crypto.randomUUID()}`;
+  return `ep-${newUuid()}`;
 }
 export { KEY_RE as IDEMPOTENCY_KEY_RE };
 
@@ -143,15 +144,15 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
   }
 
   const send = async (tk: string | null): Promise<ApiResult<T>> => {
-    const headers: Record<string, string> = { Accept: opts.blob ? "*/*" : "application/json", "X-Request-Id": crypto.randomUUID(), ...opts.headers };
+    const headers: Record<string, string> = { Accept: opts.blob ? "*/*" : "application/json", "X-Request-Id": newUuid(), ...opts.headers };
     if (tk) headers.Authorization = `Bearer ${tk}`;
     if (hasBody && !(body instanceof FormData)) headers["Content-Type"] = "application/json"; // FormData: trình duyệt tự đặt boundary
     if (key) headers["Idempotency-Key"] = key;
     const cached = upper === "GET" ? etagCache.get(url) : undefined;
     if (cached) headers["If-None-Match"] = cached.etag;
 
-    const timeout = AbortSignal.timeout(opts.timeoutMs ?? TIMEOUT_MS);
-    const signal = opts.signal ? AbortSignal.any([opts.signal, timeout]) : timeout;
+    const timeout = timeoutSignal(opts.timeoutMs ?? TIMEOUT_MS);
+    const signal = opts.signal ? anySignal([opts.signal, timeout]) : timeout; // DEF-MOB-12b: AbortSignal.any chỉ có từ Chrome 116
     let res: Response;
     try {
       res = await fetch(url, { method: upper, headers, body: !hasBody ? undefined : body instanceof FormData ? body : JSON.stringify(body), credentials: "include", signal, keepalive: opts.keepalive });

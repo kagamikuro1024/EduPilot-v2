@@ -3,6 +3,7 @@ import { API_BASE } from "./endpoint";
 import { refreshSession } from "./authSession";
 import { netStatus } from "./netStatus";
 import { tokenStore } from "./tokenStore";
+import { newUuid } from "../lib/compat";
 
 // SSE qua POST / GET có Authorization cho chat riêng (SRS FEAT-private-chat-pii 4.7.2): fetch + ReadableStream, không EventSource, không token trên URL.
 // Chỉ nằm ở shared/data (luật ep/no-raw-fetch). Trả khi luồng đóng; lỗi trước khi mở luồng ném ApiError (cùng mã như apiClient).
@@ -20,7 +21,7 @@ export type OpenChatStream = {
 };
 
 async function open(o: OpenChatStream, retried: boolean): Promise<Response> {
-  const headers: Record<string, string> = { Accept: "text/event-stream", "X-Request-Id": crypto.randomUUID() };
+  const headers: Record<string, string> = { Accept: "text/event-stream", "X-Request-Id": newUuid() };
   const tk = tokenStore.get();
   if (tk) headers.Authorization = `Bearer ${tk}`;
   if (o.body !== undefined) headers["Content-Type"] = "application/json";

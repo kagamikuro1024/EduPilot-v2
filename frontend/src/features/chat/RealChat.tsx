@@ -32,6 +32,7 @@ import r from "./RealChat.module.css";
 import { formatTime, formatWhen } from "@/shared/lib/datetime";
 import { useMinWidth } from "@/shared/lib/useMinWidth";
 import { TODAY_KEY, type StudentToday } from "@/features/today/todayApi";
+import { newUuid } from "../../shared/lib/compat";
 
 type Feedback = "HELPFUL" | "NOT_HELPFUL" | null;
 
@@ -50,7 +51,7 @@ function blockRows(kind: string, d: Record<string, unknown>): [string, string][]
   if (kind === "participation") return [["Số lần phát biểu", String(d.speak_count)], ["Điểm cộng", vnNum(d.points_total)]];
   return []; // loại khối chưa có cách trình bày: câu trả lời đã đủ (nguồn tài liệu hiện ở danh sách trích dẫn)
 }
-const newKey = () => crypto.randomUUID();
+const newKey = () => newUuid();
 
 function errorLine(code: string | null, retryAfter?: number): string {
   if (code === "OVERLOADED") return retryAfter ? `AI đang bận. Thử lại sau khoảng ${retryAfter} giây.` : "AI đang bận. Thử lại sau ít giây.";

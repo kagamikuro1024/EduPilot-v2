@@ -1,5 +1,6 @@
 import { API_BASE } from "./endpoint";
 import { tokenStore } from "./tokenStore";
+import { newUuid, timeoutSignal } from "../lib/compat";
 
 // Trạng thái phiên đăng nhập (US-P2-02): access token ở bộ nhớ (`tokenStore`), refresh token ở cookie httpOnly (JS không thấy).
 // Máy trạng thái: initializing → authenticated | anonymous | revoked. Không localStorage / sessionStorage.
@@ -95,8 +96,8 @@ async function doRefresh(): Promise<RefreshResult> {
       (await fetch(`${API_BASE}/auth/refresh`, {
         method: "POST",
         credentials: "include",
-        headers: { Accept: "application/json", "Content-Type": "application/json", "X-Request-Id": crypto.randomUUID() },
-        signal: AbortSignal.timeout(15_000),
+        headers: { Accept: "application/json", "Content-Type": "application/json", "X-Request-Id": newUuid() },
+        signal: timeoutSignal(15_000),
       }));
   } catch {
     return { ok: false, code: "NETWORK" }; // không rõ phiên còn hay mất: giữ nguyên trạng thái

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/shared/session/AuthProvider";
 import { EARLY_REFRESH_SCRIPT } from "@/shared/data/earlyRefresh";
 import { EARLY_PAINT_SCRIPT } from "@/shared/data/earlyPaint";
 import { BRAND } from "@/shared/styles/brand";
+import "@/shared/lib/compat"; // DEF-MOB-12b: vá API thiếu ở WebView cũ TRƯỚC khi khung app hydrate
 
 // next/font tự lưu font cùng máy chủ và phát @font-face "Be Vietnam Pro" (không gọi Google lúc chạy). KHÔNG đặt font-family qua
 // className: --ep-font ở tokens.css (có "Noto Sans" dự phòng) mới là chuỗi font duy nhất của trang.
@@ -32,6 +33,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi" className={beVietnamPro.variable} suppressHydrationWarning>
       <head>
+        {/* WebView cũ (minSdk 24; AVD API 28 = Chromium 66) không có `globalThis` (Chromium 71), mà runtime Next/Turbopack và mọi chunk đọc nó ngay dòng đầu ⇒
+            phải vá TRƯỚC mọi `<script src>` của Next. Chỉ một dòng, chạy vô hại trên trình duyệt mới. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: 'if(typeof globalThis==="undefined")(function(g){g.globalThis=g})(typeof self!=="undefined"?self:this)',
+          }}
+        />
         {/* U1 (US-P10-08, TL-2): làm mới phiên chạy NGAY khi HTML được phân tích, song song với tải JS (≈ 0,6 s trên đường LCP) thay vì sau khi React sẵn sàng.
             Cùng điều kiện với AuthProvider (`/` chưa từng đăng nhập thì không gọi), cùng khoá `ep-refresh` giữa các tab; `authSession.doRefresh` dùng lại đúng MỘT lần
             rồi xoá (cookie xoay vòng: dùng lại token là bị thu hồi phiên). Token vẫn chỉ nằm trong bộ nhớ. */}
