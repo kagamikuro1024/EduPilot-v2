@@ -262,6 +262,37 @@ test("checkin AC12: đếm ngược 429 không làm vùng thông báo đổi m�
   await expect(page.getByRole("status").filter({ hasText: /^Thử lại$/ })).toHaveCount(1, { timeout: 5000 });
 });
 
+test("checkin AC12 (DEF-MOB-15b): đếm ngược 429 — cây trợ năng không đổi trong 3 s (không nút nào đổi tên / mô tả, không nút nào đổi nội dung ngoài aria-hidden)", async ({ page, context }) => {
+  for (const [w, h] of [[390, 844], [1440, 900]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await checkinApi(page, context, { post: (r) => r.fulfill(json({ code: "RATE_LIMITED", message: "m", trace_id: "f".repeat(32), retry_after: 9 }, 429)) });
+    await page.goto("/checkin");
+    await page.getByLabel("Mã điểm danh").fill("ABC123");
+    await page.getByRole("button", { name: "Điểm danh" }).last().click();
+    await expect(page.locator("[data-part=limited]")).toBeVisible();
+    await expect(page.locator("[data-part=limited]")).toHaveText(/Thử lại sau [1-9] giây\./); // chữ nhìn thấy vẫn có
+    const before = await page.locator("body").ariaSnapshot();
+    const muts = await page.evaluate(
+      (ms) =>
+        new Promise<string[]>((res) => {
+          const out: string[] = [];
+          const hidden = (n: Node) => !!(n instanceof Element ? n : n.parentElement)?.closest('[aria-hidden="true"]');
+          const mo = new MutationObserver((list) => {
+            for (const m of list) {
+              if (m.type === "attributes" && !/^aria-|^title$|^role$/.test(m.attributeName ?? "")) continue;
+              if (!hidden(m.target)) out.push(`${m.type}:${m.attributeName ?? ""}:${(m.target as Element).nodeName ?? ""}`);
+            }
+          });
+          mo.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true });
+          setTimeout(() => (mo.disconnect(), res(out)), ms);
+        }),
+      3000,
+    );
+    expect(muts, `${w}px`).toEqual([]);
+    expect(await page.locator("body").ariaSnapshot(), `${w}px`).toBe(before);
+  }
+});
+
 // AC11 + AC5: PWA iPhone — biểu tượng, tên, toàn màn, thanh trạng thái khớp thanh trên trắng
 test("checkin: có apple-touch-icon, tên «EduPilot», chạy toàn màn (iOS) và theme-color khớp thanh trên", async ({ page, context }) => {
   await checkinApi(page, context);

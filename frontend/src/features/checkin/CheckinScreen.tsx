@@ -300,7 +300,7 @@ export function CheckinScreen() {
     if (view.retry) primary = { label: "Thử lại", onClick: view.retry, docked: true };
     else if (canScan) primary = { label: "Quét mã điểm danh", onClick: () => setView({ k: "scanning" }), docked: true };
   } else if (view.k === "limited") {
-    primary = { label: "Điểm danh", disabled: true, reason: `Thử lại sau ${left} giây.`, docked: true };
+    primary = { label: "Điểm danh", disabled: true, docked: true }; // không `reason`: lý do có số giây đổi mỗi giây ⇒ TalkBack đọc lại nút đang focus (DEF-MOB-15b)
   }
 
   return (
