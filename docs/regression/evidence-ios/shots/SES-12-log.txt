@@ -1,0 +1,3 @@
+wid=01a217ef-e50f-7986-b4b5-d2b05fe639aa done_ms=-1
+BEFORE: Điểm danh | Bỏ qua điều hướng | Có 9 thông báo mới | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh | Mã đã hết hạn. Quét lại mã trên màn chiếu.
+AFTER: Điểm danh | Bỏ qua điều hướng | Có 9 thông báo mới | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh | Mã đã hết hạn. Quét lại mã trên màn chiếu.

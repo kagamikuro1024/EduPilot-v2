@@ -683,6 +683,18 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-ATT-01 | P | Sinh buổi 104 hôm nay bằng `POST /sessions/generate` (dry_run + thật, Idempotency-Key) rồi mở vòng 1 (`POST …/checkin-windows`): `/attendance` hiện «Buổi 104 · Hôm nay, 07:00–09:00», thẻ «Đang mở · 0/7 · còn 52:11», nút phụ «Mở màn chiếu» + «Đóng», một hành động chính «Lưu điểm danh» ở thanh dưới; không cuộn ngang | shots/ATT-01f.png |
 | TC-MOB-ATT-10 | P | Bấm «Mở màn chiếu» → `/attendance/display` hiện QR + «Mã điểm danh S3C OVX» + đếm «còn 46:30» + «Đóng điểm danh» + «Thoát»; không crash | shots/ATT-10b.png |
 | TC-MOB-ATT-11 | P | Ghim `geofence` 150 m + `campus_cidrs` trên QCMOB1, điểm danh bằng API với toạ độ cách 6 km: staff thấy cờ `GEO_OUT` «Ngoài khu vực lớp», `OFF_CAMPUS` «Ngoài mạng trường», `geo_distance_m` 6016, `in_campus` false, `assurance` 1; SV chỉ thấy `session_no/starts_at/status/checked_in_at`; route staff dưới JWT SV → 403 | shots/ATT-11-staff.json, shots/ATT-11-sv.json |
+| TC-MOB-PWA-16 | P | `curl -sI /manifest.webmanifest`: HTTP/2 200, `content-type: application/manifest+json`, `cache-control: public, max-age=0, must-revalidate` (không kẹt bản cũ), HTTPS | — |
+| TC-MOB-DEV-12 | N | `go test ./internal/attendance/attest -run 'TestAttestRealChains\|TestAttestRejects'` cần Docker (redis/postgres testcontainers); colima đang tắt theo guard bộ nhớ — không chạy | — |
+| TC-MOB-ENT-21 | P | `GET /me/today` (sv.gioi, đang có lượt mang cờ `GEO_OUT`/`OFF_CAMPUS`): `timeline[]` chỉ có `at, ends_at, title, place, state, course{id,class_code}, checkin_link` — không `student_id`, cờ, mức tin cậy, thiết bị, vị trí; đúng một boolean `checkin_link` | shots/ENT-21-today.json |
+| TC-MOB-DAT-06 | P | axe (wcag2a+aa) `/checkin` 375×812 Chromium trên VPS: 0 vi phạm | pw/ios_w.mjs |
+| TC-MOB-A11-14 | P | `prefers-reduced-motion: reduce`: media query khớp, 0 hoạt ảnh vô hạn, 0 chuyển/hoạt ảnh > 0,2 s, đo 6 lần ở 2 trạng thái `/checkin` | pw/ios_w.mjs |
+| TC-MOB-PWA-22 | P | Playwright **WebKit** iPhone 15: `navigator.storage.persist` bọc ở prototype `StorageManager`; điểm danh bằng mã → `persist()` gọi **đúng 1 lần**, IndexedDB `edupilot.device.v1` có 1 bản ghi khoá, «Đã điểm danh» | shots/PWA-22.png |
+| TC-MOB-SEC-12 | P | WebKit iPhone 15: khoá thiết bị `type=private extractable=false ECDSA/P-256 usages=sign`; `exportKey('pkcs8')` và `exportKey('jwk')` đều `InvalidAccessError`; 1 bản ghi duy nhất | shots/SEC-12.json |
+| TC-MOB-SEC-16 | P | DB `attendance_checkins` không cột toạ độ/IP/tên máy (chỉ `geo_distance_m`, `geo_accuracy_m`, `in_campus`); `audit_log` 0 khớp; log gateway 24 h: `public_key`/`signature`/`token`/toạ độ = 0 (1 dòng chứa dạng IP là CIDR cấu hình) | shots/SEC-16-notes.txt |
+| TC-MOB-SEC-17 | P | SV đăng nhập mở liên kết QR cũ (vòng còn mở, token đã xoay > 45 s): chỉ «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; DB 0 lượt cho vòng đó | shots/SEC-17b.png |
+| TC-MOB-PRF-08 | P | `system.open` liên kết QR → «Đã điểm danh» ×5 (mỗi lần vòng mới, trang về «Hôm nay» giữa các lần): **trung vị 652 ms, lớn nhất 1 624 ms** (lần chạy đầu, máy nguội: 730 / 3 347 ms); DB 5/5 lượt | shots/PRF-08b-log.txt, shots/PRF-08-log.txt |
+| TC-MOB-NAV-07 | P | «Hôm nay» → liên kết QR → «Đã điểm danh» → **nút Back của Safari** (cử chỉ vuốt cạnh trái không bơm được bằng XCUITest): về trang trước («Mã điểm danh» của lượt xem trước), không lượt hai (DB 1 lượt), không «Mã đã hết hạn»/lỗi cũ | shots/NAV-07c-log.txt |
+| TC-MOB-SES-12 | F | iOS 27.2 Safari (Simulator), SV chưa đăng nhập mở liên kết QR (`simctl openurl` và `system.open`): chuyển `/login?...&revoked=...`; đăng nhập (7 s và 21 s) → vào `/checkin` **ô nhập mã trống**, **không** tự điểm danh, DB 0 lượt (5/5 lần). Android SES-11 / US-AS-09 AC2 đòi tự gửi một lần. Playwright WebKit (ngữ cảnh mới, kể cả đã đăng nhập rồi bị thu hồi phiên) **đúng**: stash có, đăng nhập → «Đã điểm danh», 1 POST ⇒ lỗi riêng của Safari thật; hành vi Back không lặp `/login` (vế SES-12 đạt) | shots/SES-12b-*.png, SES-12d-log.txt, SES-12f-*.png |
 | TC-MOB-SEC-02 | P | iOS Safari Simulator: `localStorage` chỉ có `ep_demo_state` (không token, không `ep.device`); IndexedDB đúng một CSDL `edupilot.device.v1/store keys` = một `CryptoKey`; `ep.checkin` chỉ ở `sessionStorage`, xoá khi dùng, hết hạn 60 s (`stash.ts`); khoá `extractable=false` | shots/sec02-localstorage.sqlite3, shots/sec02-indexeddb.sqlite3 |
 | TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
 | TC-MOB-SEC-18 | P | localStorage không có token (chỉ ep_demo_state/ep_returning); document.cookie không thấy ep_rt | — |
@@ -744,10 +756,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 91 | 0 | 3 |
+| qc3 iOS | 101 | 1 | 4 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (335 mã gốc − 47 trùng = 288)** | **223** | **1** | **64** |
+| **Hợp (347 mã gốc − 49 trùng = 298)** | **234** | **1** | **63** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -891,6 +903,13 @@ Còn lại của lô E (`PWA-06…12`, `14`, `15`, `17…21`) **N** trong phiên
 - `ATT-01` **P** (sau khi PM chỉ `POST /sessions/generate`): sinh buổi 104 hôm nay, mở vòng 1 — thẻ «Đang mở · 0/7 · còn 52:11» + «Mở màn chiếu». Ghi chú cũ: không mở được cửa sổ điểm danh mới — mọi buổi của QCMOB1/QCMOB2 đang ở `ROUND_LIMIT` («Đã mở đủ số vòng điểm danh») và `class_sessions` không có endpoint tạo buổi; không có vòng mở thì trang không hiện mã/«Mở màn chiếu».
 - `ATT-10` **P (một phần)**: `/attendance/display` mở được, có «Màn chiếu điểm danh» + nút «Về Điểm danh», không crash, không có nút «Thoát» dạng Esc trên điện thoại (`ATT-10.png`); **không** chứng minh được mã/QR vì cùng lý do `ROUND_LIMIT`.
 - `ATT-11` **P**: làm trên QCMOB1 (không đụng QCMOB2): ghim `geofence` 150 m + `campus_cidrs` 203.0.113.0/24, điểm danh bằng API với toạ độ cách 6 km → cờ `GEO_OUT`/`OFF_CAMPUS` + `geo_distance_m` 6016 + `in_campus` false cho staff; SV không thấy; đã **trả chính sách lớp về nguyên trạng** và đóng vòng. Ghi chú cũ: cần lượt `GEO_OUT`/`OFF_CAMPUS` của QCMOB2 — QCMOB2 đang có vòng mở do phiên khác tạo trong lúc tôi chạy nên **không đụng vào** để tránh phá lượt của họ.
+
+### 9.17 Lô tiếp (26/11, VPS `0316ef2b` → `9e457eb8` chỉ frontend; Simulator iOS 27.2 + Playwright WebKit/Chromium)
+
+- Giải pháp sinh dữ liệu: `POST /sessions/generate` tạo buổi 105–114 hôm nay trên QCMOB1 (mỗi buổi 3 vòng); chính sách lớp ghim `rotate_seconds` tạm 60 s cho SES-12 rồi **trả về 10 s** (DB xác nhận nguyên trạng). Khung test: token GV cấp một lần bởi `tok.py` (cache `.cache/` không commit), 429 chờ `Retry-After`, mọi URL qua `openLink` có guard — sự cố crash `Qc2UITests-Runner` 20:19 do `openRound` trả URL rỗng khi buổi 113 hết vòng (`ROUND_LIMIT`), **không phải lỗi app**; không ghi P/F từ lượt đó.
+- `SES-12` **F** (đề nghị mở `DEF-MOB-13`, PM đánh số): QR → đăng nhập trên Safari iOS không tự điểm danh; WebKit của Playwright thì đúng ⇒ khác biệt Safari/WebKit trên thiết bị, cần dev dò (stash `ep.checkin` có bị mất khi Safari phục hồi/chuyển trang?).
+- `NAV-07` dùng nút Back của Safari thay vuốt cạnh trái (XCUITest không bơm được cử chỉ cạnh).
+- Chưa chạy vì guard bộ nhớ (swap > 90 %): `LIF-09` (nền 5 phút), `FLW-10` (`sv.moi`), `SAF-09` (cần ảnh /checkin trong PWA không có bàn phím), `TGT-06`, `UIW-22`.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.

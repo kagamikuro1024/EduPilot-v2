@@ -1,0 +1,3 @@
+wid=01a217f6-10de-7d7d-ae22-f8386d6aee95 login_form@1249ms submitted@5674ms first[Mã điểm danh]@6981ms
+BEFORE: Điểm danh | Bỏ qua điều hướng | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh | Mã điểm danh | Lớp QCMOB1
+AFTER: Điểm danh | Bỏ qua điều hướng | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh | Mã điểm danh | Lớp QCMOB1

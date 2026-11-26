@@ -4,6 +4,7 @@ import XCTest
 final class IosTests: XCTestCase {
     let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
     let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+    override func setUp() { continueAfterFailure = false }  // lỗi khung (thiếu token/URL) dừng ngay, không chạy tiếp thành crash
     func dump(_ app: XCUIApplication, _ name: String) {
         try? app.debugDescription.write(toFile: "/Users/kuro/.config/edupilot-team/qc2-work/ios-tree-\(name).txt", atomically: true, encoding: .utf8)
     }
@@ -552,5 +553,216 @@ final class IosTests: XCTestCase {
         sleep(10); savePng(shotName())
         let labels = web.staticTexts.allElementsBoundByIndex.map(\.label)
         try? labels.joined(separator: " | ").write(toFile: evidDir() + "/" + shotName() + "-labels.txt", atomically: true, encoding: .utf8)
+    }
+
+    // ---- qc3: vòng lặp liên kết QR (PRF-08 / SES-12 / SEC-17) — GV mở vòng bằng API, SV mở liên kết trong Safari ----
+    func apiCall(_ method: String, _ path: String, tok: String? = nil, body: [String: Any]? = nil, idem: Bool = false) -> (Int, [String: Any]) {
+        let env = ProcessInfo.processInfo.environment
+        let base = env["BASE"] ?? "https://v2202609419695521098.happysrv.de"
+        guard let url = URL(string: base + "/api/v1" + path) else { XCTFail("URL API sai: \(path)"); return (0, [:]) }
+        var code = 0; var obj: [String: Any] = [:]
+        for attempt in 0..<4 {
+            var req = URLRequest(url: url)
+            req.httpMethod = method
+            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            if let t = tok { req.setValue("Bearer " + t, forHTTPHeaderField: "Authorization") }
+            if idem { req.setValue(UUID().uuidString, forHTTPHeaderField: "Idempotency-Key") }
+            if let b = body { req.httpBody = try? JSONSerialization.data(withJSONObject: b) }
+            let sem = DispatchSemaphore(value: 0); var wait: UInt32 = 0
+            URLSession.shared.dataTask(with: req) { d, r, _ in
+                let h = r as? HTTPURLResponse
+                code = h?.statusCode ?? 0
+                if code == 429 { wait = UInt32(h?.value(forHTTPHeaderField: "Retry-After") ?? "") ?? 20 }
+                obj = [:]
+                if let d = d, let j = try? JSONSerialization.jsonObject(with: d) as? [String: Any] { obj = j }
+                sem.signal()
+            }.resume()
+            _ = sem.wait(timeout: .now() + 30)
+            if code != 429 { break }
+            if attempt == 3 { XCTFail("429 liên tục ở \(path) — báo PM, không đổi env") ; break }
+            sleep(min(wait, 60))
+        }
+        return (code, obj)
+    }
+    func teacherToken() -> String {
+        let t = ProcessInfo.processInfo.environment["TTOK"] ?? ""
+        if t.isEmpty { XCTFail("thiếu TTOK (runtest.sh chạy tok.py; 429 hoặc lỗi mật khẩu?) — khung test, không ghi P/F") }
+        return t
+    }
+    /// Mở URL trong Safari; URL rỗng/sai → XCTFail, không crash.
+    func openLink(_ s: String, _ why: String) -> Bool {
+        guard !s.isEmpty, let u = URL(string: s) else { XCTFail("không có URL để mở (\(why)) — khung test, không ghi P/F"); return false }
+        XCUIDevice.shared.system.open(u); return true
+    }
+    /// Mở vòng mới trên buổi `sid`; trả (window_id, qr_url).
+    func openRound(_ tok: String, sid: String) -> (String, String) {
+        let cid = ProcessInfo.processInfo.environment["CID"] ?? ""
+        var (c, j) = apiCall("POST", "/courses/\(cid)/sessions/\(sid)/checkin-windows", tok: tok, body: ["minutes": 10], idem: true)
+        if c == 409, let d = j["details"] as? [String: Any], let w = d["window_id"] as? String {
+            _ = apiCall("POST", "/courses/\(cid)/checkin-windows/\(w)/close", tok: tok, body: [:])
+            (c, j) = apiCall("POST", "/courses/\(cid)/sessions/\(sid)/checkin-windows", tok: tok, body: ["minutes": 10], idem: true)
+        }
+        let wid = (j["id"] as? String) ?? ""
+        if wid.isEmpty { XCTFail("mở vòng thất bại: HTTP \(c) \(j["code"] ?? "?") (buổi \(sid)) — khung/fixture, không ghi P/F"); return ("", "") }
+        let (_, d) = apiCall("GET", "/courses/\(cid)/sessions/\(sid)/checkin-windows/\(wid)/display", tok: tok)
+        return (wid, (d["qr_url"] as? String) ?? "")
+    }
+    func closeRound(_ tok: String, wid: String) {
+        let cid = ProcessInfo.processInfo.environment["CID"] ?? ""
+        _ = apiCall("POST", "/courses/\(cid)/checkin-windows/\(wid)/close", tok: tok, body: [:])
+    }
+    /// Chờ tới khi một nhãn bắt đầu bằng `prefix` xuất hiện trong trang; trả số ms (hoặc -1 nếu quá hạn).
+    func waitLabel(_ web: XCUIElement, prefix: String, timeout: TimeInterval) -> Int {
+        let t0 = Date()
+        while Date().timeIntervalSince(t0) < timeout {
+            if web.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", prefix)).firstMatch.exists { return Int(Date().timeIntervalSince(t0) * 1000) }
+            usleep(50_000)
+        }
+        return -1
+    }
+    func pageTexts(_ web: XCUIElement) -> String { web.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ") }
+
+    /// PRF-08: mở liên kết QR 5 lần (mỗi lần vòng mới), đo từ lúc mở liên kết tới «Đã điểm danh». Env SIDS (phẩy), CID, TPW.
+    func testPrf08() {
+        let env = ProcessInfo.processInfo.environment
+        let sids = (env["SIDS"] ?? "").split(separator: ",").map(String.init)
+        let tok = teacherToken(); XCTAssertFalse(tok.isEmpty, "không đăng nhập được GV")
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        var ms: [Int] = []; var log: [String] = []
+        for i in 0..<5 {
+            let sid = sids[min(i / 3, sids.count - 1)]
+            let (wid, url) = openRound(tok, sid: sid)
+            if url.isEmpty { log.append("\(i + 1): không mở được vòng (wid=\(wid))"); continue }
+            guard openLink(url, "liên kết QR (vòng không mở được)") else { return }
+            let t0 = Date()
+            let m = waitLabel(web, prefix: "Đã điểm danh", timeout: 25)
+            log.append("\(i + 1): \(m) ms (\(Int(Date().timeIntervalSince(t0) * 1000)) tổng) \(m < 0 ? pageTexts(web).prefix(120) : "")")
+            ms.append(m)
+            if i == 0 { savePng(shotName() + "-1") }
+            closeRound(tok, wid: wid)
+            // trả trang về «Hôm nay» để nhãn «Đã điểm danh» cũ không làm lần đo sau sai
+            _ = openLink((env["BASE"] ?? "https://v2202609419695521098.happysrv.de") + "/", "trang chủ")
+            _ = waitLabel(web, prefix: "Chào", timeout: 15); sleep(1)
+        }
+        let ok = ms.filter { $0 >= 0 }.sorted()
+        let med = ok.isEmpty ? -1 : ok[ok.count / 2]
+        let out = "ms=\(ms) trung_vi=\(med) lon_nhat=\(ok.last ?? -1)\n" + log.joined(separator: "\n")
+        try? out.write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(out)
+    }
+
+    /// SES-12: SV chưa đăng nhập mở liên kết QR → đăng nhập → «Đã điểm danh» → vuốt cạnh trái. Env SID, CID, TPW.
+    func testSes12() {
+        let env = ProcessInfo.processInfo.environment
+        let tok = teacherToken()
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let (wid, url) = openRound(tok, sid: env["SID"] ?? "")
+        XCTAssertFalse(url.isEmpty, "không mở được vòng")
+        let t0 = Date(); func el() -> Int { Int(Date().timeIntervalSince(t0) * 1000) }
+        var tl: [String] = []
+        guard openLink(url, "liên kết QR (vòng không mở được)") else { return }
+        let email = web.textFields.firstMatch
+        XCTAssertTrue(email.waitForExistence(timeout: 15), "không thấy ô email (chưa chuyển /login)")
+        tl.append("login_form@\(el())ms")
+        savePng(shotName() + "-1login")
+        if let slow = Double(env["SLOW"] ?? "0"), slow > 0 { sleep(UInt32(slow)) }
+        email.tap(); email.typeText(env["EMAIL"] ?? "")
+        let next = safari.buttons["Next"]
+        if next.waitForExistence(timeout: 8) { next.tap() }
+        safari.typeText((env["PW"] ?? "") + "\n")
+        tl.append("submitted@\(el())ms")
+        var seen = ""
+        while el() < 60_000 {
+            for k in ["Đã điểm danh", "Mã đã hết hạn", "Mã điểm danh"] {
+                if web.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", k)).firstMatch.exists { seen = k; break }
+            }
+            if !seen.isEmpty { break }
+            usleep(100_000)
+        }
+        tl.append("first[\(seen)]@\(el())ms")
+        sleep(3); savePng(shotName() + "-2done")
+        let before = pageTexts(web)
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.0, dy: 0.5)).press(forDuration: 0.1, thenDragTo: safari.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5)))
+        sleep(6); savePng(shotName() + "-3back")
+        let after = pageTexts(web)
+        let out = "wid=\(wid) \(tl.joined(separator: " "))\nBEFORE: \(before.prefix(200))\nAFTER: \(after.prefix(300))"
+        try? out.write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(out); closeRound(tok, wid: wid)
+    }
+
+    /// SEC-17: liên kết cũ đã hết hạn (vòng vẫn mở, token đã xoay) → SV đăng nhập mở. Env SID, CID, TPW.
+    func testSec17() {
+        let env = ProcessInfo.processInfo.environment
+        let tok = teacherToken()
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let (wid, url) = openRound(tok, sid: env["SID"] ?? "")
+        XCTAssertFalse(url.isEmpty, "không mở được vòng")
+        sleep(45)  // token xoay 10 s: đã hết hạn
+        guard openLink(url, "liên kết QR (vòng không mở được)") else { return }
+        sleep(8); savePng(shotName())
+        let t = pageTexts(web)
+        try? "wid=\(wid)\nTEXTS: \(t.prefix(300))".write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print("TEXTS: \(t.prefix(300))"); closeRound(tok, wid: wid)
+    }
+
+    /// NAV-07: «Hôm nay» → liên kết QR → «Đã điểm danh» → vuốt cạnh trái → về trang trước. Env SID, CID, TPW (SV đã đăng nhập).
+    func testNav07() {
+        let env = ProcessInfo.processInfo.environment
+        let base = env["BASE"] ?? "https://v2202609419695521098.happysrv.de"
+        let tok = teacherToken()
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        _ = openLink(base + "/", "trang chủ")
+        _ = waitLabel(web, prefix: "Chào", timeout: 20); sleep(1)
+        savePng(shotName() + "-0home")
+        let (wid, url) = openRound(tok, sid: env["SID"] ?? "")
+        guard openLink(url, "liên kết QR (vòng không mở được)") else { return }
+        let m = waitLabel(web, prefix: "Đã điểm danh", timeout: 25)
+        sleep(2); savePng(shotName() + "-1done")
+        let before = pageTexts(web)
+        let backBtn = safari.buttons["Back"]
+        let hadBack = backBtn.waitForExistence(timeout: 5)
+        if hadBack { backBtn.tap() }
+        try? "back_button=\(hadBack)".write(toFile: evidDir() + "/" + shotName() + "-btn.txt", atomically: true, encoding: .utf8)
+        sleep(5); savePng(shotName() + "-2back")
+        let after = pageTexts(web)
+        let out = "wid=\(wid) done_ms=\(m)\nBEFORE: \(before.prefix(220))\nAFTER: \(after.prefix(300))"
+        try? out.write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(out); closeRound(tok, wid: wid)
+    }
+
+    func displayCode(_ tok: String, sid: String, wid: String) -> String {
+        let cid = ProcessInfo.processInfo.environment["CID"] ?? ""
+        let (_, d) = apiCall("GET", "/courses/\(cid)/sessions/\(sid)/checkin-windows/\(wid)/display", tok: tok)
+        return (d["short_code"] as? String) ?? ""
+    }
+    /// LIF-09: Safari nền `BG` giây (mặc định 300) rồi quay lại, nhập mã đang hiện. Env SID, CID.
+    func testLif09() {
+        let env = ProcessInfo.processInfo.environment
+        let base = env["BASE"] ?? "https://v2202609419695521098.happysrv.de"
+        let bg = UInt32(env["BG"] ?? "300") ?? 300
+        let tok = teacherToken()
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        guard openLink(base + "/checkin?c=" + (env["CID"] ?? ""), "trang /checkin") else { return }
+        XCTAssertGreaterThanOrEqual(waitLabel(web, prefix: "Mã điểm danh", timeout: 25), 0, "không thấy ô mã trước khi ra nền")
+        savePng(shotName() + "-0before")
+        XCUIDevice.shared.press(.home); sleep(bg)
+        safari.activate(); sleep(4)
+        savePng(shotName() + "-1return")
+        let texts1 = pageTexts(web)
+        let (wid, _) = openRound(tok, sid: env["SID"] ?? "")
+        let code = displayCode(tok, sid: env["SID"] ?? "", wid: wid)
+        XCTAssertFalse(code.isEmpty, "không lấy được mã hiện tại")
+        let field = web.textFields.firstMatch; _ = field.waitForExistence(timeout: 15)
+        field.tap(); sleep(1); field.typeText(code); sleep(1); safari.typeText("\n")
+        let m = waitLabel(web, prefix: "Đã điểm danh", timeout: 25)
+        savePng(shotName() + "-2done")
+        let out = "wid=\(wid) bg=\(bg)s done_ms=\(m)\nRETURN: \(texts1.prefix(240))\nAFTER: \(pageTexts(web).prefix(240))"
+        try? out.write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(out); closeRound(tok, wid: wid)
     }
 }
