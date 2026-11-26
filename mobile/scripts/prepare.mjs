@@ -13,9 +13,9 @@ try {
   console.error(`APP_SERVER_URL không phải URL hợp lệ: ${url}`);
   process.exit(1);
 }
-// capacitor.config.js đặt cleartext:false nên http:// (kể cả localhost, 10.0.2.2) luôn ra trang «Không kết nối được máy chủ»; getUserMedia và WebCrypto cũng cần ngữ cảnh an toàn.
-if (u.protocol !== "https:") {
-  console.error(`APP_SERVER_URL phải là HTTPS (nhận ${u.protocol}//${u.host}). Chưa có HTTPS thì mở tunnel: cloudflared tunnel --url http://localhost:<cổng> rồi đặt APP_SERVER_URL=https://<host>.trycloudflare.com.`);
+// http:// chỉ để chạy với server LAN (chủ dự án 27/11, P-11-153): capacitor.config.js bật cleartext đúng khi URL là http. Trang http không phải secure context ngoài localhost ⇒ WebCrypto / getUserMedia có thể không dùng được.
+if (u.protocol !== "https:" && u.protocol !== "http:") {
+  console.error(`APP_SERVER_URL phải là http(s) (nhận ${u.protocol}//${u.host}).`);
   process.exit(1);
 }
 mkdirSync("www", { recursive: true });

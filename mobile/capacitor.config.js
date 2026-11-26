@@ -10,7 +10,7 @@ module.exports = {
   webDir: "www",
   server: {
     url,
-    cleartext: false, // không HTTP thường
+    cleartext: new URL(url).protocol === "http:", // https ⇒ false; http chỉ khi chính URL là http (LAN demo, chủ dự án 27/11, P-11-153)
     allowNavigation: [host], // chỉ host của ứng dụng
     errorPath: "error.html", // WebView không tải được server.url → trang lỗi cục bộ có «Thử lại»
   },

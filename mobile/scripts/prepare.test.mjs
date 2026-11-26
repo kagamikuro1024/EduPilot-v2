@@ -1,4 +1,4 @@
-// node --test mobile/scripts/prepare.test.mjs — prepare.mjs chỉ nhận APP_SERVER_URL https (D-AS-04).
+// node --test mobile/scripts/prepare.test.mjs — prepare.mjs nhận APP_SERVER_URL http(s) (D-AS-04; http mở theo P-11-153).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
@@ -18,15 +18,19 @@ const run = (url) => {
   return { ...r, wrote: existsSync(page), html: existsSync(page) ? readFileSync(page, "utf8") : "" };
 };
 
-for (const bad of ["http://localhost:580", "http://127.0.0.1", "http://10.0.2.2:3000", "http://edupilot.example.com", "không-phải-url"]) {
+for (const bad of ["ftp://edupilot.example.com", "file:///etc/passwd", "không-phải-url"]) {
   test(`từ chối ${bad}`, () => {
     const r = run(bad);
     assert.equal(r.status, 1);
-    assert.match(r.stderr, /HTTPS|URL hợp lệ/);
+    assert.match(r.stderr, /http\(s\)|URL hợp lệ/);
     assert.equal(r.wrote, false);
   });
 }
-test("http báo gợi ý tunnel", () => assert.match(run("http://localhost:580").stderr, /tunnel/));
+test("http LAN hợp lệ → sinh www/, nút «Thử lại» trỏ đúng URL", () => {
+  const r = run("http://192.168.41.4");
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.html, /<a href="http:\/\/192\.168\.41\.4\/">Thử lại<\/a>/);
+});
 test("thiếu APP_SERVER_URL → lỗi", () => assert.equal(run(undefined).status, 1));
 test("https hợp lệ → sinh www/", () => {
   const r = run("https://demo.trycloudflare.com");
