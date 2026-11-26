@@ -440,3 +440,32 @@ Tổng: **102 TC = 86 P, 0 F, 16 N.** Bằng chứng: `shots/DEF-MOB-12b-*.png`,
 
 - **DEF-MOB-12c** (mức Thấp, không chặn): `React error #418` còn 1 dòng lúc tải `/login` trên WebView 66; hydration vẫn chạy đủ. Giao dev3.
 - 16 N còn lại cần điều kiện ngoài (máy Android/iPhone thật, TalkBack, khoá ký release, chặn POST thật, ngưỡng 5 s) — danh sách ở §38.
+
+## 42. DEF-MOB-12c — 2 dữ kiện cho `React error #418` trên `/login` (26/11, theo yêu cầu PM; báo PM, không gửi dev)
+
+AVD API 28, WebView 66.0.3359.158, VPS `0316ef2b`. Chỉ tải trang `/login` (GET), không đăng nhập. Bắt console bằng CDP (cùng giao thức `chrome://inspect`, qua `adb forward` tới `webview_devtools_remote_<pid>`): `def-mob-12c/cdp12c.mjs`.
+
+| # | Điều kiện | Số lần tải | `#418` |
+|---|---|---|---|
+| 1 | WebView TRẦN (`org.chromium.webview_shell`, không Capacitor) | 3 | **0/3** (chỉ còn cảnh báo `interactive-widget` và `401 /auth/refresh` — bình thường khi chưa đăng nhập) |
+| 2a | APK Capacitor, Autofill = Google (mặc định) | 3 | **3/3** |
+| 2b | APK Capacitor, `autofill_service = null` (tắt) | 3 | **3/3** |
+
+⇒ **Không do Autofill.** Xảy ra trong APK, không xảy ra ở WebView trần cùng bản 66.
+
+**Dòng lỗi #418 đầu tiên, nguyên văn** (console chỉ có bản rút gọn, KHÔNG có thông điệp đầy đủ; `args[]=HTML&args[]=` rỗng; stack nằm trong chunk đã minify `2qo5ld7bqyz_8.js`):
+```
+Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rJ (…/_next/static/chunks/2qo5ld7bqyz_8.js:1:62960)
+    at id (…/2qo5ld7bqyz_8.js:1:114208)
+    at sh (…/2qo5ld7bqyz_8.js:1:155037)
+    at …/2qo5ld7bqyz_8.js:1:149916
+    at sr (…/2qo5ld7bqyz_8.js:1:150017)
+    at sq (…/2qo5ld7bqyz_8.js:1:176598)
+    at MessagePort.O (…/2qo5ld7bqyz_8.js:1:3356)
+```
+`CallFrames` của `console.error`: `r.function.e`→`f`→`sx`→`(anon)`→`sw`→`sl`→`sr`→`sq` (cùng chunk): lỗi được React ghi trong luồng khôi phục hydration (`onRecoverableError`).
+
+**Dữ kiện phụ** (đo bằng `eval12c.mjs`, không phải kết luận): trong APK `window.Capacitor` có và `isNativePlatform()` = true; `<head>` của APK có **22** thẻ `<script>`, WebView trần có **18**. Phần dôi ra: 1 script inline `window.Capacitor = {{ DEBUG: true, … }}` (không có trong HTML máy chủ — `curl /login` đếm 0) và 3 script inline của chính app (polyfill `globalThis`, early-paint, `__epRefresh`) xuất hiện thêm 1 bản. Mã nguồn trang `/login` không đọc Capacitor (chỉ `features/checkin/*` có). [INFERENCE] script do Capacitor chèn vào `<head>` làm lệch cây DOM lúc hydrate; bản sao 3 script app có thể là hệ quả của lần render lại phía client sau lỗi, chưa kiểm.
+
+Bằng chứng: `docs/regression/evidence-mobile-android/def-mob-12c/` (log đủ 3 điều kiện, `cdp12c.mjs`, `eval12c.mjs`, danh sách script `<head>` APK/trần). AVD đã xoá.

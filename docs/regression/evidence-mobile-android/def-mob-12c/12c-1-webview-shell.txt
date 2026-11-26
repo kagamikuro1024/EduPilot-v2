@@ -1,0 +1,10 @@
+adb: error: listener 'tcp:9224' not found
+=== lan tai 1: 2 muc loi/canh bao; co #418: false
+{"k":"log.warning","text":"The key \"interactive-widget\" is not recognized and ignored.","url":"login","line":0}
+{"k":"log.error","text":"Failed to load resource: the server responded with a status of 401 ()","url":"refresh"}
+=== lan tai 2: 2 muc loi/canh bao; co #418: false
+{"k":"log.warning","text":"The key \"interactive-widget\" is not recognized and ignored.","url":"login","line":0}
+{"k":"log.error","text":"Failed to load resource: the server responded with a status of 401 ()","url":"refresh"}
+=== lan tai 3: 2 muc loi/canh bao; co #418: false
+{"k":"log.warning","text":"The key \"interactive-widget\" is not recognized and ignored.","url":"login","line":0}
+{"k":"log.error","text":"Failed to load resource: the server responded with a status of 401 ()","url":"refresh"}
