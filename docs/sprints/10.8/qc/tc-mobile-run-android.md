@@ -469,3 +469,18 @@ Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML
 **Dữ kiện phụ** (đo bằng `eval12c.mjs`, không phải kết luận): trong APK `window.Capacitor` có và `isNativePlatform()` = true; `<head>` của APK có **22** thẻ `<script>`, WebView trần có **18**. Phần dôi ra: 1 script inline `window.Capacitor = {{ DEBUG: true, … }}` (không có trong HTML máy chủ — `curl /login` đếm 0) và 3 script inline của chính app (polyfill `globalThis`, early-paint, `__epRefresh`) xuất hiện thêm 1 bản. Mã nguồn trang `/login` không đọc Capacitor (chỉ `features/checkin/*` có). [INFERENCE] script do Capacitor chèn vào `<head>` làm lệch cây DOM lúc hydrate; bản sao 3 script app có thể là hệ quả của lần render lại phía client sau lỗi, chưa kiểm.
 
 Bằng chứng: `docs/regression/evidence-mobile-android/def-mob-12c/` (log đủ 3 điều kiện, `cdp12c.mjs`, `eval12c.mjs`, danh sách script `<head>` APK/trần). AVD đã xoá.
+
+## 43. Nghiệm DEF-MOB-12c trên VPS 591d84bc: **ĐẠT** (26/11)
+
+AVD API 28, WebView 66.0.3359.158, APK debug. Xác nhận trước: HTML `/login` do máy chủ trả có cả 3 script inline (polyfill `globalThis`, `__epRefresh`, vẽ sớm) **sau `<body`** (vị trí 223.6k–224.1k > 223.54k).
+
+| Tiêu chí | Kết quả |
+|---|---|
+| (a) 3 lần tải LẠNH `/login` trong APK (`pm clear` + mở lại mỗi lần) | `#418` = **0/3**; 0 Reference/Type/SyntaxError; form đăng nhập vẽ ra (2 ô); `typeof globalThis` = `object` (polyfill đã chạy trên WebView 66) |
+| (b) tải lại 10 lần, cache nóng — `/login` | `#418` = 0, lỗi JS = 0, **10/10** có `/auth/refresh`, form vẽ ra 10/10 |
+| (b) tải lại 10 lần, cache nóng — `/checkin` | chưa đăng nhập nên `/checkin` chuyển về `/login` (đúng thiết kế): `#418` = 0, lỗi JS = 0, 10/10 có `/auth/refresh`; **không** phủ được màn `/checkin` thật sau reload (token chỉ giữ trong bộ nhớ) — màn đó kiểm ở (c) |
+| (c) đăng nhập `sv.qc2` đúng 1 lần | `POST /auth/login` 200 → `/events`, `/notifications`, `/me/courses` 200, `/courses/{id}/today` 200; không còn «Bản mô phỏng» |
+| (c) `/checkin` (điều hướng trong app) | có ô «Mã điểm danh», không có «Quét mã» |
+| logcat sau khi xoá (đăng nhập + `/checkin`) | 0 dòng `SyntaxError`/`ReferenceError`/`TypeError`/`React error` |
+
+Không điểm danh trong lượt này (không dùng thêm vòng). Bằng chứng: `def-mob-12c/12c2-a-cold.txt`, `12c2-b-warm.txt`, `cdp12c2.mjs`, `DEF-MOB-12c-home.png`, `DEF-MOB-12c-checkin.png`. AVD đã xoá.

@@ -1,0 +1,24 @@
+== /login x10 (cache nong)
+lan 1: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 2: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 3: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 4: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 5: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 6: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 7: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 8: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 9: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 10: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+TONG {"n":10,"e418":0,"jserr":0,"nofetch":0,"noform":0}
+== /checkin x10 (cache nong)
+lan 1: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 2: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 3: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 4: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 5: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 6: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 7: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 8: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 9: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+lan 10: #418=0 js(Reference/Type/Syntax)=0 api=[/auth/refresh] {"path":"/login","inputs":2,"glob":"object"}
+TONG {"n":10,"e418":0,"jserr":0,"nofetch":0,"noform":0}
