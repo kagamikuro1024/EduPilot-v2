@@ -1,0 +1,45 @@
+1:/Horizontal scroll bar, 1 page
+9:CancelBarItemButton/Close
+9:start-page/Start Page
+9:bookmarks/Bookmarks
+9:reading-list/Reading List
+9:history/History
+1:/Vertical scroll bar, 2 pages
+1:/Horizontal scroll bar, 1 page
+43:square.grid.3x3.fill/Square grid 3x3, filled
+43:book/bookmark
+43:eyeglasses/reading list
+43:clock/clock
+49:URL/Address
+9:ClearTextButton/Clear text
+9:VoiceSearchButton/Voice Search
+24:Toolbar/Toolbar
+48:/Bookmarks
+9:BookmarksMoreMenuButton/More
+1:/Đăng nhập · EduPilot
+1:/main
+1:/alert
+42:/EduPilot — trang giới thiệu
+1:/application status
+1:/form
+42:/Quên mật khẩu?
+42:/Chưa có tài khoản? Đăng ký
+75:/Recently Saved 
+75:/Folders
+75:BookmarksSidebarTableFolderCellView/Favorites, 5
+75:/Tab Group Favorites
+75:/Bookmarks
+75:BookmarksSidebarTableCellView?isCompact=true/Điểm danh · EduPilot
+75:BookmarksSidebarTableCellView?isCompact=true/iPhone User Guide
+1:/Vertical scroll bar, 1 page
+1:/Horizontal scroll bar, 1 page
+42:/EduPilot — trang giới thiệu
+1:/Đăng nhập EduPilot
+1:/Email
+49:/Email
+1:/Mật khẩu
+50:/Mật khẩu
+40:/Hiện mật khẩu
+9:/Đăng nhập
+48:/Quên mật khẩu?
+48:/Chưa có tài khoản? Đăng ký

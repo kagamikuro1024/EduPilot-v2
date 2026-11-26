@@ -1,0 +1,6 @@
+wid=01a2181f-1e2e-71a1-9e6f-c21750d4ccdb
+a@201ms: không có alert
+b@24807ms: không có alert
+không thấy ô email để đăng nhập
+sau đăng nhập, thấy nhãn: (không)
+c@96934ms: không có alert

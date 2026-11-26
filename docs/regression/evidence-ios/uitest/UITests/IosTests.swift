@@ -778,4 +778,139 @@ final class IosTests: XCTestCase {
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.12)).tap(); sleep(1)   // bỏ focus nếu ô mã đang giữ bàn phím
         savePng(shotName() + "-nokbd")
     }
+
+    // ---- DEF-MOB-13: đọc location + sessionStorage["ep.checkin"] trên Safari thật bằng bookmarklet «ep-probe» trong Favorites ----
+    func probe(_ tag: String, _ t0: Date, _ log: inout [String]) {
+        let ms = Int(Date().timeIntervalSince(t0) * 1000)
+        func any(_ pred: String) -> XCUIElement { safari.descendants(matching: .any).matching(NSPredicate(format: pred)).firstMatch }
+        let addr = safari.textFields.matching(identifier: "TabBarItemTitle").firstMatch
+        guard addr.waitForExistence(timeout: 6) else { savePng(shotName() + "-" + tag + "-noaddr"); log.append("\(tag)@\(ms)ms: không thấy ô Address"); return }
+        addr.tap()
+        let cont = safari.buttons["Continue"]; if cont.waitForExistence(timeout: 2) { cont.tap(); sleep(1) }
+        let bm = safari.buttons.matching(identifier: "bookmarks").firstMatch
+        if bm.waitForExistence(timeout: 4) { bm.tap(); sleep(1) }
+        let tile0 = any("label CONTAINS 'ep-probe'")
+        if !tile0.waitForExistence(timeout: 1) {
+            let fav = any("label BEGINSWITH 'Favorites'")
+            if fav.waitForExistence(timeout: 4) { fav.tap(); sleep(1) }
+        }
+        let tile = any("label CONTAINS 'ep-probe'")
+        guard tile.waitForExistence(timeout: 5) else { savePng(shotName() + "-" + tag + "-nofav"); log.append("\(tag)@\(ms)ms: không thấy ep-probe trong Favorites"); return }
+        tile.tap()
+        let line = safari.staticTexts.matching(NSPredicate(format: "label CONTAINS 'ep.checkin'")).firstMatch
+        if line.waitForExistence(timeout: 8) {
+            let ms2 = Int(Date().timeIntervalSince(t0) * 1000)
+            log.append("\(tag)@\(ms2)ms (bấm lúc \(ms)ms): \(line.label)"); savePng(shotName() + "-" + tag)
+            let close = safari.buttons.matching(NSPredicate(format: "label == 'Close' OR label == 'OK'")).firstMatch
+            if close.waitForExistence(timeout: 3) { close.tap() } else { log.append("\(tag): không thấy nút Close") }
+            sleep(1)
+        } else { savePng(shotName() + "-" + tag + "-noalert"); log.append("\(tag)@\(ms)ms: không có alert") }
+    }
+    /// SV bị thu hồi phiên (cookie còn, 401 SESSION_REVOKED): mở QR → (a) ngay sau mở, (b) ở /login, (c) sau đăng nhập. Env SID, CID, EMAIL, PW.
+    func testProbeRevoked() {
+        let env = ProcessInfo.processInfo.environment
+        let tok = teacherToken()
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        let (wid, url) = openRound(tok, sid: env["SID"] ?? "")
+        var log: [String] = []
+        let t0 = Date()
+        guard openLink(url, "liên kết QR") else { return }
+        probe("a", t0, &log)
+        sleep(2); probe("b", t0, &log)
+        let email = web.textFields.firstMatch
+        if email.waitForExistence(timeout: 10) {
+            email.tap(); email.typeText(env["EMAIL"] ?? "")
+            let next = safari.buttons["Next"]; if next.waitForExistence(timeout: 6) { next.tap() }
+            safari.typeText((env["PW"] ?? "") + "\n")
+        } else { log.append("không thấy ô email để đăng nhập") }
+        var seen = ""
+        let tEnd = Date().addingTimeInterval(40)
+        while Date() < tEnd && seen.isEmpty {
+            for k in ["Mã điểm danh", "Đã điểm danh", "Mã đã hết hạn"] where web.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", k)).firstMatch.exists { seen = k; break }
+            usleep(100_000)
+        }
+        log.append("sau đăng nhập, thấy nhãn: \(seen.isEmpty ? "(không)" : seen)")
+        probe("c", t0, &log)
+        let out = "wid=\(wid)\n" + log.joined(separator: "\n")
+        try? out.write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(out); closeRound(tok, wid: wid)
+    }
+
+    func testProbeExplore() {
+        safari.activate(); sleep(2)
+        let addr = safari.textFields.matching(identifier: "TabBarItemTitle").firstMatch
+        XCTAssertTrue(addr.waitForExistence(timeout: 8)); addr.tap(); sleep(2)
+        let cont = safari.buttons["Continue"]; if cont.waitForExistence(timeout: 3) { cont.tap(); sleep(2) }
+        savePng(shotName() + "-1")
+        func names() -> String { safari.descendants(matching: .any).allElementsBoundByIndex.prefix(120).map { "\($0.elementType.rawValue):\($0.identifier)/\($0.label)" }.filter { !$0.hasSuffix("/") }.joined(separator: "\n") }
+        try? names().write(toFile: evidDir() + "/" + shotName() + "-1.txt", atomically: true, encoding: .utf8)
+        let bm = safari.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@ OR identifier CONTAINS[c] %@", "Bookmarks", "Bookmarks")).firstMatch
+        if bm.waitForExistence(timeout: 4) { bm.tap(); sleep(2) }
+        savePng(shotName() + "-2")
+        try? names().write(toFile: evidDir() + "/" + shotName() + "-2.txt", atomically: true, encoding: .utf8)
+    }
+
+    /// DEF-MOB-13: lặp N lần: (1) SV đăng nhập trong Safari (cookie còn), (2) thu hồi phiên từ phiên API khác, (3) mở link QR mới, (4) đăng nhập, kỳ vọng «Đã điểm danh». Env SID, CID, EMAIL, PW, N.
+    func testSes12Rev() {
+        let env = ProcessInfo.processInfo.environment
+        let base = env["BASE"] ?? "https://v2202609419695521098.happysrv.de"
+        let n = Int(env["N"] ?? "3") ?? 3
+        let tok = teacherToken()
+        safari.activate(); sleep(2)
+        let web = safari.webViews.firstMatch; _ = web.waitForExistence(timeout: 20)
+        var lines: [String] = []
+        func typeLogin() -> Bool {
+            for _ in 0..<6 {
+                if web.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Chào'")).firstMatch.exists { return true }   // đã đăng nhập sẵn
+                let email = web.textFields.firstMatch
+                guard email.waitForExistence(timeout: 10) else { sleep(2); continue }
+                sleep(2)   // chờ React gắn xong, tránh phần tử bị dựng lại giữa lúc tìm và chạm
+                if !email.exists { continue }   // trang vừa chuyển (đã có phiên → /): vòng sau kiểm tra «Chào»
+                let f = email.frame
+                if f.isEmpty { continue }
+                safari.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0)).withOffset(CGVector(dx: f.midX, dy: f.midY)).tap()
+                guard safari.keyboards.firstMatch.waitForExistence(timeout: 4) else { sleep(1); continue }
+                safari.typeText(env["EMAIL"] ?? "")
+                let next = safari.buttons["Next"]; if next.waitForExistence(timeout: 6) { next.tap() }
+                safari.typeText((env["PW"] ?? "") + "\n")
+                return true
+            }
+            return false
+        }
+        for i in 1...n {
+            // (1) đăng nhập để có cookie làm mới
+            guard openLink(base + "/login", "trang đăng nhập") else { return }
+            if typeLogin() {
+                let nn = safari.buttons["Not Now"]; if nn.waitForExistence(timeout: 5) { nn.tap() }
+                XCTAssertGreaterThanOrEqual(waitLabel(web, prefix: "Chào", timeout: 25), 0, "lần \(i): không vào được «Hôm nay» sau đăng nhập")
+            }
+            sleep(3)   // trang đã tải xong, rồi mới thu hồi
+            // (2) thu hồi từ phiên API khác
+            let (_, lj) = apiCall("POST", "/auth/login", body: ["email": env["EMAIL"] ?? "", "password": env["PW"] ?? ""])
+            let st = (lj["access_token"] as? String) ?? ""
+            XCTAssertFalse(st.isEmpty, "lần \(i): đăng nhập API của SV thất bại (429?)")
+            let (rc, _) = apiCall("DELETE", "/me/sessions", tok: st)
+            // (3) vòng mới + link QR mới
+            let sidList = (env["SIDS"] ?? env["SID"] ?? "").split(separator: ",").map(String.init)
+            let (wid, url) = openRound(tok, sid: sidList[min(i - 1, sidList.count - 1)])
+            let t0 = Date(); func el() -> Int { Int(Date().timeIntervalSince(t0) * 1000) }
+            guard openLink(url, "liên kết QR") else { return }
+            let form = web.textFields.firstMatch.waitForExistence(timeout: 20)
+            let formMs = el()
+            let banner = web.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Bạn đã bị đăng xuất'")).firstMatch.exists
+            // (4) đăng nhập
+            let typed = typeLogin(); let subMs = el()
+            var seen = ""
+            while el() < 70_000 && seen.isEmpty {
+                for k in ["Đã điểm danh", "Mã đã hết hạn", "Mã điểm danh"] where web.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", k)).firstMatch.exists { seen = k; break }
+                usleep(100_000)
+            }
+            savePng(shotName() + "-\(i)")
+            lines.append("lần \(i): wid=\(wid) revoke=\(rc) form=\(form)@\(formMs)ms banner=\(banner) nhập=\(typed)@\(subMs)ms → «\(seen.isEmpty ? "(không nhãn)" : seen)»@\(el())ms")
+            closeRound(tok, wid: wid)
+        }
+        try? lines.joined(separator: "\n").write(toFile: evidDir() + "/" + shotName() + "-log.txt", atomically: true, encoding: .utf8)
+        print(lines.joined(separator: "\n"))
+    }
 }

@@ -12,6 +12,11 @@ export TEST_RUNNER_SHOT="${SHOT:-shot}"
 export TEST_RUNNER_KBD_FORM="${KBD_FORM:-}"
 export TEST_RUNNER_PWA_CODE="${PWA_CODE:-}"
 TT="$(python3 "$HERE/tok.py" 2>/dev/null)"; [ -n "$TT" ] && export TEST_RUNNER_TTOK="$TT"
-xcodebuild test -project Qc2Ios.xcodeproj -scheme Qc2UITests -destination "id=$U" \
-  -only-testing:"Qc2UITests/IosTests/$1" -derivedDataPath ~/.config/edupilot-team/qc3-work/dd-ios \
-  2>&1 | grep -E "error:|Test Case|SUCCEEDED|FAILED|XCTAssert" | cut -c1-300
+XR=$(ls ~/.config/edupilot-team/qc3-work/dd-ios/Build/Products/*.xctestrun 2>/dev/null | head -1)
+if [ -z "${BUILD:-}" ] && [ -n "$XR" ]; then   # nhẹ bộ nhớ: không biên dịch lại (đổi mã Swift thì chạy BUILD=1 một lần: xcodebuild build-for-testing)
+  xcodebuild test-without-building -xctestrun "$XR" -destination "id=$U" -only-testing:"Qc2UITests/IosTests/$1" 2>&1 | grep -E "error:|Test Case|SUCCEEDED|FAILED|XCTAssert" | cut -c1-300
+else
+  xcodebuild test -project Qc2Ios.xcodeproj -scheme Qc2UITests -destination "id=$U" \
+    -only-testing:"Qc2UITests/IosTests/$1" -derivedDataPath ~/.config/edupilot-team/qc3-work/dd-ios \
+    2>&1 | grep -E "error:|Test Case|SUCCEEDED|FAILED|XCTAssert" | cut -c1-300
+fi

@@ -6,7 +6,7 @@ BASE = os.environ.get("BASE", "https://v2202609419695521098.happysrv.de") + "/ap
 def cached():
     try:
         d = json.load(open(C))
-        if d["exp"] - time.time() > 120: return d["tok"]
+        if d["exp"] - time.time() > int(os.environ.get("TOK_MIN", "120")): return d["tok"]
     except Exception: pass
 def login():
     pw = open(os.path.expanduser("~/.config/edupilot-team/secrets/vps-seed.txt")).read().strip()

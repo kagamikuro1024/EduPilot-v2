@@ -1,0 +1,54 @@
+9:/Emoji
+9:dictation/Dictate
+1:/Horizontal scroll bar, 1 page
+9:CancelBarItemButton/Close
+20:/Padding-Left
+20:/Padding-Right
+20:/Padding-Left
+20:/Padding-Right
+20:/Padding-Left
+20:/Padding-Right
+20:/q
+20:/w
+20:/e
+20:/r
+20:/t
+20:/y
+20:/u
+20:/i
+20:/o
+20:/p
+20:/a
+20:/s
+20:/d
+20:/f
+20:/g
+20:/h
+20:/j
+20:/k
+20:/l
+9:shift/shift
+20:/z
+20:/x
+20:/c
+20:/v
+20:/b
+20:/n
+20:/m
+20:delete/delete
+20:more/numbers
+20:space/space
+20:/.
+9:Go/go
+9:start-page/Start Page
+9:bookmarks/Bookmarks
+9:reading-list/Reading List
+9:history/History
+1:/Vertical scroll bar, 2 pages
+1:/Horizontal scroll bar, 1 page
+43:square.grid.3x3.fill/Square grid 3x3, filled
+43:book/bookmark
+43:eyeglasses/reading list
+43:clock/clock
+49:URL/Address
+9:ClearTextButton/Clear text

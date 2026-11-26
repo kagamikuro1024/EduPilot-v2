@@ -1,0 +1,3 @@
+lần 1: wid=01a21829-ff21-70fd-b4c6-a656712cf402 revoke=200 form=true@1168ms banner=true nhập=true@10198ms → «Đã điểm danh»@12491ms
+lần 2: wid=01a2182a-584a-72fa-9a5c-c8b7b5ddf64c revoke=200 form=true@1506ms banner=true nhập=true@10217ms → «Đã điểm danh»@12456ms
+lần 3: wid=01a2182a-af8c-7248-9dd6-83f3c75289cb revoke=200 form=true@1486ms banner=true nhập=true@10192ms → «Đã điểm danh»@12408ms

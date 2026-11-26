@@ -696,7 +696,7 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-SEC-17 | P | SV đăng nhập mở liên kết QR cũ (vòng còn mở, token đã xoay > 45 s): chỉ «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; DB 0 lượt cho vòng đó | shots/SEC-17b.png |
 | TC-MOB-PRF-08 | P | `system.open` liên kết QR → «Đã điểm danh» ×5 (mỗi lần vòng mới, trang về «Hôm nay» giữa các lần): **trung vị 652 ms, lớn nhất 1 624 ms** (lần chạy đầu, máy nguội: 730 / 3 347 ms); DB 5/5 lượt | shots/PRF-08b-log.txt, shots/PRF-08-log.txt |
 | TC-MOB-NAV-07 | P | «Hôm nay» → liên kết QR → «Đã điểm danh» → **nút Back của Safari** (cử chỉ vuốt cạnh trái không bơm được bằng XCUITest): về trang trước («Mã điểm danh» của lượt xem trước), không lượt hai (DB 1 lượt), không «Mã đã hết hạn»/lỗi cũ | shots/NAV-07c-log.txt |
-| TC-MOB-SES-12 | F | iOS 27.2 Safari (Simulator), SV chưa đăng nhập mở liên kết QR (`simctl openurl` và `system.open`): chuyển `/login?...&revoked=...`; đăng nhập (7 s và 21 s) → vào `/checkin` **ô nhập mã trống**, **không** tự điểm danh, DB 0 lượt (5/5 lần). Android SES-11 / US-AS-09 AC2 đòi tự gửi một lần. Playwright WebKit (ngữ cảnh mới, kể cả đã đăng nhập rồi bị thu hồi phiên) **đúng**: stash có, đăng nhập → «Đã điểm danh», 1 POST ⇒ lỗi riêng của Safari thật; hành vi Back không lặp `/login` (vế SES-12 đạt) | shots/SES-12b-*.png, SES-12d-log.txt, SES-12f-*.png |
+| TC-MOB-SES-12 | P (DEF-MOB-13 đã sửa, VPS `87cac77c`) | Nghiệm lại đúng nhánh PHIÊN BỊ THU HỒI trên Safari iOS 27.2 (Simulator): SV đăng nhập trong Safari (cookie còn) → thu hồi phiên từ phiên API khác (`DELETE /me/sessions` = 200) sau khi trang tải xong → mở link QR **mới** → về `/login?…revoked=revoked_by_user` (có biểu ngữ «Bạn đã bị đăng xuất…») → đăng nhập (nhập xong ở ~10 s) → **«Đã điểm danh»** sau ~12,4 s, DB đúng **1 lượt**. Chính sách lớp `rotate_seconds`=60: **3/3 lần**. Với `rotate_seconds`=10 (nguyên trạng): 2/3 «Đã điểm danh» (1 lượt DB mỗi vòng), lần 3 «Mã đã hết hạn» vì token chỉ sống 10–20 s và đăng nhập + chuyển trang mất ~12 s — đúng kỳ vọng thời hạn, không phải lỗi (DB 0 lượt cho vòng đó). Trước bản sửa (`0316ef2b`): 5/5 ô mã trống. Đọc bookmarklet «ep-probe» trước bản sửa: (a) và (b) đều ở `/login?next=%2Fcheckin%3Fc%3D…&revoked=revoked_by_user`, không `#hash`, `ep.checkin=co`; (c) chưa đọc được (hộp thoại alert của Safari không lộ cho XCUITest, chỉ chụp màn hình). Vế Back không lặp `/login` giữ nguyên | shots/SES-12-fix-log.txt, SES-12-fix60-log.txt, PROBE-rev2-a-noalert.png |
 | TC-MOB-SEC-02 | P | iOS Safari Simulator: `localStorage` chỉ có `ep_demo_state` (không token, không `ep.device`); IndexedDB đúng một CSDL `edupilot.device.v1/store keys` = một `CryptoKey`; `ep.checkin` chỉ ở `sessionStorage`, xoá khi dùng, hết hạn 60 s (`stash.ts`); khoá `extractable=false` | shots/sec02-localstorage.sqlite3, shots/sec02-indexeddb.sqlite3 |
 | TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
 | TC-MOB-SEC-18 | P | localStorage không có token (chỉ ep_demo_state/ep_returning); document.cookie không thấy ep_rt | — |
@@ -758,10 +758,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 104 | 1 | 3 |
+| qc3 iOS | 105 | 0 | 3 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (349 mã gốc − 51 trùng = 298)** | **237** | **1** | **60** |
+| **Hợp (349 mã gốc − 51 trùng = 298)** | **238** | **0** | **60** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -906,10 +906,14 @@ Còn lại của lô E (`PWA-06…12`, `14`, `15`, `17…21`) **N** trong phiên
 - `ATT-10` **P (một phần)**: `/attendance/display` mở được, có «Màn chiếu điểm danh» + nút «Về Điểm danh», không crash, không có nút «Thoát» dạng Esc trên điện thoại (`ATT-10.png`); **không** chứng minh được mã/QR vì cùng lý do `ROUND_LIMIT`.
 - `ATT-11` **P**: làm trên QCMOB1 (không đụng QCMOB2): ghim `geofence` 150 m + `campus_cidrs` 203.0.113.0/24, điểm danh bằng API với toạ độ cách 6 km → cờ `GEO_OUT`/`OFF_CAMPUS` + `geo_distance_m` 6016 + `in_campus` false cho staff; SV không thấy; đã **trả chính sách lớp về nguyên trạng** và đóng vòng. Ghi chú cũ: cần lượt `GEO_OUT`/`OFF_CAMPUS` của QCMOB2 — QCMOB2 đang có vòng mở do phiên khác tạo trong lúc tôi chạy nên **không đụng vào** để tránh phá lượt của họ.
 
+### 9.18 Nghiệm DEF-MOB-13 (SES-12) — VPS `87cac77c`, 26/11
+
+Hai bước một vòng, lặp 3 lần: đăng nhập `sv.gioi` trong Safari, thu hồi phiên bằng `DELETE /me/sessions` từ phiên API khác, mở link QR mới, đăng nhập. Kết quả: xem hàng `SES-12` ở trên (rotate 60 s: 3/3 «Đã điểm danh»; rotate 10 s: 2/3, lần còn lại hết hạn token do thời gian, DB 0 lượt). Dùng `sv.gioi` thay `sv.qc3` vì vòng điểm danh mở ở lớp QCMOB1 (sv.qc3 không thuộc lớp này). Chính sách lớp đã trả `rotate_seconds`=10 (DB xác nhận).
+
 ### 9.17 Lô tiếp (26/11, VPS `0316ef2b` → `9e457eb8` chỉ frontend; Simulator iOS 27.2 + Playwright WebKit/Chromium)
 
 - Giải pháp sinh dữ liệu: `POST /sessions/generate` tạo buổi 105–114 hôm nay trên QCMOB1 (mỗi buổi 3 vòng); chính sách lớp ghim `rotate_seconds` tạm 60 s cho SES-12 rồi **trả về 10 s** (DB xác nhận nguyên trạng). Khung test: token GV cấp một lần bởi `tok.py` (cache `.cache/` không commit), 429 chờ `Retry-After`, mọi URL qua `openLink` có guard — sự cố crash `Qc2UITests-Runner` 20:19 do `openRound` trả URL rỗng khi buổi 113 hết vòng (`ROUND_LIMIT`), **không phải lỗi app**; không ghi P/F từ lượt đó.
-- `SES-12` **F** (đề nghị mở `DEF-MOB-13`, PM đánh số): QR → đăng nhập trên Safari iOS không tự điểm danh; WebKit của Playwright thì đúng ⇒ khác biệt Safari/WebKit trên thiết bị, cần dev dò (stash `ep.checkin` có bị mất khi Safari phục hồi/chuyển trang?).
+- `SES-12` **P sau sửa** (`DEF-MOB-13`, nghiệm lại ở mục dưới; từng **F** ở `0316ef2b`): QR → đăng nhập trên Safari iOS không tự điểm danh; WebKit của Playwright thì đúng ⇒ khác biệt Safari/WebKit trên thiết bị, cần dev dò (stash `ep.checkin` có bị mất khi Safari phục hồi/chuyển trang?).
 - `NAV-07` dùng nút Back của Safari thay vuốt cạnh trái (XCUITest không bơm được cử chỉ cạnh).
 - `DEV-12` chuyển **P** (chạy trên Docker của VPS), `TGT-06` và `UIW-22` **P** (WebKit). Còn `LIF-09` (nền 5 phút), `FLW-10` (`sv.moi`), `SAF-09` (PWA đã mất phiên, phải đăng nhập lại trong PWA rồi vào `/checkin`): dừng vì guard mới — swap tăng +1,5 GB (3 600 → 5 155 MB) trong một lô có boot Simulator, free 29 %. Đo một phần SAF-09 trên PWA «Hôm nay»: đường kẻ thanh dưới ở 761 pt/852 pt ⇒ cao 91 pt = 56 + 34 + viền (chưa có ảnh dock).
 
