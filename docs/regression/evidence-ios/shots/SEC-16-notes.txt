@@ -1,0 +1,5 @@
+SEC-16 (VPS 0316ef2b, 26/11/2026):
+- attendance_checkins cols: id course_id session_id window_id student_id device_id channel assurance token_age_ms geo_distance_m geo_accuracy_m in_campus flags flags_cleared_by flags_cleared_at created_at  (không toạ độ, không IP, không tên máy)
+- user_devices.label: 109/109 dòng NULL
+- audit_log before/after khớp regex toạ độ/IP: 0
+- gateway log 24 h (9154 dòng): public_key 0, signature 0, "token" 0, latitude|longitude|lat|lng 0; duy nhất 1 dòng chứa dạng IP = cấu hình trusted_proxy_cidrs (CIDR, không phải IP client)

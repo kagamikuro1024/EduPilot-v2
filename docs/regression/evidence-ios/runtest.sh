@@ -11,6 +11,7 @@ export TEST_RUNNER_EMAIL="$EMAIL" TEST_RUNNER_PW="$PW" TEST_RUNNER_EVID="$HERE/s
 export TEST_RUNNER_SHOT="${SHOT:-shot}"
 export TEST_RUNNER_KBD_FORM="${KBD_FORM:-}"
 export TEST_RUNNER_PWA_CODE="${PWA_CODE:-}"
+TT="$(python3 "$HERE/tok.py" 2>/dev/null)"; [ -n "$TT" ] && export TEST_RUNNER_TTOK="$TT"
 xcodebuild test -project Qc2Ios.xcodeproj -scheme Qc2UITests -destination "id=$U" \
   -only-testing:"Qc2UITests/IosTests/$1" -derivedDataPath ~/.config/edupilot-team/qc3-work/dd-ios \
   2>&1 | grep -E "error:|Test Case|SUCCEEDED|FAILED|XCTAssert" | cut -c1-300

@@ -1,0 +1,3 @@
+wid=01a21806-6877-77ef-8139-eaa7349784b2 done_ms=2002
+BEFORE: Bỏ qua điều hướng | Có 9 thông báo mới | Đã điểm danh | 20:23 | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh
+AFTER: Bỏ qua điều hướng | Có 9 thông báo mới | Hôm nay | Chat riêng | Hỏi đáp | Luyện đề | Điểm danh | Mã điểm danh | Lớp QCMOB1

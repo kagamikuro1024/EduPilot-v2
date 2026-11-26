@@ -1,0 +1,7 @@
+[
+ {
+  "tc": "TC-MOB-PWA-22",
+  "kq": "P",
+  "note": "WebKit iPhone 15: persist() gọi 1 lần (CSDL: edupilot.device.v1, bản ghi khoá: 1) sau khi tạo khoá + điểm danh; màn: «Điểm danh Đã điểm danh 19:50 »"
+ }
+]
