@@ -35,4 +35,5 @@
 2. (đã xong) PR #17 merge 26/11, CI xanh trên `9e457eb8`.
 3. Bìa, cảm ơn, cam đoan; thân bài 88 tr < 110 (muốn dài thêm thì chỉ mục).
 4. H4.7 (tuỳ chọn); đổi khoá OpenCode Go khi xong; xoá/giữ 3 thư mục `backup/wt-*`; khoá ký APK release (INS-01/02).
-5. VPS (đã xong, chỉ để biết): chạy `9e457eb8` (= main 57752408); giới hạn đăng nhập ĐÃ TRẢ về mặc định 10 / 300 / 30 (kiểm: 10 lượt sai → 401, lượt 11 → 429). Dữ liệu QC còn lại: lớp QCMOB1 có thêm buổi 104 (đã có điểm danh, không xoá được).
+5. VPS (đã xong, chỉ để biết): chạy `87cac77c` (= main dfa5aafc, PR #19); giới hạn đăng nhập ĐÃ TRẢ về mặc định 10 / 300 / 30 (kiểm: 10 lượt sai → 401, lượt 11 → 429). Dữ liệu QC còn lại: lớp QCMOB1 có thêm các buổi 104–118 (đã có điểm danh, không xoá được).
+6. **Tài khoản demo `sv.gioi`, `sv.kha`**: một script QC 25/11 đã cho hai SV này vào 10 lớp QC; 26/11 đã gỡ (9 lớp qua `DELETE /members`; QCMOB4 đã lưu trữ nên PM duyệt sửa tay 2 hàng `enrollments`, ghi trong `tc-mobile-run-qc.md`). Nay chỉ còn lớp demo 761987 (+ 761988 cho `sv.gioi`). Lượt điểm danh trong lớp QC vẫn nằm trong DB. Trong lúc nghiệm, phiên `sv.gioi` bị đăng xuất mọi thiết bị vài lần — nếu anh đang đăng nhập `sv.gioi` thì đăng nhập lại.

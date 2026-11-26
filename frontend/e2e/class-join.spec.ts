@@ -159,6 +159,27 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
   expect(courseCalls).toEqual([]);
 });
 
+// DEF-MOB-14 (qc3 FLW-10): tài khoản THẬT, đã đăng nhập, 0 lớp thấy băng «Bản mô phỏng · dữ liệu giả» (nói sai với người dùng thật). Băng chỉ thuộc bản mô phỏng.
+test("no course: phiên thật 0 lớp không có băng mô phỏng, có «Bạn chưa vào lớp nào»", async ({ page }) => {
+  await login(page, "STUDENT", []);
+  await page.setViewportSize({ width: 390, height: 800 });
+  for (const route of ["/chat", "/"]) {
+    await page.goto(route);
+    await expect(page.getByRole("button", { name: /^Chọn lớp, đang xem Chưa có lớp/ }), route).toBeVisible();
+    if (route === "/chat") await expect(page.getByRole("heading", { name: "Bạn chưa vào lớp nào" })).toBeVisible();
+    await expect(page.getByText("Bản mô phỏng · dữ liệu giả"), route).toHaveCount(0);
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByText("Bản mô phỏng · dữ liệu giả")).toHaveCount(0);
+});
+
+test("no course: giảng viên thật 0 lớp cũng không có băng mô phỏng", async ({ page }) => {
+  await login(page, "TEACHER", []);
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: /^Chọn lớp, đang xem Chưa có lớp/ })).toBeVisible();
+  await expect(page.getByText("Bản mô phỏng · dữ liệu giả")).toHaveCount(0);
+});
+
 test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp", async ({ page }) => {
   const courseCalls = await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
   await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)

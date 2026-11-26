@@ -624,7 +624,7 @@ test("route access: số mục nav 10 / 13 / 16 / 7 theo vai; canOpen không đ�
 });
 
 // BUG-S9-01 (proposals sprint 9 #12): nhãn bản mô phỏng chỉ thuộc về bản D51, không được hiện ở màn thật.
-test("demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng · dữ liệu giả'; phiên không có lớp thật vẫn có", async ({ page, context, browser }) => {
+test("demo label: phiên thật (có hoặc 0 lớp) không có nhãn 'Bản mô phỏng · dữ liệu giả'", async ({ page, context, browser }) => {
   mockOnly();
   const label = "Bản mô phỏng · dữ liệu giả";
   await asDemo(context, "teacher");
@@ -635,12 +635,13 @@ test("demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng ·
   await size(page, 390);
   await expect(page.getByText(label)).toHaveCount(0);
 
-  // sv-4 chưa vào lớp nào ⇒ không có lớp thật ⇒ bản mô phỏng
+  // sv-4 chưa vào lớp nào: vẫn là phiên THẬT (danh sách lớp rỗng) ⇒ không phải bản mô phỏng (DEF-MOB-14, P-11-150)
   const demoCtx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const demoPage = await demoCtx.newPage();
   await asDemo(demoCtx, "student", { person: "sv-4" });
   await demoPage.goto("/");
-  await expect(demoPage.getByText(label).first()).toBeVisible();
+  await expect(demoPage.getByRole("button", { name: /^Chọn lớp, đang xem Chưa có lớp/ })).toBeVisible();
+  await expect(demoPage.getByText(label)).toHaveCount(0);
   await demoCtx.close();
 });
 
