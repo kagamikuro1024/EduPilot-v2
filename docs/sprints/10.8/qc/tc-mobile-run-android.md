@@ -583,3 +583,19 @@ AVD `-no-audio`, TalkBack bật lúc đo rồi tắt, đọc qua DOM + đếm TT
 - Ghi chú đo: `uiautomator events/dump` làm TalkBack tạm tắt (UiAutomation), nên không dùng được để đếm TTS cùng lúc; events chỉ ghi `TYPE_WINDOWS_CHANGED`.
 
 Evidence: `and34/a11_re08c.log`, `a11_diag.log`, `a11_re08d.log`, `a11_re08e.log/.json`, `a11dump/d1.xml`, `d2.xml`, `shots/A11-08-re2.png`. Tổng `results.jsonl`: 141 TC = 116 P, 1 F, 24 N.
+
+## 49. A11-08 — VPS 1021a702 (DEF-MOB-15c): có NỘI DUNG từng lượt đọc, **vẫn F** (6 lượt/10 s)
+
+Cách đo: AVD `-no-audio`; TalkBack > Advanced > Developer settings > **Log output level = VERBOSE** (+ «Display speech output»); đọc logcat tag `talkback`, dòng `TalkBackFeedbackProvider … ttsOutput=`. Gõ mã khi TalkBack tắt, **tắt/bật TalkBack** xoá hàng đợi TTS, chờ 10 s + 6 s im lặng (0 lượt trước khi bấm), 429 gây bằng API.
+
+| Thời điểm sau khi bấm | Nội dung đọc | Ghi chú |
+|---|---|---|
+| +0,2 s / +0,3 s | «Actions available, use Tap with 3 fingers to view» ×2 | gợi ý khi focus đổi sang phần tử có hành động |
+| +0,3 s | «Đang gửi. status» ×2 | trùng, cách ~70 ms |
+| +1,4 s / +1,5 s | «Thử lại sau 23 giây. status» ×2 | trùng |
+| +1,5 → +24,3 s | *(im lặng, 0 lượt)* | **không còn đọc mỗi giây** |
+| +24,3 s | «Thử lại. status» | hết giờ, 1 lượt |
+
+**10 s đầu = 6 lượt (tiêu chí ≤ 2 không đạt).** Nguyên nhân còn lại: (1) mỗi thông báo `role=status` bị phát **hai lần** (`windowContentChanged`, `nodeLiveRegion=1`, ~70 ms); (2) focus vẫn nhảy sang phần tử có hành động ngay sau khi bấm (gợi ý «Actions available…» ×2) — giữ focus (DEF-MOB-15c) chưa đạt.
+
+Evidence: `and34/a11_final.py`, `a11_final_rows.json`, `a11_final_talkback_excerpt.log`, `a11_final_logcat_raw.log.gz`. Cài đặt TalkBack VERBOSE/«Display speech output» vẫn bật trên AVD. Tổng `results.jsonl`: 141 TC = 116 P, 1 F, 24 N.
