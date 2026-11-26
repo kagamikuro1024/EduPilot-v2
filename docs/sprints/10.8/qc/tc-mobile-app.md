@@ -700,21 +700,21 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-LIF-09 | P | Safari iPhone (sv.qc3): `/checkin` mở sẵn → ra nền (Home) **300 s** → quay lại: trang còn nguyên («Mã điểm danh», «Lớp QCMOB1»), không màn trắng/đen; mở vòng mới, nhập mã hiện tại → «Đã điểm danh 21:14»; DB đúng **1** lượt cho vòng đó (không lượt hai) | shots/LIF-09-*.png, LIF-09-log.txt |
 | TC-MOB-SAF-09 | P | PWA đã cài (sv.qc3, Màn hình chính) vào `/checkin` qua «Thêm → Điểm danh», đo ảnh 1178×2556 (3×): thanh dưới bắt đầu ở **761 pt** trên màn 852 pt ⇒ cao **91 pt = 56 + 34 (inset đáy) + viền 1**; dock «Điểm danh» có viền trên ở 700 pt, đáy nút ở 752 pt ⇒ khoảng cách tới thanh dưới **9 pt ≥ 0**, không chồng nhau; dock nằm ngay trên thanh dưới | shots/SAF-09-2.png |
 | TC-MOB-FLW-10 | P | `sv.qc-trong` (STUDENT, 0 lớp) mở `/checkin` trên Safari iOS: «Bạn chưa vào lớp nào» + nút «Tham gia lớp bằng mã»; **không** có ô nhập mã (không điều khiển nhập liệu nào), không lỗi. Quan sát (không đổi nhãn): có băng «Bản mô phỏng · dữ liệu giả» dưới thanh trên cho tài khoản 0 lớp | shots/FLW-10.png, FLW-10-frames.txt |
-| TC-MOB-INS-08 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SCN-11 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SCN-12 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-GEO-01 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-GEO-04 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-GEO-08 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-GEO-09 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-GEO-10 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
+| TC-MOB-INS-08 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SCN-11 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SCN-12 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-GEO-01 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-GEO-04 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-GEO-08 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-GEO-09 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-GEO-10 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
 | TC-MOB-GEO-11 | N | Simulator không cấp/từ chối vị trí lặp lại được (quyết định theo origin, không reset được) — cần máy thật | — |
 | TC-MOB-GEO-12 | N | cần log thiết bị (logcat) — iOS không có; vế gateway/DB/audit đã sạch ở SEC-16 | — |
-| TC-MOB-GEO-13 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-THM-08 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
+| TC-MOB-GEO-13 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-THM-08 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
 | TC-MOB-NAV-08 | N | PWA: điều hướng bằng thao tác tay — PM chấp nhận N «máy thật» | — |
-| TC-MOB-PRM-06 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-LIF-13 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
+| TC-MOB-PRM-06 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-LIF-13 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
 | TC-MOB-PWA-06 | N | PWA: cây phần tử web app không nhãn, chạm toạ độ không ăn — PM chấp nhận N «máy thật» (thao tác tay) | — |
 | TC-MOB-PWA-09 | N | PWA: cây phần tử web app không nhãn, chạm toạ độ không ăn — PM chấp nhận N «máy thật» (thao tác tay) | — |
 | TC-MOB-PWA-10 | N | PWA: cây phần tử web app không nhãn, chạm toạ độ không ăn — PM chấp nhận N «máy thật» (thao tác tay) | — |
@@ -728,37 +728,37 @@ Chạy bằng `ep-vps-test ~/Documents/TA_Agent_qc3 -- 'node docs/regression/evi
 | TC-MOB-PWA-19 | N | PWA: cây phần tử web app không nhãn, chạm toạ độ không ăn — PM chấp nhận N «máy thật» (thao tác tay) | — |
 | TC-MOB-PWA-20 | N | PWA: cây phần tử web app không nhãn, chạm toạ độ không ăn — PM chấp nhận N «máy thật» (thao tác tay) | — |
 | TC-MOB-PWA-21 | N | PWA: cây phần tử web app không nhãn, chạm toạ độ không ăn — PM chấp nhận N «máy thật» (thao tác tay) | — |
-| TC-MOB-PWA-23 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-A11-05 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-A11-06 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-A11-07 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-A11-08 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
+| TC-MOB-PWA-23 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-A11-05 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-A11-06 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-A11-07 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-A11-08 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
 | TC-MOB-A11-10 | N | VoiceOver: Simulator không bật được bằng XCUITest; cần máy thật hoặc thao tác tay | — |
 | TC-MOB-A11-11 | N | VoiceOver trong PWA: cùng lý do, cây phần tử web app không nhãn | — |
-| TC-MOB-A11-13 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-A11-15 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-03 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-04 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-05 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-06 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-08 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-09 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-10 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-11 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-13 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-14 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-SEC-15 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-DEV-01 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-DEV-02 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-DEV-04 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-DEV-05 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-DEV-07 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-DEV-08 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-PRF-01 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-PRF-02 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-PRF-03 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-PRF-05 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
-| TC-MOB-PRF-06 | N | Android-only (nền «A»), không áp dụng cho iOS; không có kết quả Android trong bộ QC đã gộp | — |
+| TC-MOB-A11-13 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-A11-15 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-03 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-04 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-05 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-06 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-08 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-09 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-10 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-11 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-13 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-14 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-SEC-15 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-DEV-01 | N | Theo qc2 (`tc-mobile-run-android.md`, «Chốt pha 2»): cần máy Android thật (bootloader khoá, TEE), chủ dự án không có máy thật (P-108-12) — chưa chạy được | — |
+| TC-MOB-DEV-02 | N | Theo qc2 (`tc-mobile-run-android.md`, «Chốt pha 2»): cần máy Android thật (bootloader khoá, TEE), chủ dự án không có máy thật (P-108-12) — chưa chạy được | — |
+| TC-MOB-DEV-04 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-DEV-05 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-DEV-07 | N | Theo qc2 (`tc-mobile-run-android.md`, «Chốt pha 2»): cần máy Android thật (bootloader khoá, TEE), chủ dự án không có máy thật (P-108-12) — chưa chạy được | — |
+| TC-MOB-DEV-08 | N | Theo qc2 (`tc-mobile-run-android.md`, «Chốt pha 2»): cần máy Android thật (bootloader khoá, TEE), chủ dự án không có máy thật (P-108-12) — chưa chạy được | — |
+| TC-MOB-PRF-01 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-PRF-02 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-PRF-03 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-PRF-05 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
+| TC-MOB-PRF-06 | CHỜ-QC2 | Android-only — chưa chạy, chờ qc2 (chưa có kết quả trong `tc-mobile-run-android.md`; không tính vào P/F/N) | — |
 | TC-MOB-ENT-22 | N | PWA: điều hướng bằng thao tác tay (cây phần tử web app không nhãn) — PM chấp nhận N «máy thật» | — |
 | TC-MOB-SEC-02 | P | iOS Safari Simulator: `localStorage` chỉ có `ep_demo_state` (không token, không `ep.device`); IndexedDB đúng một CSDL `edupilot.device.v1/store keys` = một `CryptoKey`; `ep.checkin` chỉ ở `sessionStorage`, xoá khi dùng, hết hạn 60 s (`stash.ts`); khoá `extractable=false` | shots/sec02-localstorage.sqlite3, shots/sec02-indexeddb.sqlite3 |
 | TC-MOB-SEC-07 | P | CSP không unsafe-eval; Permissions-Policy camera/geolocation (self); HSTS có; Referrer-Policy không đặt cho /checkin (chỉ trang liên kết một lần — ghi nhận, không phải lỗi theo AC5) | — |
@@ -821,10 +821,10 @@ Nguồn từng mã: qc3 iOS 77 mã (bảng §9.1–§9.7 + `tc-mobile-run-ios.md
 
 | Mã | P | F | N |
 |---|---|---|---|
-| qc3 iOS | 108 | 0 | 63 |
+| qc3 iOS | 108 | 0 | 26 |
 | qc2 Android | 57 | 0 | 11 |
 | qc pha 1 | 84 | 0 | 55 |
-| **Hợp (412 mã gốc − 52 trùng = 360)** | **241** | **0** | **119** |
+| **Hợp (375 mã gốc − 52 trùng = 323; chưa tính 37 mã «CHỜ-QC2»)** | **241** | **0** | **82** |
 | TC | 345 | | |
 
 0 F: `TC-MOB-ERR-06` đã **P** sau `09f2deb3` (§9.11). `TGT-02`/`ATT-02` đã **P** sau `8d2ec456` (qc đo lại 4 phép, min 8 px). qc chạy lại ERR-06 trên web `8d2ec456` vẫn **P** — khác biệt là nền tảng iOS Simulator; PM mở DEF-MOB-07 cho dev2 — cùng bằng chứng `/attendance` bề rộng 360 px, `.mHead` ↔ `.mPlus` cách 4 px (44×44 vẫn đạt). qc giữ mức **Thấp**.
@@ -982,8 +982,12 @@ Hai bước một vòng, lặp 3 lần: đăng nhập `sv.gioi` trong Safari, th
 
 ### 9.19 Đối chiếu 345 mã
 
-- 345 mã trong bảng định nghĩa: 285 đã có kết quả từ trước (231 P / 54 N), 60 mã chưa có hàng kết quả được ghi **N** ở trên: 41 mã Android-only (không áp dụng iOS), 19 mã nền iOS/PWA nhưng cần thao tác tay hoặc máy thật (PWA ×13, VoiceOver ×2, ENT-22, NAV-08, GEO-11, GEO-12).
-- 15 mã `CL-*` (10 P / 5 N) nằm trong bộ kết quả Android của qc2 nhưng **không** có trong bảng định nghĩa 345 mã — hợp theo mã tính chung nên tổng 300 = 285 + 15 trước khi ghi 60 N ở trên.
+- 345 mã trong bảng định nghĩa: 285 mã có kết quả từ trước (231 P / 54 N); 60 mã trước đây chưa có hàng được xử lý như sau:
+  - **19 mã nền iOS/PWA** ghi **N** (cần thao tác tay hoặc máy thật): PWA ×13 (PWA-06, 09–15, 17–21), VoiceOver ×2 (A11-10, A11-11), ENT-22, NAV-08, GEO-11, GEO-12.
+  - **4 mã Android** `DEV-01, 02, 07, 08` ghi **N** theo qc2 (`tc-mobile-run-android.md`, «Chốt pha 2»: cần máy Android thật, chủ dự án không có máy thật).
+  - **37 mã Android-only** ghi **CHỜ-QC2** («chưa chạy — chờ qc2»), **không** tính vào P/F/N: SEC ×11, A11 ×6, GEO ×6 (+GEO-01), PRF ×5, DEV ×2 (04, 05), SCN ×2 (11, 12), INS-08, LIF-13, PRM-06, PWA-23, THM-08. Ba mã `GEO-01`, `INS-08`, `SCN-11` chỉ xuất hiện trong qc2 ở danh sách «chưa chạy» / một câu mô tả, **không có hàng P/F/N** (đã đọc `tc-mobile-run-android.md` và `results.jsonl` @ `origin/qc2/regression`).
+- 15 mã `CL-*` (10 P / 5 N) có trong kết quả Android của qc2 nhưng không có trong bảng định nghĩa 345 mã.
+- Nhãn «không áp dụng iOS» **không** còn được tính là N của cả bộ.
 
 ## 10. Ghi chú
 - Chữ UI theo luật cứng PO (09/10/2026): ca KHÔNG đòi câu giải thích mới; chữ lỗi chỉ theo bảng US-AS-09 AC4/AC10 và US-AS-15 AC14.
