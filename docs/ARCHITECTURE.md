@@ -324,6 +324,8 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 | `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `CORS_ORIGINS` | Gateway Go |
 | `APP_ENCRYPTION_KEY` | AES-GCM |
 | `ACCESS_TOKEN_TTL` (15m), `REFRESH_TOKEN_TTL` (14d), `SESSION_ABSOLUTE_TTL` (30d), `COOKIE_DOMAIN` | Phiên đăng nhập |
+| `AUTH_COOKIE_SECURE` (mặc định `true`; chỉ `false` tắt) | Cookie `ep_rt` có thuộc tính `Secure`; `false` chỉ để chạy HTTP thuần trong LAN (README 5.6) |
+| `EP_LAN_SITE` (mặc định rỗng) | Caddy local: `http://<IP LAN>` bật khối HTTP thuần cho host đó (README 5.6) |
 | `SUPPORT_RESOURCES_VI` | Thông tin hỗ trợ sinh viên do trường cung cấp (F3) |
 | `OIDC_ENABLED`, `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | Đăng nhập bằng tài khoản trường, mặc định tắt (PR) |
 | `CLAMAV_URL`, `BACKUP_TARGET`, `ALERT_EMAIL` | Quét file, sao lưu, cảnh báo (PR) |

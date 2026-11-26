@@ -537,6 +537,27 @@ func TestDevTokenRejectedInProduction(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, r.api(s.access).code, "token phiên thật vẫn dùng được")
 }
 
+// AUTH_COOKIE_SECURE=false (HTTP thuần trong LAN): cookie ep_rt lúc đăng nhập, làm mới và xoá không Secure; phần còn lại giữ nguyên. Mặc định Secure đã có ở TestLoginSuccess.
+func TestCookieNotSecureWhenDisabled(t *testing.T) {
+	r := newSessRig(t, func(e map[string]string) { e["AUTH_COOKIE_SECURE"] = "false" })
+	email := uniq("lan")
+	r.user(email, store.UserRoleSTUDENT, store.UserStatusACTIVE)
+	s := r.mustLogin(email)
+	login, refreshed := r.login(email, rigPassword), r.refresh(s.rt)
+	for name, res := range map[string]resp{"login": login, "refresh": refreshed} {
+		c := res.cookie("ep_rt")
+		require.NotNil(t, c, name)
+		require.False(t, c.Secure, name)
+		require.True(t, c.HttpOnly, name)
+		require.Equal(t, http.SameSiteLaxMode, c.SameSite, name)
+	}
+	out := r.logout(sessionOf(t, refreshed).rt)
+	c := out.cookie("ep_rt")
+	require.NotNil(t, c)
+	require.EqualValues(t, -1, c.MaxAge)
+	require.False(t, c.Secure, "xoá cookie cùng thuộc tính")
+}
+
 func countRows(t *testing.T, r *sessRig, sql string, args ...any) int {
 	t.Helper()
 	var n int

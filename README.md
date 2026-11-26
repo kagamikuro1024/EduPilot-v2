@@ -293,6 +293,20 @@ done
 - Chế độ có tên ghi dữ liệu (`assignments grade|demo5|teams|v2`, `exam demo`): chạy một lần, rồi dựng lại stack. Danh sách chế độ ở dòng đầu mỗi tệp.
 - `check-p10-seed.mjs`: seed quan sát AI, lỗ hổng kiến thức (chủ đề D đúng 2 SV) và thống kê điểm thi. **Cần DB dựng lại từ trống**, vì seed lớp 1 đã đổi cách chia câu.
 
+### 5.6 Chạy cho điện thoại trong LAN
+Điện thoại vào qua HTTP thuần tại IP của Mac (ví dụ `192.168.41.4`). Đặt trước khi `pnpm dev` (build lại `frontend` vì `NEXT_PUBLIC_API_URL` nướng lúc dựng):
+```bash
+export LAN=http://192.168.41.4
+export APP_PUBLIC_URL=$LAN NEXT_PUBLIC_API_URL=$LAN CORS_ORIGINS=$LAN
+export AUTH_COOKIE_SECURE=false EP_LAN_SITE=$LAN                         # cookie ep_rt không Secure; Caddy phục vụ HTTP thuần cho host này
+export BLOB_PUBLIC_ENDPOINT=192.168.41.4 BLOB_PUBLIC_USE_SSL=false       # URL ký sẵn của kho tệp cũng là HTTP
+SEED_ON_EMPTY_DB=true COMPOSE_PROFILES=ingest pnpm dev
+```
+- Ứng dụng: `http://192.168.41.4/` · `readyz`: `http://192.168.41.4/api/v1/readyz`. `https://localhost` vẫn dùng được trên chính Mac.
+- `AUTH_COOKIE_SECURE` mặc định `true`; **chỉ** giá trị `false` mới tắt `Secure`. Không đặt `false` ở production.
+- `EP_LAN_SITE` rỗng = không có khối HTTP nào. Cổng 80 của Mac phải thông tới điện thoại (tường lửa macOS cho phép kết nối đến).
+- Camera và định vị của trình duyệt cần ngữ cảnh an toàn (HTTPS hoặc `localhost`): trên HTTP IP LAN, kiểm bằng APK.
+
 ### Prototype (sprint 1.5)
 Các màn chưa dựng thật (Threads, sổ điểm, chấm bài…) vẫn là bản mô phỏng của sprint 1.5 (`frontend/src/mock/`), được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
 

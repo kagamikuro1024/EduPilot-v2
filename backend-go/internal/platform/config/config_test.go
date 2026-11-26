@@ -265,6 +265,21 @@ func TestLoad_Defaults(t *testing.T) {
 	}
 }
 
+// AUTH_COOKIE_SECURE: mặc định cookie ep_rt Secure; chỉ đúng chữ "false" tắt (HTTP thuần trong LAN). Giá trị khác không làm yếu cookie.
+func TestLoad_CookieSecure(t *testing.T) {
+	t.Parallel()
+	for _, c := range []struct {
+		val      string
+		insecure bool
+	}{{"", false}, {"true", false}, {"false", true}, {"False", false}, {"0", false}, {"no", false}} {
+		env := full()
+		env["AUTH_COOKIE_SECURE"] = c.val
+		cfg, err := config.Load(getenv(env), config.Gateway)
+		require.NoError(t, err)
+		require.Equal(t, c.insecure, cfg.CookieInsecure, "AUTH_COOKIE_SECURE=%q", c.val)
+	}
+}
+
 func TestConfig_NoSecretInLog(t *testing.T) {
 	t.Parallel()
 	env := full()
