@@ -3,16 +3,21 @@
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/shared/data";
-import { GradeCalculation } from "@/shared/domain";
 import { Button, ButtonLink, type Column as TableColumn, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, type HeaderAction, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import {
   exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus, useSnapshots, type SchemeStatus,
   type Column, type GEntry, type GradebookPage, type GRow, type Incomplete,
 } from "./gradeApi";
-import { FinalizeDialog, SnapshotHistory, UnlockDialog, stamp } from "./FinalizeGrades";
-import { FormsImportDialog } from "./FormsImportDialog";
-import { ImportDialog } from "./ImportDialog";
+// Hộp thoại chỉ mở sau khi bấm ⇒ phân mảnh riêng, không nằm trong JS của lượt tải đầu (ngân sách script /gradebook, CI Lighthouse).
+import dynamic from "next/dynamic";
+const FinalizeDialog = dynamic(() => import("./FinalizeGrades").then((m) => m.FinalizeDialog), { ssr: false });
+const UnlockDialog = dynamic(() => import("./FinalizeGrades").then((m) => m.UnlockDialog), { ssr: false });
+const SnapshotHistory = dynamic(() => import("./FinalizeGrades").then((m) => m.SnapshotHistory), { ssr: false });
+const ImportDialog = dynamic(() => import("./ImportDialog").then((m) => m.ImportDialog), { ssr: false });
+const FormsImportDialog = dynamic(() => import("./FormsImportDialog").then((m) => m.FormsImportDialog), { ssr: false });
+// Bảng giải trình công thức chỉ mở trong ngăn kéo khi bấm một ô điểm: 15 KB gzip không được nằm trong lượt tải đầu (ngân sách script /gradebook).
+const GradeCalculation = dynamic(() => import("@/shared/domain").then((m) => m.GradeCalculation), { ssr: false });
 import f from "./FinalizeGrades.module.css";
 import s from "./Gradebook.module.css";
 import { formatWhen } from "@/shared/lib/datetime";
@@ -373,7 +378,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
           secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
           more={moreItems}
           meta={[
-            locked && <StatusText key="m0" tone="green">{`Đã chốt v${first?.state.snapshot_version}${snaps?.[0] ? ` · ${stamp(snaps[0].locked_at)}` : ""}`}</StatusText>,
+            locked && <StatusText key="m0" tone="green">{`Đã chốt v${first?.state.snapshot_version}${snaps?.[0] ? ` · ${formatWhen(snaps[0].locked_at)}` : ""}`}</StatusText>,
             missing.length > 0 && (
               <button key="m1" type="button" className={s.missLink} aria-pressed={onlyMissing} data-part="missing-filter" onClick={() => setOnlyMissing((v) => !v)}>
                 {`Thiếu điểm: ${missing.length} sinh viên`}
