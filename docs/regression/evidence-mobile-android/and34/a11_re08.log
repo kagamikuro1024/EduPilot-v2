@@ -1,0 +1,12 @@
+mem: free 47% | swap used 4289.50M (+-120M vs sau-boot)
+1 state entry
+2 state entry
+3 state entry
+4 state entry
+5 state entry
+6 state limited
+vung thong bao (toan bo, tu luc bat dau nhap sai): [{"ms": 133435, "k": "role=status", "nestedLive": false, "txt": "Đang gửi"}, {"ms": 155826, "k": "role=status", "nestedLive": false, "txt": "Thử lại sau 38 giây."}, {"ms": 193834, "k": "role=status", "nestedLive": false, "txt": "Thử lại"}]
+so lan doi vung thong bao: 3
+TTS + 18 theo giay: [(1, 1), (2, 3), (3, 4), (6, 5), (7, 6), (11, 7), (12, 8), (13, 9), (14, 10), (17, 11), (18, 12), (22, 13), (23, 14), (25, 16)]
+phan tu co chu «giay/Thu lai» doi noi dung (so lan): {"DIV.checkin.CheckinScreen-module__8i | Thử lại sau 38 giây.\n\nThử lạ": 4, "DIV..Layout-module__rM7QnW__p | Điểm danh\n\nThử lại sau 38 gi": 1, "SPAN..Button-module__lwrakq__r | Thử lại sau 37 giây.": 1, "P.limited. | Thử lại sau 37 giây.": 1, "SPAN..Button-module__lwrakq__r | Thử lại sau 36 giây.": 1, "P.limited. | Thử lại sau 36 giây.": 1, "SPAN..Button-module__lwrakq__r | Thử lại sau 35 giây.": 1, "P.limited. | Thử lại sau 35 giây.": 1, "SPAN..Button-module__lwrakq__r | Thử lại sau 34 giây.": 1, "P.limited. | Thử lại sau 34 giây.": 1, "SPAN..Button-module__lwrakq__r | Thử lại sau 33 giây.
+primary: [{"txt":"Điểm danh","aria":null,"desc":null,"dis":false}]

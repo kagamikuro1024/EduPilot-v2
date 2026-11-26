@@ -1,0 +1,12 @@
+mem: free 55% | swap used 4361.50M (+-48M vs sau-boot)
+A11-07 ma sai | TTS + 3 | thong bao: [{"ms": 2471, "k": "role=status", "nestedLive": false, "txt": "Đang gửi"}]
+DOM sau loi: {"alerts":[{"txt":"Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn ch","nestedLive":false}],"status":0,"live":["polite:bell-live"]}
+A11-06 ma dung | TTS + 2 | thong bao: [{"ms": 10298, "k": "role=status", "nestedLive": false, "txt": "Đang gửi"}, {"ms": 11035, "k": "role=status", "nestedLive": false, "txt": "Đã điểm danh 22:48"}]
+1 state entry
+2 state entry
+3 state entry
+4 state entry
+5 state limited
+A11-08 429 | TTS + 14 | thong bao: [{"ms": 63845, "k": "role=status", "nestedLive": false, "txt": "Thử lại"}]
+TTS theo giay: [(2, 1), (3, 2), (7, 3), (8, 5), (9, 6), (13, 7), (14, 8), (15, 9), (17, 10), (20, 12), (22, 13)]
+so lan doi noi dung vung thong bao: 1

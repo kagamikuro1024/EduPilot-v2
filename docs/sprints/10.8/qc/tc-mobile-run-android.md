@@ -557,3 +557,19 @@ APK mới `app-debug-vps-HEAD.apk` (sha256 `40cd4279…fca68`, đã kiểm), AVD
 | Đăng nhập → vuốt khỏi Recents sau 1 s → mở lại | **chưa chạy** — guard dừng |
 
 Guard: swap đã dùng +2 063 MB so với mốc sau-boot (ngưỡng 1,5 GB), free 58 % — đã `adb emu kill`. Evidence: `and34/persist.py`, `persist_new_home.json/.log`, `shots/DEF16-new-home-{1,2,3}.png`.
+
+## 47. Chốt DEF-MOB-16 + nghiệm lại DEF-MOB-15 (26/11)
+
+**DEF-MOB-16 (77cd8461) — ĐẠT.** Vuốt khỏi Recents: đăng nhập → 1 s → Recents → vuốt app (tiến trình chết) → mở lại: vào «Hôm nay» đã đăng nhập sau 2,3 s, `/auth/refresh` 200. Cùng 3/3 ở HOME + force-stop (§46). Đối chứng APK cũ bỏ theo PM (đã có 401 trước sửa). PRF-01: quan sát cookie `ep_rt` = **đã sửa**; đề nghị đóng DEF-MOB-16.
+
+**DEF-MOB-15 (VPS 96680658)**, AVD `-no-audio`, TalkBack chỉ bật lúc đo (đã tắt), đọc qua DOM + đếm TTS:
+
+| Mã | KQ | Bằng chứng |
+|---|---|---|
+| A11-06 | **P** | `role=status`: «Đang gửi» → «Đã điểm danh 22:48», TTS +2 |
+| A11-07 | **P** | `[role=alert]` chứa câu lỗi, không lồng `aria-live`; vùng live còn lại chỉ `bell-live` |
+| A11-08 | **F** | vùng thông báo đúng (đầu «Thử lại sau 38 giây.», cuối «Thử lại») **nhưng** TalkBack vẫn đọc +6 lượt/10 s, +16/36 s khi đếm ngược (nền 0; không gọi CDP trong lúc đếm); còn cập nhật chữ mỗi giây ở `<p data-part=limited>` và `<span>` lý do của nút khoá |
+
+Evidence: `and34/a11_re.json`, `a11_re08.json`, `a11_re*.log`, `a11_re08b.py`, `persist_new_swipe.json`, `shots/A11-0[678]-re.png`, `DEF16-new-swipe-1.png`.
+
+Tổng `results.jsonl`: 141 TC = 116 P, 1 F, 24 N.
